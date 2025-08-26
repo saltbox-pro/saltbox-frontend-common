@@ -3,7 +3,7 @@
 stages:
   - deploy
 
-.npm-deploy:
+npm-deploy:
   image:  node:22.18.0
   variables:
     GIT_STRATEGY: none
