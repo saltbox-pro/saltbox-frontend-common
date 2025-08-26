@@ -1,5 +1,5 @@
 {
-  "name": "saltbox-frontend-common",
+  "name": "@saltbox/saltbox-frontend-common",
   "version": "0.0.1",
   "description": "common components for saltbox frontends",
   "main": "index.js",
