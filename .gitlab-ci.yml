@@ -1,0 +1,18 @@
+---
+
+stages:
+  - deploy
+
+.npm-deploy:
+  image:  node:22.18.0
+  variables:
+    GIT_STRATEGY: none
+  stage: deploy
+  script:
+    - export VERSION=$(node -p "require('./package.json').version")
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}">.npmrc
+    - npm publish
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+    - if: $CI_COMMIT_TAG =~ /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-?/
