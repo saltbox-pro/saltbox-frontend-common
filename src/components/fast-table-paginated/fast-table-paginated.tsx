@@ -4,7 +4,6 @@ import {
   OnChangeFn,
   PaginationState,
   Row,
-  RowData,
   RowSelectionState,
   flexRender,
   getCoreRowModel,
@@ -15,12 +14,6 @@ import { toJS } from "mobx";
 import { Pagination, PaginationProps } from "antd";
 import "./fast-table-paginated.css";
 
-declare module "@tanstack/table-core" {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    thClassName?: string;
-    tdClassName?: string;
-  }
-}
 
 export type FastTablePaginatedProps<DataType> = {
   columns: Array<any>;
@@ -109,9 +102,9 @@ export function FastTablePaginated<DataType>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                   </th>
                 ))}
               </tr>

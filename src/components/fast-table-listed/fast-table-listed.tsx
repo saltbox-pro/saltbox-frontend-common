@@ -19,14 +19,6 @@ import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { DebouncedInput } from "../debounced-input/debounced-input";
 import "./fast-table-listed.css";
 
-declare module "@tanstack/table-core" {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    thClassName?: string;
-    tdClassName?: string;
-    filterVariant?: "text" | "range" | "select";
-  }
-}
-
 export type FastTableListedProps<DataType> = {
   columns: Array<any>;
   data: Array<DataType>;
