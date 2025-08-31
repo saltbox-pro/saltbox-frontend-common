@@ -1,0 +1,2 @@
+export * from "./components/fast-table-listed/fast-table-listed";
+export * from "./components/fast-table-paginated/fast-table-paginated";

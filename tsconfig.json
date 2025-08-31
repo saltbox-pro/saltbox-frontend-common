@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": [
+      "es2022",
+      "dom"
+    ],
+    "jsx": "react-jsx",
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

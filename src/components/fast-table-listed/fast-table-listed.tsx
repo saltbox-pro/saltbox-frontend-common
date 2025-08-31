@@ -5,7 +5,6 @@ import {
   ColumnFiltersState,
   OnChangeFn,
   Row,
-  RowData,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -84,7 +83,7 @@ export function FastTableListed<DataType>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={header.column.columnDef.meta?.thClassName}
+                    className={(header.column.columnDef.meta as any)?.thClassName}
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -140,7 +139,7 @@ export function FastTableListed<DataType>({
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className={cell.column.columnDef.meta?.tdClassName}
+                      className={(cell.column.columnDef.meta as any)?.tdClassName}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -176,7 +175,7 @@ export function FastTableListed<DataType>({
 
 function Filter({ column }: { column: Column<any, unknown> }) {
   const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
+  const { filterVariant } = column.columnDef.meta as any ?? {};
 
   return filterVariant === "range" ? (
     <div>

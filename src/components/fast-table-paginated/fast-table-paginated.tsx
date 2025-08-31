@@ -97,7 +97,7 @@ export function FastTablePaginated<DataType>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={header.column.columnDef.meta?.thClassName}
+                    className={(header.column.columnDef.meta as any)?.thClassName}
                   >
                     {header.isPlaceholder
                       ? null
@@ -121,7 +121,7 @@ export function FastTablePaginated<DataType>({
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className={cell.column.columnDef.meta?.tdClassName}
+                    className={(cell.column.columnDef.meta as any)?.tdClassName}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
