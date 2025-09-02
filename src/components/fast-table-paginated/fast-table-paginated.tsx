@@ -73,12 +73,12 @@ export function FastTablePaginated<DataType>({
 
   useEffect(() => {
     const nextLocale: typeof locale = {
-      items_per_page: locale?.items_per_page ?? 'items',
-      jump_to: locale?.jump_to ?? 'Jump to:',
-      jump_to_confirm: locale?.jump_to_confirm ?? 'Jump to confirm:',
+      items_per_page: locale?.items_per_page ?? '/ page',
+      jump_to: locale?.jump_to ?? 'Go to:',
+      jump_to_confirm: locale?.jump_to_confirm ?? 'Go to confirm:',
       page: locale?.page ?? 'page',
-      prev_page: locale?.prev_page ?? 'Prev page:',
-      next_page: locale?.next_page ?? 'Next page:',
+      prev_page: locale?.prev_page ?? 'Prev:',
+      next_page: locale?.next_page ?? 'Next:',
       prev_5: locale?.prev_5 ?? 'Prev 5:',
       next_5: locale?.next_5 ?? 'Next 5:',
       total: locale?.total ?? 'Total:',
