@@ -73,10 +73,10 @@ export function FastTablePaginated<DataType>({
 
   useEffect(() => {
     const nextLocale: typeof locale = {
-      items_per_page: locale?.items_per_page ?? 'Items per page:',
+      items_per_page: locale?.items_per_page ?? 'items',
       jump_to: locale?.jump_to ?? 'Jump to:',
       jump_to_confirm: locale?.jump_to_confirm ?? 'Jump to confirm:',
-      page: locale?.page ?? 'Page:',
+      page: locale?.page ?? 'page',
       prev_page: locale?.prev_page ?? 'Prev page:',
       next_page: locale?.next_page ?? 'Next page:',
       prev_5: locale?.prev_5 ?? 'Prev 5:',
@@ -87,7 +87,7 @@ export function FastTablePaginated<DataType>({
   }, [locale]);
 
   const showTotal: PaginationProps["showTotal"] = (total) =>
-    tableLocale?.total ?? 'Total:' + ` ${total}`;
+    (tableLocale?.total ?? 'Total:') + ` ${total}`;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     table.setPagination({
