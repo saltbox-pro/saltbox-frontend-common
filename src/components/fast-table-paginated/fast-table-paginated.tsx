@@ -1,5 +1,4 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useState } from "react";
 import {
   OnChangeFn,
   PaginationState,
@@ -12,8 +11,8 @@ import {
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
 import { Pagination, PaginationProps } from "antd";
+import { PaginationLocale } from "antd/es/pagination/Pagination";
 import "./fast-table-paginated.css";
-
 
 export type FastTablePaginatedProps<DataType> = {
   columns: Array<any>;
@@ -32,6 +31,9 @@ export type FastTablePaginatedProps<DataType> = {
   ) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
+  locale?: PaginationLocale & {
+    total?: string;
+  };
 };
 
 export function FastTablePaginated<DataType>({
@@ -44,8 +46,8 @@ export function FastTablePaginated<DataType>({
   getRowId,
   onRowSelectionChange,
   rowSelection,
+  locale,
 }: FastTablePaginatedProps<DataType>) {
-  const { t } = useTranslation();
   const table = useReactTable({
     columns,
     data,
@@ -67,8 +69,25 @@ export function FastTablePaginated<DataType>({
     rowCount: total,
   });
 
+  const [tableLocale, setTableLocale] = useState(locale ?? {});
+
+  useEffect(() => {
+    const nextLocale: typeof locale = {
+      items_per_page: locale?.items_per_page ?? 'Items per page:',
+      jump_to: locale?.jump_to ?? 'Jump to:',
+      jump_to_confirm: locale?.jump_to_confirm ?? 'Jump to confirm:',
+      page: locale?.page ?? 'Page:',
+      prev_page: locale?.prev_page ?? 'Prev page:',
+      next_page: locale?.next_page ?? 'Next page:',
+      prev_5: locale?.prev_5 ?? 'Prev 5:',
+      next_5: locale?.next_5 ?? 'Next 5:',
+      total: locale?.total ?? 'Total:',
+    };
+    setTableLocale(nextLocale);
+  }, [locale]);
+
   const showTotal: PaginationProps["showTotal"] = (total) =>
-    t("fast-table-paginated.total") + ` ${total}`;
+    tableLocale?.total ?? 'Total:' + ` ${total}`;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     table.setPagination({
@@ -143,16 +162,7 @@ export function FastTablePaginated<DataType>({
             showQuickJumper
             onChange={handlePaginationChange}
             onShowSizeChange={handlePaginationShowSizeChange}
-            locale={{
-              items_per_page: t("fast-table-paginated.items-per-page"),
-              jump_to: t("fast-table-paginated.jump-to"),
-              jump_to_confirm: t("fast-table-paginated.jump-to-confirm"),
-              page: t("fast-table-paginated.page"),
-              prev_page: t("fast-table-paginated.prev-page"),
-              next_page: t("fast-table-paginated.next-page"),
-              prev_5: t("fast-table-paginated.prev-5"),
-              next_5: t("fast-table-paginated.next-5"),
-            }}
+            locale={tableLocale}
           />
         </div>
       </div>

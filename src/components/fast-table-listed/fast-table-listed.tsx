@@ -1,5 +1,4 @@
-import React, { Fragment } from "react";
-import { useTranslation } from "react-i18next";
+import React, { Fragment, useEffect } from "react";
 import {
   Column,
   ColumnFiltersState,
@@ -36,6 +35,12 @@ export type FastTableListedProps<DataType> = {
     index: number,
     parent?: Row<DataType> | undefined,
   ) => string;
+  locale?: {
+    sortAscending?: string;
+    sortDescending?: string;
+    clearSort?: string;
+    total?: string;
+  };
 };
 
 export function FastTableListed<DataType>({
@@ -48,11 +53,23 @@ export function FastTableListed<DataType>({
   sorting,
   onSortingChange,
   getRowId,
+  locale,
 }: FastTableListedProps<DataType>) {
-  const { t } = useTranslation();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+
+  const [tableLocale, setTableLocale] = React.useState(locale ?? {});
+
+  useEffect(() => {
+    const nextLocale: typeof locale = {
+      sortAscending: locale?.sortAscending ?? 'Sort ascending:',
+      sortDescending: locale?.sortDescending ?? 'Sort descending:',
+      clearSort: locale?.clearSort ?? 'Clear sort:',
+      total: locale?.total ?? 'Total:',
+    };
+    setTableLocale(nextLocale);
+  }, [locale]);
 
   const table = useReactTable({
     columns,
@@ -96,10 +113,10 @@ export function FastTableListed<DataType>({
                         title={
                           header.column.getCanSort()
                             ? header.column.getNextSortingOrder() === "asc"
-                              ? t("fast-table-listed.sort-ascending")
+                              ? tableLocale.sortAscending
                               : header.column.getNextSortingOrder() === "desc"
-                                ? t("fast-table-listed.sort-descending")
-                                : t("fast-table-listed.clear-sort")
+                                ? tableLocale.sortDescending
+                                : tableLocale.clearSort
                             : undefined
                         }
                       >
@@ -164,7 +181,7 @@ export function FastTableListed<DataType>({
         <div className="fast-table-pagination">
           {total !== undefined && (
             <>
-              {t("fast-table-listed.total")} {table.getRowCount()}
+              {tableLocale.total} {table.getRowCount()}
             </>
           )}
         </div>

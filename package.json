@@ -1,13 +1,14 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "common components for saltbox frontends",
-  "main": "dist/saltbox-frontend-common.cjs.js",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "repository": "https://dev.saltbox.pro/saltbox/saltbox-frontend-common.git",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "vite build"
   },
@@ -16,8 +17,7 @@
     "antd": "5.26.0",
     "mobx": "6.13.7",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-i18next": "15.5.3"
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@tanstack/react-table": "8.21.3",
@@ -28,7 +28,6 @@
     "mobx": "6.13.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-i18next": "15.5.3",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",
     "vite-plugin-dts": "^4.5.4"

@@ -11,17 +11,18 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'saltbox-frontend-common',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
       fileName: (format) => `saltbox-frontend-common.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'antd', '@tanstack/react-table'],
+      external: ['react', 'react-dom', 'antd', '@tanstack/react-table', 'mobx'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           antd: 'antd',
-          '@tanstack/react-table': 'ReactTable'
+          '@tanstack/react-table': 'ReactTable',
+          mobx: 'mobx',
         }
       }
     }
