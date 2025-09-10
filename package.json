@@ -1,6 +1,6 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
