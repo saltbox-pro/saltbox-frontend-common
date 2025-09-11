@@ -10,7 +10,8 @@
   "repository": "https://dev.saltbox.pro/saltbox/saltbox-frontend-common.git",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:watch": "vite build --watch"
   },
   "peerDependencies": {
     "@tanstack/react-table": "8.21.3",
