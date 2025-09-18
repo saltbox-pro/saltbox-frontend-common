@@ -13,6 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
+import { Empty } from "antd";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { DebouncedInput } from "../debounced-input/debounced-input";
 import "./fast-table-listed.css";
@@ -23,7 +24,7 @@ export type FastTableListedProps<DataType> = {
   total?: number;
   onRowClick?: (
     item: DataType,
-    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
+    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => void;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
@@ -33,13 +34,14 @@ export type FastTableListedProps<DataType> = {
   getRowId?: (
     originalRow: DataType,
     index: number,
-    parent?: Row<DataType> | undefined,
+    parent?: Row<DataType> | undefined
   ) => string;
   locale?: {
     sortAscending?: string;
     sortDescending?: string;
     clearSort?: string;
     total?: string;
+    empty?: string;
   };
 };
 
@@ -56,17 +58,18 @@ export function FastTableListed<DataType>({
   locale,
 }: FastTableListedProps<DataType>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
+    []
   );
 
   const [tableLocale, setTableLocale] = React.useState(locale ?? {});
 
   useEffect(() => {
     const nextLocale: typeof locale = {
-      sortAscending: locale?.sortAscending ?? 'Sort ascending:',
-      sortDescending: locale?.sortDescending ?? 'Sort descending:',
-      clearSort: locale?.clearSort ?? 'Clear sort:',
-      total: locale?.total ?? 'Total:',
+      sortAscending: locale?.sortAscending ?? "Sort ascending",
+      sortDescending: locale?.sortDescending ?? "Sort descending",
+      clearSort: locale?.clearSort ?? "Clear sort",
+      total: locale?.total ?? "Total:",
+      empty: locale?.empty ?? "No data",
     };
     setTableLocale(nextLocale);
   }, [locale]);
@@ -90,6 +93,8 @@ export function FastTableListed<DataType>({
     },
   });
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div className="fast-table">
       <div className="fast-table-wrapper">
@@ -100,7 +105,9 @@ export function FastTableListed<DataType>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={(header.column.columnDef.meta as any)?.thClassName}
+                    className={
+                      (header.column.columnDef.meta as any)?.thClassName
+                    }
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -115,14 +122,14 @@ export function FastTableListed<DataType>({
                             ? header.column.getNextSortingOrder() === "asc"
                               ? tableLocale.sortAscending
                               : header.column.getNextSortingOrder() === "desc"
-                                ? tableLocale.sortDescending
-                                : tableLocale.clearSort
+                              ? tableLocale.sortDescending
+                              : tableLocale.clearSort
                             : undefined
                         }
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                         <div className="fast-table-listed-sorter">
                           {{
@@ -143,7 +150,17 @@ export function FastTableListed<DataType>({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={table.getAllColumns().length}>
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={tableLocale.empty}
+                  />
+                </td>
+              </tr>
+            )}
+            {rows.map((row) => (
               <Fragment key={`${row.id}-group-row`}>
                 <tr
                   key={row.id}
@@ -156,11 +173,13 @@ export function FastTableListed<DataType>({
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className={(cell.column.columnDef.meta as any)?.tdClassName}
+                      className={
+                        (cell.column.columnDef.meta as any)?.tdClassName
+                      }
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </td>
                   ))}
@@ -192,7 +211,7 @@ export function FastTableListed<DataType>({
 
 function Filter({ column }: { column: Column<any, unknown> }) {
   const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta as any ?? {};
+  const { filterVariant } = (column.columnDef.meta as any) ?? {};
 
   return filterVariant === "range" ? (
     <div>

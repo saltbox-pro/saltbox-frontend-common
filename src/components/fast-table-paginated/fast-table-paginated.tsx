@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
-import { Pagination, PaginationProps } from "antd";
+import { Empty, Pagination, PaginationProps } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
 import "./fast-table-paginated.css";
 
@@ -22,17 +22,18 @@ export type FastTablePaginatedProps<DataType> = {
   onLazyLoad: (pagination: PaginationState) => void;
   onRowClick?: (
     item: DataType,
-    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
+    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
   ) => void;
   getRowId?: (
     originalRow: DataType,
     index: number,
-    parent?: Row<DataType> | undefined,
+    parent?: Row<DataType> | undefined
   ) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
   locale?: PaginationLocale & {
     total?: string;
+    empty?: string;
   };
 };
 
@@ -73,21 +74,22 @@ export function FastTablePaginated<DataType>({
 
   useEffect(() => {
     const nextLocale: typeof locale = {
-      items_per_page: locale?.items_per_page ?? '/ page',
-      jump_to: locale?.jump_to ?? 'Go to:',
-      jump_to_confirm: locale?.jump_to_confirm ?? 'Go to confirm:',
-      page: locale?.page ?? 'page',
-      prev_page: locale?.prev_page ?? 'Prev:',
-      next_page: locale?.next_page ?? 'Next:',
-      prev_5: locale?.prev_5 ?? 'Prev 5:',
-      next_5: locale?.next_5 ?? 'Next 5:',
-      total: locale?.total ?? 'Total:',
+      items_per_page: locale?.items_per_page ?? "/ page",
+      jump_to: locale?.jump_to ?? "Go to:",
+      jump_to_confirm: locale?.jump_to_confirm ?? "Go to confirm:",
+      page: locale?.page ?? "page",
+      prev_page: locale?.prev_page ?? "Prev",
+      next_page: locale?.next_page ?? "Next",
+      prev_5: locale?.prev_5 ?? "Prev 5",
+      next_5: locale?.next_5 ?? "Next 5",
+      total: locale?.total ?? "Total:",
+      empty: locale?.empty ?? "No data",
     };
     setTableLocale(nextLocale);
   }, [locale]);
 
   const showTotal: PaginationProps["showTotal"] = (total) =>
-    (tableLocale?.total ?? 'Total:') + ` ${total}`;
+    (tableLocale?.total ?? "Total:") + ` ${total}`;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     table.setPagination({
@@ -98,13 +100,15 @@ export function FastTablePaginated<DataType>({
 
   const handlePaginationShowSizeChange: (
     current: number,
-    pageSize: number,
+    pageSize: number
   ) => void = (current: number, pageSize: number) => {
     table.setPagination({
       pageIndex: current - 1,
       pageSize,
     });
   };
+
+  const rows = table.getRowModel().rows;
 
   return (
     <div className="fast-table">
@@ -116,21 +120,30 @@ export function FastTablePaginated<DataType>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={(header.column.columnDef.meta as any)?.thClassName}
+                    className={
+                      (header.column.columnDef.meta as any)?.thClassName
+                    }
                   >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={table.getAllColumns().length}>
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
+                </td>
+              </tr>
+            )}
+            {rows.map((row) => (
               <tr
                 key={row.id}
                 onClick={(event) =>
