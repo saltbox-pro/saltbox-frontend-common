@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
-import { Empty } from "antd";
+import { Empty, Flex, Spin } from "antd";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { DebouncedInput } from "../debounced-input/debounced-input";
 import "./fast-table-listed.css";
@@ -22,6 +22,8 @@ export type FastTableListedProps<DataType> = {
   columns: Array<any>;
   data: Array<DataType>;
   total?: number;
+  isEmpty?: boolean;
+  isLoading?: boolean;
   onRowClick?: (
     item: DataType,
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
@@ -49,6 +51,8 @@ export function FastTableListed<DataType>({
   columns,
   data,
   total,
+  isEmpty,
+  isLoading,
   onRowClick,
   renderSubComponent,
   getRowCanExpand,
@@ -150,16 +154,6 @@ export function FastTableListed<DataType>({
             ))}
           </thead>
           <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={table.getAllColumns().length}>
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={tableLocale.empty}
-                  />
-                </td>
-              </tr>
-            )}
             {rows.map((row) => (
               <Fragment key={`${row.id}-group-row`}>
                 <tr
@@ -193,6 +187,25 @@ export function FastTableListed<DataType>({
                 )}
               </Fragment>
             ))}
+            {isEmpty && (
+              <tr>
+                <td colSpan={table.getAllColumns().length}>
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={tableLocale.empty}
+                  />
+                </td>
+              </tr>
+            )}
+            {isLoading && (
+              <tr>
+                <td colSpan={table.getAllColumns().length}>
+                  <Flex justify="center" align="center" style={{ height: 200 }}>
+                    <Spin />
+                  </Flex>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
