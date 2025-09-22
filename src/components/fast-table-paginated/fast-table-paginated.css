@@ -8,6 +8,10 @@
   flex: 1;
 }
 
+.fast-table .fast-table-spinner.fast-table-spinner {
+  max-height: 100%;
+}
+
 .fast-table table {
   border-collapse: collapse;
   min-width: 100%;

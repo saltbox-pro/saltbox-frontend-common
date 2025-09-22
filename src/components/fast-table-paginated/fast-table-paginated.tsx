@@ -10,14 +10,16 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
-import { Empty, Pagination, PaginationProps } from "antd";
+import { Empty, Pagination, PaginationProps, Spin } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
 import "./fast-table-paginated.css";
+import { useStableLoading } from "saltbox-common/utils/table-utils";
 
 export type FastTablePaginatedProps<DataType> = {
   columns: Array<any>;
   data: Array<DataType>;
   total?: number;
+  isLoading?: boolean;
   pagination: PaginationState;
   onLazyLoad: (pagination: PaginationState) => void;
   onRowClick?: (
@@ -41,6 +43,7 @@ export function FastTablePaginated<DataType>({
   columns,
   data,
   total,
+  isLoading = false,
   pagination,
   onLazyLoad,
   onRowClick,
@@ -49,9 +52,11 @@ export function FastTablePaginated<DataType>({
   rowSelection,
   locale,
 }: FastTablePaginatedProps<DataType>) {
+  const { stableIsLoading, stableData } = useStableLoading(isLoading, data, { delay: 0 });
+
   const table = useReactTable({
     columns,
-    data,
+    data: stableData,
     getRowId,
     getCoreRowModel: getCoreRowModel<DataType>(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -113,55 +118,67 @@ export function FastTablePaginated<DataType>({
   return (
     <div className="fast-table">
       <div className="fast-table-wrapper">
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className={
-                      (header.column.columnDef.meta as any)?.thClassName
-                    }
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={table.getAllColumns().length}>
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
-                </td>
-              </tr>
-            )}
-            {rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={(event) =>
-                  onRowClick ? onRowClick(toJS(row.original), event) : undefined
-                }
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className={(cell.column.columnDef.meta as any)?.tdClassName}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        <Spin className="fast-table-spinner" spinning={stableIsLoading}>
+          <table>
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className={
+                        (header.column.columnDef.meta as any)?.thClassName
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {!stableIsLoading && rows.length === 0 && (
+                <tr>
+                  <td colSpan={table.getAllColumns().length}>
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description={tableLocale.empty}
+                    />
                   </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </tr>
+              )}
+              {rows.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={(event) =>
+                    onRowClick
+                      ? onRowClick(toJS(row.original), event)
+                      : undefined
+                  }
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className={
+                        (cell.column.columnDef.meta as any)?.tdClassName
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Spin>
       </div>
       <div className="fast-table-summary">
         <div className="fast-table-pagination">

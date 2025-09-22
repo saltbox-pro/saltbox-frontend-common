@@ -11,6 +11,11 @@
     "declaration": true,
     "baseUrl": ".",
     "esModuleInterop": true,
+    "paths": {
+      "saltbox-common/*": [
+        "src/*"
+      ],
+    }
   },
   "include": [
     "src/**/*"
