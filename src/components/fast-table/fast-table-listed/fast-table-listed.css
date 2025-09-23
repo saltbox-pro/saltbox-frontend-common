@@ -40,18 +40,6 @@
   width: 100%;
 }
 
-.fast-table-listed-header {
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.fast-table-listed-header-nosort {
-  display: flex;
-  justify-content: space-between;
-  cursor: default;
-}
-
-.fast-table-listed-sorter {
-  width: 1em;
+.fast-table-loader {
+  height: 200px;
 }

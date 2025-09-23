@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  Header,
   OnChangeFn,
   PaginationState,
   Row,
   RowSelectionState,
-  SortDirection,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -14,10 +12,13 @@ import {
 } from "@tanstack/react-table";
 import { toJS } from "mobx";
 import { Empty, Pagination, PaginationProps, Spin } from "antd";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
-import "./fast-table-paginated.css";
 import { useStableLoading } from "saltbox-common/utils/table-utils";
+import {
+  FastTableHeader,
+  HeaderLocale,
+} from "../fast-table-header/fast-table-header";
+import "./fast-table-paginated.css";
 
 export type FastTablePaginatedProps<DataType> = {
   columns: Array<any>;
@@ -138,68 +139,41 @@ export function FastTablePaginated<DataType>({
 
   const rows = table.getRowModel().rows;
 
-  return (
-    <div className="fast-table">
-      <div className="fast-table-wrapper">
-        <Spin className="fast-table-spinner" spinning={stableIsLoading}>
-          <table>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className={
-                        (header.column.columnDef.meta as any)?.thClassName
-                      }
-                    >
-                      {header.isPlaceholder ? null : (
-                        <FastTableHeader header={header} locale={tableLocale} />
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {!stableIsLoading && rows.length === 0 && (
-                <tr>
-                  <td colSpan={table.getAllColumns().length}>
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description={tableLocale.empty}
-                    />
-                  </td>
-                </tr>
-              )}
-              {rows.map((row) => (
-                <tr
-                  key={row.id}
-                  onClick={(event) =>
-                    onRowClick
-                      ? onRowClick(toJS(row.original), event)
-                      : undefined
-                  }
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className={
-                        (cell.column.columnDef.meta as any)?.tdClassName
-                      }
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Spin>
-      </div>
+  const renderTableRows = () => {
+    return rows.map((row) => (
+      <tr
+        key={row.id}
+        onClick={(event) =>
+          onRowClick ? onRowClick(toJS(row.original), event) : undefined
+        }
+      >
+        {row.getVisibleCells().map((cell) => (
+          <td
+            key={cell.id}
+            className={(cell.column.columnDef.meta as any)?.tdClassName}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        ))}
+      </tr>
+    ));
+  };
+
+  const renderEmptyState = () => {
+    return (
+      <tr>
+        <td colSpan={table.getAllColumns().length}>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={tableLocale.empty}
+          />
+        </td>
+      </tr>
+    );
+  };
+
+  const renderTableFooter = () => {
+    return (
       <div className="fast-table-summary">
         <div className="fast-table-pagination">
           <Pagination
@@ -216,53 +190,25 @@ export function FastTablePaginated<DataType>({
           />
         </div>
       </div>
-    </div>
-  );
-}
-
-type FastTableHeaderProps<DataType> = {
-  header: Header<DataType, unknown>;
-  locale: HeaderLocale;
-};
-
-type HeaderLocale = {
-  sortAscending?: string;
-  sortDescending?: string;
-  clearSort?: string;
-};
-
-function FastTableHeader<DataType>({
-  header,
-  locale,
-}: FastTableHeaderProps<DataType>) {
-  const getSortTitle = () => {
-    if (!header.column.getCanSort()) return undefined;
-
-    const nextOrder = header.column.getNextSortingOrder();
-    if (nextOrder === "asc") return locale.sortAscending;
-    if (nextOrder === "desc") return locale.sortDescending;
-    return locale.clearSort;
-  };
-
-  const sortIcons = {
-    asc: <CaretUpOutlined />,
-    desc: <CaretDownOutlined />,
+    );
   };
 
   return (
-    <div
-      className={
-        header.column.getCanSort()
-          ? "fast-table-header"
-          : "fast-table-header-nosort"
-      }
-      onClick={header.column.getToggleSortingHandler()}
-      title={getSortTitle()}
-    >
-      {flexRender(header.column.columnDef.header, header.getContext())}
-      <div className="fast-table-sorter">
-        {sortIcons[header.column.getIsSorted() as SortDirection] ?? null}
+    <div className="fast-table">
+      <div className="fast-table-wrapper">
+        <Spin className="fast-table-spinner" spinning={stableIsLoading}>
+          <table>
+            <thead>
+              <FastTableHeader table={table} locale={tableLocale} />
+            </thead>
+            <tbody>
+              {!stableIsLoading && rows.length === 0 && renderEmptyState()}
+              {renderTableRows()}
+            </tbody>
+          </table>
+        </Spin>
       </div>
+      {renderTableFooter()}
     </div>
   );
 }
