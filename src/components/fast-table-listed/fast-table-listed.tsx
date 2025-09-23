@@ -4,6 +4,7 @@ import {
   ColumnFiltersState,
   OnChangeFn,
   Row,
+  SortDirection,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -89,12 +90,13 @@ export function FastTableListed<DataType>({
     getSortedRowModel: getSortedRowModel(),
     manualPagination: false,
     filterFns: {},
-    onSortingChange: onSortingChange,
+    onSortingChange,
     onColumnFiltersChange: setColumnFilters,
     state: {
       columnFilters,
       sorting,
     },
+    enableSorting: !!sorting,
   });
 
   const rows = table.getRowModel().rows;
@@ -117,7 +119,7 @@ export function FastTableListed<DataType>({
                       <div
                         className={
                           header.column.getCanSort()
-                            ? "cursor-pointer select-none fast-table-listed-header"
+                            ? "fast-table-listed-header"
                             : "fast-table-listed-header-nosort"
                         }
                         onClick={header.column.getToggleSortingHandler()}
@@ -139,7 +141,8 @@ export function FastTableListed<DataType>({
                           {{
                             asc: <CaretUpOutlined />,
                             desc: <CaretDownOutlined />,
-                          }[header.column.getIsSorted() as string] ?? null}
+                          }[header.column.getIsSorted() as SortDirection] ??
+                            null}
                         </div>
                         {header.column.getCanFilter() ? (
                           <div>
