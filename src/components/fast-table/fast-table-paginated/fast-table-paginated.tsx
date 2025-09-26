@@ -195,8 +195,12 @@ export function FastTablePaginated<DataType>({
 
   return (
     <div className="fast-table">
-      <div className="fast-table-wrapper">
-        <Spin className="fast-table-spinner" spinning={stableIsLoading}>
+      <Spin
+        wrapperClassName="fast-table-spinner-wrapper"
+        className="fast-table-spinner"
+        spinning={stableIsLoading}
+      >
+        <div className="fast-table-wrapper">
           <table>
             <thead>
               <FastTableHeader table={table} locale={tableLocale} />
@@ -206,8 +210,8 @@ export function FastTablePaginated<DataType>({
               {renderTableRows()}
             </tbody>
           </table>
-        </Spin>
-      </div>
+        </div>
+      </Spin>
       {renderTableFooter()}
     </div>
   );
