@@ -22,6 +22,7 @@ export type FastTableListedProps<DataType> = {
   total?: number;
   isEmpty?: boolean;
   isLoading?: boolean;
+  hideFooter?: boolean;
   onRowClick?: (
     item: DataType,
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
@@ -51,6 +52,7 @@ export function FastTableListed<DataType>({
   total,
   isEmpty,
   isLoading,
+  hideFooter,
   onRowClick,
   renderSubComponent,
   getRowCanExpand,
@@ -161,7 +163,7 @@ export function FastTableListed<DataType>({
   };
 
   return (
-    <div className="fast-table">
+    <div className={`fast-table ${isEmpty && "empty"}`}>
       <div className="fast-table-wrapper">
         <table>
           <thead>
@@ -174,7 +176,7 @@ export function FastTableListed<DataType>({
           </tbody>
         </table>
       </div>
-      {renderTableFooter()}
+      {!hideFooter && renderTableFooter()}
     </div>
   );
 }

@@ -193,8 +193,10 @@ export function FastTablePaginated<DataType>({
     );
   };
 
+  const shouldShowEmpty = !stableIsLoading && rows.length === 0;
+
   return (
-    <div className="fast-table">
+    <div className={`fast-table ${shouldShowEmpty && "empty"}`}>
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"
         className="fast-table-spinner"
@@ -206,7 +208,7 @@ export function FastTablePaginated<DataType>({
               <FastTableHeader table={table} locale={tableLocale} />
             </thead>
             <tbody>
-              {!stableIsLoading && rows.length === 0 && renderEmptyState()}
+              {shouldShowEmpty && renderEmptyState()}
               {renderTableRows()}
             </tbody>
           </table>

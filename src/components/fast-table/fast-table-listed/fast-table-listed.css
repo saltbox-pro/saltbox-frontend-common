@@ -13,6 +13,10 @@
   min-width: 100%;
 }
 
+.fast-table.empty table {
+  height: 100%;
+}
+
 .fast-table table>thead>tr>th {
   color: #000000;
   font-weight: 600;
