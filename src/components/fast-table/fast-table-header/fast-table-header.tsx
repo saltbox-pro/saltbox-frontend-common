@@ -23,7 +23,9 @@ export function FastTableHeader<DataType>({
   table,
   locale,
 }: FastTableHeaderProps<DataType>) {
-  const getSortTitle = (header: Header<DataType, unknown>) => {
+  type HeaderType = Header<DataType, unknown>;
+
+  const getSortTitle = (header: HeaderType) => {
     if (!header.column.getCanSort()) return undefined;
 
     const nextOrder = header.column.getNextSortingOrder();
@@ -32,35 +34,38 @@ export function FastTableHeader<DataType>({
     return locale.clearSort;
   };
 
-  const getHeaderClasses = (header: Header<DataType, unknown>) => {
+  const getThClasses = (header: HeaderType) => {
+    return `fast-table-header-cell ${
+      (header.column.columnDef.meta as any)?.thClassName
+    } `;
+  };
+
+  const getHeaderClasses = (header: HeaderType) => {
     return header.column.getCanSort()
       ? "fast-table-header"
       : "fast-table-header-nosort";
   };
 
   const getSortDirectionClass = (
-    header: Header<DataType, unknown>,
+    header: HeaderType,
     direction: SortDirection
   ) => {
     const sortDirection = header.column.getIsSorted();
     return sortDirection === direction ? "active" : "";
   };
 
-  const getSorterUpClasses = (header: Header<DataType, unknown>) => {
+  const getSorterUpClasses = (header: HeaderType) => {
     return `sort-icon sort-icon-up ${getSortDirectionClass(header, "asc")}`;
   };
 
-  const getSorterDownClasses = (header: Header<DataType, unknown>) => {
+  const getSorterDownClasses = (header: HeaderType) => {
     return `sort-icon sort-icon-down ${getSortDirectionClass(header, "desc")}`;
   };
 
   return table.getHeaderGroups().map((headerGroup) => (
     <tr key={headerGroup.id}>
       {headerGroup.headers.map((header) => (
-        <th
-          key={header.id}
-          className={(header.column.columnDef.meta as any)?.thClassName}
-        >
+        <th key={header.id} className={getThClasses(header)}>
           {header.isPlaceholder ? null : (
             <div onClick={header.column.getToggleSortingHandler()}>
               <Tooltip

@@ -1,3 +1,7 @@
+.fast-table-header-cell {
+  height: 1em; /* header height fix for FF */
+}
+
 .fast-table-header {
   display: flex;
   justify-content: space-between;
