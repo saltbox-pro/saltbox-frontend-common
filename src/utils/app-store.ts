@@ -16,7 +16,7 @@ export class AppStore {
 }
 
 class PluginsStoreWrapper {
-  pluginsStore: PluginsStore;
+  private pluginsStore: PluginsStore;
 
   constructor(pluginsStore: PluginsStore) {
     this.pluginsStore = pluginsStore;
