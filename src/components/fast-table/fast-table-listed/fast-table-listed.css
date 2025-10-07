@@ -13,7 +13,8 @@
   min-width: 100%;
 }
 
-.fast-table.empty table {
+.fast-table.empty table,
+.fast-table.loading table {
   height: 100%;
 }
 
