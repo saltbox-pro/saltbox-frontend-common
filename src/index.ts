@@ -4,5 +4,6 @@ export * from "./components/page-header/page-header";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
+export * from "./utils/websocket-service";
 
 export * from "./interfaces/locales";
