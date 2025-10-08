@@ -163,7 +163,7 @@ export function FastTableListed<DataType>({
   };
 
   return (
-    <div className={`fast-table ${isEmpty && "empty"}`}>
+    <div className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}>
       <div className="fast-table-wrapper">
         <table>
           <thead>
