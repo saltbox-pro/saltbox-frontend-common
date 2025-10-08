@@ -5,15 +5,19 @@ export class WebSocketService<T> {
   private accessToken: string | null;
   private messageBuffer: T[];
   private flushTimeout: number | null;
+  private isManualDisconnect: boolean;
 
-  readonly FLUSH_INTERVAL_MS = 2000;
+  readonly BUFFER_FLUSH_INTERVAL_MS = 2000;
+  readonly RECONNECT_INTERVAL_MS = 1000;
+  readonly RECONNECT_MAX_ATTEMPTS = 5;
 
-  constructor() {
+  constructor(maxReconnectAttempts: number | undefined = undefined) {
     this.ws = null;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
+    this.maxReconnectAttempts = maxReconnectAttempts ?? this.RECONNECT_MAX_ATTEMPTS;
     this.accessToken = null;
     this.messageBuffer = [];
+    this.isManualDisconnect = false;
   }
 
   sendAccessToken = (accessToken: string | null) => {
@@ -29,6 +33,7 @@ export class WebSocketService<T> {
 
   connect = (url: string, accessToken: string | null, onMessage: (update: Array<T>) => void) => {
     try {
+      this.isManualDisconnect = false;
       this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
@@ -67,22 +72,27 @@ export class WebSocketService<T> {
         onMessage([...this.messageBuffer]);
         this.messageBuffer = [];
         this.flushTimeout = null;
-      }, this.FLUSH_INTERVAL_MS);
+      }, this.BUFFER_FLUSH_INTERVAL_MS);
     }
   }
 
   private handleReconnect = (url: string, onMessage: (update: Array<T>) => void) => {
+    if (this.isManualDisconnect) {
+      return;
+    }
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       setTimeout(() => {
         this.connect(url, this.accessToken, onMessage);
-      }, 1000 * this.reconnectAttempts);
+      },
+        this.RECONNECT_INTERVAL_MS * this.reconnectAttempts
+      );
     }
   }
 
   disconnect = () => {
     if (this.ws) {
-      console.log('WebSocket closed');
+      this.isManualDisconnect = true;
       this.ws.close();
       this.ws = null;
     }
