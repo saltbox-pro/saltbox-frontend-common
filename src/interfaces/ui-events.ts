@@ -4,5 +4,5 @@
 export enum UiEvent {
   CloseAllOverlays = "ui.close_all_overlays",
   CloseAllDrawers = "ui.close_all_drawers",
-  CloaseAllModals = "ui.close_all_modals",
+  closeAllModals = "ui.close_all_modals",
 }
