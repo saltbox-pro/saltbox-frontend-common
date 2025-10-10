@@ -1,6 +1,6 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
@@ -14,6 +14,7 @@
     "build:watch": "vite build --watch"
   },
   "peerDependencies": {
+    "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
     "@tanstack/react-table": "8.21.3",
     "antd": "5.26.0",
     "mobx": "6.13.7",
@@ -21,6 +22,7 @@
     "react-dom": "19.0.0"
   },
   "devDependencies": {
+    "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
     "@tanstack/react-table": "8.21.3",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.1.6",

@@ -698,6 +698,11 @@
     argparse "~1.0.9"
     string-argv "~0.3.1"
 
+"@saltbox/saltbox-core-api-client@^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb":
+  version "0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb"
+  resolved "https://dev.saltbox.pro/api/v4/projects/2/packages/npm/@saltbox/saltbox-core-api-client/-/@saltbox/saltbox-core-api-client-0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb.tgz#e7ed821806e67ac42341643178765c7a5470faba"
+  integrity sha1-5+2CGAbmesQjQWQxeHZcelRw+ro=
+
 "@tanstack/react-table@8.21.3":
   version "8.21.3"
   resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.21.3.tgz#2c38c747a5731c1a07174fda764b9c2b1fb5e91b"

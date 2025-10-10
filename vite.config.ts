@@ -17,7 +17,7 @@ export default defineConfig({
       fileName: (format) => `saltbox-frontend-common.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'antd', '@tanstack/react-table', 'mobx'],
+      external: ['react', 'react-dom', 'antd', '@tanstack/react-table', 'mobx', '@saltbox/saltbox-core-api-client'],
       output: {
         globals: {
           react: 'React',
