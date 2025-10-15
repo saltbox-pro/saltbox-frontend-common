@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   OnChangeFn,
   PaginationState,
@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { toJS } from "mobx";
 import { Empty, Pagination, PaginationProps, Spin } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
@@ -40,10 +41,12 @@ export type FastTablePaginatedProps<DataType> = {
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
   locale?: PaginationLocale &
-    HeaderLocale & {
-      total?: string;
-      empty?: string;
-    };
+  HeaderLocale & {
+    total?: string;
+    empty?: string;
+  };
+  enableVirtualScroll?: boolean;
+  estimateRowHeight?: number;
 };
 
 export function FastTablePaginated<DataType>({
@@ -59,10 +62,14 @@ export function FastTablePaginated<DataType>({
   onRowSelectionChange,
   rowSelection,
   locale,
+  enableVirtualScroll = false,
+  estimateRowHeight = 45,
 }: FastTablePaginatedProps<DataType>) {
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
     delay: 0,
   });
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const table = useReactTable({
     columns,
@@ -139,24 +146,76 @@ export function FastTablePaginated<DataType>({
 
   const rows = table.getRowModel().rows;
 
-  const renderTableRows = () => {
-    return rows.map((row) => (
-      <tr
-        key={row.id}
-        onClick={(event) =>
-          onRowClick ? onRowClick(toJS(row.original), event) : undefined
-        }
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => estimateRowHeight,
+    overscan: 10,
+    enabled: enableVirtualScroll,
+  });
+
+  const renderTableRow = (row: Row<DataType>) => {
+    return row.getVisibleCells().map((cell) => (
+      <td
+        key={cell.id}
+        className={(cell.column.columnDef.meta as any)?.tdClassName}
       >
-        {row.getVisibleCells().map((cell) => (
-          <td
-            key={cell.id}
-            className={(cell.column.columnDef.meta as any)?.tdClassName}
-          >
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </td>
-        ))}
-      </tr>
+        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      </td>
     ));
+  }
+
+  const renderTableRows = () => {
+    if (!enableVirtualScroll) {
+      return rows.map((row) => (
+        <tr
+          key={row.id}
+          onClick={(event) =>
+            onRowClick ? onRowClick(toJS(row.original), event) : undefined
+          }
+        >
+          {renderTableRow(row)}
+        </tr>
+      ));
+    }
+
+    const virtualRows = rowVirtualizer.getVirtualItems();
+    const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
+    const paddingBottom =
+      virtualRows.length > 0
+        ? rowVirtualizer.getTotalSize() -
+        (virtualRows[virtualRows.length - 1]?.end || 0)
+        : 0;
+
+    return (
+      <>
+        {paddingTop > 0 && (
+          <tr>
+            <td style={{ height: `${paddingTop}px` }} />
+          </tr>
+        )}
+        {virtualRows.map((virtualRow) => {
+          const row = rows[virtualRow.index];
+          return (
+            <tr
+              key={row.id}
+              data-index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
+              onClick={(event) =>
+                onRowClick ? onRowClick(toJS(row.original), event) : undefined
+              }
+            >
+              {renderTableRow(row)}
+            </tr>
+          );
+        })}
+        {paddingBottom > 0 && (
+          <tr>
+            <td style={{ height: `${paddingBottom}px` }} />
+          </tr>
+        )}
+      </>
+    );
   };
 
   const renderEmptyState = () => {
@@ -196,13 +255,20 @@ export function FastTablePaginated<DataType>({
   const shouldShowEmpty = !stableIsLoading && rows.length === 0;
 
   return (
-    <div className={`fast-table ${shouldShowEmpty && "empty"}`}>
+    <div className={`fast-table ${shouldShowEmpty && "empty"} ${enableVirtualScroll ? "virtual-scroll" : ""}`}>
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"
         className="fast-table-spinner"
         spinning={stableIsLoading}
       >
-        <div className="fast-table-wrapper">
+        <div
+          className="fast-table-wrapper"
+          ref={tableContainerRef}
+          style={enableVirtualScroll ? {
+            height: '100%',
+            overflow: 'auto'
+          } : undefined}
+        >
           <table>
             <thead>
               <FastTableHeader table={table} locale={tableLocale} />

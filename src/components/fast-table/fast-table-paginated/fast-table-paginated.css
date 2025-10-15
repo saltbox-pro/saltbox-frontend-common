@@ -9,6 +9,11 @@
   overflow: auto;
 }
 
+.fast-table.virtual-scroll .fast-table-wrapper {
+  position: relative;
+  contain: strict;
+}
+
 .fast-table .fast-table-spinner-wrapper.fast-table-spinner-wrapper {
   flex: 1;
   min-height: 0;
@@ -36,7 +41,7 @@
   height: 100%;
 }
 
-.fast-table table > thead > tr > th {
+.fast-table table>thead>tr>th {
   color: #000000;
   font-weight: 600;
   text-align: start;
@@ -46,7 +51,7 @@
   line-height: 1.1rem;
 }
 
-.fast-table table > tbody > tr > td {
+.fast-table table>tbody>tr>td {
   border: 1px solid #f0f0f0;
   padding: 0.5rem 1rem;
   line-height: 1.1rem;
