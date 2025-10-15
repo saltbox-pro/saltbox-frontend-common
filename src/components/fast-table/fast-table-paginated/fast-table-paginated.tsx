@@ -134,16 +134,6 @@ export function FastTablePaginated<DataType>({
     });
   };
 
-  const handlePaginationShowSizeChange = (
-    current: number,
-    pageSize: number
-  ) => {
-    table.setPagination({
-      pageIndex: current - 1,
-      pageSize,
-    });
-  };
-
   const rows = table.getRowModel().rows;
 
   const rowVirtualizer = useVirtualizer({
@@ -244,7 +234,6 @@ export function FastTablePaginated<DataType>({
             defaultPageSize={50}
             showQuickJumper
             onChange={handlePaginationChange}
-            onShowSizeChange={handlePaginationShowSizeChange}
             locale={tableLocale}
           />
         </div>
