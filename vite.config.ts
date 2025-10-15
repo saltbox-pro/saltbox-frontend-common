@@ -17,13 +17,21 @@ export default defineConfig({
       fileName: (format) => `saltbox-frontend-common.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'antd', '@tanstack/react-table', 'mobx'],
+      external: [
+        'react',
+        'react-dom',
+        'antd',
+        '@tanstack/react-table',
+        '@tanstack/react-virtual',
+        'mobx'
+      ],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           antd: 'antd',
           '@tanstack/react-table': 'ReactTable',
+          '@tanstack/react-virtual': 'ReactVirtual',
           mobx: 'mobx',
         }
       }
