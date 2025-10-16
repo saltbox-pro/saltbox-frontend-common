@@ -35,6 +35,7 @@
 .fast-table table {
   border-collapse: collapse;
   min-width: 100%;
+  table-layout: fixed;
 }
 
 .fast-table.empty table {

@@ -19,6 +19,7 @@ import {
   FastTableHeader,
   HeaderLocale,
 } from "../fast-table-header/fast-table-header";
+
 import "./fast-table-paginated.css";
 
 export type FastTablePaginatedProps<DataType> = {
@@ -70,6 +71,7 @@ export function FastTablePaginated<DataType>({
   });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
 
   const table = useReactTable({
     columns,
@@ -124,6 +126,50 @@ export function FastTablePaginated<DataType>({
     setTableLocale(nextLocale);
   }, [locale]);
 
+  const measureColumnWidths = React.useCallback(() => {
+    if (!tableContainerRef.current) return;
+
+    const tableElement = tableContainerRef.current.querySelector('table');
+    if (!tableElement) return;
+
+    const headerCells = tableElement.querySelectorAll('thead th');
+    const widths: Record<string, number> = {};
+
+    headerCells.forEach((cell, index) => {
+      const width = cell.getBoundingClientRect().width;
+      widths[`col-${index}`] = width;
+    });
+
+    setColumnWidths(widths);
+  }, []);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || stableData.length === 0) return;
+
+    const timer = setTimeout(() => {
+      measureColumnWidths();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [stableData, measureColumnWidths]);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || stableData.length === 0) return;
+
+    const handleResize = () => {
+      setColumnWidths({});
+      requestAnimationFrame(() => {
+        measureColumnWidths();
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [stableData, measureColumnWidths]);
+
   const showTotal: PaginationProps["showTotal"] = (total) =>
     (tableLocale?.total ?? "Total:") + ` ${total}`;
 
@@ -145,14 +191,18 @@ export function FastTablePaginated<DataType>({
   });
 
   const renderTableRow = (row: Row<DataType>) => {
-    return row.getVisibleCells().map((cell) => (
-      <td
-        key={cell.id}
-        className={(cell.column.columnDef.meta as any)?.tdClassName}
-      >
-        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-      </td>
-    ));
+    return row.getVisibleCells().map((cell, index) => {
+      const width = columnWidths[`col-${index}`];
+      return (
+        <td
+          key={cell.id}
+          className={(cell.column.columnDef.meta as any)?.tdClassName}
+          style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+        >
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </td>
+      );
+    });
   }
 
   const renderTableRows = () => {
@@ -260,7 +310,7 @@ export function FastTablePaginated<DataType>({
         >
           <table>
             <thead>
-              <FastTableHeader table={table} locale={tableLocale} />
+              <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
             </thead>
             <tbody>
               {shouldShowEmpty && renderEmptyState()}

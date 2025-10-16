@@ -11,6 +11,7 @@ import { Tooltip } from "antd";
 export type FastTableHeaderProps<DataType> = {
   table: Table<DataType>;
   locale: HeaderLocale;
+  columnWidths?: Record<string, number>;
 };
 
 export type HeaderLocale = {
@@ -22,6 +23,7 @@ export type HeaderLocale = {
 export function FastTableHeader<DataType>({
   table,
   locale,
+  columnWidths = {},
 }: FastTableHeaderProps<DataType>) {
   type HeaderType = Header<DataType, unknown>;
 
@@ -35,9 +37,8 @@ export function FastTableHeader<DataType>({
   };
 
   const getThClasses = (header: HeaderType) => {
-    return `fast-table-header-cell ${
-      (header.column.columnDef.meta as any)?.thClassName
-    } `;
+    return `fast-table-header-cell ${(header.column.columnDef.meta as any)?.thClassName
+      } `;
   };
 
   const getHeaderClasses = (header: HeaderType) => {
@@ -64,31 +65,38 @@ export function FastTableHeader<DataType>({
 
   return table.getHeaderGroups().map((headerGroup) => (
     <tr key={headerGroup.id}>
-      {headerGroup.headers.map((header) => (
-        <th key={header.id} className={getThClasses(header)}>
-          {header.isPlaceholder ? null : (
-            <div onClick={header.column.getToggleSortingHandler()}>
-              <Tooltip
-                className={getHeaderClasses(header)}
-                title={getSortTitle(header)}
-              >
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
-                {header.column.getCanSort() && (
-                  <div className="fast-table-sorter">
-                    <CaretUpOutlined className={getSorterUpClasses(header)} />
-                    <CaretDownOutlined
-                      className={getSorterDownClasses(header)}
-                    />
-                  </div>
-                )}
-              </Tooltip>
-            </div>
-          )}
-        </th>
-      ))}
+      {headerGroup.headers.map((header, index) => {
+        const width = columnWidths[`col-${index}`];
+        return (
+          <th
+            key={header.id}
+            className={getThClasses(header)}
+            style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+          >
+            {header.isPlaceholder ? null : (
+              <div onClick={header.column.getToggleSortingHandler()}>
+                <Tooltip
+                  className={getHeaderClasses(header)}
+                  title={getSortTitle(header)}
+                >
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                  {header.column.getCanSort() && (
+                    <div className="fast-table-sorter">
+                      <CaretUpOutlined className={getSorterUpClasses(header)} />
+                      <CaretDownOutlined
+                        className={getSorterDownClasses(header)}
+                      />
+                    </div>
+                  )}
+                </Tooltip>
+              </div>
+            )}
+          </th>
+        );
+      })}
     </tr>
   ));
 }

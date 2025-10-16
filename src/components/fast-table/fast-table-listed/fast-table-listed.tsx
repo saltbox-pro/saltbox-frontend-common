@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import {
   ColumnFiltersState,
   OnChangeFn,
@@ -61,7 +61,9 @@ export function FastTableListed<DataType>({
   getRowId,
   locale,
 }: FastTableListedProps<DataType>) {
-  const [tableLocale, setTableLocale] = React.useState(locale ?? {});
+  const [tableLocale, setTableLocale] = useState(locale ?? {});
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const nextLocale: typeof locale = {
@@ -73,6 +75,50 @@ export function FastTableListed<DataType>({
     };
     setTableLocale(nextLocale);
   }, [locale]);
+
+  const measureColumnWidths = React.useCallback(() => {
+    if (!tableContainerRef.current) return;
+
+    const tableElement = tableContainerRef.current.querySelector('table');
+    if (!tableElement) return;
+
+    const headerCells = tableElement.querySelectorAll('thead th');
+    const widths: Record<string, number> = {};
+
+    headerCells.forEach((cell, index) => {
+      const width = cell.getBoundingClientRect().width;
+      widths[`col-${index}`] = width;
+    });
+
+    setColumnWidths(widths);
+  }, []);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || data.length === 0) return;
+
+    const timer = setTimeout(() => {
+      measureColumnWidths();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [data, measureColumnWidths]);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || data.length === 0) return;
+
+    const handleResize = () => {
+      setColumnWidths({});
+      requestAnimationFrame(() => {
+        measureColumnWidths();
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [data, measureColumnWidths]);
 
   const table = useReactTable({
     columns,
@@ -103,14 +149,18 @@ export function FastTableListed<DataType>({
             onRowClick ? onRowClick(toJS(row.original), event) : undefined
           }
         >
-          {row.getVisibleCells().map((cell) => (
-            <td
-              key={cell.id}
-              className={(cell.column.columnDef.meta as any)?.tdClassName}
-            >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </td>
-          ))}
+          {row.getVisibleCells().map((cell, index) => {
+            const width = columnWidths[`col-${index}`];
+            return (
+              <td
+                key={cell.id}
+                className={(cell.column.columnDef.meta as any)?.tdClassName}
+                style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
+            );
+          })}
         </tr>
         {row.getIsExpanded() && (
           <tr>
@@ -164,10 +214,10 @@ export function FastTableListed<DataType>({
 
   return (
     <div className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}>
-      <div className="fast-table-wrapper">
+      <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table>
           <thead>
-            <FastTableHeader table={table} locale={tableLocale} />
+            <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
           </thead>
           <tbody>
             {renderTableRows()}
