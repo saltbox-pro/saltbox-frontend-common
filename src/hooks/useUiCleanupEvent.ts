@@ -11,7 +11,7 @@ export function useUiCleanupEvent(
   events: string[]
 ) {
   const handleEvent = useCallback((event: CustomEvent<CleanupEventDetail>) => {
-    onCleanup(event.detail)
+    onCleanup(event.detail);
   }, []);
 
   useEffect(() => {

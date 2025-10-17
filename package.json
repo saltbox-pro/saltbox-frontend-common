@@ -1,6 +1,6 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build:watch": "vite build --watch --sourcemap true"
   },
   "peerDependencies": {
     "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
