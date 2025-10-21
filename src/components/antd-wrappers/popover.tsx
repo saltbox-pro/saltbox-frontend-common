@@ -21,10 +21,11 @@ export const Popover = ({ open, onOpenChange = noop, ...props }: PopoverProps) =
   const handleOpenChange = useCallback<OnOpenChange>((open, event) => {
     setIsOpen(open);
     onOpenChange(open, event);
-  }, []);
+  }, [onOpenChange]);
 
   useUiCleanupEvent(() => {
     setIsOpen(false);
+    onOpenChange(false);
   }, [UiEvent.CloseAllOverlays, UiEvent.CloseAllPopovers]);
 
   return (

@@ -21,10 +21,11 @@ export const Dropdown = ({ open, onOpenChange = noop, ...props }: DropdownProps)
   const handleOpenChange = useCallback<OnOpenChange>((open, info) => {
     setIsOpen(open);
     onOpenChange(open, info);
-  }, []);
+  }, [onOpenChange]);
 
   useUiCleanupEvent(() => {
     setIsOpen(false);
+    onOpenChange(false, null);
   }, [UiEvent.CloseAllOverlays, UiEvent.CloseAllDropdowns]);
 
   return (
