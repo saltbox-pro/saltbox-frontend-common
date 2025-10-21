@@ -1,6 +1,12 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   ColumnFiltersState,
+  ExpandedState,
   OnChangeFn,
   Row,
   SortingState,
@@ -23,6 +29,7 @@ export type FastTableListedProps<DataType> = {
   isEmpty?: boolean;
   isLoading?: boolean;
   hideFooter?: boolean;
+  forceExpandAll?: boolean;
   onRowClick?: (
     item: DataType,
     event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
@@ -46,6 +53,23 @@ export type FastTableListedProps<DataType> = {
   };
 };
 
+function useExpanded({
+  forceExpandAll,
+}: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
+  const [expanded, setExpanded] = useState<ExpandedState | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    setExpanded(forceExpandAll || {});
+  }, [forceExpandAll]);
+
+  return {
+    expanded,
+    onExpandedChange: setExpanded,
+  };
+}
+
 export function FastTableListed<DataType>({
   columns,
   data,
@@ -53,6 +77,7 @@ export function FastTableListed<DataType>({
   isEmpty,
   isLoading,
   hideFooter,
+  forceExpandAll,
   onRowClick,
   renderSubComponent,
   getRowCanExpand,
@@ -79,10 +104,10 @@ export function FastTableListed<DataType>({
   const measureColumnWidths = React.useCallback(() => {
     if (!tableContainerRef.current) return;
 
-    const tableElement = tableContainerRef.current.querySelector('table');
+    const tableElement = tableContainerRef.current.querySelector("table");
     if (!tableElement) return;
 
-    const headerCells = tableElement.querySelectorAll('thead th');
+    const headerCells = tableElement.querySelectorAll("thead th");
     const widths: Record<string, number> = {};
 
     headerCells.forEach((cell, index) => {
@@ -113,12 +138,14 @@ export function FastTableListed<DataType>({
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [data, measureColumnWidths]);
+
+  const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
 
   const table = useReactTable({
     columns,
@@ -132,8 +159,10 @@ export function FastTableListed<DataType>({
     manualPagination: false,
     filterFns: {},
     onSortingChange,
+    onExpandedChange,
     state: {
       sorting,
+      expanded,
     },
     enableSorting: !!sorting,
   });
@@ -155,7 +184,15 @@ export function FastTableListed<DataType>({
               <td
                 key={cell.id}
                 className={(cell.column.columnDef.meta as any)?.tdClassName}
-                style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+                style={
+                  width
+                    ? {
+                        width: `${width}px`,
+                        minWidth: `${width}px`,
+                        maxWidth: `${width}px`,
+                      }
+                    : undefined
+                }
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
@@ -213,11 +250,17 @@ export function FastTableListed<DataType>({
   };
 
   return (
-    <div className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}>
+    <div
+      className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}
+    >
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table>
           <thead>
-            <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
+            <FastTableHeader
+              table={table}
+              locale={tableLocale}
+              columnWidths={columnWidths}
+            />
           </thead>
           <tbody>
             {renderTableRows()}
