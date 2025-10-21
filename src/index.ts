@@ -3,11 +3,13 @@ export * from "./components/fast-table/fast-table-paginated/fast-table-paginated
 export * from "./components/page-header/page-header";
 export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
+export * from "./components/antd-wrappers/dropdown";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
+export * from "./utils/func-utils";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
