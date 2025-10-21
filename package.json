@@ -19,15 +19,15 @@
     "@tanstack/react-virtual": "^3.13.12",
     "antd": "5.26.0",
     "mobx": "6.13.7",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
     "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
     "@tanstack/react-table": "8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.1.6",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react": "^5.0.2",
     "antd": "5.26.0",
     "mobx": "6.13.7",
