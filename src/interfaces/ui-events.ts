@@ -6,4 +6,5 @@ export enum UiEvent {
   CloseAllDrawers = "ui.close_all_drawers",
   CloseAllModals = "ui.close_all_modals",
   CloseAllDropdowns = "ui.close_all_dropdowns",
+  CloseAllPopovers = "ui.close_all_popovers",
 }

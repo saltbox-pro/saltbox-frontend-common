@@ -4,6 +4,7 @@ export * from "./components/page-header/page-header";
 export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";
+export * from "./components/antd-wrappers/popover";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
