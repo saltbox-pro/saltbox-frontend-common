@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import {
+  ExpandedState,
   OnChangeFn,
   PaginationState,
   Row,
@@ -48,7 +49,27 @@ export type FastTablePaginatedProps<DataType> = {
   };
   enableVirtualScroll?: boolean;
   estimateRowHeight?: number;
+  forceExpandAll?: boolean;
+  renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
+  getRowCanExpand?: (row: Row<DataType>) => boolean;
 };
+
+function useExpanded({
+  forceExpandAll,
+}: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
+  const [expanded, setExpanded] = useState<ExpandedState | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    setExpanded(forceExpandAll || {});
+  }, [forceExpandAll]);
+
+  return {
+    expanded,
+    onExpandedChange: setExpanded,
+  };
+}
 
 export function FastTablePaginated<DataType>({
   columns,
@@ -65,6 +86,9 @@ export function FastTablePaginated<DataType>({
   locale,
   enableVirtualScroll = false,
   estimateRowHeight = 45,
+  forceExpandAll,
+  renderSubComponent,
+  getRowCanExpand,
 }: FastTablePaginatedProps<DataType>) {
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
     delay: 0,
@@ -73,13 +97,17 @@ export function FastTablePaginated<DataType>({
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
 
+  const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
+
   const table = useReactTable({
     columns,
     data: stableData,
     getRowId,
     getCoreRowModel: getCoreRowModel<DataType>(),
     getPaginationRowModel: getPaginationRowModel(),
+    getRowCanExpand: getRowCanExpand,
     onRowSelectionChange,
+    onExpandedChange,
     onSortingChange: (updaterOrValue) => {
       const nextSorting =
         typeof updaterOrValue === "function"
@@ -98,6 +126,7 @@ export function FastTablePaginated<DataType>({
       pagination,
       sorting,
       rowSelection,
+      expanded,
     },
     enableSorting: !!sorting,
     manualSorting: true,
@@ -208,14 +237,23 @@ export function FastTablePaginated<DataType>({
   const renderTableRows = () => {
     if (!enableVirtualScroll) {
       return rows.map((row) => (
-        <tr
-          key={row.id}
-          onClick={(event) =>
-            onRowClick ? onRowClick(toJS(row.original), event) : undefined
-          }
-        >
-          {renderTableRow(row)}
-        </tr>
+        <Fragment key={`${row.id}-group-row`}>
+          <tr
+            key={row.id}
+            onClick={(event) =>
+              onRowClick ? onRowClick(toJS(row.original), event) : undefined
+            }
+          >
+            {renderTableRow(row)}
+          </tr>
+          {row.getIsExpanded() && (
+            <tr key={`${row.id}-sub-row`}>
+              <td colSpan={row.getVisibleCells().length}>
+                {renderSubComponent?.({ row })}
+              </td>
+            </tr>
+          )}
+        </Fragment>
       ));
     }
 
@@ -237,16 +275,25 @@ export function FastTablePaginated<DataType>({
         {virtualRows.map((virtualRow) => {
           const row = rows[virtualRow.index];
           return (
-            <tr
-              key={row.id}
-              data-index={virtualRow.index}
-              ref={rowVirtualizer.measureElement}
-              onClick={(event) =>
-                onRowClick ? onRowClick(toJS(row.original), event) : undefined
-              }
-            >
-              {renderTableRow(row)}
-            </tr>
+            <Fragment key={`${row.id}-group-row`}>
+              <tr
+                key={row.id}
+                data-index={virtualRow.index}
+                ref={rowVirtualizer.measureElement}
+                onClick={(event) =>
+                  onRowClick ? onRowClick(toJS(row.original), event) : undefined
+                }
+              >
+                {renderTableRow(row)}
+              </tr>
+              {row.getIsExpanded() && (
+                <tr key={`${row.id}-sub-row`}>
+                  <td colSpan={row.getVisibleCells().length}>
+                    {renderSubComponent?.({ row })}
+                  </td>
+                </tr>
+              )}
+            </Fragment>
           );
         })}
         {paddingBottom > 0 && (
