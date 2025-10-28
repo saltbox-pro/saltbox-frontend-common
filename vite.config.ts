@@ -21,8 +21,6 @@ export default defineConfig({
         'react',
         'react-dom',
         'antd',
-        '@tanstack/react-table',
-        '@tanstack/react-virtual',
         'mobx',
         'mobx-react'
       ],
@@ -31,8 +29,6 @@ export default defineConfig({
           react: 'React',
           'react-dom': 'ReactDOM',
           antd: 'antd',
-          '@tanstack/react-table': 'ReactTable',
-          '@tanstack/react-virtual': 'ReactVirtual',
           mobx: 'mobx',
         }
       }

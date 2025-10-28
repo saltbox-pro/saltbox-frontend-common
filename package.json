@@ -1,6 +1,6 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
@@ -15,8 +15,6 @@
   },
   "peerDependencies": {
     "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
-    "@tanstack/react-table": "8.21.3",
-    "@tanstack/react-virtual": "^3.13.12",
     "antd": "5.26.0",
     "mobx": "6.13.7",
     "mobx-react": "9.1.0",
@@ -27,14 +25,14 @@
     "@material-symbols/font-300": "^0.38.0",
     "@react-querybuilder/antd": "^8.11.1",
     "@react-querybuilder/dnd": "^8.11.1",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.12",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-querybuilder": "^8.11.1"
   },
   "devDependencies": {
     "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
-    "@tanstack/react-table": "8.21.3",
-    "@tanstack/react-virtual": "^3.13.12",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react": "^5.0.2",
