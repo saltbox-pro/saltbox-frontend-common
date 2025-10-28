@@ -1,7 +1,10 @@
 import { OptionList, RuleGroupType, formatQuery } from "react-querybuilder";
-import { parseMongoDB } from 'react-querybuilder/parseMongoDB';
+import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 import { action, computed, observable } from "mobx";
-import { customRuleProcessorMongoDB, generateIdsForQuery } from "../utils/query-builder-utils";
+import {
+  customRuleProcessorMongoDB,
+  generateIdsForQuery,
+} from "../utils/query-builder-utils";
 
 const emptyFilters: RuleGroupType = {
   rules: [],
@@ -14,6 +17,7 @@ export class FilterStore {
   @observable searchFilters: RuleGroupType = emptyFilters;
   @observable isLoading: boolean = false;
   @observable filterSchema: OptionList = [];
+  private _queryCache = { key: "", value: {} };
 
   @computed
   get isSearchEnabled() {
@@ -41,12 +45,14 @@ export class FilterStore {
 
   @computed
   get searchMongoDBQuery(): object {
-    return JSON.parse(
-      formatQuery(this.searchFilters, {
-        format: 'mongodb',
-        valueProcessor: customRuleProcessorMongoDB,
-      }),
-    );
+    const currentQueryString = this.searchMongoDBQueryString;
+    if (currentQueryString !== this._queryCache.key) {
+      this._queryCache = {
+        key: currentQueryString,
+        value: JSON.parse(currentQueryString),
+      }
+    }
+    return this._queryCache.value;
   }
 
   @action
@@ -54,4 +60,12 @@ export class FilterStore {
     this.currentFilters = generateIdsForQuery(parseMongoDB(query));
     this.handleSearch();
   };
+
+  @computed
+  private get searchMongoDBQueryString(): string {
+    return formatQuery(this.searchFilters, {
+      format: "mongodb",
+      valueProcessor: customRuleProcessorMongoDB,
+    });
+  }
 }
