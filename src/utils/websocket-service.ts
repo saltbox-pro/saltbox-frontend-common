@@ -1,23 +1,15 @@
 export class WebSocketService<T> {
   private ws: WebSocket | null;
-  private reconnectAttempts: number;
-  private maxReconnectAttempts: number;
   private accessToken: string | null;
   private messageBuffer: T[];
   private flushTimeout: number | null;
-  private isManualDisconnect: boolean;
 
   readonly BUFFER_FLUSH_INTERVAL_MS = 2000;
-  readonly RECONNECT_INTERVAL_MS = 1000;
-  readonly RECONNECT_MAX_ATTEMPTS = 5;
 
-  constructor(maxReconnectAttempts: number | undefined = undefined) {
+  constructor() {
     this.ws = null;
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = maxReconnectAttempts ?? this.RECONNECT_MAX_ATTEMPTS;
     this.accessToken = null;
     this.messageBuffer = [];
-    this.isManualDisconnect = false;
   }
 
   sendAccessToken = (accessToken: string | null) => {
@@ -33,11 +25,10 @@ export class WebSocketService<T> {
 
   connect = (url: string, accessToken: string | null, onMessage: (update: Array<T>) => void) => {
     try {
-      this.isManualDisconnect = false;
       this.ws = new WebSocket(url);
+      this.clearBuffer();
 
       this.ws.onopen = () => {
-        this.reconnectAttempts = 0;
         this.sendAccessToken(accessToken);
       };
 
@@ -54,7 +45,7 @@ export class WebSocketService<T> {
       };
 
       this.ws.onclose = () => {
-        this.handleReconnect(url, onMessage);
+        this.clearBuffer();
       };
 
       this.ws.onerror = (error) => {
@@ -70,31 +61,24 @@ export class WebSocketService<T> {
     if (this.messageBuffer.length > 0) {
       this.flushTimeout = setTimeout(() => {
         onMessage([...this.messageBuffer]);
-        this.messageBuffer = [];
-        this.flushTimeout = null;
+        this.clearBuffer();
       }, this.BUFFER_FLUSH_INTERVAL_MS);
     }
   }
 
-  private handleReconnect = (url: string, onMessage: (update: Array<T>) => void) => {
-    if (this.isManualDisconnect) {
-      return;
-    }
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      setTimeout(() => {
-        this.connect(url, this.accessToken, onMessage);
-      },
-        this.RECONNECT_INTERVAL_MS * this.reconnectAttempts
-      );
+  private clearBuffer = () => {
+    this.messageBuffer = [];
+    if (this.flushTimeout) {
+      clearTimeout(this.flushTimeout);
+      this.flushTimeout = null;
     }
   }
 
   disconnect = () => {
     if (this.ws) {
-      this.isManualDisconnect = true;
       this.ws.close();
       this.ws = null;
+      this.clearBuffer();
     }
   }
 }
