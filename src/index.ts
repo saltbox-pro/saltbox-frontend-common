@@ -24,6 +24,7 @@ export * from "./utils/custom-events";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
+export * from "./utils/query-builder-utils";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
