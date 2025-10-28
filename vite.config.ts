@@ -23,7 +23,8 @@ export default defineConfig({
         'antd',
         '@tanstack/react-table',
         '@tanstack/react-virtual',
-        'mobx'
+        'mobx',
+        'mobx-react'
       ],
       output: {
         globals: {
