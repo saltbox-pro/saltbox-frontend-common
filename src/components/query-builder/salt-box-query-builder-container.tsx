@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState } from "react";
+import { FC, ReactElement, useEffect, useState } from "react";
 import * as ReactDnD from "react-dnd";
 import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
 import { useTranslation } from "react-i18next";
@@ -46,8 +46,12 @@ export const SaltBoxQueryBuilderContainer = observer(
     const handleResetClick = () => {
       props.filterStore.handleResetFilters();
       props.onResetButtonClick?.();
-      setQueryBuilderId(queryBuilderId + 1);
+      setQueryBuilderId(prev => prev + 1);
     };
+
+    useEffect(() => {
+      setQueryBuilderId(prev => prev + 1);
+    }, [props.filterStore.currentFilters.rules.length]);
 
     return (
       props?.filterStore && (
