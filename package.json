@@ -1,6 +1,6 @@
 {
   "name": "@saltbox/saltbox-frontend-common",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,8 @@
     "mobx": "6.13.7",
     "mobx-react": "9.1.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-i18next": "^15.7.4"
   },
   "dependencies": {
     "@material-symbols/font-300": "^0.38.0",
@@ -41,6 +42,7 @@
     "mobx-react": "9.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-i18next": "^15.7.4",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",
     "vite-plugin-dts": "^4.5.4",

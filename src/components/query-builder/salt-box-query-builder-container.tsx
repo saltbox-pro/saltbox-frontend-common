@@ -1,7 +1,7 @@
 import { FC, ReactElement, useState } from "react";
 import * as ReactDnD from "react-dnd";
 import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import QueryBuilder, {
   ValueEditorProps,
   ValueSelectorProps,
@@ -28,11 +28,9 @@ type SaltBoxQueryBuilderContainerProps = {
   onResetButtonClick?: () => void;
 };
 
-const t = (str: string) => str;
-
 export const SaltBoxQueryBuilderContainer = observer(
   (props: SaltBoxQueryBuilderContainerProps) => {
-    // const { t } = useTranslation();
+    const { t } = useTranslation("common");
     const [queryBuilderId, setQueryBuilderId] = useState(0);
 
     const getQueryBuilderKey = () => {
@@ -69,20 +67,20 @@ export const SaltBoxQueryBuilderContainer = observer(
                     controlElements={props.controlElements}
                     translations={{
                       addGroup: {
-                        label: t("querybuilder-filters.add-group"),
-                        title: t("querybuilder-filters.add-group-title"),
+                        label: t("query-builder.add-group"),
+                        title: t("query-builder.add-group-title"),
                       },
                       addRule: {
-                        label: t("querybuilder-filters.add-rule"),
-                        title: t("querybuilder-filters.add-rule-title"),
+                        label: t("query-builder.add-rule"),
+                        title: t("query-builder.add-rule-title"),
                       },
                       removeRule: {
-                        label: t("querybuilder-filters.remove-rule"),
-                        title: t("querybuilder-filters.remove-rule-title"),
+                        label: t("query-builder.remove-rule"),
+                        title: t("query-builder.remove-rule-title"),
                       },
                       removeGroup: {
-                        label: t("querybuilder-filters.remove-group"),
-                        title: t("querybuilder-filters.remove-group-title"),
+                        label: t("query-builder.remove-group"),
+                        title: t("query-builder.remove-group-title"),
                       },
                     }}
                   />
@@ -98,7 +96,7 @@ export const SaltBoxQueryBuilderContainer = observer(
                 icon={<SearchOutlined />}
                 type="primary"
               >
-                {t("filters.search")}
+                {t("query-builder.search")}
               </Button>
               <div className={styles.buttons}>
                 <Button
@@ -107,7 +105,7 @@ export const SaltBoxQueryBuilderContainer = observer(
                   disabled={props.filterStore.currentFilters.rules.length === 0}
                   onClick={handleResetClick}
                   icon={<MatIcon icon="filter_alt_off" />}
-                  title={t("minions.reset")}
+                  title={t("query-builder.reset")}
                 />
                 {props?.additionalButtons}
               </div>

@@ -32,3 +32,6 @@ export * from "./interfaces/ui-events";
 export * from "./hooks/useUiCleanupEvent";
 
 export * from "./store/filter-store";
+
+export { default as enCommon } from "./locales/en/common.json";
+export { default as ruCommon } from "./locales/ru/common.json";

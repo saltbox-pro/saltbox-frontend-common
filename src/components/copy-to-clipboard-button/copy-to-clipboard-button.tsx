@@ -1,12 +1,10 @@
 import { ComponentProps } from "react";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Button, message } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 import styles from "./copy-to-clipboard-button.module.css";
 
 type ButtonType = ComponentProps<typeof Button>["type"];
-
-const t = (str: string) => str;
 
 export function CopyToClipboardButton({
   text,
@@ -15,7 +13,7 @@ export function CopyToClipboardButton({
   text: string;
   type?: ButtonType;
 }) {
-  // const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const [messageApi, contextHolder] = message.useMessage();
 
   return (
@@ -27,9 +25,9 @@ export function CopyToClipboardButton({
         type={type}
         shape="circle"
         size="small"
-        title={t("base.copy-to-clipboard")}
+        title={t("copy-to-clipboard-button.copy")}
         onClick={() => {
-          messageApi.success(t("base.copied-to-clipboard"));
+          messageApi.success(t("copy-to-clipboard-button.copied"));
           navigator.clipboard.writeText(text);
         }}
       />

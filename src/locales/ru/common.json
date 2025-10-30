@@ -1,0 +1,18 @@
+{
+  "copy-to-clipboard-button": {
+    "copied": "Скопировано в буфер обмена",
+    "copy": "Скопировать в буфер обмена"
+  },
+  "query-builder": {
+    "add-group": "+ Группу фильтров",
+    "add-rule": "+ Фильтр",
+    "remove-rule": "Удалить фильтр",
+    "remove-group": "Удалить группу фильтров",
+    "add-group-title": "Добавить группу фильтров",
+    "add-rule-title": "Добавить фильтр",
+    "remove-rule-title": "Удалить фильтр",
+    "remove-group-title": "Удалить группу фильтров",
+    "search": "Поиск",
+    "reset": "Сбросить"
+  }
+}

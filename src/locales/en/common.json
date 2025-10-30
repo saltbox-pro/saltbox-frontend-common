@@ -1,0 +1,18 @@
+{
+  "copy-to-clipboard-button": {
+    "copied": "Copied to clipboard",
+    "copy": "Copy to clipboard"
+  },
+  "query-builder": {
+    "add-group": "+ Group",
+    "add-rule": "+ Rule",
+    "remove-rule": "Remove Rule",
+    "remove-group": "Remove Group",
+    "add-group-title": "Add Filters Group",
+    "add-rule-title": "Add Filters Rule",
+    "remove-rule-title": "Remove Filters Rule",
+    "remove-group-title": "Remove Filters Group",
+    "search": "Search",
+    "reset": "Reset"
+  }
+}

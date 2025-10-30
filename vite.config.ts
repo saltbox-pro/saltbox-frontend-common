@@ -1,37 +1,34 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import dts from "vite-plugin-dts";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    dts({ include: ['src'] }),
-    tsconfigPaths(),
-  ],
+  plugins: [react(), dts({ include: ["src"] }), tsconfigPaths()],
   build: {
     lib: {
-      entry: 'src/index.ts',
-      name: 'saltbox-frontend-common',
-      formats: ['es'],
-      fileName: (format) => `saltbox-frontend-common.${format}.js`
+      entry: "src/index.ts",
+      name: "saltbox-frontend-common",
+      formats: ["es"],
+      fileName: (format) => `saltbox-frontend-common.${format}.js`,
     },
     rollupOptions: {
       external: [
-        'react',
-        'react-dom',
-        'antd',
-        'mobx',
-        'mobx-react'
+        "react",
+        "react-dom",
+        "antd",
+        "mobx",
+        "mobx-react",
+        "react-i18next",
       ],
       output: {
         globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          antd: 'antd',
-          mobx: 'mobx',
-        }
-      }
-    }
-  }
+          react: "React",
+          "react-dom": "ReactDOM",
+          antd: "antd",
+          mobx: "mobx",
+        },
+      },
+    },
+  },
 });
