@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ExpandedState,
   OnChangeFn,
@@ -155,7 +155,7 @@ export function FastTablePaginated<DataType>({
     setTableLocale(nextLocale);
   }, [locale]);
 
-  const measureColumnWidths = React.useCallback(() => {
+  const measureColumnWidths = useCallback(() => {
     if (!tableContainerRef.current) return;
 
     const tableElement = tableContainerRef.current.querySelector('table');
@@ -214,10 +214,23 @@ export function FastTablePaginated<DataType>({
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => estimateRowHeight,
-    overscan: 10,
+    estimateSize: (index) => {
+      const row = rows[index];
+      return row?.getIsExpanded() ? estimateRowHeight * 20 : estimateRowHeight;
+    },
+    overscan: 20,
     enabled: enableVirtualScroll,
   });
+
+  useLayoutEffect(() => {
+    if (enableVirtualScroll && expanded) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          rowVirtualizer.measure();
+        });
+      });
+    }
+  }, [expanded, enableVirtualScroll, rowVirtualizer]);
 
   const renderTableRow = (row: Row<DataType>) => {
     return row.getVisibleCells().map((cell, index) => {

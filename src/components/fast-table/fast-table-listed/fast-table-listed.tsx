@@ -1,5 +1,6 @@
-import React, {
+import {
   Fragment,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -101,7 +102,7 @@ export function FastTableListed<DataType>({
     setTableLocale(nextLocale);
   }, [locale]);
 
-  const measureColumnWidths = React.useCallback(() => {
+  const measureColumnWidths = useCallback(() => {
     if (!tableContainerRef.current) return;
 
     const tableElement = tableContainerRef.current.querySelector("table");
@@ -187,10 +188,10 @@ export function FastTableListed<DataType>({
                 style={
                   width
                     ? {
-                        width: `${width}px`,
-                        minWidth: `${width}px`,
-                        maxWidth: `${width}px`,
-                      }
+                      width: `${width}px`,
+                      minWidth: `${width}px`,
+                      maxWidth: `${width}px`,
+                    }
                     : undefined
                 }
               >
