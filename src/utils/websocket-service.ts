@@ -23,13 +23,16 @@ export class WebSocketService<T> {
     return this.ws && this.ws.readyState === WebSocket.OPEN;
   }
 
-  connect = (url: string, accessToken: string | null, onMessage: (update: Array<T>) => void) => {
+  connect = (url: string, accessToken: string | null, events: { onMessage?: (update: Array<T>) => void, onOpen?: () => void }) => {
     try {
       this.ws = new WebSocket(url);
       this.clearBuffer();
 
       this.ws.onopen = () => {
         this.sendAccessToken(accessToken);
+        if (events?.onOpen) {
+          events.onOpen();
+        }
       };
 
       this.ws.onmessage = (event: MessageEvent<string>) => {
@@ -37,7 +40,7 @@ export class WebSocketService<T> {
           const parsedData = JSON.parse(event.data) as T;
           this.messageBuffer.push(parsedData);
           if (!this.flushTimeout) {
-            this.flushBuffer(onMessage);
+            this.flushBuffer(events?.onMessage || (() => { }));
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
