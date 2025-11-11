@@ -1,4 +1,12 @@
-import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   ExpandedState,
   OnChangeFn,
@@ -13,7 +21,7 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { toJS } from "mobx";
-import { Empty, Pagination, PaginationProps, Spin } from "antd";
+import { Empty, Flex, Pagination, PaginationProps, Spin } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 import {
@@ -43,10 +51,10 @@ export type FastTablePaginatedProps<DataType> = {
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
   locale?: PaginationLocale &
-  HeaderLocale & {
-    total?: string;
-    empty?: string;
-  };
+    HeaderLocale & {
+      total?: string;
+      empty?: string;
+    };
   enableVirtualScroll?: boolean;
   estimateRowHeight?: number;
   forceExpandAll?: boolean;
@@ -71,6 +79,88 @@ function useExpanded({
   };
 }
 
+function useColumnWidths<DataType>(
+  tableContainerRef: RefObject<HTMLElement>,
+  data: DataType[]
+) {
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+
+  const measureColumnWidths = useCallback(() => {
+    if (!tableContainerRef.current) return;
+
+    const tableElement = tableContainerRef.current.querySelector("table");
+    if (!tableElement) return;
+
+    const headerCells = tableElement.querySelectorAll("thead th");
+    const widths: Record<string, number> = {};
+
+    headerCells.forEach((cell, index) => {
+      const width = cell.getBoundingClientRect().width;
+      widths[`col-${index}`] = width;
+    });
+
+    setColumnWidths(widths);
+  }, []);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || data.length === 0) return;
+
+    const timer = setTimeout(() => {
+      measureColumnWidths();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [data, measureColumnWidths]);
+
+  useEffect(() => {
+    if (!tableContainerRef.current || data.length === 0) return;
+
+    const handleResize = () => {
+      setColumnWidths({});
+      requestAnimationFrame(() => {
+        measureColumnWidths();
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [data, measureColumnWidths]);
+
+  const shouldInitializeColumnWidths = !Object.keys(columnWidths).length;
+
+  return { columnWidths, shouldInitializeColumnWidths };
+}
+
+function useRowVirtualizer<DataType>(
+  tableContainerRef: RefObject<HTMLElement>,
+  rows: Array<Row<DataType>>,
+  estimateRowHeight: number,
+  enableVirtualScroll: boolean,
+  expanded: ReturnType<typeof useExpanded>["expanded"]
+) {
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: (index) => {
+      const row = rows[index];
+      return row?.getIsExpanded() ? estimateRowHeight * 20 : estimateRowHeight;
+    },
+    overscan: 20,
+    enabled: enableVirtualScroll,
+  });
+
+  useLayoutEffect(() => {
+    if (enableVirtualScroll && expanded) {
+      rowVirtualizer.measure();
+    }
+  }, [expanded, enableVirtualScroll]);
+
+  return { rowVirtualizer };
+}
+
 export function FastTablePaginated<DataType>({
   columns,
   data,
@@ -90,14 +180,15 @@ export function FastTablePaginated<DataType>({
   renderSubComponent,
   getRowCanExpand,
 }: FastTablePaginatedProps<DataType>) {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
     delay: 0,
   });
-
-  const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
+  const { columnWidths, shouldInitializeColumnWidths } = useColumnWidths(
+    tableContainerRef,
+    stableData
+  );
 
   const table = useReactTable({
     columns,
@@ -134,6 +225,16 @@ export function FastTablePaginated<DataType>({
     rowCount: total,
   });
 
+  const rows = table.getRowModel().rows;
+
+  const { rowVirtualizer } = useRowVirtualizer(
+    tableContainerRef,
+    rows,
+    estimateRowHeight,
+    enableVirtualScroll,
+    expanded
+  );
+
   const [tableLocale, setTableLocale] = useState(locale ?? {});
 
   useEffect(() => {
@@ -155,50 +256,6 @@ export function FastTablePaginated<DataType>({
     setTableLocale(nextLocale);
   }, [locale]);
 
-  const measureColumnWidths = useCallback(() => {
-    if (!tableContainerRef.current) return;
-
-    const tableElement = tableContainerRef.current.querySelector('table');
-    if (!tableElement) return;
-
-    const headerCells = tableElement.querySelectorAll('thead th');
-    const widths: Record<string, number> = {};
-
-    headerCells.forEach((cell, index) => {
-      const width = cell.getBoundingClientRect().width;
-      widths[`col-${index}`] = width;
-    });
-
-    setColumnWidths(widths);
-  }, []);
-
-  useEffect(() => {
-    if (!tableContainerRef.current || stableData.length === 0) return;
-
-    const timer = setTimeout(() => {
-      measureColumnWidths();
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [stableData, measureColumnWidths]);
-
-  useEffect(() => {
-    if (!tableContainerRef.current || stableData.length === 0) return;
-
-    const handleResize = () => {
-      setColumnWidths({});
-      requestAnimationFrame(() => {
-        measureColumnWidths();
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [stableData, measureColumnWidths]);
-
   const showTotal: PaginationProps["showTotal"] = (total) =>
     (tableLocale?.total ?? "Total:") + ` ${total}`;
 
@@ -209,29 +266,6 @@ export function FastTablePaginated<DataType>({
     });
   };
 
-  const rows = table.getRowModel().rows;
-
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => tableContainerRef.current,
-    estimateSize: (index) => {
-      const row = rows[index];
-      return row?.getIsExpanded() ? estimateRowHeight * 20 : estimateRowHeight;
-    },
-    overscan: 20,
-    enabled: enableVirtualScroll,
-  });
-
-  useLayoutEffect(() => {
-    if (enableVirtualScroll && expanded) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          rowVirtualizer.measure();
-        });
-      });
-    }
-  }, [expanded, enableVirtualScroll, rowVirtualizer]);
-
   const renderTableRow = (row: Row<DataType>) => {
     return row.getVisibleCells().map((cell, index) => {
       const width = columnWidths[`col-${index}`];
@@ -239,44 +273,91 @@ export function FastTablePaginated<DataType>({
         <td
           key={cell.id}
           className={(cell.column.columnDef.meta as any)?.tdClassName}
-          style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+          style={
+            width
+              ? {
+                  width: `${width}px`,
+                  minWidth: `${width}px`,
+                  maxWidth: `${width}px`,
+                }
+              : undefined
+          }
         >
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </td>
       );
     });
-  }
+  };
 
-  const renderTableRows = () => {
-    if (!enableVirtualScroll) {
-      return rows.map((row) => (
-        <Fragment key={`${row.id}-group-row`}>
-          <tr
-            key={row.id}
-            onClick={(event) =>
-              onRowClick ? onRowClick(toJS(row.original), event) : undefined
-            }
-          >
-            {renderTableRow(row)}
+  const renderFirstRow = () => {
+    const row = rows[0];
+    if (!row) return null;
+    return (
+      <tr key={row.id} style={{ visibility: "hidden" }}>
+        {renderTableRow(row)}
+      </tr>
+    );
+  };
+
+  const renderTableRows = (rowCount?: number) => {
+    const rowsToRender =
+      rowCount === undefined ? rows : rows.slice(0, rowCount);
+    return rowsToRender.map((row) => (
+      <Fragment key={`${row.id}-group-row`}>
+        <tr
+          key={row.id}
+          onClick={(event) =>
+            onRowClick ? onRowClick(toJS(row.original), event) : undefined
+          }
+        >
+          {renderTableRow(row)}
+        </tr>
+        {row.getIsExpanded() && (
+          <tr key={`${row.id}-sub-row`}>
+            <td colSpan={row.getVisibleCells().length}>
+              {renderSubComponent?.({ row })}
+            </td>
           </tr>
-          {row.getIsExpanded() && (
-            <tr key={`${row.id}-sub-row`}>
-              <td colSpan={row.getVisibleCells().length}>
-                {renderSubComponent?.({ row })}
-              </td>
-            </tr>
-          )}
-        </Fragment>
-      ));
-    }
+        )}
+      </Fragment>
+    ));
+  };
 
+  const renderVirtualizedRows = () => {
     const virtualRows = rowVirtualizer.getVirtualItems();
     const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
     const paddingBottom =
       virtualRows.length > 0
         ? rowVirtualizer.getTotalSize() -
-        (virtualRows[virtualRows.length - 1]?.end || 0)
+          (virtualRows[virtualRows.length - 1]?.end || 0)
         : 0;
+
+    const renderRow = (row: Row<DataType>) => {
+      return row.getVisibleCells().map((cell, index) => {
+        const width = columnWidths[`col-${index}`];
+        return (
+          <div
+            key={cell.id}
+            className={`cell ${
+              (cell.column.columnDef.meta as any)?.tdClassName
+            }`}
+            style={
+              width
+                ? {
+                    width: `${width}px`,
+                    minWidth: `${width}px`,
+                    maxWidth: `${width}px`,
+                  }
+                : {
+                    flex: 1,
+                  }
+            }
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </div>
+        );
+      });
+    };
 
     return (
       <>
@@ -297,15 +378,15 @@ export function FastTablePaginated<DataType>({
                   onRowClick ? onRowClick(toJS(row.original), event) : undefined
                 }
               >
-                {renderTableRow(row)}
+                <td className="td" colSpan={row.getVisibleCells().length}>
+                  <Flex>{renderRow(row)}</Flex>
+                  {row.getIsExpanded() && (
+                    <div className="expanded-content">
+                      {renderSubComponent?.({ row })}
+                    </div>
+                  )}
+                </td>
               </tr>
-              {row.getIsExpanded() && (
-                <tr key={`${row.id}-sub-row`}>
-                  <td colSpan={row.getVisibleCells().length}>
-                    {renderSubComponent?.({ row })}
-                  </td>
-                </tr>
-              )}
             </Fragment>
           );
         })}
@@ -354,27 +435,32 @@ export function FastTablePaginated<DataType>({
   const shouldShowEmpty = !stableIsLoading && rows.length === 0;
 
   return (
-    <div className={`fast-table ${shouldShowEmpty && "empty"} ${enableVirtualScroll ? "virtual-scroll" : ""}`}>
+    <div
+      className={`fast-table ${shouldShowEmpty ? "empty" : ""} ${
+        enableVirtualScroll ? "virtual-scroll" : ""
+      }`}
+    >
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"
         className="fast-table-spinner"
         spinning={stableIsLoading}
       >
-        <div
-          className="fast-table-wrapper"
-          ref={tableContainerRef}
-          style={enableVirtualScroll ? {
-            height: '100%',
-            overflow: 'auto'
-          } : undefined}
-        >
+        <div className="fast-table-wrapper" ref={tableContainerRef}>
           <table>
             <thead>
-              <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
+              <FastTableHeader
+                table={table}
+                locale={tableLocale}
+                columnWidths={columnWidths}
+              />
             </thead>
             <tbody>
               {shouldShowEmpty && renderEmptyState()}
-              {renderTableRows()}
+              {shouldInitializeColumnWidths
+                ? renderFirstRow()
+                : enableVirtualScroll
+                ? renderVirtualizedRows()
+                : renderTableRows()}
             </tbody>
           </table>
         </div>

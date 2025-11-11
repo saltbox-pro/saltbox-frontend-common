@@ -12,6 +12,9 @@
 .fast-table.virtual-scroll .fast-table-wrapper {
   position: relative;
   contain: strict;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .fast-table .fast-table-spinner-wrapper.fast-table-spinner-wrapper {
@@ -52,10 +55,17 @@
   line-height: 1.1rem;
 }
 
-.fast-table table>tbody>tr>td {
+.fast-table table>tbody>tr>td,
+.fast-table.virtual-scroll .cell,
+.fast-table.virtual-scroll .expanded-content {
   border: 1px solid #f0f0f0;
   padding: 0.5rem 1rem;
   line-height: 1.1rem;
+}
+
+.fast-table.virtual-scroll .td {
+  padding: 0;
+  border: none;
 }
 
 .fast-table-summary {
