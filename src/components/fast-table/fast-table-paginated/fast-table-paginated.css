@@ -45,6 +45,23 @@
   height: 100%;
 }
 
+.fast-table .sample-row {
+  visibility: hidden;
+}
+
+.fast-table .virtual-tbody-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.fast-table .virtual-tbody-content {
+  position: relative;
+  will-change: transform;
+}
+
 .fast-table table>thead>tr>th {
   color: #000000;
   font-weight: 600;
@@ -55,17 +72,26 @@
   line-height: 1.1rem;
 }
 
+.fast-table .virtual-row-cells {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
 .fast-table table>tbody>tr>td,
-.fast-table.virtual-scroll .cell,
-.fast-table.virtual-scroll .expanded-content {
+.fast-table .virtual-cell,
+.fast-table .virtual-row-expanded {
   border: 1px solid #f0f0f0;
   padding: 0.5rem 1rem;
   line-height: 1.1rem;
 }
 
-.fast-table.virtual-scroll .td {
-  padding: 0;
-  border: none;
+.fast-table .virtual-row-expanded {
+  border-top: none;
+}
+
+.fast-table .sample-row td {
+  border-color: transparent;
 }
 
 .fast-table-summary {
