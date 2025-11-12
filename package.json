@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "vite build",
-    "build:watch": "vite build --watch --emptyOutDir false --sourcemap true"
+    "build:watch": "vite build --watch --emptyOutDir false --minify false --sourcemap true"
   },
   "peerDependencies": {
     "@saltbox/saltbox-core-api-client": "^0.0.1-f334d5f377add9ea8dbdfba68bcd9cef45cbdceb",
