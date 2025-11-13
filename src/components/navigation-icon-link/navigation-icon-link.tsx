@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Button } from "antd";
-import { LinkOutlined } from "@ant-design/icons";
+import { ExportOutlined } from "@ant-design/icons";
 
 export type NavigationIconLinkProps = {
   to: string;
@@ -15,7 +15,7 @@ export const NavigationIconLink = (props: NavigationIconLinkProps) => {
       type="link"
       size={"small"}
       href={to}
-      icon={icon ? icon : <LinkOutlined />}
+      icon={icon ? icon : <ExportOutlined />}
       target={target}
     />
   );
