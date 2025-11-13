@@ -6,6 +6,7 @@ export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";
 export * from "./components/antd-wrappers/popover";
 export * from "./components/copy-to-clipboard-button/copy-to-clipboard-button";
+export * from "./components/navigation-icon-link/navigation-icon-link";
 export * from "./components/mat-icon/mat-icon";
 export * from "./components/query-builder/salt-box-query-builder-container";
 export * from "./components/query-builder/salt-box-readonly-query-builder";
