@@ -86,6 +86,12 @@
   line-height: 1.1rem;
 }
 
+.fast-table .virtual-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .fast-table .virtual-row-expanded {
   border-top: none;
 }
