@@ -353,7 +353,7 @@ export function FastTablePaginated<DataType>({
           <div
             key={cell.id}
             className={`virtual-cell ${
-              (cell.column.columnDef.meta as any)?.tdClassName
+              (cell.column.columnDef.meta as any)?.tdClassName || ""
             }`}
             style={
               width
