@@ -43,6 +43,11 @@ export class FilterStore {
     this.searchFilters = this.currentFilters;
   };
 
+  @action
+  updateFilterSchema = (filterSchema: OptionList) => {
+    this.filterSchema = filterSchema;
+  }
+
   @computed
   get searchMongoDBQuery(): object {
     const currentQueryString = this.searchMongoDBQueryString;
