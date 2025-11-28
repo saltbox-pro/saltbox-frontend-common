@@ -1,0 +1,61 @@
+/* Main container */
+.slsEditor {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-width: 800px;
+    overflow: hidden;
+}
+
+/* Tabs container */
+.tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Make tabs content holder fill remaining space */
+.tabs :global(.ant-tabs-content-holder) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Make tabs content fill available space */
+.tabs :global(.ant-tabs-content) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Make each tab pane take full height */
+.tabs :global(.ant-tabs-tabpane) {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Only active tab pane should be flex container */
+.tabs :global(.ant-tabs-tabpane-active) {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tab content wrapper */
+.tabContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Placeholder for components in development */
+.placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
