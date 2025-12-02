@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import React, { useState } from "react";
 import { SlsEditor } from "./SlsEditor";
 import {
   exampleFileManagementSls,
   exampleUserManagementSls,
   exampleServerConfigSls,
 } from "./SlsEditor.examples";
+import { SlsPreviewWrapper } from "./components/SlsPreview";
 
 const meta = {
   title: "Components/SlsEditor",
@@ -108,23 +110,13 @@ export const SlsEditorTab: Story = {
 };
 
 /**
- * With additional tabs
+ * With additional tabs including Final SLS Preview
  */
 export const WithAdditionalTabs: Story = {
   args: {
     sls: exampleFileManagementSls,
     defaultTab: "form-editor",
     additionalTabs: [
-      {
-        key: "preview",
-        title: "Preview",
-        content: (
-          <div style={{ padding: 24 }}>
-            <h2>SLS Preview</h2>
-            <p>SLS execution result preview will be displayed here</p>
-          </div>
-        ),
-      },
       {
         key: "help",
         title: "Help",
@@ -146,7 +138,7 @@ export const WithAdditionalTabs: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Example with two additional tabs: "Preview" and "Help".',
+        story: 'Example with additional tabs: "Help". ',
       },
     },
   },
@@ -215,6 +207,49 @@ export const LongForm: Story = {
       description: {
         story:
           "Example with very long form (server configuration). Tests scrolling behavior - left panel (schema editor) is fixed, right panel (form preview) scrolls independently.",
+      },
+    },
+  },
+};
+
+/**
+ * With Final SLS Preview Tab (working solution)
+ */
+export const WithFinalSlsPreview: Story = {
+  render: () => {
+    const [currentSls, setCurrentSls] = useState(exampleFileManagementSls);
+    const [previewKey, setPreviewKey] = useState(0);
+
+    const handleSlsChange = (newSls: string) => {
+      setCurrentSls(newSls);
+      // Force preview component to remount with new data
+      setPreviewKey((prev) => prev + 1);
+    };
+
+    const staticTabs = [
+      {
+        key: "final-preview",
+        title: "Final SLS",
+        // Use key to force remount when SLS changes
+        content: <SlsPreviewWrapper key={previewKey} sls={currentSls} />,
+      },
+    ];
+
+    return (
+      <SlsEditor
+        key="editor"
+        sls={exampleFileManagementSls}
+        onSlsChange={handleSlsChange}
+        defaultTab="form-editor"
+        additionalTabs={staticTabs}
+      />
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Example with "Final SLS" preview tab that updates when you make changes.',
       },
     },
   },

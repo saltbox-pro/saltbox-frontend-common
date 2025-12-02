@@ -29,3 +29,10 @@ export {
   buildJinjaVariable,
   extractFieldPaths,
 } from "./utils/fieldPathBuilder";
+
+export {
+  generateSimplePillarTemplate,
+  generateFallbackPillarTemplate,
+  generatePillarTemplate,
+  PillarTemplateType,
+} from "./utils/jinjaTemplates";
