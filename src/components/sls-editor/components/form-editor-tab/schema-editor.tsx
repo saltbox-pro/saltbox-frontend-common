@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Tabs } from "antd";
 import type { FormSchema, JSONSchema, UISchema } from "../../types";
-import { VisualEditorTab } from "./VisualEditorTab";
-import { JsonSchemaTab } from "./JsonSchemaTab";
-import { UiSchemaTab } from "./UiSchemaTab";
-import styles from "./SchemaEditor.module.css";
+import { VisualEditorTab } from "./visual-editor-tab";
+import { JsonSchemaTab } from "./json-schema-tab";
+import { UiSchemaTab } from "./ui-schema-tab";
+import styles from "./schema-editor.module.css";
 
 interface SchemaEditorProps {
   schema: FormSchema;

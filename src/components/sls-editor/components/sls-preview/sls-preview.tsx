@@ -1,8 +1,8 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
 import type { FormSchema } from "../../types";
-import { combineSchemaAndBody } from "../../utils/slsParser";
-import styles from "./SlsPreview.module.css";
+import { combineSchemaAndBody } from "../../utils/sls-parser";
+import styles from "./sls-preview.module.css";
 
 export interface SlsPreviewProps {
   /**

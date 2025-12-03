@@ -7,10 +7,10 @@ import {
   combineSchemaAndBody,
   getEmptySchema,
   getEmptySlsBody,
-} from "./utils/slsParser";
-import { FormEditorTab } from "./components/FormEditorTab/FormEditorTab";
-import { SlsEditorTab } from "./components/SlsEditorTab";
-import styles from "./SlsEditor.module.css";
+} from "./utils/sls-parser";
+import { FormEditorTab } from "./components/form-editor-tab/form-editor-tab";
+import { SlsEditorTab } from "./components/sls-editor-tab";
+import styles from "./sls-editor.module.css";
 
 /**
  * SlsEditor - component for editing Salt State files with integrated JSON Schema form editor

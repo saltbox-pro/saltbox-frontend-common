@@ -1,5 +1,5 @@
 // Main component
-export { SlsEditor } from "./SlsEditor";
+export { SlsEditor } from "./sls-editor";
 
 // Types
 export type {
@@ -20,19 +20,19 @@ export {
   getEmptySchema,
   getEmptySlsBody, // v2
   getEmptySls, // @deprecated - use getEmptySlsBody + combineSchemaAndBody
-} from "./utils/slsParser";
+} from "./utils/sls-parser";
 
-export { validateJSONSchema, isValidSchema } from "./utils/schemaValidator";
+export { validateJSONSchema, isValidSchema } from "./utils/schema-validator";
 
 export {
   buildFieldPath,
   buildJinjaVariable,
   extractFieldPaths,
-} from "./utils/fieldPathBuilder";
+} from "./utils/field-path-builder";
 
 export {
   generateSimplePillarTemplate,
   generateFallbackPillarTemplate,
   generatePillarTemplate,
   PillarTemplateType,
-} from "./utils/jinjaTemplates";
+} from "./utils/jinja-templates";

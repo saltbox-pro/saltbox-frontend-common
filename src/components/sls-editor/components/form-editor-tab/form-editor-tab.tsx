@@ -1,8 +1,8 @@
 import React from "react";
 import type { FormSchema } from "../../types";
-import { SchemaEditor } from "./SchemaEditor";
-import { FormPreview } from "./FormPreview";
-import styles from "./FormEditorTab.module.css";
+import { SchemaEditor } from "./schema-editor";
+import { FormPreview } from "./form-preview";
+import styles from "./form-editor-tab.module.css";
 import PlusCircleOutlined from "@ant-design/icons/PlusCircleOutlined";
 import { Button } from "antd";
 

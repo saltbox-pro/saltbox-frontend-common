@@ -4,8 +4,8 @@ import type { RadioChangeEvent } from "antd";
 import {
   generatePillarTemplate,
   PillarTemplateType,
-} from "../../utils/jinjaTemplates";
-import styles from "./PillarInsertModal.module.css";
+} from "../../utils/jinja-templates";
+import styles from "./pillar-insert-modal.module.css";
 
 const { Text } = Typography;
 

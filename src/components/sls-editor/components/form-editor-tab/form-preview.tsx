@@ -3,7 +3,7 @@ import Form from "@rjsf/antd";
 import validator from "@rjsf/validator-ajv8";
 import { Alert, Typography } from "antd";
 import type { FormSchema } from "../../types";
-import styles from "./FormPreview.module.css";
+import styles from "./form-preview.module.css";
 
 interface FormPreviewProps {
   schema: FormSchema;

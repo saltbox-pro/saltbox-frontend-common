@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { FormSchema } from "../types";
-import { parseSchemaFromSls, getEmptySchema } from "../utils/slsParser";
-import { isValidSchema } from "../utils/schemaValidator";
+import { parseSchemaFromSls, getEmptySchema } from "../utils/sls-parser";
+import { isValidSchema } from "../utils/schema-validator";
 
 /**
  * Hook for parsing schema from SLS with error handling

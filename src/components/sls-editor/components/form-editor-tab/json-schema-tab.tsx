@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { Alert } from "antd";
 import type { JSONSchema } from "../../types";
-import { validateJSONSchema } from "../../utils/schemaValidator";
+import { validateJSONSchema } from "../../utils/schema-validator";
 
 interface JsonSchemaTabProps {
   schema: JSONSchema;

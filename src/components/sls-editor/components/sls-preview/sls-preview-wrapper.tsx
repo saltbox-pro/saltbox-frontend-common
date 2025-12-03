@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { SlsPreview } from "./SlsPreview";
+import { SlsPreview } from "./sls-preview";
 import type { FormSchema } from "../../types";
-import { parseSchemaFromSls, extractSlsBody, getEmptySchema, getEmptySlsBody } from "../../utils/slsParser";
+import { parseSchemaFromSls, extractSlsBody, getEmptySchema, getEmptySlsBody } from "../../utils/sls-parser";
 
 export interface SlsPreviewWrapperProps {
   /**

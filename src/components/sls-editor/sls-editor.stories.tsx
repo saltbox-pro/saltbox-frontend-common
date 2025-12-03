@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
-import { SlsEditor } from "./SlsEditor";
+import { SlsEditor } from "./sls-editor";
 import {
   exampleFileManagementSls,
   exampleUserManagementSls,
   exampleServerConfigSls,
-} from "./SlsEditor.examples";
-import { SlsPreviewWrapper } from "./components/SlsPreview";
+} from "./sls-editor.examples";
+import { SlsPreviewWrapper } from "./components/sls-preview";
 
 const meta = {
   title: "Components/SlsEditor",

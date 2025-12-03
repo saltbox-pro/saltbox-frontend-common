@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
 import type { OnMount } from "@monaco-editor/react";
 import type { IDisposable } from "monaco-editor";
-import { SlsMonacoEditor } from "./SlsMonacoEditor";
+import { SlsMonacoEditor } from "./sls-monaco-editor";
 import { registerContextMenu, insertTextAtCursor } from "./registerContextMenu";
-import { PillarInsertModal } from "./PillarInsertModal";
+import { PillarInsertModal } from "./pillar-insert-modal";
 import type { JSONSchema } from "../../types";
-import styles from "./SlsEditorTab.module.css";
+import styles from "./sls-editor-tab.module.css";
 
 interface SlsEditorTabProps {
   /**
