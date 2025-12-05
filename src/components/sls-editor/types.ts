@@ -4,6 +4,7 @@ import type {
   UISchema,
   FormSchema,
 } from "@saltbox/react-jsonschema-form-generator";
+import type { MenuProps } from "antd";
 
 // Re-export types for convenience
 export type { JSONSchema, UISchema, FormSchema };
@@ -76,6 +77,12 @@ export interface SlsEditorProps {
    * CSS class for customization
    */
   className?: string;
+
+  /**
+   * Dropdown menu for the toolbar button
+   * When provided, a dropdown button appears in the tab bar
+   */
+  menu?: MenuProps;
 }
 
 /**

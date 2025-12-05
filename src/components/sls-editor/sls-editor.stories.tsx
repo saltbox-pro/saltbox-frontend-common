@@ -254,3 +254,41 @@ export const WithFinalSlsPreview: Story = {
     },
   },
 };
+
+/**
+ * With dropdown menu in toolbar
+ */
+export const WithDropdownMenu: Story = {
+  args: {
+    sls: exampleFileManagementSls,
+    defaultTab: "form-editor",
+    menu: {
+      items: [
+        {
+          key: "save",
+          label: "Save",
+        },
+        {
+          key: "export",
+          label: "Export",
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "delete",
+          label: "Delete",
+          danger: true,
+        },
+      ],
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Example with dropdown menu button in the tab bar. The menu appears when you click the three-dot button.",
+      },
+    },
+  },
+};

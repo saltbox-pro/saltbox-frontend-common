@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Tabs, Alert } from "antd";
+import { Tabs, Alert, Dropdown, Button } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 import type { SlsEditorProps, FormSchema } from "./types";
 import {
   parseSchemaFromSls,
@@ -46,6 +47,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
   additionalTabs = [],
   defaultTab = "form-editor",
   className,
+  menu,
 }) => {
   // V2: Separate state for schema and SLS body
   const [schema, setSchema] = useState<FormSchema>(getEmptySchema());
@@ -148,6 +150,17 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
         onChange={setActiveTab}
         items={items}
         className={styles.tabs}
+        tabBarExtraContent={
+          menu
+            ? {
+                right: (
+                  <Dropdown menu={menu} trigger={["click"]}>
+                    <Button icon={<SettingOutlined />} />
+                  </Dropdown>
+                ),
+              }
+            : undefined
+        }
       />
     </div>
   );
