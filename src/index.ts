@@ -19,6 +19,7 @@ export * from "./components/query-builder/value-editors/salt-box-multiselect-val
 export * from "./components/query-builder/value-editors/salt-box-job-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-autocomplete-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-minion-value-editor";
+export * from "./components/sls-editor"
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
