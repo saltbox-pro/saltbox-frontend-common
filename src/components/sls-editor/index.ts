@@ -1,6 +1,10 @@
 // Main component
 export { SlsEditor } from "./sls-editor";
 
+import { loader } from "@monaco-editor/react";
+const slsEditorMonacoLoader = loader
+export { slsEditorMonacoLoader }
+
 // Types
 export type {
   SlsEditorProps,
