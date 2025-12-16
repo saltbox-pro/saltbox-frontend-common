@@ -1,7 +1,8 @@
+import { CopyOutlined } from "@ant-design/icons";
+import { Button, message } from "antd";
 import { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, message } from "antd";
-import { CopyOutlined } from "@ant-design/icons";
+
 import styles from "./copy-to-clipboard-button.module.css";
 
 type ButtonType = ComponentProps<typeof Button>["type"];

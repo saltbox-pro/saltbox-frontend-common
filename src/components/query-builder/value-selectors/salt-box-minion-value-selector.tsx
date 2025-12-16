@@ -1,11 +1,7 @@
+import { Flex, Input, Select } from "antd";
 import type { ComponentPropsWithoutRef } from "react";
 import * as React from "react";
-import {
-  joinWith,
-  useValueSelector,
-  VersatileSelectorProps,
-} from "react-querybuilder";
-import { Flex, Input, Select } from "antd";
+import { joinWith, useValueSelector, VersatileSelectorProps } from "react-querybuilder";
 
 /**
  * @group Props
@@ -91,10 +87,7 @@ export const SaltBoxMinionValueSelector = ({
             }
           }}
           optionFilterProp="label"
-          options={[
-            ...(options || []),
-            { label: "Custom grain", value: "custom" },
-          ]}
+          options={[...(options || []), { label: "Custom grain", value: "custom" }]}
           {...extraProps}
         />
         {isCustomValue && (

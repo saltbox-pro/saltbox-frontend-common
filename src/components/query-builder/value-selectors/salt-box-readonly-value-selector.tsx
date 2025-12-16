@@ -4,11 +4,7 @@ export const SaltBoxReadonlyValueSelector = (props: ValueSelectorProps) => {
   // @ts-ignore
   const selected = props.options?.find((opt) => opt.value === props.value);
 
-  if (
-    !selected &&
-    typeof props.value === "string" &&
-    props.value.startsWith("grains.")
-  ) {
+  if (!selected && typeof props.value === "string" && props.value.startsWith("grains.")) {
     const grainName = props.value.replace("grains.", "");
     return (
       <span>

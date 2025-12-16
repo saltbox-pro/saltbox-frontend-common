@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { SlsPreview } from "./sls-preview";
+
 import type { FormSchema } from "../../types";
-import { parseSchemaFromSls, extractSlsBody, getEmptySchema, getEmptySlsBody } from "../../utils/sls-parser";
+import {
+  parseSchemaFromSls,
+  extractSlsBody,
+  getEmptySchema,
+  getEmptySlsBody,
+} from "../../utils/sls-parser";
+
+import { SlsPreview } from "./sls-preview";
 
 export interface SlsPreviewWrapperProps {
   /**
@@ -25,10 +32,7 @@ export interface SlsPreviewWrapperProps {
  * <SlsPreviewWrapper sls={exampleFileManagementSls} />
  * ```
  */
-export const SlsPreviewWrapper: React.FC<SlsPreviewWrapperProps> = ({
-  sls,
-  className,
-}) => {
+export const SlsPreviewWrapper: React.FC<SlsPreviewWrapperProps> = ({ sls, className }) => {
   const [schema, setSchema] = useState<FormSchema>(getEmptySchema());
   const [slsBody, setSlsBody] = useState<string>(getEmptySlsBody());
 

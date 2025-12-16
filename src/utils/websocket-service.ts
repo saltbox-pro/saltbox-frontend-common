@@ -17,13 +17,17 @@ export class WebSocketService<T> {
     if (this.isConnected() && this.accessToken) {
       this.ws.send(accessToken);
     }
-  }
+  };
 
   isConnected = () => {
     return this.ws && this.ws.readyState === WebSocket.OPEN;
-  }
+  };
 
-  connect = (url: string, accessToken: string | null, events: { onMessage?: (update: Array<T>) => void, onOpen?: () => void }) => {
+  connect = (
+    url: string,
+    accessToken: string | null,
+    events: { onMessage?: (update: Array<T>) => void; onOpen?: () => void }
+  ) => {
     try {
       this.ws = new WebSocket(url);
       this.clearBuffer();
@@ -40,10 +44,10 @@ export class WebSocketService<T> {
           const parsedData = JSON.parse(event.data) as T;
           this.messageBuffer.push(parsedData);
           if (!this.flushTimeout) {
-            this.flushBuffer(events?.onMessage || (() => { }));
+            this.flushBuffer(events?.onMessage || (() => {}));
           }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error("Error parsing WebSocket message:", error);
         }
       };
 
@@ -52,13 +56,12 @@ export class WebSocketService<T> {
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
       };
-
     } catch (error) {
-      console.error('Failed to connect WebSocket:', error);
+      console.error("Failed to connect WebSocket:", error);
     }
-  }
+  };
 
   private flushBuffer = (onMessage: (update: Array<T>) => void) => {
     if (this.messageBuffer.length > 0) {
@@ -67,7 +70,7 @@ export class WebSocketService<T> {
         this.clearBuffer();
       }, this.BUFFER_FLUSH_INTERVAL_MS);
     }
-  }
+  };
 
   private clearBuffer = () => {
     this.messageBuffer = [];
@@ -75,7 +78,7 @@ export class WebSocketService<T> {
       clearTimeout(this.flushTimeout);
       this.flushTimeout = null;
     }
-  }
+  };
 
   disconnect = () => {
     if (this.ws) {
@@ -83,5 +86,5 @@ export class WebSocketService<T> {
       this.ws = null;
       this.clearBuffer();
     }
-  }
+  };
 }

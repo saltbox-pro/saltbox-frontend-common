@@ -1,5 +1,6 @@
-import type {editor as MonacoEditor, IDisposable} from "monaco-editor";
-import type {JSONSchema} from "../../types";
+import type { editor as MonacoEditor, IDisposable } from "monaco-editor";
+
+import type { JSONSchema } from "../../types";
 
 /**
  * Extracts root-level pillar parameter names from JSON Schema
@@ -22,11 +23,7 @@ export function extractPillarFields(schema: JSONSchema): string[] {
 
   const props = schema.properties as Record<string, unknown>;
 
-  if (
-    !("kwargs" in props) ||
-    typeof props.kwargs !== "object" ||
-    !props.kwargs
-  ) {
+  if (!("kwargs" in props) || typeof props.kwargs !== "object" || !props.kwargs) {
     return [];
   }
 
@@ -38,11 +35,7 @@ export function extractPillarFields(schema: JSONSchema): string[] {
 
   const kwargsProps = kwargs.properties as Record<string, unknown>;
 
-  if (
-    !("pillar" in kwargsProps) ||
-    typeof kwargsProps.pillar !== "object" ||
-    !kwargsProps.pillar
-  ) {
+  if (!("pillar" in kwargsProps) || typeof kwargsProps.pillar !== "object" || !kwargsProps.pillar) {
     return [];
   }
 
@@ -76,7 +69,7 @@ export function registerContextMenu(
   editor: MonacoEditor.IStandaloneCodeEditor,
   monaco: typeof import("monaco-editor"),
   schema: JSONSchema,
-  onOpenModal: (fields: string[]) => void,
+  onOpenModal: (fields: string[]) => void
 ): IDisposable {
   const pillarFields = extractPillarFields(schema);
 
@@ -108,10 +101,7 @@ export function registerContextMenu(
  * @param editor - Monaco editor instance
  * @param text - Text to insert
  */
-export function insertTextAtCursor(
-  editor: MonacoEditor.IStandaloneCodeEditor,
-  text: string,
-): void {
+export function insertTextAtCursor(editor: MonacoEditor.IStandaloneCodeEditor, text: string): void {
   const selection = editor.getSelection();
   if (!selection) return;
 

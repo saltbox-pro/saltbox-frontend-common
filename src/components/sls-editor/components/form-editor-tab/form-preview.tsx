@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from "react";
 import Form from "@rjsf/antd";
 import validator from "@rjsf/validator-ajv8";
 import { Alert, Typography } from "antd";
+import React, { useState, useMemo } from "react";
+
 import type { FormSchema } from "../../types";
+
 import styles from "./form-preview.module.css";
 
 interface FormPreviewProps {
@@ -49,8 +51,7 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
   // Check for empty schema
   const isEmpty = useMemo(() => {
     return (
-      !extractedJsonSchema.properties ||
-      Object.keys(extractedJsonSchema.properties).length === 0
+      !extractedJsonSchema.properties || Object.keys(extractedJsonSchema.properties).length === 0
     );
   }, [extractedJsonSchema]);
 
@@ -87,9 +88,7 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
       </div>
       <div className={styles.dataOutput}>
         <div className={styles.dataOutputTitle}>Form data:</div>
-        <pre className={styles.dataOutputContent}>
-          {JSON.stringify(formData, null, 2)}
-        </pre>
+        <pre className={styles.dataOutputContent}>{JSON.stringify(formData, null, 2)}</pre>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
+import { AntDValueEditor } from "@react-querybuilder/antd";
 import { FC, memo } from "react";
 import { ValueEditorProps } from "react-querybuilder";
-import { AntDValueEditor } from "@react-querybuilder/antd";
+
 import { SaltBoxDateTimeValueEditor } from "./salt-box-datetime-value-editor";
 import { SaltBoxMultiselectValueEditor } from "./salt-box-multiselect-value-editor";
 

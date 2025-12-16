@@ -1,6 +1,6 @@
+import { AutoComplete } from "antd";
 import { ComponentProps, useEffect, useState } from "react";
 import { ValueEditorProps } from "react-querybuilder";
-import { AutoComplete } from "antd";
 
 type AutoCompleteProps = ComponentProps<typeof AutoComplete>;
 type AutoCompleteOptions = AutoCompleteProps["options"];

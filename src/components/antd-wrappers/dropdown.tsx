@@ -1,5 +1,6 @@
 import { Dropdown as AntdDropdown } from "antd";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
+
 import { useUiCleanupEvent } from "saltbox-common/hooks/useUiCleanupEvent";
 import { UiEvent } from "saltbox-common/interfaces/ui-events";
 import { noop } from "saltbox-common/utils/func-utils";
@@ -18,17 +19,18 @@ export const Dropdown = ({ open, onOpenChange = noop, ...props }: DropdownProps)
     setIsOpen(open || false);
   }, [open]);
 
-  const handleOpenChange = useCallback<OnOpenChange>((open, info) => {
-    setIsOpen(open);
-    onOpenChange(open, info);
-  }, [onOpenChange]);
+  const handleOpenChange = useCallback<OnOpenChange>(
+    (open, info) => {
+      setIsOpen(open);
+      onOpenChange(open, info);
+    },
+    [onOpenChange]
+  );
 
   useUiCleanupEvent(() => {
     setIsOpen(false);
     onOpenChange(false, null);
   }, [UiEvent.CloseAllOverlays, UiEvent.CloseAllDropdowns]);
 
-  return (
-    <AntdDropdown open={isOpen} onOpenChange={handleOpenChange} {...props} />
-  );
+  return <AntdDropdown open={isOpen} onOpenChange={handleOpenChange} {...props} />;
 };

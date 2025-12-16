@@ -1,7 +1,9 @@
-import React from "react";
 import Editor from "@monaco-editor/react";
+import React from "react";
+
 import type { FormSchema } from "../../types";
 import { combineSchemaAndBody } from "../../utils/sls-parser";
+
 import styles from "./sls-preview.module.css";
 
 export interface SlsPreviewProps {
@@ -33,11 +35,7 @@ export interface SlsPreviewProps {
  * />
  * ```
  */
-export const SlsPreview: React.FC<SlsPreviewProps> = ({
-  schema,
-  slsBody,
-  className,
-}) => {
+export const SlsPreview: React.FC<SlsPreviewProps> = ({ schema, slsBody, className }) => {
   // Combine schema and body to get final SLS
   const finalSls = combineSchemaAndBody(schema, slsBody);
 

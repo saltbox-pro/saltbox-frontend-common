@@ -57,10 +57,7 @@ export function buildJinjaVariable(fieldPath: string): string {
  * // Returns: ['name', 'address.city', 'address.country']
  * ```
  */
-export function extractFieldPaths(
-  properties: Record<string, JSONSchema>,
-  prefix = "",
-): string[] {
+export function extractFieldPaths(properties: Record<string, JSONSchema>, prefix = ""): string[] {
   const paths: string[] = [];
 
   for (const [key, value] of Object.entries(properties)) {
@@ -75,12 +72,7 @@ export function extractFieldPaths(
       typeof value.properties === "object"
     ) {
       // Recursively traverse nested objects
-      paths.push(
-        ...extractFieldPaths(
-          value.properties as Record<string, JSONSchema>,
-          path,
-        ),
-      );
+      paths.push(...extractFieldPaths(value.properties as Record<string, JSONSchema>, path));
     } else {
       // Leaf node - add to list
       paths.push(path);
