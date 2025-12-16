@@ -1,10 +1,5 @@
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
-import {
-  flexRender,
-  Header,
-  SortDirection,
-  Table,
-} from "@tanstack/react-table";
+import { flexRender, Header, SortDirection, Table } from "@tanstack/react-table";
 import "./fast-table-header.css";
 import { Tooltip } from "antd";
 
@@ -37,20 +32,14 @@ export function FastTableHeader<DataType>({
   };
 
   const getThClasses = (header: HeaderType) => {
-    return `fast-table-header-cell ${(header.column.columnDef.meta as any)?.thClassName
-      } `;
+    return `fast-table-header-cell ${(header.column.columnDef.meta as any)?.thClassName} `;
   };
 
   const getHeaderClasses = (header: HeaderType) => {
-    return header.column.getCanSort()
-      ? "fast-table-header"
-      : "fast-table-header-nosort";
+    return header.column.getCanSort() ? "fast-table-header" : "fast-table-header-nosort";
   };
 
-  const getSortDirectionClass = (
-    header: HeaderType,
-    direction: SortDirection
-  ) => {
+  const getSortDirectionClass = (header: HeaderType, direction: SortDirection) => {
     const sortDirection = header.column.getIsSorted();
     return sortDirection === direction ? "active" : "";
   };
@@ -71,24 +60,34 @@ export function FastTableHeader<DataType>({
           <th
             key={header.id}
             className={getThClasses(header)}
-            style={width ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` } : undefined}
+            style={
+              width
+                ? { width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` }
+                : undefined
+            }
           >
             {header.isPlaceholder ? null : (
-              <div onClick={header.column.getToggleSortingHandler()}>
-                <Tooltip
-                  className={getHeaderClasses(header)}
-                  title={getSortTitle(header)}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
+              <div
+                onClick={header.column.getToggleSortingHandler()}
+                role={header.column.getCanSort() ? "button" : undefined}
+                tabIndex={header.column.getCanSort() ? 0 : undefined}
+                onKeyDown={
+                  header.column.getCanSort()
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          header.column.getToggleSortingHandler()?.(e);
+                        }
+                      }
+                    : undefined
+                }
+              >
+                <Tooltip className={getHeaderClasses(header)} title={getSortTitle(header)}>
+                  {flexRender(header.column.columnDef.header, header.getContext())}
                   {header.column.getCanSort() && (
                     <div className="fast-table-sorter">
                       <CaretUpOutlined className={getSorterUpClasses(header)} />
-                      <CaretDownOutlined
-                        className={getSorterDownClasses(header)}
-                      />
+                      <CaretDownOutlined className={getSorterDownClasses(header)} />
                     </div>
                   )}
                 </Tooltip>

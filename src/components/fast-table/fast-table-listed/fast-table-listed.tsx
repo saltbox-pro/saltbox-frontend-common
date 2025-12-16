@@ -1,11 +1,4 @@
 import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
   ColumnFiltersState,
   ExpandedState,
   OnChangeFn,
@@ -18,8 +11,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { toJS } from "mobx";
 import { Empty, Flex, Spin } from "antd";
+import { toJS } from "mobx";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+
 import "./fast-table-listed.css";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 
@@ -31,20 +26,13 @@ export type FastTableListedProps<DataType> = {
   isLoading?: boolean;
   hideFooter?: boolean;
   forceExpandAll?: boolean;
-  onRowClick?: (
-    item: DataType,
-    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
-  ) => void;
+  onRowClick?: (item: DataType, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => void;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
   columnFilters?: ColumnFiltersState;
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
-  getRowId?: (
-    originalRow: DataType,
-    index: number,
-    parent?: Row<DataType> | undefined
-  ) => string;
+  getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   locale?: {
     sortAscending?: string;
     sortDescending?: string;
@@ -54,12 +42,8 @@ export type FastTableListedProps<DataType> = {
   };
 };
 
-function useExpanded({
-  forceExpandAll,
-}: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
-  const [expanded, setExpanded] = useState<ExpandedState | undefined>(
-    undefined
-  );
+function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
+  const [expanded, setExpanded] = useState<ExpandedState | undefined>(undefined);
 
   useEffect(() => {
     setExpanded(forceExpandAll || {});
@@ -175,9 +159,7 @@ export function FastTableListed<DataType>({
       <Fragment key={`${row.id}-group-row`}>
         <tr
           key={row.id}
-          onClick={(event) =>
-            onRowClick ? onRowClick(toJS(row.original), event) : undefined
-          }
+          onClick={(event) => (onRowClick ? onRowClick(toJS(row.original), event) : undefined)}
         >
           {row.getVisibleCells().map((cell, index) => {
             const width = columnWidths[`col-${index}`];
@@ -188,10 +170,10 @@ export function FastTableListed<DataType>({
                 style={
                   width
                     ? {
-                      width: `${width}px`,
-                      minWidth: `${width}px`,
-                      maxWidth: `${width}px`,
-                    }
+                        width: `${width}px`,
+                        minWidth: `${width}px`,
+                        maxWidth: `${width}px`,
+                      }
                     : undefined
                 }
               >
@@ -202,9 +184,7 @@ export function FastTableListed<DataType>({
         </tr>
         {row.getIsExpanded() && (
           <tr>
-            <td colSpan={row.getVisibleCells().length}>
-              {renderSubComponent?.({ row })}
-            </td>
+            <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
           </tr>
         )}
       </Fragment>
@@ -215,10 +195,7 @@ export function FastTableListed<DataType>({
     return (
       <tr>
         <td colSpan={table.getAllColumns().length}>
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={tableLocale.empty}
-          />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
         </td>
       </tr>
     );
@@ -251,17 +228,11 @@ export function FastTableListed<DataType>({
   };
 
   return (
-    <div
-      className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}
-    >
+    <div className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}>
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table>
           <thead>
-            <FastTableHeader
-              table={table}
-              locale={tableLocale}
-              columnWidths={columnWidths}
-            />
+            <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
           </thead>
           <tbody>
             {renderTableRows()}

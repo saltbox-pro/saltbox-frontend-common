@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 import type { JSONSchema } from "../types";
 import { extractFieldPaths } from "../utils/field-path-builder";
 

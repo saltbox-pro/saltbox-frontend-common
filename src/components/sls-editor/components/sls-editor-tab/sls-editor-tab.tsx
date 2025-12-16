@@ -1,11 +1,13 @@
-import React, { useRef, useEffect, useState } from "react";
 import type { OnMount } from "@monaco-editor/react";
 import type { IDisposable } from "monaco-editor";
-import { SlsMonacoEditor } from "./sls-monaco-editor";
-import { registerContextMenu, insertTextAtCursor } from "./registerContextMenu";
-import { PillarInsertModal } from "./pillar-insert-modal";
+import React, { useRef, useEffect, useState } from "react";
+
 import type { JSONSchema } from "../../types";
+
+import { PillarInsertModal } from "./pillar-insert-modal";
+import { registerContextMenu, insertTextAtCursor } from "./registerContextMenu";
 import styles from "./sls-editor-tab.module.css";
+import { SlsMonacoEditor } from "./sls-monaco-editor";
 
 interface SlsEditorTabProps {
   /**
@@ -44,11 +46,7 @@ interface SlsEditorTabProps {
  * - Automatic synchronization with parent component
  * - Dynamic menu updates when schema changes
  */
-export const SlsEditorTab: React.FC<SlsEditorTabProps> = ({
-  slsBody,
-  onSlsBodyChange,
-  schema,
-}) => {
+export const SlsEditorTab: React.FC<SlsEditorTabProps> = ({ slsBody, onSlsBodyChange, schema }) => {
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Parameters<OnMount>[1] | null>(null);
   const menuDisposableRef = useRef<IDisposable | null>(null);
@@ -77,12 +75,7 @@ export const SlsEditorTab: React.FC<SlsEditorTabProps> = ({
     monacoRef.current = monaco;
 
     // Register context menu initially
-    menuDisposableRef.current = registerContextMenu(
-      editor,
-      monaco,
-      schema,
-      handleOpenModal,
-    );
+    menuDisposableRef.current = registerContextMenu(editor, monaco, schema, handleOpenModal);
   };
 
   // Re-register context menu when schema changes
@@ -99,7 +92,7 @@ export const SlsEditorTab: React.FC<SlsEditorTabProps> = ({
       editorRef.current,
       monacoRef.current,
       schema,
-      handleOpenModal,
+      handleOpenModal
     );
 
     // Cleanup on unmount
@@ -112,11 +105,7 @@ export const SlsEditorTab: React.FC<SlsEditorTabProps> = ({
 
   return (
     <div className={styles.container}>
-      <SlsMonacoEditor
-        value={slsBody}
-        onChange={onSlsBodyChange}
-        onMount={handleEditorMount}
-      />
+      <SlsMonacoEditor value={slsBody} onChange={onSlsBodyChange} onMount={handleEditorMount} />
 
       <PillarInsertModal
         open={modalOpen}

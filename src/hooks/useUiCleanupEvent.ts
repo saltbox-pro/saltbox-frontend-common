@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+
 import { subscribe, unsubscribe } from "saltbox-common/utils/custom-events";
 
 export type CleanupEventDetail = {

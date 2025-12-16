@@ -1,10 +1,12 @@
-import React, { useState } from "react";
 import { Tabs } from "antd";
+import React, { useState } from "react";
+
 import type { FormSchema, JSONSchema, UISchema } from "../../types";
-import { VisualEditorTab } from "./visual-editor-tab";
+
 import { JsonSchemaTab } from "./json-schema-tab";
-import { UiSchemaTab } from "./ui-schema-tab";
 import styles from "./schema-editor.module.css";
+import { UiSchemaTab } from "./ui-schema-tab";
+import { VisualEditorTab } from "./visual-editor-tab";
 
 interface SchemaEditorProps {
   schema: FormSchema;
@@ -17,10 +19,7 @@ interface SchemaEditorProps {
  * 2. JSON Schema editor (Monaco)
  * 3. UI Schema editor (Monaco)
  */
-export const SchemaEditor: React.FC<SchemaEditorProps> = ({
-  schema,
-  onChange,
-}) => {
+export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) => {
   const [activeTab, setActiveTab] = useState<string>("visual");
 
   const handleJsonSchemaChange = (jsonSchema: JSONSchema) => {
@@ -46,31 +45,16 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({
     {
       key: "json",
       label: "JSON Schema",
-      children: (
-        <JsonSchemaTab
-          schema={schema.json_schema}
-          onChange={handleJsonSchemaChange}
-        />
-      ),
+      children: <JsonSchemaTab schema={schema.json_schema} onChange={handleJsonSchemaChange} />,
     },
     {
       key: "ui",
       label: "UI Schema",
-      children: (
-        <UiSchemaTab
-          schema={schema.ui_schema}
-          onChange={handleUiSchemaChange}
-        />
-      ),
+      children: <UiSchemaTab schema={schema.ui_schema} onChange={handleUiSchemaChange} />,
     },
   ];
 
   return (
-    <Tabs
-      activeKey={activeTab}
-      onChange={setActiveTab}
-      items={items}
-      className={styles.tabs}
-    />
+    <Tabs activeKey={activeTab} onChange={setActiveTab} items={items} className={styles.tabs} />
   );
 };

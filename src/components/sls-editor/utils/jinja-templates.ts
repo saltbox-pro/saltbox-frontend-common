@@ -36,8 +36,8 @@ export function generateFallbackPillarTemplate(paramName: string): string {
  * Template types for UI labels
  */
 export enum PillarTemplateType {
-  Simple = 'Simple',
-  WithFallback = 'With fallback',
+  Simple = "Simple",
+  WithFallback = "With fallback",
 }
 
 /**
@@ -47,10 +47,7 @@ export enum PillarTemplateType {
  * @param type - Template type (Simple or WithFallback)
  * @returns Formatted Jinja2 template string
  */
-export function generatePillarTemplate(
-  paramName: string,
-  type: PillarTemplateType
-): string {
+export function generatePillarTemplate(paramName: string, type: PillarTemplateType): string {
   switch (type) {
     case PillarTemplateType.Simple:
       return generateSimplePillarTemplate(paramName);

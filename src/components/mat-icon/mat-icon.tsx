@@ -20,10 +20,7 @@ export function MatIcon({ className, icon, size }: MatIconProps) {
 
   return (
     <>
-      <span
-        style={{ fontSize }}
-        className={className ? className : defaultClass}
-      >
+      <span style={{ fontSize }} className={className ? className : defaultClass}>
         {icon}
       </span>
     </>

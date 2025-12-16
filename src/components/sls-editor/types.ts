@@ -1,9 +1,5 @@
 //@ts-ignore
-import type {
-  JSONSchema,
-  UISchema,
-  FormSchema,
-} from "@saltbox/react-jsonschema-form-generator";
+import type { JSONSchema, UISchema, FormSchema } from "@saltbox/react-jsonschema-form-generator";
 import type { MenuProps } from "antd";
 
 // Re-export types for convenience

@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {
   RuleGroupType,
   RuleType,
@@ -7,13 +8,10 @@ import {
   generateID,
   isRuleGroupType,
 } from "react-querybuilder";
-import dayjs from "dayjs";
+
 import { DATETIME_TIMESTAMP, formatTimeByUserTZ } from "saltbox-common/utils/datetime";
 
-export const customRuleProcessorMongoDB: ValueProcessorByRule = (
-  rule,
-  options
-) => {
+export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) => {
   if (
     rule.valueSource !== "field" &&
     [
@@ -34,10 +32,7 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (
   return defaultRuleProcessorMongoDB(rule, options);
 };
 
-export const customRuleProcessorJsonLogic: ValueProcessorByRule = (
-  rule,
-  options
-) => {
+export const customRuleProcessorJsonLogic: ValueProcessorByRule = (rule, options) => {
   if (dayjs.isDayjs(rule.value)) {
     return defaultRuleProcessorJsonLogic(
       { ...rule, value: formatTimeByUserTZ(rule.value, DATETIME_TIMESTAMP) },
@@ -48,9 +43,7 @@ export const customRuleProcessorJsonLogic: ValueProcessorByRule = (
   return defaultRuleProcessorJsonLogic(rule, options);
 };
 
-export function generateIdsForQuery<T extends RuleGroupType | RuleType>(
-  query: T
-): T {
+export function generateIdsForQuery<T extends RuleGroupType | RuleType>(query: T): T {
   const newQuery = { ...query };
   newQuery.id = generateID();
   if (isRuleGroupType(newQuery)) {

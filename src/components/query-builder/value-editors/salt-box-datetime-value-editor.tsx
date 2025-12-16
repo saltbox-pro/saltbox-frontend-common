@@ -1,7 +1,8 @@
+import { DatePicker } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { ValueEditorProps } from "react-querybuilder";
-import dayjs, { Dayjs } from "dayjs";
-import { DatePicker } from "antd";
+
 import { DATETIME_FORMAT_FULL } from "saltbox-common/utils/datetime";
 
 export const SaltBoxDateTimeValueEditor = ({
@@ -11,7 +12,7 @@ export const SaltBoxDateTimeValueEditor = ({
   className,
 }: ValueEditorProps) => {
   const [internalValue, setInternalValue] = useState<Dayjs>(
-    dayjs(value === "" ? undefined : value),
+    dayjs(value === "" ? undefined : value)
   );
 
   useEffect(() => {

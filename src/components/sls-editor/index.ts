@@ -2,8 +2,8 @@
 export { SlsEditor } from "./sls-editor";
 
 import { loader } from "@monaco-editor/react";
-const slsEditorMonacoLoader = loader
-export { slsEditorMonacoLoader }
+const slsEditorMonacoLoader = loader;
+export { slsEditorMonacoLoader };
 
 // Types
 export type {
@@ -28,11 +28,7 @@ export {
 
 export { validateJSONSchema, isValidSchema } from "./utils/schema-validator";
 
-export {
-  buildFieldPath,
-  buildJinjaVariable,
-  extractFieldPaths,
-} from "./utils/field-path-builder";
+export { buildFieldPath, buildJinjaVariable, extractFieldPaths } from "./utils/field-path-builder";
 
 export {
   generateSimplePillarTemplate,

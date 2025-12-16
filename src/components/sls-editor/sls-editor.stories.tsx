@@ -1,12 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
+
+import { SlsPreviewWrapper } from "./components/sls-preview";
 import { SlsEditor } from "./sls-editor";
 import {
   exampleFileManagementSls,
   exampleUserManagementSls,
   exampleServerConfigSls,
 } from "./sls-editor.examples";
-import { SlsPreviewWrapper } from "./components/sls-preview";
 
 const meta = {
   title: "Components/SlsEditor",
@@ -85,8 +86,7 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "Empty editor with default initialization. Schema will be empty.",
+        story: "Empty editor with default initialization. Schema will be empty.",
       },
     },
   },
@@ -126,9 +126,7 @@ export const WithAdditionalTabs: Story = {
             <ul>
               <li>Use the "Form Editor" tab for visual schema editing</li>
               <li>Use the "SLS Editor" tab for editing Salt State</li>
-              <li>
-                Right-click in SLS editor shows context menu for field insertion
-              </li>
+              <li>Right-click in SLS editor shows context menu for field insertion</li>
             </ul>
           </div>
         ),
@@ -215,41 +213,42 @@ export const LongForm: Story = {
 /**
  * With Final SLS Preview Tab (working solution)
  */
+const WithFinalSlsPreviewComponent = () => {
+  const [currentSls, setCurrentSls] = useState(exampleFileManagementSls);
+  const [previewKey, setPreviewKey] = useState(0);
+
+  const handleSlsChange = (newSls: string) => {
+    setCurrentSls(newSls);
+    // Force preview component to remount with new data
+    setPreviewKey((prev) => prev + 1);
+  };
+
+  const staticTabs = [
+    {
+      key: "final-preview",
+      title: "Final SLS",
+      // Use key to force remount when SLS changes
+      content: <SlsPreviewWrapper key={previewKey} sls={currentSls} />,
+    },
+  ];
+
+  return (
+    <SlsEditor
+      key="editor"
+      sls={exampleFileManagementSls}
+      onSlsChange={handleSlsChange}
+      defaultTab="form-editor"
+      additionalTabs={staticTabs}
+    />
+  );
+};
+
 export const WithFinalSlsPreview: Story = {
-  render: () => {
-    const [currentSls, setCurrentSls] = useState(exampleFileManagementSls);
-    const [previewKey, setPreviewKey] = useState(0);
-
-    const handleSlsChange = (newSls: string) => {
-      setCurrentSls(newSls);
-      // Force preview component to remount with new data
-      setPreviewKey((prev) => prev + 1);
-    };
-
-    const staticTabs = [
-      {
-        key: "final-preview",
-        title: "Final SLS",
-        // Use key to force remount when SLS changes
-        content: <SlsPreviewWrapper key={previewKey} sls={currentSls} />,
-      },
-    ];
-
-    return (
-      <SlsEditor
-        key="editor"
-        sls={exampleFileManagementSls}
-        onSlsChange={handleSlsChange}
-        defaultTab="form-editor"
-        additionalTabs={staticTabs}
-      />
-    );
-  },
+  render: () => <WithFinalSlsPreviewComponent />,
   parameters: {
     docs: {
       description: {
-        story:
-          'Example with "Final SLS" preview tab that updates when you make changes.',
+        story: 'Example with "Final SLS" preview tab that updates when you make changes.',
       },
     },
   },

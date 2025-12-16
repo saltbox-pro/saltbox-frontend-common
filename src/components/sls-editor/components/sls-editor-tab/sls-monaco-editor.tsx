@@ -1,5 +1,5 @@
-import React, { useRef, useCallback, useEffect } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
+import React, { useRef, useCallback, useEffect } from "react";
 
 interface SlsMonacoEditorProps {
   value: string;
@@ -16,18 +16,14 @@ interface SlsMonacoEditorProps {
  * - Automatic layout
  * - Cleanup on unmount
  */
-export const SlsMonacoEditor: React.FC<SlsMonacoEditorProps> = ({
-  value,
-  onChange,
-  onMount,
-}) => {
+export const SlsMonacoEditor: React.FC<SlsMonacoEditorProps> = ({ value, onChange, onMount }) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleEditorMount: OnMount = useCallback(
     (editor, monaco) => {
       onMount?.(editor, monaco);
     },
-    [onMount],
+    [onMount]
   );
 
   // Cleanup timeout on unmount

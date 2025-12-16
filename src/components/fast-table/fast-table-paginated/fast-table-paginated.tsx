@@ -1,13 +1,4 @@
 import {
-  Fragment,
-  RefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import {
   ExpandedState,
   OnChangeFn,
   PaginationState,
@@ -20,14 +11,22 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { toJS } from "mobx";
 import { Empty, Pagination, PaginationProps, Spin } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
-import { useStableLoading } from "saltbox-common/utils/table-utils";
+import { toJS } from "mobx";
 import {
-  FastTableHeader,
-  HeaderLocale,
-} from "../fast-table-header/fast-table-header";
+  Fragment,
+  RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+import { useStableLoading } from "saltbox-common/utils/table-utils";
+
+import { FastTableHeader, HeaderLocale } from "../fast-table-header/fast-table-header";
 
 import "./fast-table-paginated.css";
 
@@ -39,15 +38,8 @@ export type FastTablePaginatedProps<DataType> = {
   pagination: PaginationState;
   sorting?: SortingState;
   onLazyLoad: (pagination: PaginationState, sorting: SortingState) => void;
-  onRowClick?: (
-    item: DataType,
-    event: React.MouseEvent<HTMLElement, MouseEvent>
-  ) => void;
-  getRowId?: (
-    originalRow: DataType,
-    index: number,
-    parent?: Row<DataType> | undefined
-  ) => string;
+  onRowClick?: (item: DataType, event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
   locale?: PaginationLocale &
@@ -64,12 +56,8 @@ export type FastTablePaginatedProps<DataType> = {
   getRowCanExpand?: (row: Row<DataType>) => boolean;
 };
 
-function useExpanded({
-  forceExpandAll,
-}: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
-  const [expanded, setExpanded] = useState<ExpandedState | undefined>(
-    undefined
-  );
+function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
+  const [expanded, setExpanded] = useState<ExpandedState | undefined>(undefined);
 
   useEffect(() => {
     setExpanded(forceExpandAll || {});
@@ -169,9 +157,7 @@ function useRowVirtualizer<DataType>(
     getScrollElement: () => tableContainerRef.current,
     estimateSize: (index) => {
       const row = rows[index];
-      return row?.getIsExpanded()
-        ? estimatedExpandedRowHeight
-        : estimatedRowHeight;
+      return row?.getIsExpanded() ? estimatedExpandedRowHeight : estimatedRowHeight;
     },
     getItemKey: (index) => rows[index].id,
     overscan,
@@ -206,10 +192,7 @@ export function FastTablePaginated<DataType>({
     delay: 0,
   });
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
-  const { headerHeight, columnWidths } = useTableMeasurements(
-    tableContainerRef,
-    stableData
-  );
+  const { headerHeight, columnWidths } = useTableMeasurements(tableContainerRef, stableData);
 
   const table = useReactTable({
     columns,
@@ -222,16 +205,12 @@ export function FastTablePaginated<DataType>({
     onExpandedChange,
     onSortingChange: (updaterOrValue) => {
       const nextSorting =
-        typeof updaterOrValue === "function"
-          ? updaterOrValue(sorting)
-          : updaterOrValue;
+        typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
       onLazyLoad(pagination, nextSorting);
     },
     onPaginationChange: (updaterOrValue) => {
       const nextPagination =
-        typeof updaterOrValue === "function"
-          ? updaterOrValue(pagination)
-          : updaterOrValue;
+        typeof updaterOrValue === "function" ? updaterOrValue(pagination) : updaterOrValue;
       onLazyLoad(nextPagination, sorting);
     },
     state: {
@@ -322,23 +301,18 @@ export function FastTablePaginated<DataType>({
   };
 
   const renderTableRows = (rowCount?: number) => {
-    const rowsToRender =
-      rowCount === undefined ? rows : rows.slice(0, rowCount);
+    const rowsToRender = rowCount === undefined ? rows : rows.slice(0, rowCount);
     return rowsToRender.map((row) => (
       <Fragment key={`${row.id}-group-row`}>
         <tr
           key={row.id}
-          onClick={(event) =>
-            onRowClick ? onRowClick(toJS(row.original), event) : undefined
-          }
+          onClick={(event) => (onRowClick ? onRowClick(toJS(row.original), event) : undefined)}
         >
           {renderTableRow(row)}
         </tr>
         {row.getIsExpanded() && (
           <tr key={`${row.id}-sub-row`}>
-            <td colSpan={row.getVisibleCells().length}>
-              {renderSubComponent?.({ row })}
-            </td>
+            <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
           </tr>
         )}
       </Fragment>
@@ -352,9 +326,7 @@ export function FastTablePaginated<DataType>({
         return (
           <div
             key={cell.id}
-            className={`virtual-cell ${
-              (cell.column.columnDef.meta as any)?.tdClassName || ""
-            }`}
+            className={`virtual-cell ${(cell.column.columnDef.meta as any)?.tdClassName || ""}`}
             style={
               width
                 ? {
@@ -399,15 +371,25 @@ export function FastTablePaginated<DataType>({
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
                 className="virtual-row"
+                role={onRowClick ? "button" : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
                 onClick={(event) =>
                   onRowClick ? onRowClick(toJS(row.original), event) : undefined
+                }
+                onKeyDown={
+                  onRowClick
+                    ? (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onRowClick(toJS(row.original), event);
+                        }
+                      }
+                    : undefined
                 }
               >
                 <div className="virtual-row-cells">{renderRow(row)}</div>
                 {row.getIsExpanded() && renderSubComponent && (
-                  <div className="virtual-row-expanded">
-                    {renderSubComponent({ row })}
-                  </div>
+                  <div className="virtual-row-expanded">{renderSubComponent({ row })}</div>
                 )}
               </div>
             );
@@ -421,10 +403,7 @@ export function FastTablePaginated<DataType>({
     return (
       <tr>
         <td colSpan={table.getAllColumns().length}>
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={tableLocale.empty}
-          />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
         </td>
       </tr>
     );
@@ -466,11 +445,7 @@ export function FastTablePaginated<DataType>({
         <div className="fast-table-wrapper" ref={tableContainerRef}>
           <table>
             <thead>
-              <FastTableHeader
-                table={table}
-                locale={tableLocale}
-                columnWidths={columnWidths}
-              />
+              <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
             </thead>
             <tbody>
               {shouldShowEmpty && renderEmptyState()}

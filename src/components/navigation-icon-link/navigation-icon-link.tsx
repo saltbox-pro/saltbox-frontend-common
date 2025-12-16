@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { Button } from "antd";
 import { ExportOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import { ReactNode } from "react";
 
 export type NavigationIconLinkProps = {
   to: string;
@@ -19,4 +19,4 @@ export const NavigationIconLink = (props: NavigationIconLinkProps) => {
       target={target}
     />
   );
-}
+};

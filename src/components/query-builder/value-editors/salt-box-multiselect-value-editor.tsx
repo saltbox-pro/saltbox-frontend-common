@@ -1,6 +1,6 @@
+import { Select } from "antd";
 import { useEffect, useState } from "react";
 import { ValueEditorProps } from "react-querybuilder";
-import { Select } from "antd";
 
 export const SaltBoxMultiselectValueEditor = ({
   value,

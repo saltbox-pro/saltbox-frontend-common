@@ -1,10 +1,12 @@
-import React from "react";
-import type { FormSchema } from "../../types";
-import { SchemaEditor } from "./schema-editor";
-import { FormPreview } from "./form-preview";
-import styles from "./form-editor-tab.module.css";
 import PlusCircleOutlined from "@ant-design/icons/PlusCircleOutlined";
 import { Button } from "antd";
+import React from "react";
+
+import type { FormSchema } from "../../types";
+
+import styles from "./form-editor-tab.module.css";
+import { FormPreview } from "./form-preview";
+import { SchemaEditor } from "./schema-editor";
 
 interface FormEditorTabProps {
   schema: FormSchema;
@@ -19,10 +21,7 @@ interface FormEditorTabProps {
  * - Form preview (35% width) - live preview of form + JSON data output
  */
 
-export const FormEditorTab: React.FC<FormEditorTabProps> = ({
-  schema,
-  onSchemaChange,
-}) => {
+export const FormEditorTab: React.FC<FormEditorTabProps> = ({ schema, onSchemaChange }) => {
   return (
     <div className={styles.container}>
       <div className={styles.schemaEditor}>

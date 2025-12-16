@@ -39,9 +39,7 @@ export function validateJSONSchema(schema: unknown): {
     if (!valid && validate.errors) {
       return {
         valid: false,
-        errors: validate.errors.map(
-          (err) => `${err.instancePath} ${err.message}`,
-        ),
+        errors: validate.errors.map((err) => `${err.instancePath} ${err.message}`),
       };
     }
 

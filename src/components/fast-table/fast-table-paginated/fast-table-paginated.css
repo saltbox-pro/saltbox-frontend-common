@@ -62,7 +62,7 @@
   will-change: transform;
 }
 
-.fast-table table>thead>tr>th {
+.fast-table table > thead > tr > th {
   color: #000000;
   font-weight: 600;
   text-align: start;
@@ -78,7 +78,7 @@
   width: 100%;
 }
 
-.fast-table table>tbody>tr>td,
+.fast-table table > tbody > tr > td,
 .fast-table .virtual-cell,
 .fast-table .virtual-row-expanded {
   border: 1px solid #f0f0f0;

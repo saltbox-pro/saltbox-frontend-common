@@ -1,5 +1,6 @@
 import { Popover as AntdPopover } from "antd";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
+
 import { useUiCleanupEvent } from "saltbox-common/hooks/useUiCleanupEvent";
 import { UiEvent } from "saltbox-common/interfaces/ui-events";
 import { noop } from "saltbox-common/utils/func-utils";
@@ -18,17 +19,18 @@ export const Popover = ({ open, onOpenChange = noop, ...props }: PopoverProps) =
     setIsOpen(open || false);
   }, [open]);
 
-  const handleOpenChange = useCallback<OnOpenChange>((open, event) => {
-    setIsOpen(open);
-    onOpenChange(open, event);
-  }, [onOpenChange]);
+  const handleOpenChange = useCallback<OnOpenChange>(
+    (open, event) => {
+      setIsOpen(open);
+      onOpenChange(open, event);
+    },
+    [onOpenChange]
+  );
 
   useUiCleanupEvent(() => {
     setIsOpen(false);
     onOpenChange(false);
   }, [UiEvent.CloseAllOverlays, UiEvent.CloseAllPopovers]);
 
-  return (
-    <AntdPopover open={isOpen} onOpenChange={handleOpenChange} {...props} />
-  );
+  return <AntdPopover open={isOpen} onOpenChange={handleOpenChange} {...props} />;
 };

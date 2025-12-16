@@ -1,10 +1,8 @@
+import { Modal, Select, Radio, Space, Typography, type RadioChangeEvent } from "antd";
 import React, { useState, useEffect } from "react";
-import { Modal, Select, Radio, Space, Typography } from "antd";
-import type { RadioChangeEvent } from "antd";
-import {
-  generatePillarTemplate,
-  PillarTemplateType,
-} from "../../utils/jinja-templates";
+
+import { generatePillarTemplate, PillarTemplateType } from "../../utils/jinja-templates";
+
 import styles from "./pillar-insert-modal.module.css";
 
 const { Text } = Typography;
@@ -35,12 +33,8 @@ export const PillarInsertModal: React.FC<PillarInsertModalProps> = ({
   onInsert,
   onCancel,
 }) => {
-  const [selectedField, setSelectedField] = useState<string | undefined>(
-    fields[0],
-  );
-  const [templateType, setTemplateType] = useState<PillarTemplateType>(
-    PillarTemplateType.Simple,
-  );
+  const [selectedField, setSelectedField] = useState<string | undefined>(fields[0]);
+  const [templateType, setTemplateType] = useState<PillarTemplateType>(PillarTemplateType.Simple);
 
   // Update selected field when fields change or modal opens
   useEffect(() => {
@@ -65,9 +59,7 @@ export const PillarInsertModal: React.FC<PillarInsertModalProps> = ({
   };
 
   // Generate preview
-  const previewTemplate = selectedField
-    ? generatePillarTemplate(selectedField, templateType)
-    : "";
+  const previewTemplate = selectedField ? generatePillarTemplate(selectedField, templateType) : "";
 
   return (
     <Modal
