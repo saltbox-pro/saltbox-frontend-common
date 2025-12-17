@@ -1,10 +1,11 @@
 import {
-  ControlElementsProp,
-  FullField,
-  QueryBuilderContextProvider,
-  Translations,
-  getCompatContextProvider,
-} from "react-querybuilder";
+  CloseOutlined,
+  CopyOutlined,
+  DownOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  UpOutlined,
+} from "@ant-design/icons";
 import {
   AntDActionElement,
   AntDDragHandle,
@@ -13,13 +14,13 @@ import {
   AntDValueEditor,
 } from "@react-querybuilder/antd";
 import {
-  CloseOutlined,
-  CopyOutlined,
-  DownOutlined,
-  LockOutlined,
-  UnlockOutlined,
-  UpOutlined,
-} from "@ant-design/icons";
+  ControlElementsProp,
+  FullField,
+  QueryBuilderContextProvider,
+  Translations,
+  getCompatContextProvider,
+} from "react-querybuilder";
+
 import { SaltBoxValueSelector } from "../value-selectors/salt-box-value-selector";
 
 export const antdControlElements: ControlElementsProp<FullField, string> = {
@@ -44,8 +45,7 @@ export const antdTranslations: Partial<Translations> = {
   shiftActionDown: { label: <DownOutlined /> },
 };
 
-export const QueryBuilderSaltBox: QueryBuilderContextProvider =
-  getCompatContextProvider({
-    controlElements: antdControlElements,
-    translations: antdTranslations,
-  });
+export const QueryBuilderSaltBox: QueryBuilderContextProvider = getCompatContextProvider({
+  controlElements: antdControlElements,
+  translations: antdTranslations,
+});

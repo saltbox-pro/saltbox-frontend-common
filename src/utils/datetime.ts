@@ -4,6 +4,7 @@ import "dayjs/locale/ru";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+
 import { AppLanguage, DAYJS_LOCALE_MAP } from "../interfaces/locales";
 
 dayjs.extend(relativeTime);
@@ -23,9 +24,7 @@ export function formatTimeByUserTZ(
   date: ConfigType,
   templateFormat: string = DATETIME_FORMAT_FULL
 ): string {
-  return dayjs(date)
-    .tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
-    .format(templateFormat);
+  return dayjs(date).tz(Intl.DateTimeFormat().resolvedOptions().timeZone).format(templateFormat);
 }
 
 export function setDateTimeLocale(locale: AppLanguage) {

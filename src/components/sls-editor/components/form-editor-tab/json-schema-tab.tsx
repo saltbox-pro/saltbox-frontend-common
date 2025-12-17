@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { Alert } from "antd";
+import React, { useState, useCallback, useEffect } from "react";
+
 import type { JSONSchema } from "../../types";
 import { validateJSONSchema } from "../../utils/schema-validator";
 
@@ -12,10 +13,7 @@ interface JsonSchemaTabProps {
 /**
  * Monaco editor for JSON Schema with validation
  */
-export const JsonSchemaTab: React.FC<JsonSchemaTabProps> = ({
-  schema,
-  onChange,
-}) => {
+export const JsonSchemaTab: React.FC<JsonSchemaTabProps> = ({ schema, onChange }) => {
   const [error, setError] = useState<string | null>(null);
   const [value, setValue] = useState(() => JSON.stringify(schema, null, 2));
 
@@ -40,7 +38,7 @@ export const JsonSchemaTab: React.FC<JsonSchemaTabProps> = ({
         setError((err as Error).message);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   // Synchronize value when schema changes externally

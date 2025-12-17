@@ -1,6 +1,10 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { Tabs, Alert, Dropdown, Button } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
+import { Tabs, Alert, Dropdown, Button } from "antd";
+import React, { useState, useCallback, useEffect } from "react";
+
+import { FormEditorTab } from "./components/form-editor-tab/form-editor-tab";
+import { SlsEditorTab } from "./components/sls-editor-tab";
+import styles from "./sls-editor.module.css";
 import type { SlsEditorProps, FormSchema } from "./types";
 import {
   parseSchemaFromSls,
@@ -9,9 +13,6 @@ import {
   getEmptySchema,
   getEmptySlsBody,
 } from "./utils/sls-parser";
-import { FormEditorTab } from "./components/form-editor-tab/form-editor-tab";
-import { SlsEditorTab } from "./components/sls-editor-tab";
-import styles from "./sls-editor.module.css";
 
 /**
  * SlsEditor - component for editing Salt State files with integrated JSON Schema form editor
@@ -88,7 +89,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
       setSchema(newSchema);
       onSlsChange?.(combineSchemaAndBody(newSchema, slsBody));
     },
-    [slsBody, onSlsChange],
+    [slsBody, onSlsChange]
   );
 
   /**
@@ -100,7 +101,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
       setSlsBody(newBody);
       onSlsChange?.(combineSchemaAndBody(schema, newBody));
     },
-    [schema, onSlsChange],
+    [schema, onSlsChange]
   );
 
   const items = [

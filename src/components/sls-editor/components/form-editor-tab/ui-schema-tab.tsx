@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { Alert } from "antd";
+import React, { useState, useCallback, useEffect } from "react";
+
 import type { UISchema } from "../../types";
 
 interface UiSchemaTabProps {
@@ -11,10 +12,7 @@ interface UiSchemaTabProps {
 /**
  * Monaco editor for UI Schema
  */
-export const UiSchemaTab: React.FC<UiSchemaTabProps> = ({
-  schema,
-  onChange,
-}) => {
+export const UiSchemaTab: React.FC<UiSchemaTabProps> = ({ schema, onChange }) => {
   const [error, setError] = useState<string | null>(null);
   const [value, setValue] = useState(() => JSON.stringify(schema, null, 2));
 
@@ -32,7 +30,7 @@ export const UiSchemaTab: React.FC<UiSchemaTabProps> = ({
         setError((err as Error).message);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   // Synchronize value when schema changes externally

@@ -1,8 +1,9 @@
-import { FC, ComponentProps } from "react";
 import { AntDValueEditor } from "@react-querybuilder/antd";
+import { FC, ComponentProps } from "react";
+import { ValueEditorProps } from "react-querybuilder";
+
 import { SaltBoxAutocompleteValueEditor } from "./salt-box-autocomplete-value-editor";
 import { SaltBoxDateTimeValueEditor } from "./salt-box-datetime-value-editor";
-import { ValueEditorProps } from "react-querybuilder";
 
 type AutoCompleteProps = ComponentProps<typeof SaltBoxAutocompleteValueEditor>;
 
@@ -27,12 +28,7 @@ export const SaltBoxMinionValueEditor: FC<
     if (props?.operator === "null" || props?.operator === "notNull") {
       return <></>;
     }
-    return (
-      <SaltBoxAutocompleteValueEditor
-        onValueChange={onValueChange}
-        {...props}
-      />
-    );
+    return <SaltBoxAutocompleteValueEditor onValueChange={onValueChange} {...props} />;
   }
   return <AntDValueEditor {...props} />;
 };

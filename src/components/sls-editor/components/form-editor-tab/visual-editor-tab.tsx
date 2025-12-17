@@ -1,5 +1,6 @@
-import React, { useMemo, useCallback } from "react";
 import { SchemaVisualEditor } from "@saltbox/react-jsonschema-form-generator";
+import React, { useMemo, useCallback } from "react";
+
 import "@saltbox/react-jsonschema-form-generator/styles.css";
 import type { FormSchema, JSONSchema, UISchema } from "../../types";
 
@@ -134,7 +135,7 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
         ui_schema: wrappedUiSchema,
       });
     },
-    [jsonSchema, uiSchema, onChange],
+    [jsonSchema, uiSchema, onChange]
   );
 
   const formSchema: FormSchema = useMemo(() => {

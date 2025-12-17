@@ -1,10 +1,8 @@
+import { action, computed, observable } from "mobx";
 import { OptionList, RuleGroupType, formatQuery } from "react-querybuilder";
 import { parseMongoDB } from "react-querybuilder/parseMongoDB";
-import { action, computed, observable } from "mobx";
-import {
-  customRuleProcessorMongoDB,
-  generateIdsForQuery,
-} from "../utils/query-builder-utils";
+
+import { customRuleProcessorMongoDB, generateIdsForQuery } from "../utils/query-builder-utils";
 
 const emptyFilters: RuleGroupType = {
   rules: [],
@@ -46,7 +44,7 @@ export class FilterStore {
   @action
   updateFilterSchema = (filterSchema: OptionList) => {
     this.filterSchema = filterSchema;
-  }
+  };
 
   @computed
   get searchMongoDBQuery(): object {
@@ -55,7 +53,7 @@ export class FilterStore {
       this._queryCache = {
         key: currentQueryString,
         value: JSON.parse(currentQueryString),
-      }
+      };
     }
     return this._queryCache.value;
   }
