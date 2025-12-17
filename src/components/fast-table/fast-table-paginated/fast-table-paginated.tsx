@@ -14,7 +14,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { Empty, Pagination, PaginationProps, Spin } from "antd";
 import { PaginationLocale } from "antd/es/pagination/Pagination";
 import { toJS } from "mobx";
-import {
+import React, {
   Fragment,
   RefObject,
   useCallback,
@@ -38,7 +38,10 @@ export type FastTablePaginatedProps<DataType> = {
   pagination: PaginationState;
   sorting?: SortingState;
   onLazyLoad: (pagination: PaginationState, sorting: SortingState) => void;
-  onRowClick?: (item: DataType, event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onRowClick?: (
+    item: DataType,
+    event: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement>
+  ) => void; // TODO: rename or use separate event handlers
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
