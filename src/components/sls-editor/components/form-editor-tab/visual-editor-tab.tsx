@@ -19,7 +19,7 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
   uiSchema,
   onChange,
 }) => {
-  // Extract pillar.properties for editing
+  // Extract pillar.properties for editing, preserving root title and description
   const extractedSchema = useMemo(() => {
     if (typeof jsonSchema === "boolean") {
       return { type: "object" as const, properties: {} };
@@ -30,6 +30,8 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
       return {
         type: "object" as const,
         properties: {},
+        title: jsonSchema.title,
+        description: jsonSchema.description,
       };
     }
 
@@ -38,10 +40,17 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
       return {
         type: "object" as const,
         properties: {},
+        title: jsonSchema.title,
+        description: jsonSchema.description,
       };
     }
 
-    return pillar;
+    // Merge root title/description into pillar schema
+    return {
+      ...pillar,
+      title: pillar.title || jsonSchema.title,
+      description: pillar.description || jsonSchema.description,
+    };
   }, [jsonSchema]);
 
   const extractedUiSchema = useMemo(() => {
@@ -71,10 +80,30 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
         editedSchema = editedSchemaOrFormSchema as JSONSchema;
       }
 
+      // Extract title and description from edited schema (they belong to root)
+      const rootTitle =
+        typeof editedSchema === "object" && editedSchema !== null
+          ? editedSchema.title
+          : undefined;
+      const rootDescription =
+        typeof editedSchema === "object" && editedSchema !== null
+          ? editedSchema.description
+          : undefined;
+
+      // Remove title and description from pillar schema (they belong to root)
+      const pillarSchema =
+        typeof editedSchema === "object" && editedSchema !== null
+          ? (() => {
+              const { title, description, ...rest } = editedSchema;
+              return rest;
+            })()
+          : editedSchema;
+
       const wrappedJsonSchema: JSONSchema = {
         ...(typeof jsonSchema === "boolean" ? {} : jsonSchema),
         type: "object",
-        title: (typeof jsonSchema === "boolean" ? "" : jsonSchema.title) || "",
+        title: rootTitle || "",
+        description: rootDescription,
         additionalProperties: false,
         required: ["kwargs"],
         properties: {
@@ -83,7 +112,7 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
             additionalProperties: false,
             required: ["pillar"],
             properties: {
-              pillar: editedSchema,
+              pillar: pillarSchema,
             },
           },
         },
