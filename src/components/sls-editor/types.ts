@@ -3,7 +3,7 @@ import type { JSONSchema, UISchema, FormSchema } from "@saltbox/react-jsonschema
 import type { MenuProps } from "antd";
 
 // Re-export types for convenience
-export type { JSONSchema, UISchema, FormSchema };
+export type { JSONSchema, UISchema, FormSchema, MenuProps };
 
 /**
  * Additional tab for SlsEditor

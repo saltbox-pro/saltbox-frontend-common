@@ -83,9 +83,7 @@ export const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
 
       // Extract title and description from edited schema (they belong to root)
       const rootTitle =
-        typeof editedSchema === "object" && editedSchema !== null
-          ? editedSchema.title
-          : undefined;
+        typeof editedSchema === "object" && editedSchema !== null ? editedSchema.title : undefined;
       const rootDescription =
         typeof editedSchema === "object" && editedSchema !== null
           ? editedSchema.description

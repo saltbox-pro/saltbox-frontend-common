@@ -13,6 +13,7 @@ export type {
   JSONSchema,
   UISchema,
   FieldMenuItem,
+  MenuProps,
 } from "./types";
 
 // Utility functions
