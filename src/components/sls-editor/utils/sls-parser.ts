@@ -142,10 +142,7 @@ export function getEmptySchema(): FormSchema {
  * ```
  */
 export function getEmptySlsBody(): string {
-  return `{% set pillar = kwargs.pillar %}
-
-# Your Salt State here
-`;
+  return ``;
 }
 
 /**
