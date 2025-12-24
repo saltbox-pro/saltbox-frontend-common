@@ -1,7 +1,12 @@
+export type WebSocketMessage<T> = {
+  message_tag: string;
+  payload: T;
+};
+
 export class WebSocketService<T> {
   private ws: WebSocket | null;
   private accessToken: string | null;
-  private messageBuffer: T[];
+  private messageBuffer: WebSocketMessage<T>[];
   private flushTimeout: number | null;
 
   readonly BUFFER_FLUSH_INTERVAL_MS = 2000;
@@ -26,7 +31,7 @@ export class WebSocketService<T> {
   connect = (
     url: string,
     accessToken: string | null,
-    events: { onMessage?: (update: Array<T>) => void; onOpen?: () => void }
+    events: { onMessage?: (update: Array<WebSocketMessage<T>>) => void; onOpen?: () => void }
   ) => {
     try {
       this.ws = new WebSocket(url);
@@ -41,7 +46,7 @@ export class WebSocketService<T> {
 
       this.ws.onmessage = (event: MessageEvent<string>) => {
         try {
-          const parsedData = JSON.parse(event.data) as T;
+          const parsedData = JSON.parse(event.data) as WebSocketMessage<T>;
           this.messageBuffer.push(parsedData);
           if (!this.flushTimeout) {
             this.flushBuffer(events?.onMessage || (() => {}));
@@ -63,7 +68,7 @@ export class WebSocketService<T> {
     }
   };
 
-  private flushBuffer = (onMessage: (update: Array<T>) => void) => {
+  private flushBuffer = (onMessage: (update: Array<WebSocketMessage<T>>) => void) => {
     if (this.messageBuffer.length > 0) {
       this.flushTimeout = setTimeout(() => {
         onMessage([...this.messageBuffer]);
