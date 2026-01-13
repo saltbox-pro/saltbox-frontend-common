@@ -51,3 +51,26 @@ export function generateIdsForQuery<T extends RuleGroupType | RuleType>(query: T
   }
   return newQuery;
 }
+
+export function isMongoQueryEmpty(query?: unknown): boolean {
+  if (!query || typeof query !== "object") return true;
+
+  if (Array.isArray(query)) {
+    return query.length === 0 || query.every((item) => isMongoQueryEmpty(item));
+  }
+
+  const entries = Object.entries(query as Record<string, unknown>);
+  if (entries.length === 0) return true;
+
+  if (entries.length === 1) {
+    const [key, value] = entries[0];
+    if (key === "$expr" && value === true) {
+      return true;
+    }
+    if (["$and", "$or", "$nor"].includes(key)) {
+      return isMongoQueryEmpty(value);
+    }
+  }
+
+  return false;
+}
