@@ -4,12 +4,14 @@ import "dayjs/locale/ru";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import updateLocale from "dayjs/plugin/updateLocale";
 
 import { AppLanguage, DAYJS_LOCALE_MAP } from "../interfaces/locales";
 
 dayjs.extend(relativeTime);
 dayjs.extend(timezone);
 dayjs.extend(utc);
+dayjs.extend(updateLocale);
 
 export const DATETIME_FORMAT_FULL = "DD.MM.YYYY HH:mm:ss";
 export const DATETIME_TIMESTAMP = "YYYY-MM-DD HH:mm:ss";
@@ -29,4 +31,13 @@ export function formatTimeByUserTZ(
 
 export function setDateTimeLocale(locale: AppLanguage) {
   dayjs.locale(DAYJS_LOCALE_MAP[locale]);
+  if (AppLanguage.RU === locale) {
+    dayjs.updateLocale("ru", {
+      weekStart: 1,
+    });
+  } else if (AppLanguage.EN === locale) {
+    dayjs.updateLocale("en", {
+      weekStart: 0,
+    });
+  }
 }
