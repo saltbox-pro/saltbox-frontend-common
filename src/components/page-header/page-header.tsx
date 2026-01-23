@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { shouldShowBackButton } from "saltbox-common/utils/page-header-utils";
+import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
 
 import styles from "./page-header.module.css";
 
@@ -15,7 +15,7 @@ export function PageHeader({ title }: PageHeaderProps) {
 
   return (
     <div className={styles.pageHeader}>
-      {shouldShowBackButton() && (
+      {backButtonProvider.shouldShowBackButton() && (
         <Button icon={<ArrowLeftOutlined />} onClick={handleBackButtonClick}></Button>
       )}
       <h1 className={styles.pageHeaderTitle}>{title}</h1>
