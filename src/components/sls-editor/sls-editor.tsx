@@ -119,7 +119,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
               style={{ margin: 16 }}
             />
           )}
-          <FormEditorTab schema={schema} onSchemaChange={handleSchemaChange} />
+          {!error && <FormEditorTab schema={schema} onSchemaChange={handleSchemaChange} />}
         </div>
       ),
     },
@@ -128,11 +128,22 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
       label: "SLS Editor",
       children: (
         <div className={styles.tabContent}>
-          <SlsEditorTab
-            slsBody={slsBody}
-            onSlsBodyChange={handleSlsBodyChange}
-            schema={schema.json_schema}
-          />
+          {error && (
+            <Alert
+              message="Schema parsing error"
+              description={error}
+              type="error"
+              closable
+              style={{ margin: 16 }}
+            />
+          )}
+          {!error && (
+            <SlsEditorTab
+              slsBody={slsBody}
+              onSlsBodyChange={handleSlsBodyChange}
+              schema={schema.json_schema}
+            />
+          )}
         </div>
       ),
     },
