@@ -1526,10 +1526,10 @@
     argparse "~1.0.9"
     string-argv "~0.3.1"
 
-"@saltbox/react-jsonschema-form-generator@0.1.0":
-  version "0.1.0"
-  resolved "https://dev.saltbox.pro/api/v4/projects/90/packages/npm/@saltbox/react-jsonschema-form-generator/-/@saltbox/react-jsonschema-form-generator-0.1.0.tgz#458ab37fbe63605f8e81a0f9f4059843dd2e0ccc"
-  integrity sha1-RYqzf75jYF+OgaD59AWYQ90uDMw=
+"@saltbox/react-jsonschema-form-generator@0.1.1":
+  version "0.1.1"
+  resolved "https://dev.saltbox.pro/api/v4/projects/90/packages/npm/@saltbox/react-jsonschema-form-generator/-/@saltbox/react-jsonschema-form-generator-0.1.1.tgz#50d8b69079f7ae827a7beb88b588c37d27df5755"
+  integrity sha1-UNi2kHn3roJ6e+uItYjDfSffV1U=
   dependencies:
     "@monaco-editor/react" "^4.7.0"
     "@radix-ui/react-checkbox" "^1.3.3"
