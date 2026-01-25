@@ -1,6 +1,6 @@
 import Form from "@rjsf/antd";
 import validator from "@rjsf/validator-ajv8";
-import { Alert, Typography } from "antd";
+import { Alert, Button, message, Typography } from "antd";
 import React, { useState, useMemo } from "react";
 
 import type { FormSchema } from "../../types";
@@ -80,10 +80,13 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
           formData={formData}
           validator={validator}
           onChange={(e) => setFormData(e.formData)}
-          onSubmit={() => {}} // Prevent submit
+          onSubmit={() => {
+            message.success("Form valid");
+          }}
         >
-          {/* Hide submit button */}
-          <div style={{ display: "none" }} />
+          <div>
+            <Button htmlType="submit">Validate</Button>
+          </div>
         </Form>
       </div>
       <div className={styles.dataOutput}>
