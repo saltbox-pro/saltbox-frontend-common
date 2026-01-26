@@ -33,6 +33,10 @@
   padding: 0.5rem 1rem;
 }
 
+.fast-table table > tbody > tr:hover > td {
+  background-color: #fafafa;
+}
+
 .fast-table-summary {
   display: flex;
   padding: 0.5rem 0 0;
