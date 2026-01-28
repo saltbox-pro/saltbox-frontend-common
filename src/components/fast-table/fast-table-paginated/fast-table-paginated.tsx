@@ -26,7 +26,9 @@ import React, {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
+import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader, HeaderLocale } from "../fast-table-header/fast-table-header";
+import { CellMeta } from "../types";
 
 import "./fast-table-paginated.css";
 
@@ -273,10 +275,12 @@ export function FastTablePaginated<DataType>({
   const renderTableRow = (row: Row<DataType>) => {
     return row.getVisibleCells().map((cell, index) => {
       const width = columnWidths[`col-${index}`];
+      const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+
       return (
         <td
           key={cell.id}
-          className={(cell.column.columnDef.meta as any)?.tdClassName}
+          className={(meta?.tdClassName ?? "") + " cell-with-actions"}
           style={
             width
               ? {
@@ -287,7 +291,18 @@ export function FastTablePaginated<DataType>({
               : undefined
           }
         >
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          <span className="cell-content">
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            {(meta?.showCopy || meta?.actions) && (
+              <CellActions
+                value={cell.getValue()}
+                row={row.original}
+                showCopy={meta.showCopy}
+                copyValue={meta.copyValue?.(row.original)}
+                actions={meta.actions}
+              />
+            )}
+          </span>
         </td>
       );
     });
@@ -309,7 +324,16 @@ export function FastTablePaginated<DataType>({
       <Fragment key={`${row.id}-group-row`}>
         <tr
           key={row.id}
-          onClick={(event) => (onRowClick ? onRowClick(toJS(row.original), event) : undefined)}
+          role={onRowClick ? "button" : undefined}
+          onClick={(event) => {
+            if (!onRowClick) return;
+            // Проверяем, что клик был не по кнопке или ссылке
+            const target = event.target as HTMLElement;
+            if (target.closest("button, a, .prevent-row-click")) {
+              return;
+            }
+            onRowClick(toJS(row.original), event);
+          }}
         >
           {renderTableRow(row)}
         </tr>
@@ -326,10 +350,12 @@ export function FastTablePaginated<DataType>({
     const renderRow = (row: Row<DataType>) => {
       return row.getVisibleCells().map((cell, index) => {
         const width = columnWidths[`col-${index}`];
+        const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+
         return (
           <div
             key={cell.id}
-            className={`virtual-cell ${(cell.column.columnDef.meta as any)?.tdClassName || ""}`}
+            className={`virtual-cell cell-with-actions ${meta?.tdClassName || ""}`}
             style={
               width
                 ? {
@@ -342,7 +368,18 @@ export function FastTablePaginated<DataType>({
                   }
             }
           >
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            <span className="cell-content">
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              {(meta?.showCopy || meta?.actions) && (
+                <CellActions
+                  value={cell.getValue()}
+                  row={row.original}
+                  showCopy={meta.showCopy}
+                  copyValue={meta.copyValue?.(row.original)}
+                  actions={meta.actions}
+                />
+              )}
+            </span>
           </div>
         );
       });
@@ -376,9 +413,15 @@ export function FastTablePaginated<DataType>({
                 className="virtual-row"
                 role={onRowClick ? "button" : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
-                onClick={(event) =>
-                  onRowClick ? onRowClick(toJS(row.original), event) : undefined
-                }
+                onClick={(event) => {
+                  if (!onRowClick) return;
+                  // Проверяем, что клик был не по кнопке или ссылке
+                  const target = event.target as HTMLElement;
+                  if (target.closest("button, a, .prevent-row-click")) {
+                    return;
+                  }
+                  onRowClick(toJS(row.original), event);
+                }}
                 onKeyDown={
                   onRowClick
                     ? (event) => {

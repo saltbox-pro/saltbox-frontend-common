@@ -108,6 +108,29 @@
   border-color: transparent;
 }
 
+/* Курсор pointer для кликабельных строк */
+.fast-table table > tbody > tr[role="button"] {
+  cursor: pointer;
+}
+
+.fast-table .virtual-row[role="button"] {
+  cursor: pointer;
+}
+
+/* Контейнер для контента ячейки с действиями */
+.fast-table .cell-with-actions .cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Показываем actions при ховере на ЯЧЕЙКУ */
+.fast-table .cell-with-actions:hover .cell-content .actions {
+  visibility: visible;
+  opacity: 1;
+}
+
 .fast-table-summary {
   display: flex;
   padding: 0.5rem 0 0;
