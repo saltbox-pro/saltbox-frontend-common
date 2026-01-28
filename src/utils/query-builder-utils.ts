@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {
+  formatQuery,
   RuleGroupType,
   RuleType,
   ValueProcessorByRule,
@@ -73,4 +74,35 @@ export function isMongoQueryEmpty(query?: unknown): boolean {
   }
 
   return false;
+}
+
+export const emptyRuleGroup: RuleGroupType = {
+  rules: [],
+  combinator: "and",
+  not: false,
+} as const;
+
+export function createRuleGroup(
+  combinator: "and" | "or",
+  rules: RuleGroupType["rules"]
+): RuleGroupType {
+  return {
+    combinator,
+    rules,
+    not: false,
+  };
+}
+
+export function formatToMongoDB(filters: RuleGroupType): object {
+  const queryString = formatQuery(filters, {
+    format: "mongodb",
+    valueProcessor: customRuleProcessorMongoDB,
+  });
+
+  try {
+    return JSON.parse(queryString);
+  } catch (error) {
+    console.error("Failed to parse MongoDB query:", error);
+    return {};
+  }
 }

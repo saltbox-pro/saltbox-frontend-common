@@ -1,18 +1,12 @@
 import { action, computed, observable } from "mobx";
-import { OptionList, RuleGroupType, formatQuery } from "react-querybuilder";
+import { formatQuery, OptionList, RuleGroupType } from "react-querybuilder";
 import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
-import { customRuleProcessorMongoDB, generateIdsForQuery } from "../utils/query-builder-utils";
-
-const emptyFilters: RuleGroupType = {
-  rules: [],
-  combinator: "and",
-  not: false,
-};
+import { emptyRuleGroup, formatToMongoDB, generateIdsForQuery } from "../utils/query-builder-utils";
 
 export class FilterStore {
-  @observable currentFilters: RuleGroupType = emptyFilters;
-  @observable searchFilters: RuleGroupType = emptyFilters;
+  @observable currentFilters: RuleGroupType = emptyRuleGroup;
+  @observable searchFilters: RuleGroupType = emptyRuleGroup;
   @observable isLoading: boolean = false;
   @observable filterSchema: OptionList = [];
   private _queryCache = { key: "", value: {} };
@@ -32,7 +26,7 @@ export class FilterStore {
 
   @action
   handleResetFilters = () => {
-    this.currentFilters = emptyFilters;
+    this.currentFilters = emptyRuleGroup;
     this.handleSearch();
   };
 
@@ -48,11 +42,11 @@ export class FilterStore {
 
   @computed
   get searchMongoDBQuery(): object {
-    const currentQueryString = this.searchMongoDBQueryString;
+    const currentQueryString = formatQuery(this.searchFilters, "json_without_ids");
     if (currentQueryString !== this._queryCache.key) {
       this._queryCache = {
         key: currentQueryString,
-        value: JSON.parse(currentQueryString),
+        value: formatToMongoDB(this.searchFilters),
       };
     }
     return this._queryCache.value;
@@ -63,12 +57,4 @@ export class FilterStore {
     this.currentFilters = generateIdsForQuery(parseMongoDB(query));
     this.handleSearch();
   };
-
-  @computed
-  private get searchMongoDBQueryString(): string {
-    return formatQuery(this.searchFilters, {
-      format: "mongodb",
-      valueProcessor: customRuleProcessorMongoDB,
-    });
-  }
 }
