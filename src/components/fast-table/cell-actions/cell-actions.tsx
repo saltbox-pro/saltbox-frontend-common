@@ -52,9 +52,9 @@ export function CellActions<T>({
         {showCopy && (
           <Button
             icon={<CopyOutlined />}
-            type="text"
+            color="default"
+            variant="outlined"
             size="small"
-            shape="circle"
             title={t("copy-to-clipboard-button.copy")}
             onClick={handleCopy}
           />
@@ -65,9 +65,9 @@ export function CellActions<T>({
             <Button
               key={index}
               icon={action.icon}
-              type="text"
+              color="default"
+              variant="outlined"
               size="small"
-              shape="circle"
               title={action.title}
               disabled={isDisabled}
               onClick={(e) => {
