@@ -164,9 +164,9 @@ export function FastTableListed<DataType>({
           role={onRowClick ? "button" : undefined}
           onClick={(event) => {
             if (!onRowClick) return;
-            // Проверяем, что клик был не по кнопке или ссылке
+            // Проверяем, что клик был не по кнопке, ссылке или input элементу
             const target = event.target as HTMLElement;
-            if (target.closest("button, a, .prevent-row-click")) {
+            if (target.closest("button, a, input, .prevent-row-click")) {
               return;
             }
             onRowClick(toJS(row.original), event);
