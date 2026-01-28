@@ -51,7 +51,7 @@
 }
 
 /* Показываем actions при ховере на ЯЧЕЙКУ */
-.fast-table .cell-with-actions:hover .cell-content .actions {
+.fast-table .cell-with-actions:hover .cell-content .cell-actions {
   visibility: visible;
   opacity: 1;
 }

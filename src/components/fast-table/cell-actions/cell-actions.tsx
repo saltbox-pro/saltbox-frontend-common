@@ -48,7 +48,7 @@ export function CellActions<T>({
   return (
     <>
       {contextHolder}
-      <span className={styles.actions}>
+      <span className={`${styles.actions} cell-actions`}>
         {showCopy && (
           <Button
             icon={<CopyOutlined />}
