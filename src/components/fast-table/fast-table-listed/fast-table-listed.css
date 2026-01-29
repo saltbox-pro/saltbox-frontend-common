@@ -37,6 +37,12 @@
   background-color: #fafafa;
 }
 
+/* Исключаем hover для empty и loading строк */
+.fast-table table > tbody > tr.empty-state-row:hover > td,
+.fast-table table > tbody > tr.loading-state-row:hover > td {
+  background-color: transparent;
+}
+
 /* Курсор pointer для кликабельных строк */
 .fast-table table > tbody > tr[role="button"] {
   cursor: pointer;

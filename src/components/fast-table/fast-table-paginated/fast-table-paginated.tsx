@@ -447,7 +447,7 @@ export function FastTablePaginated<DataType>({
 
   const renderEmptyState = () => {
     return (
-      <tr>
+      <tr className="empty-state-row">
         <td colSpan={table.getAllColumns().length}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
         </td>

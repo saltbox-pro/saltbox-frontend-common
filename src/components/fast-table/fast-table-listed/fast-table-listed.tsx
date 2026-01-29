@@ -217,7 +217,7 @@ export function FastTableListed<DataType>({
 
   const renderEmptyState = () => {
     return (
-      <tr>
+      <tr className="empty-state-row">
         <td colSpan={table.getAllColumns().length}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={tableLocale.empty} />
         </td>
@@ -227,7 +227,7 @@ export function FastTableListed<DataType>({
 
   const renderLoadingState = () => {
     return (
-      <tr>
+      <tr className="loading-state-row">
         <td colSpan={table.getAllColumns().length}>
           <Flex justify="center" align="center" className="fast-table-loader">
             <Spin />
