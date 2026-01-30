@@ -14,5 +14,8 @@
     "remove-group-title": "Remove Filters Group",
     "search": "Search",
     "reset": "Reset"
+  },
+  "page-header": {
+    "back-button": "Back to a higher level"
   }
 }

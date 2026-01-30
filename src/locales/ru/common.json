@@ -14,5 +14,8 @@
     "remove-group-title": "Удалить группу фильтров",
     "search": "Поиск",
     "reset": "Сбросить"
+  },
+  "page-header": {
+    "back-button": "Вернуться на уровень выше"
   }
 }
