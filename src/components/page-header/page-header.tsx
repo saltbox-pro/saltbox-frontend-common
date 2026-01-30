@@ -10,7 +10,7 @@ type PageHeaderProps = {
 };
 
 export function PageHeader({ title }: PageHeaderProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   const handleBackButtonClick = () => {
     window.history.back();
