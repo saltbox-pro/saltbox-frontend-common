@@ -1,8 +1,7 @@
-import Form from "@rjsf/antd";
-import validator from "@rjsf/validator-ajv8";
 import { Alert, Button, message, Typography } from "antd";
 import React, { useState, useMemo } from "react";
 
+import { JsonForm } from "../../../json-form";
 import type { FormSchema } from "../../types";
 
 import styles from "./form-preview.module.css";
@@ -73,12 +72,11 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
         <Typography.Title level={4} style={{ marginTop: 0 }}>
           Form Preview
         </Typography.Title>
-        <Form
+        <JsonForm
           className={styles.form}
           schema={extractedJsonSchema as any}
           uiSchema={extractedUiSchema as any}
           formData={formData}
-          validator={validator}
           onChange={(e) => setFormData(e.formData)}
           onSubmit={() => {
             message.success("Form valid");
@@ -87,7 +85,7 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
           <div>
             <Button htmlType="submit">Validate</Button>
           </div>
-        </Form>
+        </JsonForm>
       </div>
       <div className={styles.dataOutput}>
         <div className={styles.dataOutputTitle}>Form data:</div>
