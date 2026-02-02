@@ -1,0 +1,3 @@
+.form :global(.array-item-list .ant-btn-group .ant-btn-dangerous) {
+  border-inline-start-color: transparent;
+}
