@@ -2,6 +2,7 @@ export * from "./components/fast-table/fast-table-listed/fast-table-listed";
 export * from "./components/fast-table/fast-table-paginated/fast-table-paginated";
 export * from "./components/fast-table/types";
 export * from "./components/fast-table/cell-actions/cell-actions";
+export * from "./components/fast-table/column-presets";
 export * from "./components/page-header/page-header";
 export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
