@@ -1,7 +1,6 @@
-import { CopyOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
-import { useTranslation } from "react-i18next";
+import { Button } from "antd";
 
+import { CopyToClipboardButton } from "../../copy-to-clipboard-button/copy-to-clipboard-button";
 import { CellAction } from "../types";
 
 import styles from "./cell-actions.module.css";
@@ -26,16 +25,6 @@ export function CellActions<T>({
   copyValue,
   actions = [],
 }: CellActionsProps<T>) {
-  const { t } = useTranslation("common");
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const textToCopy = copyValue ?? String(value ?? "");
-    navigator.clipboard.writeText(textToCopy);
-    messageApi.success(t("copy-to-clipboard-button.copied"));
-  };
-
   const visibleActions = actions.filter((action) => {
     if (!action.visible) return true;
     return action.visible(value, row);
@@ -46,40 +35,28 @@ export function CellActions<T>({
   }
 
   return (
-    <>
-      {contextHolder}
-      <span className={`${styles.actions} cell-actions`}>
-        {showCopy && (
+    <span className={`${styles.actions} cell-actions`}>
+      {showCopy && <CopyToClipboardButton text={copyValue ?? String(value ?? "")} />}
+      {visibleActions.map((action, index) => {
+        const isDisabled = action.disabled?.(value, row) ?? false;
+        return (
           <Button
-            icon={<CopyOutlined />}
+            key={index}
+            icon={action.icon}
             color="default"
             variant="outlined"
             size="small"
-            title={t("copy-to-clipboard-button.copy")}
-            onClick={handleCopy}
+            title={action.title}
+            disabled={isDisabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isDisabled) {
+                action.onClick(value, row, e);
+              }
+            }}
           />
-        )}
-        {visibleActions.map((action, index) => {
-          const isDisabled = action.disabled?.(value, row) ?? false;
-          return (
-            <Button
-              key={index}
-              icon={action.icon}
-              color="default"
-              variant="outlined"
-              size="small"
-              title={action.title}
-              disabled={isDisabled}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!isDisabled) {
-                  action.onClick(value, row, e);
-                }
-              }}
-            />
-          );
-        })}
-      </span>
-    </>
+        );
+      })}
+    </span>
   );
 }

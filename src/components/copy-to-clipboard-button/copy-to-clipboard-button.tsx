@@ -1,36 +1,41 @@
 import { CopyOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
-import { ComponentProps } from "react";
+import { Button, type ButtonProps, message } from "antd";
 import { useTranslation } from "react-i18next";
 
-import styles from "./copy-to-clipboard-button.module.css";
-
-type ButtonType = ComponentProps<typeof Button>["type"];
-
-export function CopyToClipboardButton({
-  text,
-  type = "link",
-}: {
+interface CopyToClipboardButtonProps extends ButtonProps {
   text: string;
-  type?: ButtonType;
-}) {
+}
+
+export function CopyToClipboardButton({ text, onClick, ...restProps }: CopyToClipboardButtonProps) {
   const { t } = useTranslation("common");
   const [messageApi, contextHolder] = message.useMessage();
+
+  const handleCopy: ButtonProps["onClick"] = (e) => {
+    e.stopPropagation();
+    onClick?.(e);
+
+    const value = String(text ?? "");
+    navigator.clipboard
+      .writeText(value)
+      .then(() => {
+        messageApi.success(t("copy-to-clipboard-button.copied"));
+      })
+      .catch(() => {
+        messageApi.error(t("copy-to-clipboard-button.error"));
+      });
+  };
 
   return (
     <>
       {contextHolder}
       <Button
-        className={styles.buttonCopyToClipboard}
         icon={<CopyOutlined />}
-        type={type}
-        shape="circle"
+        color="default"
+        variant="outlined"
         size="small"
         title={t("copy-to-clipboard-button.copy")}
-        onClick={() => {
-          messageApi.success(t("copy-to-clipboard-button.copied"));
-          navigator.clipboard.writeText(text);
-        }}
+        onClick={handleCopy}
+        {...restProps}
       />
     </>
   );
