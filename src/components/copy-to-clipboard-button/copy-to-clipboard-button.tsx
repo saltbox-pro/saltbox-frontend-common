@@ -1,38 +1,45 @@
 import { CopyOutlined } from "@ant-design/icons";
-import { Button, type ButtonProps, message } from "antd";
+import { type ButtonProps, message } from "antd";
 import { useTranslation } from "react-i18next";
 
-interface CopyToClipboardButtonProps extends ButtonProps {
+import { BaseActionButton } from "../base-action-button/base-action-button";
+
+interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon" | "title"> {
   text: string;
+  successMessage?: string;
+  errorMessage?: string;
 }
 
-export function CopyToClipboardButton({ text, onClick, ...restProps }: CopyToClipboardButtonProps) {
+export function CopyToClipboardButton({
+  text,
+  successMessage,
+  errorMessage,
+  onClick,
+  ...restProps
+}: CopyToClipboardButtonProps) {
   const { t } = useTranslation("common");
   const [messageApi, contextHolder] = message.useMessage();
 
   const handleCopy: ButtonProps["onClick"] = (e) => {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     onClick?.(e);
 
     const value = String(text ?? "");
     navigator.clipboard
       .writeText(value)
       .then(() => {
-        messageApi.success(t("copy-to-clipboard-button.copied"));
+        messageApi.success(successMessage ?? t("copy-to-clipboard-button.copied"));
       })
       .catch(() => {
-        messageApi.error(t("copy-to-clipboard-button.error"));
+        messageApi.error(errorMessage ?? t("copy-to-clipboard-button.error"));
       });
   };
 
   return (
     <>
       {contextHolder}
-      <Button
+      <BaseActionButton
         icon={<CopyOutlined />}
-        color="default"
-        variant="outlined"
-        size="small"
         title={t("copy-to-clipboard-button.copy")}
         onClick={handleCopy}
         {...restProps}

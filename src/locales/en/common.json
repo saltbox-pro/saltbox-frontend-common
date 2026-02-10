@@ -1,4 +1,9 @@
 {
+  "action-button": {
+    "apply-filter": "Apply value to filters",
+    "open-link": "Open link",
+    "close": "Close"
+  },
   "copy-to-clipboard-button": {
     "copied": "Copied to clipboard",
     "copy": "Copy to clipboard",
