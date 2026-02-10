@@ -45,6 +45,9 @@ export const JsonForm = <
         ArrayFieldItemTemplate: CustomArrayFieldItemTemplate,
         ...templates,
       }}
+      experimental_defaultFormStateBehavior={{
+        allOf: "populateDefaults",
+      }}
       {...rest}
     />
   );
