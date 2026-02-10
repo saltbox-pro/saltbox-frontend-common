@@ -13,7 +13,19 @@ export function PageHeader({ title }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
   const handleBackButtonClick = () => {
-    window.history.back();
+    const url = new URL(window.location.href);
+
+    if (url.searchParams.has("tab")) {
+      const pathname = url.pathname;
+      const pathParts = pathname.split("/").filter(Boolean);
+
+      const parentPath = "/" + pathParts.slice(0, -1).join("/");
+
+      window.history.pushState({}, "", parentPath);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } else {
+      window.history.back();
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 class BackButtonProvider {
-  private readonly MIN_HISTORY_INDEX = 1;
+  private readonly MIN_HISTORY_LENGTH = 1;
   private readonly MIN_PATH_DEPTH = 3;
 
   private navigationDepthCache = new Map<string, number>();
@@ -7,7 +7,7 @@ class BackButtonProvider {
 
   shouldShowBackButton(): boolean {
     const pathname = window.location.pathname;
-    const hasHistoryState = window.history.state?.idx > this.MIN_HISTORY_INDEX;
+    const hasHistoryState = window.history.length > this.MIN_HISTORY_LENGTH;
 
     const isExcludedPath = pathname.includes("/minions");
 
