@@ -15,7 +15,13 @@ class BackButtonProvider {
     const segments = pathname.split("/").filter(Boolean);
     const segmentsDepth = segments.length;
 
-    let hasSufficientPathDepth = pathDepth >= this.MIN_PATH_DEPTH;
+    let hasSufficientPathDepth = false;
+
+    if (isExcludedPath) {
+      hasSufficientPathDepth = pathDepth >= this.MIN_PATH_DEPTH + 1;
+    } else {
+      hasSufficientPathDepth = pathDepth >= this.MIN_PATH_DEPTH;
+    }
 
     const [module, secondLevel] = segments;
 
@@ -34,7 +40,7 @@ class BackButtonProvider {
       hasSufficientPathDepth = isIntermediatePage;
     }
 
-    return hasHistoryState && hasSufficientPathDepth && !isExcludedPath;
+    return hasHistoryState && hasSufficientPathDepth;
   }
 }
 
