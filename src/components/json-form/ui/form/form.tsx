@@ -28,6 +28,7 @@ export const JsonForm = <
 >({
   showErrorList = false,
   validator: validatorProp,
+  experimental_defaultFormStateBehavior,
   ref,
   className,
   templates,
@@ -45,9 +46,11 @@ export const JsonForm = <
         ArrayFieldItemTemplate: CustomArrayFieldItemTemplate,
         ...templates,
       }}
-      experimental_defaultFormStateBehavior={{
-        allOf: "populateDefaults",
-      }}
+      experimental_defaultFormStateBehavior={
+        experimental_defaultFormStateBehavior ?? {
+          allOf: "populateDefaults",
+        }
+      }
       {...rest}
     />
   );
