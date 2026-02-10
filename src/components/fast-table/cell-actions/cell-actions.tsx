@@ -1,5 +1,4 @@
-import { Button } from "antd";
-
+import { BaseActionButton } from "../../base-action-button/base-action-button";
 import { CopyToClipboardButton } from "../../copy-to-clipboard-button/copy-to-clipboard-button";
 import { CellAction } from "../types";
 
@@ -40,16 +39,13 @@ export function CellActions<T>({
       {visibleActions.map((action, index) => {
         const isDisabled = action.disabled?.(value, row) ?? false;
         return (
-          <Button
+          <BaseActionButton
             key={index}
             icon={action.icon}
-            color="default"
-            variant="outlined"
-            size="small"
-            title={action.title}
+            title={action.title ?? ""}
             disabled={isDisabled}
             onClick={(e) => {
-              e.stopPropagation();
+              e?.stopPropagation?.();
               if (!isDisabled) {
                 action.onClick(value, row, e);
               }
