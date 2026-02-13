@@ -13,19 +13,15 @@ export function PageHeader({ title }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
   const handleBackButtonClick = () => {
-    const url = new URL(window.location.href);
+    const pathname = window.location.pathname;
+    const segments = pathname.split("/").filter(Boolean);
 
-    if (url.searchParams.has("tab")) {
-      const pathname = url.pathname;
-      const pathParts = pathname.split("/").filter(Boolean);
+    segments.pop();
 
-      const parentPath = "/" + pathParts.slice(0, -1).join("/");
+    const parentPath = "/" + segments.join("/");
 
-      window.history.pushState({}, "", parentPath);
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    } else {
-      window.history.back();
-    }
+    window.history.pushState({}, "", parentPath);
+    window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
   return (
@@ -35,7 +31,7 @@ export function PageHeader({ title }: PageHeaderProps) {
           <Button icon={<ArrowLeftOutlined />} onClick={handleBackButtonClick}></Button>
         </Tooltip>
       )}
-      <h1 className={styles.pageHeaderTitle}>{title}</h1>
+      {!title.includes("undefined") && <h1 className={styles.pageHeaderTitle}>{title}</h1>}
     </div>
   );
 }
