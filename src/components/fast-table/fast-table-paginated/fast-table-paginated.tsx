@@ -209,8 +209,26 @@ export function FastTablePaginated<DataType>({
     onRowSelectionChange,
     onExpandedChange,
     onSortingChange: (updaterOrValue) => {
-      const nextSorting =
+      const updatedSorting =
         typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
+
+      const nextSorting =
+        updatedSorting?.map((item) => {
+          const column = table.getColumn(item.id);
+          const columnDef = column?.columnDef;
+
+          const accessorKey =
+            columnDef && "accessorKey" in columnDef && typeof columnDef.accessorKey === "string"
+              ? columnDef.accessorKey
+              : undefined;
+
+          if (accessorKey && accessorKey !== item.id) {
+            return { ...item, backendId: accessorKey };
+          }
+
+          return item;
+        }) ?? updatedSorting;
+
       onLazyLoad(pagination, nextSorting);
     },
     onPaginationChange: (updaterOrValue) => {
