@@ -18,6 +18,12 @@ export function PageHeader({ title }: PageHeaderProps) {
 
     segments.pop();
 
+    if (segments.includes("tasks")) {
+      const tabName = segments.at(-1);
+      segments.pop();
+      segments[segments.length - 1] = segments.at(-1).concat(`?tab=${tabName}`);
+    }
+
     const parentPath = "/" + segments.join("/");
 
     window.history.pushState({}, "", parentPath);
