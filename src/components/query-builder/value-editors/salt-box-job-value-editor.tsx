@@ -9,10 +9,7 @@ export const SaltBoxJobValueEditor: FC<ValueEditorProps> = memo((props) => {
   if (props?.inputType === "datetime-local") {
     return <SaltBoxDateTimeValueEditor {...props} />;
   }
-  if (
-    props?.fieldData?.type === "multiselect" &&
-    (props?.operator === "in" || props?.operator === "notIn")
-  ) {
+  if (props?.fieldData?.type === "multiselect") {
     return <SaltBoxMultiselectValueEditor {...props} />;
   }
   return <AntDValueEditor {...props} />;
