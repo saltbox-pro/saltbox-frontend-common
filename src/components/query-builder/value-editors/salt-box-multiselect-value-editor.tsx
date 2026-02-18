@@ -1,6 +1,8 @@
 import { Select } from "antd";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { ValueEditorProps } from "react-querybuilder";
+
+import { parseListValue } from "./utils/parse-list-value";
 
 export const SaltBoxMultiselectValueEditor = ({
   value,
@@ -9,15 +11,10 @@ export const SaltBoxMultiselectValueEditor = ({
   className,
   fieldData,
 }: ValueEditorProps) => {
-  const [internalValue, setInternalValue] = useState(value);
+  const selectedValues = useMemo(() => parseListValue(value), [value]);
 
-  useEffect(() => {
-    handleOnChange(internalValue);
-  }, [value]);
-
-  const handleChange = (newInternalValue: Array<string>) => {
-    setInternalValue(newInternalValue.join(","));
-    handleOnChange(newInternalValue);
+  const handleChange = (newValues: string[]) => {
+    handleOnChange(newValues.join(","));
   };
 
   return (
@@ -25,7 +22,7 @@ export const SaltBoxMultiselectValueEditor = ({
       mode="multiple"
       options={fieldData?.selectOptions as any}
       fieldNames={fieldData?.selectFieldNames}
-      defaultValue={value}
+      value={selectedValues}
       allowClear={true}
       onChange={handleChange}
       className={className}
