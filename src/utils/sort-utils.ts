@@ -5,10 +5,15 @@ const enum SortOrder {
   Descending = -1,
 }
 
-export function toBackendSorting(sorting: SortingState): Record<string, SortOrder> {
-  const backendSorting = {};
+type BackendSortingItem = SortingState[number] & {
+  backendId?: string;
+};
+
+export function toBackendSorting(sorting: BackendSortingItem[]): Record<string, SortOrder> {
+  const backendSorting: Record<string, SortOrder> = {};
   sorting.forEach((item) => {
-    backendSorting[item.id] = item.desc ? SortOrder.Descending : SortOrder.Ascending;
+    const backendId = item.backendId ?? item.id;
+    backendSorting[backendId] = item.desc ? SortOrder.Descending : SortOrder.Ascending;
   });
   return backendSorting;
 }
