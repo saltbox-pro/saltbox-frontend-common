@@ -11,6 +11,7 @@ export * from "./components/antd-wrappers/popover";
 export * from "./components/base-action-button/base-action-button";
 export * from "./components/copy-to-clipboard-button/copy-to-clipboard-button";
 export * from "./components/filter-action-button/filter-action-button";
+export * from "./components/filters-counter/filters-counter";
 export * from "./components/action-link-button/action-link-button";
 export * from "./components/navigation-icon-link/navigation-icon-link";
 export * from "./components/mat-icon/mat-icon";

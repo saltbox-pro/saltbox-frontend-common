@@ -1,0 +1,11 @@
+.filtersCounter {
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #1677ff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: center;
+}
