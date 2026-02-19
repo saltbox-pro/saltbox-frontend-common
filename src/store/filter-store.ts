@@ -12,6 +12,11 @@ export class FilterStore {
   private _queryCache = { key: "", value: {} };
 
   @computed
+  get activeFiltersCount(): number {
+    return this.getRulesCount(this.searchFilters);
+  }
+
+  @computed
   get isSearchEnabled() {
     return (
       formatQuery(this.currentFilters, "json_without_ids") !==
@@ -56,5 +61,19 @@ export class FilterStore {
   initializeByQuery = (query: object) => {
     this.currentFilters = generateIdsForQuery(parseMongoDB(query));
     this.handleSearch();
+  };
+
+  private getRulesCount = (group: RuleGroupType): number => {
+    if (!group?.rules || !Array.isArray(group.rules)) {
+      return 0;
+    }
+
+    return group.rules.reduce((count, rule) => {
+      if (rule && typeof rule === "object" && "rules" in rule) {
+        return count + this.getRulesCount(rule as RuleGroupType);
+      }
+
+      return count + 1;
+    }, 0);
   };
 }
