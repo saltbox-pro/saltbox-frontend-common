@@ -14,6 +14,7 @@ export * from "./components/filter-action-button/filter-action-button";
 export * from "./components/filters-counter/filters-counter";
 export * from "./components/action-link-button/action-link-button";
 export * from "./components/navigation-icon-link/navigation-icon-link";
+export * from "./components/json-editor/json-editor";
 export * from "./components/mat-icon/mat-icon";
 export * from "./components/query-builder/salt-box-query-builder-container";
 export * from "./components/query-builder/salt-box-readonly-query-builder";
