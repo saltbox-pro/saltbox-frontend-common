@@ -1,7 +1,8 @@
-import { Button, Tooltip } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
+import { Button, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
+
+import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
 
 import styles from "./page-header.module.css";
 
