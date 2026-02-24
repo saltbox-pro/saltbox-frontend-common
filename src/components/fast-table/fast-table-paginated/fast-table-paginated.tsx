@@ -29,6 +29,7 @@ import { useStableLoading } from "saltbox-common/utils/table-utils";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader, HeaderLocale } from "../fast-table-header/fast-table-header";
 import { CellMeta } from "../types";
+import { getColumnWidthStyle } from "../utils/column";
 
 import "./fast-table-paginated.css";
 
@@ -292,22 +293,18 @@ export function FastTablePaginated<DataType>({
 
   const renderTableRow = (row: Row<DataType>) => {
     return row.getVisibleCells().map((cell, index) => {
-      const width = columnWidths[`col-${index}`];
       const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+      const width = meta?.width ?? columnWidths[`col-${index}`];
+      const widthStyle = getColumnWidthStyle(
+        width,
+        meta && { minWidth: meta.minWidth, maxWidth: meta.maxWidth }
+      );
 
       return (
         <td
           key={cell.id}
           className={(meta?.tdClassName ?? "") + " cell-with-actions"}
-          style={
-            width
-              ? {
-                  width: `${width}px`,
-                  minWidth: `${width}px`,
-                  maxWidth: `${width}px`,
-                }
-              : undefined
-          }
+          style={widthStyle}
         >
           <span className="cell-content">
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -367,24 +364,23 @@ export function FastTablePaginated<DataType>({
   const renderVirtualizedRows = () => {
     const renderRow = (row: Row<DataType>) => {
       return row.getVisibleCells().map((cell, index) => {
-        const width = columnWidths[`col-${index}`];
         const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+        const width = meta?.width ?? columnWidths[`col-${index}`];
+        const widthStyle = width
+          ? getColumnWidthStyle(width, meta && { minWidth: meta.minWidth, maxWidth: meta.maxWidth })
+          : meta?.minWidth !== undefined || meta?.maxWidth !== undefined
+            ? {
+                ...(meta?.minWidth !== undefined && { minWidth: `${meta.minWidth}px` }),
+                ...(meta?.maxWidth !== undefined && { maxWidth: `${meta.maxWidth}px` }),
+                flex: 1,
+              }
+            : { flex: 1 };
 
         return (
           <div
             key={cell.id}
             className={`virtual-cell cell-with-actions ${meta?.tdClassName || ""}`}
-            style={
-              width
-                ? {
-                    width: `${width}px`,
-                    minWidth: `${width}px`,
-                    maxWidth: `${width}px`,
-                  }
-                : {
-                    flex: 1,
-                  }
-            }
+            style={widthStyle}
           >
             <span className="cell-content">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
