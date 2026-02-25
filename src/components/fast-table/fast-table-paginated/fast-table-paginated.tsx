@@ -300,14 +300,25 @@ export function FastTablePaginated<DataType>({
         meta && { minWidth: meta.minWidth, maxWidth: meta.maxWidth }
       );
 
+      const cellValue = cell.getValue();
+      const title =
+        meta?.ellipsis && (typeof cellValue === "string" || typeof cellValue === "number")
+          ? String(cellValue)
+          : undefined;
+
       return (
         <td
           key={cell.id}
-          className={(meta?.tdClassName ?? "") + " cell-with-actions"}
+          className={`cell-with-actions ${meta?.tdClassName ?? ""} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
           style={widthStyle}
         >
           <span className="cell-content">
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            <span
+              className={`cell-content-text ${meta?.ellipsis ? "cell-content-text-ellipsis" : ""}`}
+              title={title}
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </span>
             {(meta?.showCopy || meta?.actions) && (
               <CellActions
                 value={cell.getValue()}
@@ -376,14 +387,25 @@ export function FastTablePaginated<DataType>({
               }
             : { flex: 1 };
 
+        const cellValue = cell.getValue();
+        const title =
+          meta?.ellipsis && (typeof cellValue === "string" || typeof cellValue === "number")
+            ? String(cellValue)
+            : undefined;
+
         return (
           <div
             key={cell.id}
-            className={`virtual-cell cell-with-actions ${meta?.tdClassName || ""}`}
+            className={`virtual-cell cell-with-actions ${meta?.tdClassName ?? ""} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
             style={widthStyle}
           >
             <span className="cell-content">
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              <span
+                className={`cell-content-text ${meta?.ellipsis ? "cell-content-text-ellipsis" : ""}`}
+                title={title}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </span>
               {(meta?.showCopy || meta?.actions) && (
                 <CellActions
                   value={cell.getValue()}

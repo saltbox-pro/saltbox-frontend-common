@@ -17,5 +17,6 @@ export function createExpanderColumn<TData>(): ColumnDef<TData> {
         />
       );
     },
+    meta: { width: 49 },
   };
 }

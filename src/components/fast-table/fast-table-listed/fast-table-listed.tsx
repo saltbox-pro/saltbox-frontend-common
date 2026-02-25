@@ -179,7 +179,7 @@ export function FastTableListed<DataType>({
             return (
               <td
                 key={cell.id}
-                className={(meta?.tdClassName ?? "") + " cell-with-actions"}
+                className={`${meta?.tdClassName ?? ""} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
                 style={
                   width
                     ? {
@@ -191,7 +191,9 @@ export function FastTableListed<DataType>({
                 }
               >
                 <span className="cell-content">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  <span className="cell-content-text">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </span>
                   {(meta?.showCopy || meta?.actions) && (
                     <CellActions
                       value={cell.getValue()}

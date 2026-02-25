@@ -68,7 +68,7 @@
   text-align: start;
   background: #fafafa;
   border: 1px solid #f0f0f0;
-  padding: 1rem;
+  padding: 0.75rem;
   line-height: 1.1rem;
 }
 
@@ -82,7 +82,7 @@
 .fast-table .virtual-cell,
 .fast-table .virtual-row-expanded {
   border: 1px solid #f0f0f0;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   line-height: 1.1rem;
 }
 
@@ -129,6 +129,21 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.fast-table .cell-content-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fast-table .cell-content-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fast-table .cell-color-accent .cell-content-text {
+  color: #1677ff;
 }
 
 /* Показываем actions при ховере на ЯЧЕЙКУ */
