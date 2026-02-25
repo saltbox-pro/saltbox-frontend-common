@@ -8,26 +8,20 @@ import styles from "./page-header.module.css";
 
 type PageHeaderProps = {
   title: string;
+  customParentPathGenerator?: () => string;
 };
 
-export function PageHeader({ title }: PageHeaderProps) {
+export function PageHeader({ title, customParentPathGenerator }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
-  const handleBackButtonClick = () => {
+  const defaultParentPathGenerator = () => {
     const pathname = window.location.pathname;
-    const segments = pathname.split("/").filter(Boolean);
+    const segments = pathname.split("/").filter(Boolean).slice(0, -1);
+    return "/" + segments.join("/");
+  };
 
-    segments.pop();
-
-    if (segments.includes("tasks")) {
-      const tabName = segments.at(-1);
-      segments.pop();
-      segments[segments.length - 1] = segments.at(-1).concat(`?tab=${tabName}`);
-    }
-
-    const parentPath = "/" + segments.join("/");
-
-    window.history.pushState({}, "", parentPath);
+  const handleBackButtonClick = () => {
+    window.history.pushState({}, "", (customParentPathGenerator ?? defaultParentPathGenerator)());
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
