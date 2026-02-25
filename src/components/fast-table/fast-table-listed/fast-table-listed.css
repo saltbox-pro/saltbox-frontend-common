@@ -25,12 +25,12 @@
   text-align: start;
   background: #fafafa;
   border: 1px solid #f0f0f0;
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 .fast-table table > tbody > tr > td {
   border: 1px solid #f0f0f0;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .fast-table table > tbody > tr:hover > td {
@@ -54,6 +54,21 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.fast-table .cell-with-actions .cell-content-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fast-table .cell-ellipsis .cell-content-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fast-table .cell-color-accent .cell-content-text {
+  color: #1677ff;
 }
 
 /* Показываем actions при ховере на ЯЧЕЙКУ */

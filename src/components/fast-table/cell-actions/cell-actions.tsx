@@ -1,19 +1,14 @@
 import { BaseActionButton } from "../../base-action-button/base-action-button";
 import { CopyToClipboardButton } from "../../copy-to-clipboard-button/copy-to-clipboard-button";
-import { CellAction } from "../types";
+import type { CellAction } from "../types";
 
 import styles from "./cell-actions.module.css";
 
 export type CellActionsProps<T> = {
-  /** Значение ячейки */
-  value: any;
-  /** Строка таблицы */
+  value: unknown;
   row: T;
-  /** Показывать кнопку копирования */
   showCopy?: boolean;
-  /** Значение для копирования */
   copyValue?: string;
-  /** Дополнительные действия */
   actions?: CellAction<T>[];
 };
 

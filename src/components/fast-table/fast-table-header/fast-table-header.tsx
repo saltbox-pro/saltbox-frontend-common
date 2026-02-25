@@ -2,7 +2,6 @@ import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { flexRender, Header, SortDirection, Table } from "@tanstack/react-table";
 import { Tooltip } from "antd";
 
-import { CellMeta } from "../types";
 import { getColumnWidthStyle } from "../utils/column";
 
 import "./fast-table-header.css";
@@ -59,7 +58,7 @@ export function FastTableHeader<DataType>({
   return table.getHeaderGroups().map((headerGroup) => (
     <tr key={headerGroup.id}>
       {headerGroup.headers.map((header, index) => {
-        const meta = header.column.columnDef.meta as CellMeta | undefined;
+        const { meta } = header.column.columnDef;
         const width = meta?.width ?? columnWidths[`col-${index}`];
         const widthStyle = getColumnWidthStyle(
           width,

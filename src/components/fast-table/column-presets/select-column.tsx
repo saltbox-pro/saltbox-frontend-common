@@ -1,10 +1,10 @@
-import type { ColumnDef, Row, Table } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "antd";
 
 export function createSelectColumn<TData>(): ColumnDef<TData> {
   return {
     id: "select",
-    header: ({ table }: { table: Table<TData> }) => (
+    header: ({ table }) => (
       <Checkbox
         className="prevent-row-click"
         checked={table.getIsAllRowsSelected()}
@@ -12,7 +12,7 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
         onChange={table.getToggleAllRowsSelectedHandler()}
       />
     ),
-    cell: ({ row }: { row: Row<TData> }) => (
+    cell: ({ row }) => (
       <Checkbox
         className="prevent-row-click"
         checked={row.getIsSelected()}
@@ -20,5 +20,6 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
         onChange={row.getToggleSelectedHandler()}
       />
     ),
+    meta: { width: 41 },
   };
 }
