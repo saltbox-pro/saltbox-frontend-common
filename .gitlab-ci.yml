@@ -1,20 +1,18 @@
 ---
-
 stages:
   - deploy
 
 variables:
-  NODE_IMAGE_TAG: 'node:22.18.0'
-  YARN_CACHE_DIR: './yarn_cache/'
+  NODE_IMAGE_TAG: "node:22.18.0"
+  YARN_CACHE_DIR: "./yarn_cache/"
 
 default:
   cache:
     paths:
-      - '$YARN_CACHE_DIR'
-
+      - "$YARN_CACHE_DIR"
 
 npm-deploy:
-  image: '$NODE_IMAGE_TAG'
+  image: "$NODE_IMAGE_TAG"
   stage: deploy
   script:
     - yarn install --cache-folder='$YARN_CACHE_DIR' --frozen-lockfile
@@ -24,6 +22,7 @@ npm-deploy:
       //${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken = "${CI_JOB_TOKEN}"
       @saltbox:registry = "https://dev.saltbox.pro/api/v4/projects/70/packages/npm/"
       EOF
+    - yarn version --new-version $(echo "$CI_COMMIT_TAG" | sed 's/^v//') --no-git-tag-version
     - yarn publish
   rules:
     - if: $CI_COMMIT_TAG =~ /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-?/
