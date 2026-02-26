@@ -1,11 +1,14 @@
 import type { ReactNode, MouseEvent } from "react";
 
+import type { BaseActionButtonProps } from "saltbox-common/components/base-action-button/base-action-button";
+
 export type CellAction<T = any> = {
   icon: ReactNode;
-  onClick: (value: any, row: T, event: MouseEvent) => void;
   title?: string;
   visible?: (value: any, row: T) => boolean;
   disabled?: (value: any, row: T) => boolean;
+  onClick: (value: any, row: T, event: MouseEvent) => void;
+  buttonProps?: Partial<Omit<BaseActionButtonProps, "icon" | "title" | "disabled" | "onClick">>;
 };
 
 export type CellMeta<T = any> = {

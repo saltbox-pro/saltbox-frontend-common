@@ -1,14 +1,14 @@
 import { Button, Tooltip, type ButtonProps } from "antd";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export interface BaseActionButtonProps extends Omit<ButtonProps, "title"> {
   icon: ReactNode;
-  title: string;
+  title: string | undefined;
 }
 
 export function BaseActionButton({
   icon,
-  title,
+  title = "",
   color = "default",
   variant = "outlined",
   size = "small",

@@ -37,7 +37,8 @@ export function CellActions<T>({
           <BaseActionButton
             key={index}
             icon={action.icon}
-            title={action.title ?? ""}
+            title={action.title}
+            {...action.buttonProps}
             disabled={isDisabled}
             onClick={(e) => {
               e?.stopPropagation?.();
