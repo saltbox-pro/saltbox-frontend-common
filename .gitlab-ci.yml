@@ -12,6 +12,10 @@ default:
     paths:
       - '$YARN_CACHE_DIR'
 
+include:
+  - project: 'saltbox/ci-lib'
+    file: 'def-branch-merge-guard.yml'
+
 
 npm-deploy:
   image: '$NODE_IMAGE_TAG'
