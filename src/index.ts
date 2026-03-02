@@ -8,6 +8,7 @@ export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";
 export * from "./components/antd-wrappers/popover";
+export * from "./components/boolean-display";
 export * from "./components/base-action-button/base-action-button";
 export * from "./components/copy-to-clipboard-button/copy-to-clipboard-button";
 export * from "./components/filter-action-button/filter-action-button";

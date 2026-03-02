@@ -1,0 +1,16 @@
+.jsonEditor_disabled :global(.monaco-editor) {
+  cursor: default;
+}
+
+.jsonEditor_disabled :global(.monaco-editor .inputarea) {
+  pointer-events: none;
+}
+
+.jsonEditor_disabled :global(.monaco-editor .cursor) {
+  display: none !important;
+}
+
+.jsonEditor_disabled :global(.monaco-editor .current-line),
+.jsonEditor_disabled :global(.monaco-editor .current-line-margin) {
+  background-color: transparent !important;
+}

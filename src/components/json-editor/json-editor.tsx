@@ -2,6 +2,8 @@ import Editor from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import { type FC, useCallback, useMemo } from "react";
 
+import styles from "./json-editor.module.css";
+
 type EditorOptions = editor.IStandaloneEditorConstructionOptions;
 
 const DEFAULT_EDITOR_OPTIONS: EditorOptions = {
@@ -47,13 +49,19 @@ export const JsonEditor: FC<JsonEditorProps> = ({
       ...editorOptions,
       readOnly: disabled,
       contextmenu: !disabled,
+      renderLineHighlight: disabled
+        ? "none"
+        : (editorOptions?.renderLineHighlight ??
+          DEFAULT_EDITOR_OPTIONS.renderLineHighlight ??
+          "line"),
+      selectionHighlight: !disabled,
     }),
     [editorOptions, disabled]
   );
 
   return (
     <Editor
-      className={className}
+      className={`${className} ${styles.jsonEditor} ${disabled ? styles.jsonEditor_disabled : ""}`}
       height={height}
       language="json"
       value={value}

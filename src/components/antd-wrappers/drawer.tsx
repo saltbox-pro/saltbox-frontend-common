@@ -4,7 +4,7 @@ import { ComponentProps } from "react";
 import { useUiCleanupEvent } from "saltbox-common/hooks/useUiCleanupEvent";
 import { UiEvent } from "saltbox-common/interfaces/ui-events";
 
-type DrawerProps = ComponentProps<typeof AntdDrawer>;
+export type DrawerProps = ComponentProps<typeof AntdDrawer>;
 
 /**
  * Drawer wrapper that extends Antd Drawer with automatic cleanup on Saltbox UI events.
