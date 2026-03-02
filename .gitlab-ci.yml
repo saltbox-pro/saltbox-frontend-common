@@ -1,7 +1,6 @@
 ---
 
 stages:
-  - .guard
   - deploy
 
 variables:
