@@ -355,7 +355,7 @@ export function FastTablePaginated<DataType>({
             if (!onRowClick) return;
             // Проверяем, что клик был не по кнопке, ссылке или input элементу
             const target = event.target as HTMLElement;
-            if (target.closest("button, a, input, .prevent-row-click")) {
+            if (target.closest("button, a, input, .prevent-row-click, .ant-popover")) {
               return;
             }
             onRowClick(toJS(row.original), event);
