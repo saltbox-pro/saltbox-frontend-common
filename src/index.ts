@@ -17,6 +17,7 @@ export * from "./components/action-link-button/action-link-button";
 export * from "./components/navigation-icon-link/navigation-icon-link";
 export * from "./components/json-editor/json-editor";
 export * from "./components/mat-icon/mat-icon";
+export * from "./components/horizontal-drag-scroll";
 export * from "./components/query-builder/salt-box-query-builder-container";
 export * from "./components/query-builder/salt-box-readonly-query-builder";
 export * from "./components/query-builder/value-selectors/salt-box-readonly-value-selector";

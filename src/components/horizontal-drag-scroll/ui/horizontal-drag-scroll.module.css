@@ -1,0 +1,81 @@
+.horizontalDragScroll {
+  --horizontal-drag-scroll-arrow-size: 24px;
+
+  position: relative;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.horizontalDragScrollContainer {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  user-select: none;
+  touch-action: pan-y;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.horizontalDragScrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.horizontalDragScrollContainerHasScroll {
+  cursor: grab;
+}
+
+.horizontalDragScrollContainerGrabbing {
+  cursor: grabbing;
+}
+
+.horizontalDragScrollArrowButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.horizontalDragScrollArrowLeft {
+  left: 0;
+}
+
+.horizontalDragScrollArrowRight {
+  right: 0;
+}
+
+.horizontalDragScrollGradient {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--horizontal-drag-scroll-arrow-size) + 25px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.horizontalDragScrollGradientLeft {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    #ffffff 0,
+    #ffffff var(--horizontal-drag-scroll-arrow-size),
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.horizontalDragScrollGradientRight {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    #ffffff 0,
+    #ffffff var(--horizontal-drag-scroll-arrow-size),
+    rgba(255, 255, 255, 0) 100%
+  );
+}
