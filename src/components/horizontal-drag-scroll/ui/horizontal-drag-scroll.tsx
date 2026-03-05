@@ -35,8 +35,8 @@ export function HorizontalDragScroll({
   const canScroll = canScrollLeft || canScrollRight;
   const rootClassName = `${styles.horizontalDragScroll} ${className ?? ""}`;
   const containerClasses = `${styles.horizontalDragScrollContainer}
-  ${canScroll && styles.horizontalDragScrollContainerHasScroll}
-  ${isDragging && styles.horizontalDragScrollContainerGrabbing}
+  ${canScroll ? styles.horizontalDragScrollContainerHasScroll : ""}
+  ${isDragging ? styles.horizontalDragScrollContainerGrabbing : ""}
   ${containerClassName ?? ""}`;
 
   const showLeftArrow = showArrows && canScrollLeft;

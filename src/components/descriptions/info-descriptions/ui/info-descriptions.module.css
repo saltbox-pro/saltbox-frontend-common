@@ -1,0 +1,22 @@
+.infoDescription .infoDescriptionHeader {
+  margin: 0 0 0.5em;
+}
+
+.infoDescription .infoDescriptionTitle {
+  font-size: 15px;
+}
+
+.infoDescription .infoDescriptionLabel {
+  width: 35%;
+}
+
+.infoDescription .infoDescriptionLabel,
+.infoDescription .infoDescriptionContent {
+  background-color: transparent !important;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.infoDescription :global(.ant-descriptions-row:hover) .infoDescriptionLabel,
+.infoDescription :global(.ant-descriptions-row:hover) .infoDescriptionContent {
+  background-color: #fafafa !important;
+}

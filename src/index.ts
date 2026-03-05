@@ -31,6 +31,7 @@ export * from "./components/query-builder/value-editors/salt-box-autocomplete-va
 export * from "./components/query-builder/value-editors/salt-box-minion-value-editor";
 export * from "./components/sls-editor";
 export * from "./components/json-form";
+export * from "./components/descriptions/info-descriptions";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
