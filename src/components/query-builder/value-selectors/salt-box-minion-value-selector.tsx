@@ -72,6 +72,7 @@ export const SaltBoxMinionValueSelector = ({
       <Flex gap={8}>
         <Select
           {...(multiple ? { mode: "multiple", allowClear: true } : {})}
+          showSearch
           title={title}
           className={className}
           popupMatchSelectWidth={false}
@@ -109,6 +110,7 @@ export const SaltBoxMinionValueSelector = ({
   return (
     <Select
       {...(multiple ? { mode: "multiple", allowClear: true } : {})}
+      showSearch
       title={title}
       className={className}
       popupMatchSelectWidth={false}

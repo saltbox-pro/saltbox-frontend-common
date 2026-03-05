@@ -20,6 +20,8 @@ export const SaltBoxMultiselectValueEditor = ({
   return (
     <Select
       mode="multiple"
+      showSearch
+      optionFilterProp="label"
       options={fieldData?.selectOptions as any}
       fieldNames={fieldData?.selectFieldNames}
       value={selectedValues}
