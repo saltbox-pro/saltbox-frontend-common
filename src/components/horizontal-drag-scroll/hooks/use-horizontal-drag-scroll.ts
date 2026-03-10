@@ -1,6 +1,13 @@
-import { type PointerEvent, type RefObject, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type PointerEvent,
+  type RefObject,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
-import { DRAG_UPDATE_THROTTLE_MS, RESIZE_DEBOUNCE_MS } from "../constants/config";
+import { DRAG_UPDATE_THROTTLE_MS } from "../constants/config";
 import {
   applyDragScroll,
   createPendingDragState,
@@ -56,6 +63,10 @@ export function useHorizontalDragScroll(
     const element = containerRef.current;
     if (!element) return;
 
+    if (element.clientWidth === 0 || element.offsetParent === null) {
+      return;
+    }
+
     const { canScrollLeft: left, canScrollRight: right } = getScrollButtonsState(element);
 
     setCanScrollLeft(left);
@@ -69,33 +80,19 @@ export function useHorizontalDragScroll(
     updateScrollButtonsVisibility();
   }, [updateScrollButtonsVisibility]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = containerRef.current;
     if (!element) {
       return;
     }
 
-    let debounceId: ReturnType<typeof setTimeout> | null = null;
-
-    const scheduleUpdate = () => {
-      if (debounceId) clearTimeout(debounceId);
-      debounceId = setTimeout(() => {
-        debounceId = null;
-        updateScrollButtonsVisibility();
-      }, RESIZE_DEBOUNCE_MS);
-    };
-
-    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    const resizeObserver = new ResizeObserver(updateScrollButtonsVisibility);
 
     resizeObserver.observe(element);
-    window.addEventListener("resize", scheduleUpdate);
-
     updateScrollButtonsVisibility();
 
     return () => {
-      if (debounceId) clearTimeout(debounceId);
       resizeObserver.disconnect();
-      window.removeEventListener("resize", scheduleUpdate);
     };
   }, [updateScrollButtonsVisibility]);
 
