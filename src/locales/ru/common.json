@@ -21,6 +21,9 @@
     "search": "Поиск",
     "reset": "Сбросить"
   },
+  "filters": {
+    "button-show-filters": "Фильтры"
+  },
   "page-header": {
     "back-button": "Вернуться на уровень выше"
   }

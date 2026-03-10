@@ -21,6 +21,9 @@
     "search": "Search",
     "reset": "Reset"
   },
+  "filters": {
+    "button-show-filters": "Filters"
+  },
   "page-header": {
     "back-button": "Back to a higher level"
   }
