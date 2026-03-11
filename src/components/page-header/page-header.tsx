@@ -1,5 +1,6 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Tooltip } from "antd";
+import { Button, Flex, Tooltip } from "antd";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
@@ -9,9 +10,10 @@ import styles from "./page-header.module.css";
 type PageHeaderProps = {
   title: string;
   customParentPathGenerator?: () => string;
+  extra?: ReactNode;
 };
 
-export function PageHeader({ title, customParentPathGenerator }: PageHeaderProps) {
+export function PageHeader({ title, customParentPathGenerator, extra }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
   const defaultParentPathGenerator = () => {
@@ -26,13 +28,17 @@ export function PageHeader({ title, customParentPathGenerator }: PageHeaderProps
   };
 
   return (
-    <div className={styles.pageHeader}>
-      {backButtonProvider.shouldShowBackButton() && (
-        <Tooltip title={t("page-header.back-button")}>
-          <Button icon={<ArrowLeftOutlined />} onClick={handleBackButtonClick}></Button>
-        </Tooltip>
-      )}
-      {!title.includes("undefined") && <h1 className={styles.pageHeaderTitle}>{title}</h1>}
-    </div>
+    <Flex className={styles.pageHeader} align="center" justify="space-between" gap="middle">
+      <Flex align="center" gap={8}>
+        {backButtonProvider.shouldShowBackButton() && (
+          <Tooltip title={t("page-header.back-button")}>
+            <Button icon={<ArrowLeftOutlined />} onClick={handleBackButtonClick}></Button>
+          </Tooltip>
+        )}
+        {!title.includes("undefined") && <h1 className={styles.pageHeaderTitle}>{title}</h1>}
+      </Flex>
+
+      {extra}
+    </Flex>
   );
 }

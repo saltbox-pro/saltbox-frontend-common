@@ -1,8 +1,4 @@
 .pageHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
   min-height: calc(var(--app-header-height) - var(--app-layout-gap) - 1px);
 
   padding: 0 0 var(--app-layout-gap);
