@@ -1,6 +1,6 @@
 export type JsonValueType = string | number | boolean | null | object | unknown[];
 
-export function isAllowedJsonValue(value: unknown): value is JsonValueType {
+function isAllowedJsonValue(value: unknown): value is JsonValueType {
   if (value === null) return true;
 
   const t = typeof value;
@@ -11,7 +11,7 @@ export function isAllowedJsonValue(value: unknown): value is JsonValueType {
   return false;
 }
 
-export type ParseValueResult = { ok: true; value: JsonValueType } | { ok: false; errorKey: string };
+type ParseValueResult = { ok: true; value: JsonValueType } | { ok: false; errorKey: string };
 
 export function parseAndValidateJsonValue(raw: string): ParseValueResult {
   const trimmed = raw?.trim();
@@ -35,7 +35,7 @@ export function parseAndValidateJsonValue(raw: string): ParseValueResult {
   return { ok: true, value: parsed };
 }
 
-export function isParseValueError(
+export function isInvalidJsonValueResult(
   result: ParseValueResult
 ): result is { ok: false; errorKey: string } {
   return !result.ok;

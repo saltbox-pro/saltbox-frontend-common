@@ -1,6 +1,6 @@
 import type { RuleObject } from "antd/es/form";
 
-import { isParseValueError, parseAndValidateJsonValue } from "./validation";
+import { isInvalidJsonValueResult, parseAndValidateJsonValue } from "./validation";
 
 export function createJsonValueValidator(
   t: (key: string, options?: Record<string, unknown>) => string
@@ -10,7 +10,7 @@ export function createJsonValueValidator(
 
     const result = parseAndValidateJsonValue(raw ?? "");
 
-    if (isParseValueError(result)) {
+    if (isInvalidJsonValueResult(result)) {
       return Promise.reject(new Error(t(result.errorKey, { ns: "common" })));
     }
 
