@@ -1,29 +1,42 @@
 ---
 
-stages:
-  - deploy
+include:
+  - project: 'saltbox/ci-lib'
+    file: 'def-branch-merge-guard.yml'
 
 variables:
-  NODE_IMAGE_TAG: 'node:22.18.0'
-  YARN_CACHE_DIR: './yarn_cache/'
+  NODE_IMAGE: 'node:22.18.0'
+  YARN_CACHE_FOLDER: './yarn_cache/'
 
 default:
   cache:
     paths:
-      - '$YARN_CACHE_DIR'
+      - '$YARN_CACHE_FOLDER'
 
+Build package:
+  image: '$NODE_IMAGE'
+  stage: build
+  script:
+    - yarn install --frozen-lockfile
+    - yarn build
+  artifacts:
+    paths:
+      - dist
+    expire_in: 1 day
 
-npm-deploy:
-  image: '$NODE_IMAGE_TAG'
+Upload package:
+  image: "$NODE_IMAGE"
   stage: deploy
   script:
-    - yarn install --cache-folder='$YARN_CACHE_DIR' --frozen-lockfile
-    - yarn build
     - |
       cat > .npmrc <<EOF
       //${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken = "${CI_JOB_TOKEN}"
       @saltbox:registry = "https://dev.saltbox.pro/api/v4/projects/70/packages/npm/"
       EOF
+    - yarn version --new-version $(echo "$CI_COMMIT_TAG" | sed 's/^v//') --no-git-tag-version
     - yarn publish
+  cache:
+    paths:
+      - 'node_modules'
   rules:
-    - if: $CI_COMMIT_TAG =~ /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-?/
+    - if: $CI_COMMIT_TAG =~ $VERSION_TAG_PATTERN
