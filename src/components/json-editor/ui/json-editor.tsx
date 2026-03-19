@@ -33,7 +33,7 @@ export const JsonEditor: FC<JsonEditorProps> = ({
   onChange,
   height = 260,
   disabled = false,
-  className,
+  className = "",
   editorOptions,
 }) => {
   const handleChange = useCallback(
@@ -61,7 +61,7 @@ export const JsonEditor: FC<JsonEditorProps> = ({
 
   return (
     <Editor
-      className={`${className} ${styles.jsonEditor} ${disabled ? styles.jsonEditor_disabled : ""}`}
+      className={`${styles.jsonEditor} ${disabled ? styles.jsonEditor_disabled : ""} ${className}`}
       height={height}
       language="json"
       value={value}

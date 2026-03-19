@@ -16,7 +16,7 @@ export * from "./components/filters-counter/filters-counter";
 export * from "./components/filter-toggle-button";
 export * from "./components/action-link-button/action-link-button";
 export * from "./components/navigation-icon-link/navigation-icon-link";
-export * from "./components/json-editor/json-editor";
+export * from "./components/json-editor";
 export * from "./components/mat-icon/mat-icon";
 export * from "./components/horizontal-drag-scroll";
 export * from "./components/query-builder/salt-box-query-builder-container";
@@ -32,7 +32,8 @@ export * from "./components/query-builder/value-editors/salt-box-autocomplete-va
 export * from "./components/query-builder/value-editors/salt-box-minion-value-editor";
 export * from "./components/sls-editor";
 export * from "./components/json-form";
-export * from "./components/descriptions/info-descriptions";
+export * from "./components/descriptions";
+export * from "./components/fields";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";

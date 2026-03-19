@@ -26,5 +26,10 @@
   },
   "page-header": {
     "back-button": "Back to a higher level"
+  },
+  "json-editor-field": {
+    "value-required": "Value is required",
+    "value-invalid-json": "Value must be valid JSON",
+    "value-invalid-type": "Value must be a string, number, boolean, null, object or array"
   }
 }

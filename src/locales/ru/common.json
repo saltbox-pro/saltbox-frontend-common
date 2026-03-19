@@ -26,5 +26,10 @@
   },
   "page-header": {
     "back-button": "Вернуться на уровень выше"
+  },
+  "json-editor-field": {
+    "value-required": "Значение обязательно к заполнению",
+    "value-invalid-json": "Значение должно быть валидным JSON",
+    "value-invalid-type": "Значение должно быть строкой, числом, true/false/null, объектом или массивом"
   }
 }
