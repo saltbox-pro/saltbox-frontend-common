@@ -1,10 +1,15 @@
 import { Descriptions, DescriptionsProps } from "antd";
+import type { FC } from "react";
 
 import styles from "./info-descriptions.module.css";
 
 export type InfoDescriptionsProps = DescriptionsProps;
 
-export function InfoDescriptions({
+type InfoDescriptionsComponent = FC<InfoDescriptionsProps> & {
+  Item: typeof Descriptions.Item;
+};
+
+function InfoDescriptionsRoot({
   bordered = true,
   size = "small",
   column = 1,
@@ -29,3 +34,7 @@ export function InfoDescriptions({
     />
   );
 }
+
+export const InfoDescriptions: InfoDescriptionsComponent = Object.assign(InfoDescriptionsRoot, {
+  Item: Descriptions.Item,
+});
