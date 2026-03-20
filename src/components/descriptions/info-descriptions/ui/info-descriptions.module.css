@@ -1,17 +1,17 @@
-.infoDescription .infoDescriptionHeader {
+.infoDescriptionHeader {
   margin: 0 0 0.5em;
 }
 
-.infoDescription .infoDescriptionTitle {
+.infoDescriptionTitle {
   font-size: 15px;
 }
 
-.infoDescription .infoDescriptionLabel {
+.infoDescriptionLabel {
   width: 35%;
 }
 
-.infoDescription .infoDescriptionLabel,
-.infoDescription .infoDescriptionContent {
+.infoDescriptionLabel,
+.infoDescriptionContent {
   background-color: transparent !important;
   transition: background-color 0.15s ease-in-out;
 }

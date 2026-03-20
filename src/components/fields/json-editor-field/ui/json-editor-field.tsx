@@ -22,9 +22,7 @@ export function JsonEditorField({
 
   const mergedEditorOptions = useMemo<JsonEditorProps["editorOptions"]>(
     () => ({
-      lineNumbers: "off",
-      glyphMargin: false,
-      folding: false,
+      padding: { top: 5, bottom: 5 },
       ...editorOptions,
       scrollbar: {
         ...(editorOptions?.scrollbar ?? {}),
