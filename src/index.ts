@@ -30,6 +30,7 @@ export * from "./components/query-builder/value-editors/salt-box-multiselect-val
 export * from "./components/query-builder/value-editors/salt-box-job-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-autocomplete-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-minion-value-editor";
+export * from "./components/query-builder/value-editors/salt-box-options-value-editor";
 export * from "./components/sls-editor";
 export * from "./components/json-form";
 export * from "./components/descriptions";
@@ -40,6 +41,8 @@ export * from "./utils/custom-events";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
+export type { ValueEditorProps } from "react-querybuilder";
+
 export * from "./utils/query-builder-utils";
 export * from "./constants/filter-operators";
 export * from "./utils/relative-time";
@@ -50,6 +53,7 @@ export * from "./interfaces/ui-events";
 export * from "./hooks/useUiCleanupEvent";
 
 export * from "./store/filter-store";
+export * from "./store/persistent-filter-store";
 
 export { default as enCommon } from "./locales/en/common.json";
 export { default as ruCommon } from "./locales/ru/common.json";

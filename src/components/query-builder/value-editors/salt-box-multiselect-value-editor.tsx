@@ -4,6 +4,8 @@ import { ValueEditorProps } from "react-querybuilder";
 
 import { parseListValue } from "./utils/parse-list-value";
 
+type SelectOption = { label?: string; value: string };
+
 export const SaltBoxMultiselectValueEditor = ({
   value,
   handleOnChange,
@@ -12,6 +14,7 @@ export const SaltBoxMultiselectValueEditor = ({
   fieldData,
 }: ValueEditorProps) => {
   const selectedValues = useMemo(() => parseListValue(value), [value]);
+  const options = (fieldData?.selectOptions ?? []) as SelectOption[];
 
   const handleChange = (newValues: string[]) => {
     handleOnChange(newValues.join(","));
@@ -22,7 +25,7 @@ export const SaltBoxMultiselectValueEditor = ({
       mode="multiple"
       showSearch
       optionFilterProp="label"
-      options={fieldData?.selectOptions as any}
+      options={options}
       fieldNames={fieldData?.selectFieldNames}
       value={selectedValues}
       allowClear={true}

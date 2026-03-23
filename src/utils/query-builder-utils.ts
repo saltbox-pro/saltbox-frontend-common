@@ -12,6 +12,28 @@ import {
 
 import { DATETIME_TIMESTAMP, formatTimeByUserTZ } from "saltbox-common/utils/datetime";
 
+const NUMERIC_ARRAY_FIELDS = ["osrelease_info", "grains.osrelease_info"];
+
+function isNumericArrayField(field: string): boolean {
+  return NUMERIC_ARRAY_FIELDS.some((f) => field === f || field.endsWith(`.${f}`));
+}
+
+function coerceToNumberArray(value: unknown): number[] | null {
+  if (Array.isArray(value)) {
+    const nums = value.map((v) => (typeof v === "number" ? v : parseInt(String(v), 10)));
+    if (nums.every((n) => !Number.isNaN(n))) return nums;
+    return null;
+  }
+  if (typeof value === "string") {
+    const nums = value
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !Number.isNaN(n));
+    return nums.length ? nums : null;
+  }
+  return null;
+}
+
 export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) => {
   if (
     rule.valueSource !== "field" &&
@@ -28,6 +50,13 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) 
       { ...rule, value: rule.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") },
       options
     );
+  }
+
+  if ((rule.operator === "in" || rule.operator === "notIn") && isNumericArrayField(rule.field)) {
+    const numArr = coerceToNumberArray(rule.value);
+    if (numArr !== null) {
+      return defaultRuleProcessorMongoDB({ ...rule, value: numArr }, options);
+    }
   }
 
   return defaultRuleProcessorMongoDB(rule, options);

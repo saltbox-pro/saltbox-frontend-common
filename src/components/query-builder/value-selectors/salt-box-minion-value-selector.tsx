@@ -3,15 +3,9 @@ import type { ComponentPropsWithoutRef } from "react";
 import * as React from "react";
 import { joinWith, useValueSelector, VersatileSelectorProps } from "react-querybuilder";
 
-/**
- * @group Props
- */
 export type AntDValueSelectorProps = VersatileSelectorProps &
   Omit<ComponentPropsWithoutRef<typeof Select>, "onChange" | "defaultValue">;
 
-/**
- * @group Components
- */
 export const SaltBoxMinionValueSelector = ({
   className,
   handleOnChange,
@@ -21,7 +15,6 @@ export const SaltBoxMinionValueSelector = ({
   disabled,
   multiple,
   listsAsArrays,
-  // Props that should not be in extraProps
   testID: _testID,
   rule: _rule,
   rules: _rules,
@@ -38,7 +31,6 @@ export const SaltBoxMinionValueSelector = ({
   const [isCustomValue, setIsCustomValue] = React.useState(false);
   const [customValue, setCustomValue] = React.useState("");
 
-  // Alternate onChange handler that doesn't use arrays even when `multiple` is true
   const { onChange: onChangeNoArrays } = useValueSelector({
     handleOnChange,
     listsAsArrays: false,
@@ -47,8 +39,6 @@ export const SaltBoxMinionValueSelector = ({
   });
   const { onChange: onChangeNormal, val } = useValueSelector({
     handleOnChange,
-    // This forces `val` to be an array if `multiple` is true,
-    // even if `listsAsArrays` is false
     listsAsArrays: multiple || listsAsArrays,
     multiple,
     value,
@@ -57,8 +47,6 @@ export const SaltBoxMinionValueSelector = ({
   const onChange = React.useCallback(
     (v: string | string[]) => {
       if (multiple && !listsAsArrays && Array.isArray(v)) {
-        // `multiple: true` means `v` is probably an array, but we don't want
-        // to send an array to `handleOnChange` when `listsAsArrays` is false
         onChangeNoArrays(joinWith(v));
       } else {
         onChangeNormal(v);
@@ -66,6 +54,8 @@ export const SaltBoxMinionValueSelector = ({
     },
     [listsAsArrays, multiple, onChangeNoArrays, onChangeNormal]
   );
+
+  const dropdownStyle = { minWidth: 360 };
 
   if (className === "rule-fields") {
     return (
@@ -76,6 +66,7 @@ export const SaltBoxMinionValueSelector = ({
           title={title}
           className={className}
           popupMatchSelectWidth={false}
+          dropdownStyle={dropdownStyle}
           disabled={disabled}
           value={isCustomValue ? "custom" : val}
           onChange={(v) => {
@@ -114,6 +105,7 @@ export const SaltBoxMinionValueSelector = ({
       title={title}
       className={className}
       popupMatchSelectWidth={false}
+      dropdownStyle={dropdownStyle}
       disabled={disabled}
       value={val}
       onChange={onChange}
