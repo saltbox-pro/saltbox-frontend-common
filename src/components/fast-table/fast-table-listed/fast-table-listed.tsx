@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
@@ -28,6 +28,7 @@ export type FastTableListedProps<DataType> = {
   isLoading?: boolean;
   hideFooter?: boolean;
   forceExpandAll?: boolean;
+  activeRowId?: string | null;
   onRowClick?: (item: DataType, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => void;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
@@ -42,6 +43,7 @@ export type FastTableListedProps<DataType> = {
     total?: string;
     empty?: string;
   };
+  bodyRef?: RefObject<HTMLTableSectionElement>;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
@@ -65,6 +67,7 @@ export function FastTableListed<DataType>({
   isLoading,
   hideFooter,
   forceExpandAll,
+  activeRowId,
   onRowClick,
   renderSubComponent,
   getRowCanExpand,
@@ -72,6 +75,7 @@ export function FastTableListed<DataType>({
   onSortingChange,
   getRowId,
   locale,
+  bodyRef,
 }: FastTableListedProps<DataType>) {
   const [tableLocale, setTableLocale] = useState(locale ?? {});
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -162,6 +166,7 @@ export function FastTableListed<DataType>({
         <tr
           key={row.id}
           role={onRowClick ? "button" : undefined}
+          className={row.id === activeRowId ? "fast-table-row-active" : undefined}
           onClick={(event) => {
             if (!onRowClick) return;
             // Проверяем, что клик был не по кнопке, ссылке или input элементу
@@ -260,7 +265,7 @@ export function FastTableListed<DataType>({
           <thead>
             <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
           </thead>
-          <tbody>
+          <tbody ref={bodyRef}>
             {renderTableRows()}
             {isEmpty && renderEmptyState()}
             {isLoading && renderLoadingState()}

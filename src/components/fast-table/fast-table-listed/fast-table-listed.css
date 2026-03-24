@@ -37,6 +37,10 @@
   background-color: #fafafa;
 }
 
+.fast-table table > tbody > tr.fast-table-row-active > td {
+  background-color: #f5f8ff;
+}
+
 /* Исключаем hover для empty и loading строк */
 .fast-table table > tbody > tr.empty-state-row:hover > td,
 .fast-table table > tbody > tr.loading-state-row:hover > td {

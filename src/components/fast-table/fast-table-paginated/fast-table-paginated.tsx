@@ -16,7 +16,7 @@ import { PaginationLocale } from "antd/es/pagination/Pagination";
 import { toJS } from "mobx";
 import React, {
   Fragment,
-  RefObject,
+  type RefObject,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -38,6 +38,7 @@ export type FastTablePaginatedProps<DataType> = {
   data: Array<DataType>;
   total?: number;
   isLoading?: boolean;
+  activeRowId?: string | null;
   pagination: PaginationState;
   sorting?: SortingState;
   onLazyLoad: (pagination: PaginationState, sorting: SortingState) => void;
@@ -60,6 +61,7 @@ export type FastTablePaginatedProps<DataType> = {
   forceExpandAll?: boolean;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
+  bodyRef?: RefObject<HTMLTableSectionElement>;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -177,6 +179,7 @@ export function FastTablePaginated<DataType>({
   data,
   total,
   isLoading = false,
+  activeRowId,
   pagination,
   sorting,
   onLazyLoad,
@@ -192,6 +195,7 @@ export function FastTablePaginated<DataType>({
   forceExpandAll,
   renderSubComponent,
   getRowCanExpand,
+  bodyRef,
 }: FastTablePaginatedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
@@ -351,6 +355,7 @@ export function FastTablePaginated<DataType>({
         <tr
           key={row.id}
           role={onRowClick ? "button" : undefined}
+          className={row.id === activeRowId ? "fast-table-row-active" : undefined}
           onClick={(event) => {
             if (!onRowClick) return;
             // Проверяем, что клик был не по кнопке, ссылке или input элементу
@@ -446,7 +451,7 @@ export function FastTablePaginated<DataType>({
                 key={`${row.id}-group-row`}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className="virtual-row"
+                className={`virtual-row ${row.id === activeRowId ? "virtual-row-active" : ""}`}
                 role={onRowClick ? "button" : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
                 onClick={(event) => {
@@ -529,7 +534,7 @@ export function FastTablePaginated<DataType>({
             <thead>
               <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
             </thead>
-            <tbody>
+            <tbody ref={bodyRef}>
               {shouldShowEmpty && renderEmptyState()}
               {useVirtualScroll ? renderSampleRow() : renderTableRows()}
             </tbody>
