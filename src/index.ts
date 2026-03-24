@@ -30,6 +30,7 @@ export * from "./components/query-builder/value-editors/salt-box-options-value-e
 export * from "./components/sls-editor";
 export * from "./components/json-form";
 export * from "./components/descriptions";
+export * from "./components/drawers";
 export * from "./components/fields";
 
 export * from "./utils/datetime";
