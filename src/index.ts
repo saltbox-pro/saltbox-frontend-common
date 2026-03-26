@@ -32,6 +32,7 @@ export * from "./components/json-form";
 export * from "./components/descriptions";
 export * from "./components/drawers";
 export * from "./components/fields";
+export * from "./components/transition-layout";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";

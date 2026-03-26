@@ -1,0 +1,22 @@
+.drawer {
+  outline: none;
+}
+
+.header {
+  min-height: 58px;
+}
+
+.body {
+  position: relative;
+}
+
+.contentRoot {
+  height: 100%;
+}
+
+.content,
+.layout {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}

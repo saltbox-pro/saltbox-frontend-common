@@ -1,57 +1,76 @@
 import {
   type ComponentType,
+  type Key,
   type PropsWithChildren,
   type ReactNode,
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
 } from "react";
 
 import { Drawer, type DrawerProps } from "saltbox-common/components/antd-wrappers/drawer";
+import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
 
 import { InfoDrawerError } from "./info-drawer-error";
-import { InfoDrawerLink } from "./info-drawer-link";
+import { InfoDrawerExtra } from "./info-drawer-extra";
 import { InfoDrawerLoader } from "./info-drawer-loader";
 import { InfoDrawerTitle } from "./info-drawer-title";
+import styles from "./info-drawer.module.css";
 
-export interface InfoDrawerProps
-  extends PropsWithChildren, Pick<DrawerProps, "open" | "size" | "placement" | "extra"> {
-  onClose: () => void;
+export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "title"> {
   titleName?: string;
   titleLabel?: string;
   linkTo?: string;
   linkTitle?: string;
   linkComponent?: ComponentType<{ to: string; children: ReactNode }>;
   errorMessage?: string | null;
-  isLoading?: boolean;
   hasData?: boolean;
+  transitionKey?: Key;
+  onClose: () => void;
   onAfterClose?: () => void;
 }
 
 export function InfoDrawer({
-  open,
+  transitionKey,
   titleName,
   titleLabel,
   linkTo,
   linkTitle,
   linkComponent,
   errorMessage,
-  isLoading,
-  hasData = true,
+  loading,
   size = "large",
   placement = "right",
+  mask = false,
   extra,
+  hasData = true,
+  destroyOnHidden = true,
+  width = 800,
   onClose,
   onAfterClose,
   children,
+  classNames,
+  ...restProps
 }: InfoDrawerProps) {
-  const handleAfterOpenChange = (isOpen: boolean) => {
-    if (!isOpen && onAfterClose) {
-      onAfterClose();
-    }
-  };
-
   const onCloseRef = useRef(onClose);
   const onAfterCloseRef = useRef(onAfterClose);
+
+  const hasError = !loading && !!errorMessage;
+  const activeKey = useMemo(
+    () =>
+      transitionKey ?? (loading ? "loading" : hasError ? "error" : hasData ? "content" : "empty"),
+    [hasData, hasError, loading, transitionKey]
+  );
+
+  const handleAfterOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen && onAfterClose) {
+        onAfterClose();
+      }
+    },
+    [onAfterClose]
+  );
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -65,28 +84,44 @@ export function InfoDrawer({
     };
   }, []);
 
-  const hasError = !isLoading && !!errorMessage;
-
   return (
     <Drawer
-      open={open}
-      onClose={onClose}
+      rootClassName={styles.drawer}
+      classNames={{
+        ...classNames,
+        header: `${styles.header} ${classNames?.header ?? ""}`,
+        body: `${styles.body} ${classNames?.body ?? ""}`,
+      }}
       size={size}
       placement={placement}
       title={<InfoDrawerTitle name={titleName} label={titleLabel} />}
       extra={
-        <>
-          {extra} <InfoDrawerLink to={linkTo} title={linkTitle} linkComponent={linkComponent} />
-        </>
+        <InfoDrawerExtra
+          extra={extra}
+          to={linkTo}
+          title={linkTitle}
+          linkComponent={linkComponent}
+          loading={loading}
+        />
       }
+      mask={mask}
+      width={width}
       afterOpenChange={handleAfterOpenChange}
-      mask={false}
+      destroyOnHidden={destroyOnHidden}
+      onClose={onClose}
+      {...restProps}
     >
-      {isLoading && <InfoDrawerLoader />}
-
-      {hasData && !hasError && !isLoading
-        ? children
-        : hasError && <InfoDrawerError message={errorMessage} />}
+      <SwitchTransitionLayout className={styles.layout} activeKey={activeKey} timeout={200}>
+        {(key) =>
+          loading ? (
+            <InfoDrawerLoader />
+          ) : (
+            <div key={key} className={styles.content}>
+              {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
+            </div>
+          )
+        }
+      </SwitchTransitionLayout>
     </Drawer>
   );
 }

@@ -2,7 +2,7 @@ import { ExportOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import type { ComponentType, ReactNode } from "react";
 
-interface InfoDrawerLinkProps {
+export interface InfoDrawerLinkProps {
   to?: string;
   title?: string;
   linkComponent?: ComponentType<{ to: string; children: ReactNode }>;

@@ -6,13 +6,14 @@ interface InfoDrawerTitleProps {
 }
 
 export function InfoDrawerTitle({ name, label }: InfoDrawerTitleProps) {
-  if (!name) {
-    return null;
-  }
-
   return (
     <>
-      {label ? `${label} ${name}` : name} <CopyToClipboardButton text={name} />
+      {label}{" "}
+      {!!name && (
+        <>
+          {name} <CopyToClipboardButton text={name} />
+        </>
+      )}
     </>
   );
 }
