@@ -12,7 +12,7 @@ interface TransitionLayoutProps extends PropsWithChildren {
 
 export function TransitionLayout({
   in: inProp,
-  timeout,
+  timeout = 160,
   unmountOnExit = true,
   className,
   children,

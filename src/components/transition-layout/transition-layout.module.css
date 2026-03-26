@@ -3,20 +3,17 @@
   height: 100%;
 }
 
-.fadeEnter {
-  opacity: 0;
-}
-
-.fadeEnterActive {
-  opacity: 1;
-  transition: opacity 250ms;
-}
-
-.fadeExit {
-  opacity: 1;
-}
-
+.fadeEnter,
 .fadeExitActive {
   opacity: 0;
-  transition: opacity 250ms;
+}
+
+.fadeExit,
+.fadeEnterActive {
+  opacity: 1;
+}
+
+.fadeEnterActive,
+.fadeExitActive {
+  transition: opacity 160ms;
 }

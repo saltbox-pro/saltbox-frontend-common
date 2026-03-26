@@ -10,7 +10,10 @@ import {
 } from "react";
 
 import { Drawer, type DrawerProps } from "saltbox-common/components/antd-wrappers/drawer";
-import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
+import {
+  SwitchTransitionLayout,
+  TransitionLayout,
+} from "saltbox-common/components/transition-layout";
 
 import { InfoDrawerError } from "./info-drawer-error";
 import { InfoDrawerExtra } from "./info-drawer-extra";
@@ -58,9 +61,8 @@ export function InfoDrawer({
 
   const hasError = !loading && !!errorMessage;
   const activeKey = useMemo(
-    () =>
-      transitionKey ?? (loading ? "loading" : hasError ? "error" : hasData ? "content" : "empty"),
-    [hasData, hasError, loading, transitionKey]
+    () => transitionKey ?? (hasError ? "error" : hasData ? "content" : "empty"),
+    [hasData, hasError, transitionKey]
   );
 
   const handleAfterOpenChange = useCallback(
@@ -111,16 +113,14 @@ export function InfoDrawer({
       onClose={onClose}
       {...restProps}
     >
-      <SwitchTransitionLayout className={styles.layout} activeKey={activeKey} timeout={200}>
-        {(key) =>
-          loading ? (
-            <InfoDrawerLoader />
-          ) : (
-            <div key={key} className={styles.content}>
-              {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
-            </div>
-          )
-        }
+      <InfoDrawerLoader loading={loading} />
+
+      <SwitchTransitionLayout className={styles.layout} activeKey={activeKey}>
+        {(key) => (
+          <div key={key} className={styles.content}>
+            {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
+          </div>
+        )}
       </SwitchTransitionLayout>
     </Drawer>
   );

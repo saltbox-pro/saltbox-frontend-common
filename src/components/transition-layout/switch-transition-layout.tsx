@@ -12,7 +12,7 @@ interface SwitchTransitionLayoutProps {
 
 export function SwitchTransitionLayout({
   activeKey,
-  timeout,
+  timeout = 160,
   className,
   children,
 }: SwitchTransitionLayoutProps) {
