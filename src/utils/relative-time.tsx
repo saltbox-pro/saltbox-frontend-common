@@ -1,7 +1,9 @@
-import { formatTimeByUserTZ, pastTimeByUserTZ } from "./datetime";
-import { Popover } from "../components/antd-wrappers/popover";
 import { type ConfigType } from "dayjs";
-import { type ReactElement } from "react";
+import { type ReactElement, useMemo } from "react";
+
+import { Popover } from "../components/antd-wrappers/popover";
+
+import { formatTimeByUserTZ, pastTimeByUserTZ } from "./datetime";
 
 interface RelativeTimeProps {
   date: ConfigType | null | undefined;
@@ -9,7 +11,10 @@ interface RelativeTimeProps {
 }
 
 export const RelativeTime = ({ date, fallback }: RelativeTimeProps) => {
+  const formated = useMemo(() => (date ? formatTimeByUserTZ(date) : null), [date]);
+  const ago = useMemo(() => (date ? pastTimeByUserTZ(date) : null), [date]);
+
   if (!date) return fallback ?? null;
 
-  return <Popover content={formatTimeByUserTZ(date)}>{pastTimeByUserTZ(date)}</Popover>;
+  return <Popover content={formated}>{ago}</Popover>;
 };

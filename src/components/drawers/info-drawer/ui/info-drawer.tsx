@@ -10,10 +10,7 @@ import {
 } from "react";
 
 import { Drawer, type DrawerProps } from "saltbox-common/components/antd-wrappers/drawer";
-import {
-  SwitchTransitionLayout,
-  TransitionLayout,
-} from "saltbox-common/components/transition-layout";
+import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
 
 import { InfoDrawerError } from "./info-drawer-error";
 import { InfoDrawerExtra } from "./info-drawer-extra";
@@ -49,7 +46,7 @@ export function InfoDrawer({
   extra,
   hasData = true,
   destroyOnHidden = true,
-  width = 800,
+  width = 770,
   onClose,
   onAfterClose,
   children,

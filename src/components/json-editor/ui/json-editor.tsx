@@ -1,12 +1,10 @@
-import Editor from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
+import Editor, { type EditorProps } from "@monaco-editor/react";
 import { type FC, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import styles from "./json-editor.module.css";
 
-type EditorOptions = editor.IStandaloneEditorConstructionOptions;
-
-const DEFAULT_EDITOR_OPTIONS: EditorOptions = {
+const DEFAULT_EDITOR_OPTIONS: EditorProps["options"] = {
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   wordWrap: "on",
@@ -21,11 +19,12 @@ const DEFAULT_EDITOR_OPTIONS: EditorOptions = {
 
 export interface JsonEditorProps {
   value?: string;
-  onChange?: (value: string) => void;
-  height?: number | string;
   disabled?: boolean;
-  className?: string;
-  editorOptions?: Partial<EditorOptions>;
+  onChange?: (value: string) => void;
+  height?: EditorProps["height"];
+  className?: EditorProps["className"];
+  editorOptions?: EditorProps["options"];
+  loading?: EditorProps["loading"];
 }
 
 export const JsonEditor: FC<JsonEditorProps> = ({
@@ -35,7 +34,10 @@ export const JsonEditor: FC<JsonEditorProps> = ({
   disabled = false,
   className = "",
   editorOptions,
+  loading,
 }) => {
+  const { t } = useTranslation("common");
+
   const handleChange = useCallback(
     (newValue: string | undefined) => {
       onChange?.(newValue ?? "");
@@ -67,6 +69,7 @@ export const JsonEditor: FC<JsonEditorProps> = ({
       value={value}
       onChange={handleChange}
       options={options}
+      loading={loading ?? t("json-editor.loading")}
     />
   );
 };

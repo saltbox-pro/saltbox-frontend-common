@@ -6,14 +6,12 @@ import styles from "./transition-layout.module.css";
 interface TransitionLayoutProps extends PropsWithChildren {
   in: boolean;
   timeout?: number;
-  unmountOnExit?: boolean;
   className?: string;
 }
 
 export function TransitionLayout({
   in: inProp,
-  timeout = 160,
-  unmountOnExit = true,
+  timeout = 200,
   className,
   children,
 }: TransitionLayoutProps) {
@@ -21,6 +19,7 @@ export function TransitionLayout({
 
   return (
     <CSSTransition
+      appear={false}
       in={inProp}
       timeout={timeout}
       nodeRef={nodeRef}
@@ -31,7 +30,7 @@ export function TransitionLayout({
         exitActive: styles.fadeExitActive,
       }}
       mountOnEnter
-      unmountOnExit={unmountOnExit}
+      unmountOnExit
     >
       <div ref={nodeRef} className={`${styles.fadeWrapper} ${className ?? ""}`}>
         {children}

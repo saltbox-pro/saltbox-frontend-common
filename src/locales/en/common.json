@@ -32,6 +32,9 @@
     "value-invalid-json": "Value must be valid JSON",
     "value-invalid-type": "Value must be a string, number, boolean, null, object or array"
   },
+  "json-editor": {
+    "loading": "Loading"
+  },
   "errors": {
     "load-failed": "Failed to load data",
     "access-denied": "Access denied"

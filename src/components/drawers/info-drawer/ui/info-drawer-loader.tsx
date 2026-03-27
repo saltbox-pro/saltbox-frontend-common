@@ -10,8 +10,8 @@ interface InfoDrawerLoaderProps {
 
 export function InfoDrawerLoader({ loading }: InfoDrawerLoaderProps) {
   return (
-    <TransitionLayout className={styles.skeleton} in={loading}>
-      <Skeleton loading active />
+    <TransitionLayout in={!!loading} className={styles.skeleton}>
+      <Skeleton active />
     </TransitionLayout>
   );
 }
