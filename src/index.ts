@@ -44,6 +44,7 @@ export type { ValueEditorProps } from "react-querybuilder";
 export * from "./utils/query-builder-utils";
 export * from "./constants/filter-operators";
 export * from "./utils/relative-time";
+export * from "./utils/deep-omit-undefined";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
