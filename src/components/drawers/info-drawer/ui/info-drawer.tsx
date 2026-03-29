@@ -19,6 +19,7 @@ import { InfoDrawerTitle } from "./info-drawer-title";
 import styles from "./info-drawer.module.css";
 
 export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "title"> {
+  drawerId: string;
   titleName?: string;
   titleLabel?: string;
   linkTo?: string;
@@ -32,6 +33,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
 }
 
 export function InfoDrawer({
+  drawerId,
   transitionKey,
   titleName,
   titleLabel,
@@ -43,6 +45,7 @@ export function InfoDrawer({
   size = "large",
   placement = "right",
   mask = false,
+  rootClassName,
   extra,
   hasData = true,
   destroyOnHidden = true,
@@ -85,7 +88,8 @@ export function InfoDrawer({
 
   return (
     <Drawer
-      rootClassName={styles.drawer}
+      id={`sbx-drawer-${drawerId}`}
+      rootClassName={`${styles.drawer} ${rootClassName ?? ""}`}
       classNames={{
         ...classNames,
         header: `${styles.header} ${classNames?.header ?? ""}`,
@@ -113,8 +117,8 @@ export function InfoDrawer({
       <InfoDrawerLoader loading={loading} />
 
       <SwitchTransitionLayout className={styles.layout} activeKey={activeKey}>
-        {(key) => (
-          <div key={key} className={styles.content}>
+        {() => (
+          <div className={styles.content}>
             {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
           </div>
         )}

@@ -15,6 +15,8 @@ import { Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { Fragment, type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
+import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "saltbox-common/constants/dom-selectors";
+
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { CellMeta } from "../types";
@@ -169,9 +171,9 @@ export function FastTableListed<DataType>({
           className={row.id === activeRowId ? "fast-table-row-active" : undefined}
           onClick={(event) => {
             if (!onRowClick) return;
-            // Проверяем, что клик был не по кнопке, ссылке или input элементу
+
             const target = event.target as HTMLElement;
-            if (target.closest("button, a, input, .prevent-row-click, .ant-popover")) {
+            if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
               return;
             }
             onRowClick(toJS(row.original), event);

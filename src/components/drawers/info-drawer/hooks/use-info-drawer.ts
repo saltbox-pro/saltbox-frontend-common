@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ANTD_OVERLAY_ROOT_SELECTORS } from "../../../../constants/dom-selectors";
+
 export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
   getId: (arg: TArg) => TId;
-  drawerRootSelector?: string;
+  drawerId?: string;
   initialOpenedId?: TId | null;
   onOpen?: (arg: TArg) => void | Promise<void>;
   onClose?: () => void;
@@ -13,14 +15,7 @@ export function useInfoDrawer<
   TArg,
   TId extends string | number,
   TRef extends HTMLElement = HTMLElement,
->({
-  getId,
-  onOpen,
-  onClose,
-  onClear,
-  initialOpenedId,
-  drawerRootSelector = ".ant-drawer",
-}: UseInfoDrawerOptions<TArg, TId>) {
+>({ getId, drawerId, onOpen, onClose, onClear, initialOpenedId }: UseInfoDrawerOptions<TArg, TId>) {
   const mainContentRef = useRef<TRef | null>(null);
 
   const [openedId, setOpenedId] = useState<TId | null>(initialOpenedId ?? null);
@@ -67,9 +62,15 @@ export function useInfoDrawer<
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
 
+      if (ANTD_OVERLAY_ROOT_SELECTORS.some((selector) => target.closest(selector) != null)) {
+        return;
+      }
+
       const mainContentEl = mainContentRef.current;
       const clickedInsideMainContent = !!mainContentEl && mainContentEl.contains(target);
-      const clickedInsideDrawer = target.closest(drawerRootSelector) != null;
+      const clickedInsideDrawer = drawerId
+        ? target.closest(`#sbx-drawer-${drawerId}`) != null
+        : target.closest(".ant-drawer") != null;
 
       if (!clickedInsideMainContent && !clickedInsideDrawer) {
         close();
@@ -81,7 +82,7 @@ export function useInfoDrawer<
     return () => {
       document.removeEventListener("pointerdown", handler, { capture: true });
     };
-  }, [close, drawerRootSelector, isOpened]);
+  }, [close, drawerId, isOpened]);
 
   return useMemo(
     () => ({

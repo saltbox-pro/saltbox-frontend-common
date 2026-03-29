@@ -26,6 +26,7 @@ import React, {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
+import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "../../../constants/dom-selectors";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader, HeaderLocale } from "../fast-table-header/fast-table-header";
 import { CellMeta } from "../types";
@@ -358,9 +359,9 @@ export function FastTablePaginated<DataType>({
           className={row.id === activeRowId ? "fast-table-row-active" : undefined}
           onClick={(event) => {
             if (!onRowClick) return;
-            // Проверяем, что клик был не по кнопке, ссылке или input элементу
+
             const target = event.target as HTMLElement;
-            if (target.closest("button, a, input, .prevent-row-click, .ant-popover")) {
+            if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
               return;
             }
             onRowClick(toJS(row.original), event);
@@ -456,9 +457,9 @@ export function FastTablePaginated<DataType>({
                 tabIndex={onRowClick ? 0 : undefined}
                 onClick={(event) => {
                   if (!onRowClick) return;
-                  // Проверяем, что клик был не по кнопке, ссылке или input элементу
+
                   const target = event.target as HTMLElement;
-                  if (target.closest("button, a, input, .prevent-row-click")) {
+                  if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
                     return;
                   }
                   onRowClick(toJS(row.original), event);
