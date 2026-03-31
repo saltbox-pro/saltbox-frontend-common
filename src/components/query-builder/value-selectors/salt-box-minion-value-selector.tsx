@@ -56,6 +56,38 @@ export const SaltBoxMinionValueSelector = ({
   );
 
   const dropdownStyle = { minWidth: 360 };
+  const knownFieldValues = React.useMemo(
+    () =>
+      (options || [])
+        .map((option) => {
+          const typedOption = option as { value?: unknown; name?: unknown };
+          if (typeof typedOption.value === "string") return typedOption.value;
+          if (typeof typedOption.name === "string") return typedOption.name;
+          return "";
+        })
+        .filter(Boolean),
+    [options]
+  );
+
+  React.useEffect(() => {
+    const selectedField = typeof val === "string" ? val : "";
+    if (!selectedField) {
+      setIsCustomValue(false);
+      setCustomValue("");
+      return;
+    }
+
+    const isKnownField = knownFieldValues.includes(selectedField);
+    const isCustomField = selectedField.startsWith("grains.") && !isKnownField;
+    if (!isCustomField) {
+      setIsCustomValue(false);
+      setCustomValue("");
+      return;
+    }
+
+    setIsCustomValue(true);
+    setCustomValue(selectedField.slice("grains.".length));
+  }, [knownFieldValues, val]);
 
   if (className === "rule-fields") {
     return (
