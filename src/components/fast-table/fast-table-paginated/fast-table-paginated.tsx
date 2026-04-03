@@ -503,6 +503,8 @@ export function FastTablePaginated<DataType>({
         <div className="fast-table-pagination">
           <Pagination
             size="small"
+            current={pagination.pageIndex + 1}
+            pageSize={pagination.pageSize}
             total={total}
             showTotal={showTotal}
             showSizeChanger
