@@ -1,5 +1,7 @@
 export type JsonValueType = string | number | boolean | null | object | unknown[];
 
+export type TranslationOptions = { ns: string };
+
 function isAllowedJsonValue(value: unknown): value is JsonValueType {
   if (value === null) return true;
 
@@ -11,13 +13,24 @@ function isAllowedJsonValue(value: unknown): value is JsonValueType {
   return false;
 }
 
-type ParseValueResult = { ok: true; value: JsonValueType } | { ok: false; errorKey: string };
+type ParseValueResult =
+  | { ok: true; value: JsonValueType }
+  | {
+      ok: false;
+      errorKey: string;
+      errorOptions: TranslationOptions;
+    };
 
 export function parseAndValidateJsonValue(raw: string): ParseValueResult {
   const trimmed = raw?.trim();
+  const errorOptions = { ns: "common" };
 
   if (!trimmed) {
-    return { ok: false, errorKey: "json-editor-field.value-required" };
+    return {
+      ok: false,
+      errorKey: "json-editor-field.value-required",
+      errorOptions,
+    };
   }
 
   let parsed: unknown;
@@ -25,18 +38,28 @@ export function parseAndValidateJsonValue(raw: string): ParseValueResult {
   try {
     parsed = JSON.parse(trimmed);
   } catch {
-    return { ok: false, errorKey: "json-editor-field.value-invalid-json" };
+    return {
+      ok: false,
+      errorKey: "json-editor-field.value-invalid-json",
+      errorOptions,
+    };
   }
 
   if (!isAllowedJsonValue(parsed)) {
-    return { ok: false, errorKey: "json-editor-field.value-invalid-type" };
+    return {
+      ok: false,
+      errorKey: "json-editor-field.value-invalid-type",
+      errorOptions,
+    };
   }
 
   return { ok: true, value: parsed };
 }
 
-export function isInvalidJsonValueResult(
-  result: ParseValueResult
-): result is { ok: false; errorKey: string } {
+export function isInvalidJsonValueResult(result: ParseValueResult): result is {
+  ok: false;
+  errorKey: string;
+  errorOptions: TranslationOptions;
+} {
   return !result.ok;
 }

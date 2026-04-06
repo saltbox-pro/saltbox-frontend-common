@@ -6,12 +6,13 @@ export function createJsonValueValidator(
   t: (key: string, options?: Record<string, unknown>) => string
 ): NonNullable<RuleObject["validator"]> {
   return (_, raw) => {
-    if (!raw?.trim()) return Promise.resolve();
+    if (raw == null) return Promise.resolve();
+    if (typeof raw === "string" && raw.trim() === "") return Promise.resolve();
 
     const result = parseAndValidateJsonValue(raw ?? "");
 
     if (isInvalidJsonValueResult(result)) {
-      return Promise.reject(new Error(t(result.errorKey, { ns: "common" })));
+      return Promise.reject(new Error(t(result.errorKey, result.errorOptions)));
     }
 
     return Promise.resolve();
