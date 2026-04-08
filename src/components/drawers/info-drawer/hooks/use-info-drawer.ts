@@ -6,19 +6,29 @@ export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
   getId: (arg: TArg) => TId;
   drawerId?: string;
   initialOpenedId?: TId | null;
+  initialOpenedArg?: TArg | null;
+  outsideClickIgnoreSelectors?: string[];
   onOpen?: (arg: TArg) => void | Promise<void>;
   onClose?: () => void;
-  onClear?: () => void;
 }
 
 export function useInfoDrawer<
   TArg,
   TId extends string | number,
   TRef extends HTMLElement = HTMLElement,
->({ getId, drawerId, onOpen, onClose, onClear, initialOpenedId }: UseInfoDrawerOptions<TArg, TId>) {
+>({
+  getId,
+  drawerId,
+  onOpen,
+  onClose,
+  initialOpenedId,
+  initialOpenedArg,
+  outsideClickIgnoreSelectors,
+}: UseInfoDrawerOptions<TArg, TId>) {
   const mainContentRef = useRef<TRef | null>(null);
 
   const [openedId, setOpenedId] = useState<TId | null>(initialOpenedId ?? null);
+  const [openedArg, setOpenedArg] = useState<TArg | null>(initialOpenedArg ?? null);
   const [isOpened, setIsOpened] = useState(false);
 
   const activeRowId = useMemo(() => (isOpened ? openedId : null), [isOpened, openedId]);
@@ -27,6 +37,7 @@ export function useInfoDrawer<
     async (arg: TArg) => {
       const id = getId(arg);
       setOpenedId(id);
+      setOpenedArg(arg);
       setIsOpened(true);
       await onOpen?.(arg);
     },
@@ -35,13 +46,10 @@ export function useInfoDrawer<
 
   const close = useCallback(() => {
     setIsOpened(false);
+    setOpenedId(null);
+    setOpenedArg(null);
     onClose?.();
   }, [onClose]);
-
-  const clearData = useCallback(() => {
-    setOpenedId(null);
-    onClear?.();
-  }, [onClear]);
 
   const toggle = useCallback(
     async (arg: TArg) => {
@@ -66,6 +74,10 @@ export function useInfoDrawer<
         return;
       }
 
+      if (outsideClickIgnoreSelectors?.some((selector) => target.closest(selector) != null)) {
+        return;
+      }
+
       const mainContentEl = mainContentRef.current;
       const clickedInsideMainContent = !!mainContentEl && mainContentEl.contains(target);
       const clickedInsideDrawer = drawerId
@@ -82,19 +94,19 @@ export function useInfoDrawer<
     return () => {
       document.removeEventListener("pointerdown", handler, { capture: true });
     };
-  }, [close, drawerId, isOpened]);
+  }, [close, drawerId, isOpened, outsideClickIgnoreSelectors]);
 
   return useMemo(
     () => ({
       mainContentRef,
       openedId,
+      openedArg,
       isOpened,
       activeRowId,
       open,
       close,
       toggle,
-      clearData,
     }),
-    [activeRowId, clearData, close, isOpened, open, openedId, toggle]
+    [activeRowId, close, isOpened, open, openedArg, openedId, toggle]
   );
 }

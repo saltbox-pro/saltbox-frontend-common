@@ -3,7 +3,6 @@ import {
   type Key,
   type PropsWithChildren,
   type ReactNode,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -29,12 +28,12 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   hasData?: boolean;
   transitionKey?: Key;
   onClose: () => void;
-  onAfterClose?: () => void;
 }
 
 export function InfoDrawer({
   drawerId,
   transitionKey,
+  open,
   titleName,
   titleLabel,
   linkTo,
@@ -51,13 +50,11 @@ export function InfoDrawer({
   destroyOnHidden = true,
   width = 770,
   onClose,
-  onAfterClose,
   children,
   classNames,
   ...restProps
 }: InfoDrawerProps) {
   const onCloseRef = useRef(onClose);
-  const onAfterCloseRef = useRef(onAfterClose);
 
   const hasError = !loading && !!errorMessage;
   const activeKey = useMemo(
@@ -65,24 +62,13 @@ export function InfoDrawer({
     [hasData, hasError, transitionKey]
   );
 
-  const handleAfterOpenChange = useCallback(
-    (isOpen: boolean) => {
-      if (!isOpen && onAfterClose) {
-        onAfterClose();
-      }
-    },
-    [onAfterClose]
-  );
-
   useEffect(() => {
     onCloseRef.current = onClose;
-    onAfterCloseRef.current = onAfterClose;
   });
 
   useEffect(() => {
     return () => {
       onCloseRef.current();
-      onAfterCloseRef.current?.();
     };
   }, []);
 
@@ -95,9 +81,16 @@ export function InfoDrawer({
         header: `${styles.header} ${classNames?.header ?? ""}`,
         body: `${styles.body} ${classNames?.body ?? ""}`,
       }}
+      open={open}
       size={size}
       placement={placement}
-      title={<InfoDrawerTitle name={titleName} label={titleLabel} />}
+      title={
+        <InfoDrawerTitle
+          activeTransitionKey={open ? "opened" : "closed"}
+          name={titleName}
+          label={titleLabel}
+        />
+      }
       extra={
         <InfoDrawerExtra
           extra={extra}
@@ -109,7 +102,6 @@ export function InfoDrawer({
       }
       mask={mask}
       width={width}
-      afterOpenChange={handleAfterOpenChange}
       destroyOnHidden={destroyOnHidden}
       onClose={onClose}
       {...restProps}

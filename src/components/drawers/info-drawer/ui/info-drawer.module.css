@@ -2,6 +2,10 @@
   outline: none;
 }
 
+.drawer :global(.ant-drawer-content-wrapper) {
+  will-change: transform;
+}
+
 .header {
   min-height: 58px;
 }

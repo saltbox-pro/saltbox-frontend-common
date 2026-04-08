@@ -1,5 +1,6 @@
 .fadeWrapper {
   width: 100%;
+  will-change: opacity;
 }
 
 .fadeEnter {
