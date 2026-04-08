@@ -1,50 +1,55 @@
-import { FocusEvent } from "react";
-import { Col, Form, Input, Row } from "antd";
 import {
   ADDITIONAL_PROPERTY_FLAG,
-  FormContextType,
-  RJSFSchema,
-  StrictRJSFSchema,
-  TranslatableString,
   UI_OPTIONS_KEY,
-  getUiOptions,
+  type FormContextType,
+  type RJSFSchema,
+  type StrictRJSFSchema,
+  TranslatableString,
   type WrapIfAdditionalTemplateProps,
+  buttonId,
 } from "@rjsf/utils";
+import { Col, Row, Form, Input } from "antd";
 
-import styles from "./wrap-if-additional-template.module.css";
+const VERTICAL_LABEL_COL = { span: 24 };
+const VERTICAL_WRAPPER_COL = { span: 24 };
+
+const INPUT_STYLE = {
+  width: "100%",
+};
 
 export function CustomWrapIfAdditionalTemplate<
   T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
-  F extends FormContextType = FormContextType,
->({
-  children,
-  classNames,
-  style,
-  disabled,
-  id,
-  label,
-  onDropPropertyClick,
-  onKeyChange,
-  readonly,
-  required,
-  registry,
-  schema,
-  uiSchema,
-}: WrapIfAdditionalTemplateProps<T, S, F>) {
+  F extends FormContextType = unknown,
+>(props: WrapIfAdditionalTemplateProps<T, S, F>) {
+  const {
+    children,
+    classNames,
+    style,
+    disabled,
+    displayLabel,
+    id,
+    label,
+    onRemoveProperty,
+    onKeyRenameBlur,
+    readonly,
+    required,
+    registry,
+    schema,
+    uiSchema,
+  } = props;
   const {
     colon,
-    labelCol = { span: 24 },
+    labelCol = VERTICAL_LABEL_COL,
     readonlyAsDisabled = true,
     rowGutter = 24,
     toolbarAlign = "top",
-    wrapperCol = { span: 24 },
+    wrapperCol = VERTICAL_WRAPPER_COL,
     wrapperStyle,
   } = registry.formContext;
-
   const { templates, translateString } = registry;
-  const { RemoveButton } = templates.ButtonTemplates;
 
+  const { RemoveButton } = templates.ButtonTemplates;
   const keyLabel = translateString(TranslatableString.KeyLabel, [label]);
   const additional = ADDITIONAL_PROPERTY_FLAG in schema;
 
@@ -56,14 +61,10 @@ export function CustomWrapIfAdditionalTemplate<
     );
   }
 
-  const handleBlur = ({ target }: FocusEvent<HTMLInputElement>) => onKeyChange(target?.value);
-
-  const uiOptions = getUiOptions<T, S, F>(uiSchema);
-  const shouldShowKeyLabel = uiOptions.label !== false;
-
+  const uiOptions = uiSchema ? uiSchema[UI_OPTIONS_KEY] : {};
   const buttonUiOptions = {
     ...uiSchema,
-    [UI_OPTIONS_KEY]: { ...(uiSchema?.[UI_OPTIONS_KEY] ?? {}), block: true },
+    [UI_OPTIONS_KEY]: { ...uiOptions, block: true },
   };
 
   return (
@@ -76,19 +77,20 @@ export function CustomWrapIfAdditionalTemplate<
               className="form-group"
               hasFeedback
               htmlFor={`${id}-key`}
-              label={shouldShowKeyLabel ? keyLabel : undefined}
+              label={displayLabel ? keyLabel : undefined}
               labelCol={labelCol}
               required={required}
               style={wrapperStyle}
               wrapperCol={wrapperCol}
             >
               <Input
-                className={`form-control ${styles.formControl}`}
+                className="form-control"
                 defaultValue={label}
                 disabled={disabled || (readonlyAsDisabled && readonly)}
                 id={`${id}-key`}
                 name={`${id}-key`}
-                onBlur={!readonly ? handleBlur : undefined}
+                onBlur={!readonly ? onKeyRenameBlur : undefined}
+                style={INPUT_STYLE}
                 type="text"
               />
             </Form.Item>
@@ -97,11 +99,12 @@ export function CustomWrapIfAdditionalTemplate<
         <Col className="form-additional" flex="1">
           {children}
         </Col>
-        <Col flex="192px">
+        <Col flex="120px" style={{ marginTop: displayLabel ? "26px" : undefined }}>
           <RemoveButton
-            className="array-item-remove"
+            id={buttonId(id, "remove")}
+            className="rjsf-object-property-remove"
             disabled={disabled || readonly}
-            onClick={onDropPropertyClick(label)}
+            onClick={onRemoveProperty}
             uiSchema={buttonUiOptions}
             registry={registry}
           />

@@ -5,13 +5,11 @@ import { useCallback } from "react";
 const BaseInputTemplate = Templates.BaseInputTemplate;
 
 export const CustomBaseInputTemplate = (props: BaseInputTemplateProps) => {
-  const { schema, options, onChange } = props ?? {};
-  const { type: schemaType } = schema ?? {};
+  const { schema, options, onChange } = props;
+  const schemaType = schema?.type;
 
   const handleChange = useCallback<BaseInputTemplateProps["onChange"]>(
     (nextValue, errorSchema, id) => {
-      if (!onChange) return;
-
       const isNumericType =
         schemaType === "number" ||
         schemaType === "integer" ||

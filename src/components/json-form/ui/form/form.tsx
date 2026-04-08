@@ -2,10 +2,10 @@ import RJSFJsonForm from "@rjsf/antd";
 import Form, { type FormProps } from "@rjsf/core";
 import type { FormContextType, RJSFSchema, StrictRJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
+import { Flex } from "antd";
 import type { Ref } from "react";
 
 import { CustomArrayFieldItemTemplate } from "../templates/array-field-item-template";
-import { CustomArrayFieldTemplate } from "../templates/array-field-template";
 import { CustomBaseInputTemplate } from "../templates/base-input-template";
 import { CustomWrapIfAdditionalTemplate } from "../templates/wrap-if-additional-template";
 
@@ -32,43 +32,44 @@ export const JsonForm = <
   F extends FormContextType = FormContextType,
 >({
   showErrorList = false,
+  omitExtraData = true,
+  noHtml5Validate = true,
   focusOnFirstError,
   tagName,
   validator: validatorProp,
   experimental_defaultFormStateBehavior,
   ref,
-  className,
   templates,
   ...rest
 }: JsonFormProps<T, S, F>) => {
   const resolvedFocusOnFirstError =
     focusOnFirstError !== undefined
       ? focusOnFirstError
-      : tagName !== undefined && tagName !== "form"
-        ? false
-        : true;
+      : !(tagName !== undefined && tagName !== "form");
 
   return (
-    <RJSFJsonForm
-      ref={ref}
-      className={`${styles.form} ${className || ""}`}
-      validator={validatorProp ?? validator}
-      showErrorList={showErrorList}
-      templates={{
-        BaseInputTemplate: CustomBaseInputTemplate,
-        WrapIfAdditionalTemplate: CustomWrapIfAdditionalTemplate,
-        ArrayFieldTemplate: CustomArrayFieldTemplate,
-        ArrayFieldItemTemplate: CustomArrayFieldItemTemplate,
-        ...templates,
-      }}
-      experimental_defaultFormStateBehavior={
-        experimental_defaultFormStateBehavior ?? {
-          allOf: "populateDefaults",
+    <Flex vertical className={`${styles.form} ant-form-vertical`}>
+      <RJSFJsonForm
+        ref={ref}
+        validator={validatorProp ?? validator}
+        showErrorList={showErrorList}
+        omitExtraData={omitExtraData}
+        noHtml5Validate={noHtml5Validate}
+        templates={{
+          ArrayFieldItemTemplate: CustomArrayFieldItemTemplate,
+          BaseInputTemplate: CustomBaseInputTemplate,
+          WrapIfAdditionalTemplate: CustomWrapIfAdditionalTemplate,
+          ...templates,
+        }}
+        experimental_defaultFormStateBehavior={
+          experimental_defaultFormStateBehavior ?? {
+            allOf: "populateDefaults",
+          }
         }
-      }
-      focusOnFirstError={resolvedFocusOnFirstError}
-      tagName={tagName}
-      {...rest}
-    />
+        focusOnFirstError={resolvedFocusOnFirstError}
+        tagName={tagName}
+        {...rest}
+      />
+    </Flex>
   );
 };

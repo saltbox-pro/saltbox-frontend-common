@@ -1,58 +1,53 @@
+import { getDefaultFormState } from "@rjsf/utils";
+import validator from "@rjsf/validator-ajv8";
 import { Alert, Button, message, Typography } from "antd";
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, type FC } from "react";
 
 import { JsonForm } from "../../../json-form";
+import { toRjsfSchema, toRjsfUiSchema } from "../../helpers/to-rjsf-schema";
 import type { FormSchema } from "../../types";
 
 import styles from "./form-preview.module.css";
+
+const PREVIEW_DEFAULT_FORM_STATE = { allOf: "populateDefaults" as const };
 
 interface FormPreviewProps {
   schema: FormSchema;
 }
 
-/**
- * Form preview with RJSF + JSON data output
- */
-export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
+export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
+  const [formData, setFormData] = useState<unknown>({});
 
-  // Extract pillar schema for display
-  const extractedJsonSchema = useMemo(() => {
-    if (typeof schema.json_schema === "boolean") {
-      return { type: "object" as const, properties: {} };
-    }
-
-    const kwargs = schema.json_schema?.properties?.kwargs;
-    if (!kwargs || typeof kwargs !== "object") {
-      return {
-        type: "object" as const,
-        properties: {},
-      };
-    }
-
-    const pillar = kwargs.properties?.pillar;
-    if (!pillar || typeof pillar !== "object") {
-      return {
-        type: "object" as const,
-        properties: {},
-      };
-    }
-
-    return pillar;
-  }, [schema.json_schema]);
-
-  const extractedUiSchema = useMemo(() => {
-    const kwargs = schema.ui_schema?.kwargs;
-    if (!kwargs || typeof kwargs !== "object") return {};
-    return (kwargs as Record<string, unknown>).pillar || {};
-  }, [schema.ui_schema]);
-
-  // Check for empty schema
   const isEmpty = useMemo(() => {
-    return (
-      !extractedJsonSchema.properties || Object.keys(extractedJsonSchema.properties).length === 0
+    return !schema?.json_schema || Object.keys(schema?.json_schema).length === 0;
+  }, [schema?.json_schema]);
+
+  const schemaPreviewKey = useMemo(
+    () => JSON.stringify({ json_schema: schema?.json_schema, ui_schema: schema?.ui_schema }),
+    [schema?.json_schema, schema?.ui_schema]
+  );
+
+  useEffect(() => {
+    if (
+      !schema.json_schema ||
+      typeof schema.json_schema === "boolean" ||
+      Object.keys(schema.json_schema).length === 0
+    ) {
+      setFormData({});
+      return;
+    }
+
+    const rjsfSchema = toRjsfSchema(schema.json_schema);
+    const next = getDefaultFormState(
+      validator,
+      rjsfSchema,
+      undefined,
+      rjsfSchema,
+      undefined,
+      PREVIEW_DEFAULT_FORM_STATE
     );
-  }, [extractedJsonSchema]);
+    setFormData(next ?? {});
+  }, [schema?.json_schema, schema?.ui_schema]);
 
   if (isEmpty) {
     return (
@@ -73,18 +68,17 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ schema }) => {
           Form Preview
         </Typography.Title>
         <JsonForm
+          key={schemaPreviewKey}
           className={styles.form}
-          schema={extractedJsonSchema as any}
-          uiSchema={extractedUiSchema as any}
+          schema={toRjsfSchema(schema?.json_schema)}
+          uiSchema={toRjsfUiSchema(schema?.ui_schema)}
           formData={formData}
           onChange={(e) => setFormData(e.formData)}
           onSubmit={() => {
             message.success("Form valid");
           }}
         >
-          <div>
-            <Button htmlType="submit">Validate</Button>
-          </div>
+          <Button htmlType="submit">Validate</Button>
         </JsonForm>
       </div>
       <div className={styles.dataOutput}>
