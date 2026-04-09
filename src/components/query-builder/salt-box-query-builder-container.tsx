@@ -57,36 +57,34 @@ export const SaltBoxQueryBuilderContainer = observer((props: SaltBoxQueryBuilder
         <Spin spinning={props.filterStore.isLoading}>
           <QueryBuilderDnD dnd={{ ...ReactDnD, ...ReactDndHtml5Backend }}>
             <QueryBuilderSaltBox>
-              <QueryBuilderSaltBox>
-                <QueryBuilder
-                  key={getQueryBuilderKey()}
-                  fields={toJS(props.filterStore.filterSchema)}
-                  defaultQuery={toJS(props.filterStore.currentFilters)}
-                  onQueryChange={props.filterStore.handleFiltersChange}
-                  controlClassnames={{
-                    queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
-                  }}
-                  controlElements={props.controlElements}
-                  translations={{
-                    addGroup: {
-                      label: t("query-builder.add-group"),
-                      title: t("query-builder.add-group-title"),
-                    },
-                    addRule: {
-                      label: t("query-builder.add-rule"),
-                      title: t("query-builder.add-rule-title"),
-                    },
-                    removeRule: {
-                      label: t("query-builder.remove-rule"),
-                      title: t("query-builder.remove-rule-title"),
-                    },
-                    removeGroup: {
-                      label: t("query-builder.remove-group"),
-                      title: t("query-builder.remove-group-title"),
-                    },
-                  }}
-                />
-              </QueryBuilderSaltBox>
+              <QueryBuilder
+                key={getQueryBuilderKey()}
+                fields={toJS(props.filterStore.filterSchema)}
+                defaultQuery={toJS(props.filterStore.currentFilters)}
+                onQueryChange={props.filterStore.handleFiltersChange}
+                controlClassnames={{
+                  queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
+                }}
+                controlElements={props.controlElements}
+                translations={{
+                  addGroup: {
+                    label: t("query-builder.add-group"),
+                    title: t("query-builder.add-group-title"),
+                  },
+                  addRule: {
+                    label: t("query-builder.add-rule"),
+                    title: t("query-builder.add-rule-title"),
+                  },
+                  removeRule: {
+                    label: t("query-builder.remove-rule"),
+                    title: t("query-builder.remove-rule-title"),
+                  },
+                  removeGroup: {
+                    label: t("query-builder.remove-group"),
+                    title: t("query-builder.remove-group-title"),
+                  },
+                }}
+              />
             </QueryBuilderSaltBox>
           </QueryBuilderDnD>
         </Spin>
