@@ -5,6 +5,7 @@ import validator from "@rjsf/validator-ajv8";
 import { Flex } from "antd";
 import type { Ref } from "react";
 
+import { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS } from "../../constants/default-settings";
 import { CustomArrayFieldItemTemplate } from "../templates/array-field-item-template";
 import { CustomBaseInputTemplate } from "../templates/base-input-template";
 import { CustomWrapIfAdditionalTemplate } from "../templates/wrap-if-additional-template";
@@ -33,6 +34,7 @@ export const JsonForm = <
 >({
   showErrorList = false,
   omitExtraData = true,
+  liveOmit = "onChange",
   noHtml5Validate = true,
   focusOnFirstError,
   tagName,
@@ -54,6 +56,7 @@ export const JsonForm = <
         validator={validatorProp ?? validator}
         showErrorList={showErrorList}
         omitExtraData={omitExtraData}
+        liveOmit={liveOmit}
         noHtml5Validate={noHtml5Validate}
         templates={{
           ArrayFieldItemTemplate: CustomArrayFieldItemTemplate,
@@ -61,11 +64,10 @@ export const JsonForm = <
           WrapIfAdditionalTemplate: CustomWrapIfAdditionalTemplate,
           ...templates,
         }}
-        experimental_defaultFormStateBehavior={
-          experimental_defaultFormStateBehavior ?? {
-            allOf: "populateDefaults",
-          }
-        }
+        experimental_defaultFormStateBehavior={{
+          ...JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS,
+          ...experimental_defaultFormStateBehavior,
+        }}
         focusOnFirstError={resolvedFocusOnFirstError}
         tagName={tagName}
         {...rest}

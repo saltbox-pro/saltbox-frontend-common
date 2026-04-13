@@ -3,13 +3,11 @@ import validator from "@rjsf/validator-ajv8";
 import { Alert, Button, message, Typography } from "antd";
 import { useState, useMemo, useEffect, type FC } from "react";
 
-import { JsonForm } from "../../../json-form";
+import { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS, JsonForm } from "../../../json-form";
 import { toRjsfSchema, toRjsfUiSchema } from "../../helpers/to-rjsf-schema";
 import type { FormSchema } from "../../types";
 
 import styles from "./form-preview.module.css";
-
-const PREVIEW_DEFAULT_FORM_STATE = { allOf: "populateDefaults" as const };
 
 interface FormPreviewProps {
   schema: FormSchema;
@@ -44,7 +42,7 @@ export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
       undefined,
       rjsfSchema,
       undefined,
-      PREVIEW_DEFAULT_FORM_STATE
+      JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS
     );
     setFormData(next ?? {});
   }, [schema?.json_schema, schema?.ui_schema]);
