@@ -1,0 +1,7 @@
+.pageLayout {
+  width: 100%;
+}
+
+.pageLayout_bottomOffset {
+  padding-bottom: calc(var(--app-layout-gap) * 2);
+}

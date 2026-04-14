@@ -1,5 +1,6 @@
 export * from "./components/fast-table";
-export * from "./components/page-header/page-header";
+export * from "./components/page-header";
+export * from "./components/page-layout";
 export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";

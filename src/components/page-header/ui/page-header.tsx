@@ -7,7 +7,7 @@ import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
 
 import styles from "./page-header.module.css";
 
-type PageHeaderProps = {
+export type PageHeaderProps = {
   title: string;
   customParentPathGenerator?: () => string;
   extra?: ReactNode;
