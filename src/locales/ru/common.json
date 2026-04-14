@@ -38,5 +38,29 @@
   "errors": {
     "load-failed": "Не удалось загрузить данные",
     "access-denied": "Доступ запрещен"
+  },
+  "sls-editor": {
+    "tab-form-editor": "Редактор формы",
+    "tab-sls-editor": "Редактор SLS",
+    "schema-parsing-error": "Ошибка парсинга схемы",
+    "schema-empty": "Схема пуста",
+    "schema-empty-description": "Добавьте поля в редакторе схемы",
+    "form-preview": "Предпросмотр формы",
+    "form-valid": "Форма валидна",
+    "validate": "Валидировать",
+    "insert-pillar-title": "Вставить шаблон Pillar",
+    "insert": "Вставить",
+    "cancel": "Отмена",
+    "select-pillar-parameter": "Выберите параметр pillar:",
+    "select-parameter-placeholder": "Выберите параметр",
+    "template-type": "Тип шаблона:",
+    "template-simple": "Простой",
+    "template-with-fallback": "С fallback",
+    "preview": "Предпросмотр:",
+    "visual-editor-unavailable": "Визуальный редактор недоступен",
+    "schema-unsupported-constructs": "Схема содержит неподдерживаемые конструкции:",
+    "and-more": "...и ещё {{count}}",
+    "in-path": "в {{path}}",
+    "form-data": "Данные формы:"
   }
 }

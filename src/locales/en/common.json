@@ -38,5 +38,29 @@
   "errors": {
     "load-failed": "Failed to load data",
     "access-denied": "Access denied"
+  },
+  "sls-editor": {
+    "tab-form-editor": "Form Editor",
+    "tab-sls-editor": "SLS Editor",
+    "schema-parsing-error": "Schema parsing error",
+    "schema-empty": "Schema is empty",
+    "schema-empty-description": "Add fields in the schema editor",
+    "form-preview": "Form Preview",
+    "form-valid": "Form valid",
+    "validate": "Validate",
+    "insert-pillar-title": "Insert Pillar Template",
+    "insert": "Insert",
+    "cancel": "Cancel",
+    "select-pillar-parameter": "Select pillar parameter:",
+    "select-parameter-placeholder": "Select a parameter",
+    "template-type": "Template type:",
+    "template-simple": "Simple",
+    "template-with-fallback": "With fallback",
+    "preview": "Preview:",
+    "visual-editor-unavailable": "Visual editor unavailable",
+    "schema-unsupported-constructs": "Schema contains unsupported constructs:",
+    "and-more": "and {{count}} more",
+    "in-path": "in {{path}}",
+    "form-data": "Form data:"
   }
 }

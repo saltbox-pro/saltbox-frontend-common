@@ -24,9 +24,11 @@
     "mobx-react": "9.1.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "i18next": "^25.2.1",
     "react-i18next": "^15.7.4"
   },
   "dependencies": {
+    "i18next": "^25.2.1",
     "@material-symbols/font-300": "^0.38.0",
     "@monaco-editor/react": "^4.7.0",
     "@react-querybuilder/antd": "^8.11.1",
@@ -35,7 +37,7 @@
     "@rjsf/core": "^6.4.2",
     "@rjsf/utils": "^6.4.2",
     "@rjsf/validator-ajv8": "^6.4.2",
-    "@saltbox/react-jsonschema-form-generator": "0.1.1",
+    "@saltbox/react-jsonschema-form-generator": "0.1.2",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
     "ajv": "^8.17.1",
@@ -69,6 +71,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "i18next": "^25.2.1",
     "husky": "^9.1.7",
     "mobx": "6.13.7",
     "mobx-react": "9.1.0",

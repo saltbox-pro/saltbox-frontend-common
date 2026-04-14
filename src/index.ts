@@ -57,3 +57,5 @@ export * from "./store/persistent-filter-store";
 
 export { default as enCommon } from "./locales/en/common.json";
 export { default as ruCommon } from "./locales/ru/common.json";
+
+export * from "./providers";

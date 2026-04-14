@@ -2,6 +2,7 @@ import { getDefaultFormState } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 import { Alert, Button, message, Typography } from "antd";
 import { useState, useMemo, useEffect, type FC } from "react";
+import { useTranslation } from "react-i18next";
 
 import { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS, JsonForm } from "../../../json-form";
 import { toRjsfSchema, toRjsfUiSchema } from "../../helpers/to-rjsf-schema";
@@ -14,6 +15,7 @@ interface FormPreviewProps {
 }
 
 export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
+  const { t } = useTranslation("common");
   const [formData, setFormData] = useState<unknown>({});
 
   const isEmpty = useMemo(() => {
@@ -51,8 +53,8 @@ export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
     return (
       <div className={styles.emptyState}>
         <Alert
-          message="Schema is empty"
-          description="Add fields in the schema editor"
+          message={t("sls-editor.schema-empty")}
+          description={t("sls-editor.schema-empty-description")}
           type="info"
         />
       </div>
@@ -63,7 +65,7 @@ export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
     <div className={styles.container}>
       <div className={styles.formContainer}>
         <Typography.Title level={4} style={{ marginTop: 0 }}>
-          Form Preview
+          {t("sls-editor.form-preview")}
         </Typography.Title>
         <JsonForm
           key={schemaPreviewKey}
@@ -73,14 +75,14 @@ export const FormPreview: FC<FormPreviewProps> = ({ schema }) => {
           formData={formData}
           onChange={(e) => setFormData(e.formData)}
           onSubmit={() => {
-            message.success("Form valid");
+            message.success(t("sls-editor.form-valid"));
           }}
         >
-          <Button htmlType="submit">Validate</Button>
+          <Button htmlType="submit">{t("sls-editor.validate")}</Button>
         </JsonForm>
       </div>
       <div className={styles.dataOutput}>
-        <div className={styles.dataOutputTitle}>Form data:</div>
+        <div className={styles.dataOutputTitle}>{t("sls-editor.form-data")}</div>
         <pre className={styles.dataOutputContent}>{JSON.stringify(formData, null, 2)}</pre>
       </div>
     </div>

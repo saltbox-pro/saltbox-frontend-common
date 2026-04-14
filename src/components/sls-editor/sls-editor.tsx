@@ -1,6 +1,7 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Tabs, Alert, Dropdown, Button } from "antd";
 import React, { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { FormEditorTab } from "./components/form-editor-tab/form-editor-tab";
 import { SlsEditorTab } from "./components/sls-editor-tab";
@@ -55,6 +56,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
   const [slsBody, setSlsBody] = useState<string>(getEmptySlsBody());
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const { t } = useTranslation("common");
 
   // V2: Parse incoming SLS on mount and when it changes externally
   useEffect(() => {
@@ -107,12 +109,12 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
   const items = [
     {
       key: "form-editor",
-      label: "Form Editor",
+      label: t("sls-editor.tab-form-editor"),
       children: (
         <div className={styles.tabContent}>
           {error && (
             <Alert
-              message="Schema parsing error"
+              message={t("sls-editor.schema-parsing-error")}
               description={error}
               type="error"
               closable
@@ -125,12 +127,12 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
     },
     {
       key: "sls-editor",
-      label: "SLS Editor",
+      label: t("sls-editor.tab-sls-editor"),
       children: (
         <div className={styles.tabContent}>
           {error && (
             <Alert
-              message="Schema parsing error"
+              message={t("sls-editor.schema-parsing-error")}
               description={error}
               type="error"
               closable

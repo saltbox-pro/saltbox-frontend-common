@@ -5,6 +5,7 @@ import {
 } from "@saltbox/react-jsonschema-form-generator";
 import { Tabs, Tooltip } from "antd";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { FormSchema, JSONSchema, UISchema } from "../../types";
 
@@ -25,6 +26,8 @@ interface SchemaEditorProps {
  * 3. UI Schema editor (Monaco)
  */
 export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) => {
+  const { t } = useTranslation("common");
+
   // Check if visual editor can render the schema
   const compatibility = useMemo((): VisualEditorCompatibilityResult => {
     // Extract pillar schema for compatibility check (same logic as VisualEditorTab)
@@ -80,16 +83,24 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
     const features = compatibility.unsupportedFeatures;
     return (
       <div>
-        <div style={{ fontWeight: 500, marginBottom: 4 }}>Визуальный редактор недоступен</div>
-        <div style={{ fontSize: 12 }}>Схема содержит неподдерживаемые конструкции:</div>
+        <div style={{ fontWeight: 500, marginBottom: 4 }}>
+          {t("sls-editor.visual-editor-unavailable")}
+        </div>
+        <div style={{ fontSize: 12 }}>{t("sls-editor.schema-unsupported-constructs")}</div>
         <ul style={{ margin: "4px 0 0 0", paddingLeft: 16, fontSize: 12 }}>
           {features.slice(0, 5).map((f, i) => (
             <li key={i}>
               <code>{f.feature}</code>
-              {f.path !== "(root)" && <span style={{ opacity: 0.7 }}> в {f.path}</span>}
+              {f.path !== "(root)" && (
+                <span style={{ opacity: 0.7 }}> {t("sls-editor.in-path", { path: f.path })}</span>
+              )}
             </li>
           ))}
-          {features.length > 5 && <li style={{ opacity: 0.7 }}>...и ещё {features.length - 5}</li>}
+          {features.length > 5 && (
+            <li style={{ opacity: 0.7 }}>
+              {t("sls-editor.and-more", { count: features.length - 5 })}
+            </li>
+          )}
         </ul>
       </div>
     );
