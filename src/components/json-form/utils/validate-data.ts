@@ -1,9 +1,14 @@
 import Ajv, { type Options, type JSONSchemaType, type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
 
+import { AJV_TIME_WITH_OPTIONAL_TIMEZONE_REGEXP } from "../constants/regexp";
+
 export function createAjvValidator(options?: Options): Ajv {
   const ajv = new Ajv(options);
   addFormats(ajv);
+  // ajv-formats v3 validates format: "time" as RFC3339 full-time (often requiring timezone).
+  // UI (antd) produces local time like "14:14:00", so we allow timezone to be optional.
+  ajv.addFormat("time", AJV_TIME_WITH_OPTIONAL_TIMEZONE_REGEXP);
   return ajv;
 }
 
