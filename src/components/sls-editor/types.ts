@@ -79,6 +79,11 @@ export interface SlsEditorProps {
    * When provided, a dropdown button appears in the tab bar
    */
   menu?: MenuProps;
+
+  /**
+   * Extra content to render next to the menu button in the tab bar
+   */
+  tabBarExtra?: React.ReactNode;
 }
 
 /**

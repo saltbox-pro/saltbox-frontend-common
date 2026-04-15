@@ -1,5 +1,5 @@
 import { SettingOutlined } from "@ant-design/icons";
-import { Tabs, Alert, Dropdown, Button } from "antd";
+import { Tabs, Alert, Dropdown, Button, Flex } from "antd";
 import React, { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -50,6 +50,7 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
   defaultTab = "form-editor",
   className,
   menu,
+  tabBarExtra,
 }) => {
   // V2: Separate state for schema and SLS body
   const [schema, setSchema] = useState<FormSchema>(getEmptySchema());
@@ -165,12 +166,17 @@ export const SlsEditor: React.FC<SlsEditorProps> = ({
         items={items}
         className={styles.tabs}
         tabBarExtraContent={
-          menu
+          menu || tabBarExtra
             ? {
                 right: (
-                  <Dropdown menu={menu} trigger={["click"]}>
-                    <Button icon={<SettingOutlined />} />
-                  </Dropdown>
+                  <Flex gap={8} align="center">
+                    {tabBarExtra}
+                    {menu && (
+                      <Dropdown menu={menu} trigger={["click"]}>
+                        <Button icon={<SettingOutlined />} />
+                      </Dropdown>
+                    )}
+                  </Flex>
                 ),
               }
             : undefined
