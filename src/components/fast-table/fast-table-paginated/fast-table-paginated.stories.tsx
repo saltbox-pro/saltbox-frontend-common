@@ -1,10 +1,10 @@
 import { DeleteOutlined, ExportOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { Meta, StoryObj } from "@storybook/react";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type PaginationState, type SortingState } from "@tanstack/react-table";
 import { Tag, Checkbox } from "antd";
 import React, { useState } from "react";
 
-import { FastTablePaginated } from "./fast-table-paginated";
+import { FastTablePaginated, type FastTablePaginatedProps } from "./fast-table-paginated";
 
 // Mock данные для job'ов
 type MockJob = {
@@ -38,9 +38,17 @@ const largeDataset = generateMockJobs(1000);
 
 const columnHelper = createColumnHelper<MockJob>();
 
+const defaultPagination: PaginationState = { pageIndex: 0, pageSize: 20 };
+const defaultSorting: SortingState = [];
+const noopLazyLoad = (_pagination: PaginationState, _sorting: SortingState) => undefined;
+
+function FastTablePaginatedStory(props: FastTablePaginatedProps<MockJob>) {
+  return <FastTablePaginated<MockJob> {...props} />;
+}
+
 const meta = {
   title: "Components/FastTable/FastTablePaginated",
-  component: FastTablePaginated,
+  component: FastTablePaginatedStory,
   decorators: [
     (Story) => (
       <div style={{ height: "700px", padding: "20px" }}>
@@ -66,7 +74,7 @@ FastTablePaginated - таблица с пагинацией и виртуаль�
     },
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof FastTablePaginated>;
+} satisfies Meta<typeof FastTablePaginatedStory>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -101,6 +109,9 @@ export const Basic: Story = {
     ],
     data: smallDataset,
     getRowId: (row) => row.jid,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -142,6 +153,9 @@ export const WithVirtualScroll: Story = {
     data: mediumDataset,
     getRowId: (row) => row.jid,
     useVirtualScroll: true,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -185,6 +199,9 @@ export const WithCopyActions: Story = {
     ],
     data: smallDataset,
     getRowId: (row) => row.jid,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -238,6 +255,9 @@ export const WithCustomActions: Story = {
     ],
     data: smallDataset,
     getRowId: (row) => row.jid,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -292,6 +312,9 @@ export const WithConditionalActions: Story = {
     ],
     data: smallDataset,
     getRowId: (row) => row.jid,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -334,6 +357,9 @@ export const WithRowClick: Story = {
     data: smallDataset,
     getRowId: (row) => row.jid,
     onRowClick: (row) => alert(`Открыть детали job: ${row.jid}`),
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -380,6 +406,9 @@ export const WithSorting: Story = {
     ],
     data: smallDataset,
     getRowId: (row) => row.jid,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -424,6 +453,9 @@ export const LargeDataset: Story = {
     data: largeDataset,
     getRowId: (row) => row.jid,
     useVirtualScroll: true,
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
   },
   parameters: {
     docs: {
@@ -498,12 +530,26 @@ const WithRowSelectionComponent = () => {
       <div style={{ marginBottom: "16px" }}>
         Выбрано: {selectedRows.size} из {smallDataset.length}
       </div>
-      <FastTablePaginated columns={columns} data={smallDataset} getRowId={(row) => row.jid} />
+      <FastTablePaginated
+        columns={columns}
+        data={smallDataset}
+        getRowId={(row) => row.jid}
+        pagination={defaultPagination}
+        sorting={defaultSorting}
+        onLazyLoad={noopLazyLoad}
+      />
     </div>
   );
 };
 
 export const WithRowSelection: Story = {
+  args: {
+    columns: [],
+    data: [],
+    pagination: defaultPagination,
+    sorting: defaultSorting,
+    onLazyLoad: noopLazyLoad,
+  },
   render: () => <WithRowSelectionComponent />,
   parameters: {
     docs: {

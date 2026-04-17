@@ -29,8 +29,10 @@ const ensureGlobalModalCleanupSubscribed = () => {
   subscribe(UiEvent.CloseAllModals, globalCleanupHandler);
 };
 
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
+declare const module: { hot?: { dispose: (cb: () => void) => void } } | undefined;
+
+if (typeof module !== "undefined" && module.hot) {
+  module.hot.dispose(() => {
     clearGlobalModalCleanupSubscription();
   });
 }

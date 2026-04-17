@@ -4,7 +4,7 @@ import {
   type VisualEditorCompatibilityResult,
 } from "@saltbox/react-jsonschema-form-generator";
 import { Tabs, Tooltip } from "antd";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { FormSchema, JSONSchema, UISchema } from "../../types";
@@ -68,13 +68,19 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
 
   const [activeTab, setActiveTab] = useState<string>(canRenderVisual ? "visual" : "json");
 
-  const handleJsonSchemaChange = (jsonSchema: JSONSchema) => {
-    onChange({ ...schema, json_schema: jsonSchema });
-  };
+  const handleJsonSchemaChange = useCallback(
+    (jsonSchema: JSONSchema) => {
+      onChange({ ...schema, json_schema: jsonSchema });
+    },
+    [onChange, schema]
+  );
 
-  const handleUiSchemaChange = (uiSchema: UISchema) => {
-    onChange({ ...schema, ui_schema: uiSchema });
-  };
+  const handleUiSchemaChange = useCallback(
+    (uiSchema: UISchema) => {
+      onChange({ ...schema, ui_schema: uiSchema });
+    },
+    [onChange, schema]
+  );
 
   // Build tooltip content for unsupported features
   const unsupportedTooltip = useMemo(() => {
@@ -104,7 +110,7 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
         </ul>
       </div>
     );
-  }, [canRenderVisual, compatibility.unsupportedFeatures]);
+  }, [canRenderVisual, compatibility.unsupportedFeatures, t]);
 
   const items = useMemo(() => {
     const visualTabLabel = canRenderVisual ? (

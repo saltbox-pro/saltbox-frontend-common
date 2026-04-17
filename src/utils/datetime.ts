@@ -3,8 +3,8 @@ import "dayjs/locale/en";
 import "dayjs/locale/ru";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import updateLocale from "dayjs/plugin/updateLocale";
+import utc from "dayjs/plugin/utc";
 
 import { AppLanguage, DAYJS_LOCALE_MAP } from "../interfaces/locales";
 

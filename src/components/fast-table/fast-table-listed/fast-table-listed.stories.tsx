@@ -4,7 +4,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { Tag } from "antd";
 import React from "react";
 
-import { FastTableListed } from "./fast-table-listed";
+import { FastTableListed, type FastTableListedProps } from "./fast-table-listed";
 
 // Mock данные
 type MockUser = {
@@ -61,9 +61,13 @@ const mockUsers: MockUser[] = [
 
 const columnHelper = createColumnHelper<MockUser>();
 
+function FastTableListedStory(props: FastTableListedProps<MockUser>) {
+  return <FastTableListed<MockUser> {...props} />;
+}
+
 const meta = {
   title: "Components/FastTable/FastTableListed",
-  component: FastTableListed,
+  component: FastTableListedStory,
   decorators: [
     (Story) => (
       <div style={{ height: "600px", padding: "20px" }}>
@@ -88,7 +92,7 @@ FastTableListed - таблица без пагинации для отображ
     },
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof FastTableListed>;
+} satisfies Meta<typeof FastTableListedStory>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
