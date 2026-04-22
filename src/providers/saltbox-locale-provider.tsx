@@ -9,7 +9,7 @@ import type { Locale } from "antd/es/locale";
 import en_US from "antd/locale/en_US";
 import ru_RU from "antd/locale/ru_RU";
 import i18next, { type Resource } from "i18next";
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 
 import { AppLanguage } from "../interfaces/locales";
@@ -61,9 +61,9 @@ export const SaltboxLocaleProvider: React.FC<SaltboxLocaleProviderProps> = ({
 }) => {
   const i18nInstance = useMemo(() => createI18nInstance(locale, resources), []);
 
-  useEffect(() => {
+  if (i18nInstance.language !== locale) {
     i18nInstance.changeLanguage(locale);
-  }, [locale, i18nInstance]);
+  }
 
   const antdLocale = ANTD_LOCALE_MAP[locale];
   const formGeneratorTranslation = FORM_GENERATOR_LOCALE_MAP[locale];
