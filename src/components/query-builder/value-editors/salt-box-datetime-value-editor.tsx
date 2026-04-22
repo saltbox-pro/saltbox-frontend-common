@@ -33,7 +33,6 @@ export const SaltBoxDateTimeValueEditor = ({
       className={className}
       format={DATETIME_FORMAT_FULL}
       allowClear={false}
-      style={{ width: "100%" }}
     />
   );
 };

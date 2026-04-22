@@ -1,0 +1,4 @@
+.fullWidthValueEditor,
+.fullWidthValueEditor > * {
+  width: 100%;
+}

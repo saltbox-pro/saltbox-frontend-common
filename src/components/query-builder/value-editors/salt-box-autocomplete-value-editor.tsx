@@ -28,7 +28,6 @@ export const SaltBoxAutocompleteValueEditor = (props: AntDValueEditorProps) => {
       disabled={props.disabled}
       onChange={props.handleOnChange}
       {...props.extraProps}
-      style={{ width: "100%" }}
     />
   );
 };
