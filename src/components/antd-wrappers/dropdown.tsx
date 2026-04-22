@@ -5,7 +5,7 @@ import { useUiCleanupEvent } from "saltbox-common/hooks/useUiCleanupEvent";
 import { UiEvent } from "saltbox-common/interfaces/ui-events";
 import { noop } from "saltbox-common/utils/func-utils";
 
-type DropdownProps = ComponentProps<typeof AntdDropdown>;
+export type DropdownProps = ComponentProps<typeof AntdDropdown>;
 type OnOpenChange = DropdownProps["onOpenChange"];
 
 /**

@@ -9,6 +9,12 @@
     "copy": "Copy to clipboard",
     "error": "Failed to copy to clipboard"
   },
+  "action-dropdown-button": {
+    "actions": "Actions"
+  },
+  "selected-items-counter": {
+    "selected": "Selected"
+  },
   "query-builder": {
     "add-group": "+ Group",
     "add-rule": "+ Rule",

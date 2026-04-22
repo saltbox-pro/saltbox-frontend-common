@@ -9,6 +9,12 @@
     "copy": "Скопировать в буфер обмена",
     "error": "Не удалось скопировать в буфер обмена"
   },
+  "action-dropdown-button": {
+    "actions": "Действия"
+  },
+  "selected-items-counter": {
+    "selected": "Выбрано"
+  },
   "query-builder": {
     "add-group": "+ Группу фильтров",
     "add-rule": "+ Фильтр",

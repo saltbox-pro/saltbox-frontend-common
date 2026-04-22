@@ -1,0 +1,8 @@
+.wrapper {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+
+  font-variant-numeric: tabular-nums;
+}
