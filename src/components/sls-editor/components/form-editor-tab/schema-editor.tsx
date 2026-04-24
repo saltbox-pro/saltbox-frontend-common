@@ -114,12 +114,12 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
 
   const items = useMemo(() => {
     const visualTabLabel = canRenderVisual ? (
-      "Editor"
+      t("sls-editor.tab-visual-editor")
     ) : (
       <Tooltip title={unsupportedTooltip} placement="bottom">
         <span style={{ color: "rgba(0, 0, 0, 0.25)" }}>
           <WarningOutlined style={{ marginRight: 4, color: "#faad14" }} />
-          Editor
+          {t("sls-editor.tab-visual-editor")}
         </span>
       </Tooltip>
     );
@@ -139,12 +139,12 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
       },
       {
         key: "json",
-        label: "JSON Schema",
+        label: t("sls-editor.tab-json-schema"),
         children: <JsonSchemaTab schema={schema.json_schema} onChange={handleJsonSchemaChange} />,
       },
       {
         key: "ui",
-        label: "UI Schema",
+        label: t("sls-editor.tab-ui-schema"),
         children: <UiSchemaTab schema={schema.ui_schema} onChange={handleUiSchemaChange} />,
       },
     ];
@@ -155,6 +155,7 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = ({ schema, onChange }) 
     onChange,
     handleJsonSchemaChange,
     handleUiSchemaChange,
+    t,
   ]);
 
   return (

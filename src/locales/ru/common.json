@@ -48,6 +48,9 @@
   "sls-editor": {
     "tab-form-editor": "Редактор формы",
     "tab-sls-editor": "Редактор SLS",
+    "tab-visual-editor": "Редактор",
+    "tab-json-schema": "JSON Schema",
+    "tab-ui-schema": "UI Schema",
     "schema-parsing-error": "Ошибка парсинга схемы",
     "schema-empty": "Схема пуста",
     "schema-empty-description": "Добавьте поля в редакторе схемы",

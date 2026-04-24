@@ -48,6 +48,9 @@
   "sls-editor": {
     "tab-form-editor": "Form Editor",
     "tab-sls-editor": "SLS Editor",
+    "tab-visual-editor": "Editor",
+    "tab-json-schema": "JSON Schema",
+    "tab-ui-schema": "UI Schema",
     "schema-parsing-error": "Schema parsing error",
     "schema-empty": "Schema is empty",
     "schema-empty-description": "Add fields in the schema editor",
