@@ -55,6 +55,8 @@
     "schema-empty": "Schema is empty",
     "schema-empty-description": "Add fields in the schema editor",
     "form-preview": "Form Preview",
+    "form-preview-error": "Form preview error",
+    "form-preview-error-description": "Could not render the form. Check the schema — the selected field type and widget may be incompatible.",
     "form-valid": "Form valid",
     "validate": "Validate",
     "insert-pillar-title": "Insert Pillar Template",
