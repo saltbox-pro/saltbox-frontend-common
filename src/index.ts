@@ -39,6 +39,7 @@ export * from "./components/transition-layout";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
+export * from "./utils/server-error-middleware";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
