@@ -10,16 +10,10 @@ export enum UiEvent {
   ServerError = "ui.server_error",
 }
 
-export enum ServerErrorMessageKey {
-  ServerError = "errors.server-error",
-  NetworkError = "errors.network-error",
-}
-
 export interface ServerErrorEventDetail {
   status: number;
   statusText: string;
   message?: string;
-  messageKey: ServerErrorMessageKey;
   url: string;
   method: string;
   requestBody?: string;

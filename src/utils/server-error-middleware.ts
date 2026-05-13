@@ -1,4 +1,4 @@
-import { ServerErrorEventDetail, ServerErrorMessageKey, UiEvent } from "../interfaces/ui-events";
+import { ServerErrorEventDetail, UiEvent } from "../interfaces/ui-events";
 
 import { publish } from "./custom-events";
 
@@ -18,6 +18,27 @@ interface ErrorContextLike {
 interface ServerErrorMiddleware {
   post(context: ResponseContextLike): Promise<Response | void>;
   onError(context: ErrorContextLike): Promise<Response | void>;
+}
+
+const GLOBAL_SERVER_ERROR_MARKER = Symbol.for("saltbox.global-server-error");
+
+export function markGlobalServerError<E extends object>(error: E): E {
+  (error as Record<symbol, unknown>)[GLOBAL_SERVER_ERROR_MARKER] = true;
+  return error;
+}
+
+export function isGlobalServerError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  if ((error as Record<symbol, unknown>)[GLOBAL_SERVER_ERROR_MARKER]) return true;
+
+  const name = (error as { name?: string }).name;
+  if (name === "ResponseError") {
+    const status = (error as { response?: Response }).response?.status;
+    return typeof status === "number" && status >= 500 && status < 600;
+  }
+  if (name === "FetchError") return true;
+
+  return false;
 }
 
 const MAX_BODY_LENGTH = 4000;
@@ -91,7 +112,6 @@ export function createServerErrorMiddleware(): ServerErrorMiddleware {
           status: response.status,
           statusText: response.statusText || "",
           message: extractMessage(responseBody),
-          messageKey: ServerErrorMessageKey.ServerError,
           url,
           method: (init?.method || "GET").toUpperCase(),
           requestBody: serializeRequestBody(init?.body),
@@ -107,7 +127,6 @@ export function createServerErrorMiddleware(): ServerErrorMiddleware {
         status: 0,
         statusText: "Network Error",
         message: describeError(error),
-        messageKey: ServerErrorMessageKey.NetworkError,
         url,
         method: (init?.method || "GET").toUpperCase(),
         requestBody: serializeRequestBody(init?.body),
