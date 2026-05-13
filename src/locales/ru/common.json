@@ -73,5 +73,8 @@
     "and-more": "...и ещё {{count}}",
     "in-path": "в {{path}}",
     "form-data": "Данные формы:"
+  },
+  "actions": {
+    "search": "Поиск"
   }
 }

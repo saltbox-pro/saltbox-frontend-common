@@ -15,6 +15,7 @@ export * from "./components/filters-counter/filters-counter";
 export * from "./components/filter-toggle-button";
 export * from "./components/action-link-button/action-link-button";
 export * from "./components/navigation-icon-link/navigation-icon-link";
+export * from "./components/inputs";
 export * from "./components/json-editor";
 export * from "./components/mat-icon/mat-icon";
 export * from "./components/horizontal-drag-scroll";

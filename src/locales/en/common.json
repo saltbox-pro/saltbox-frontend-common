@@ -73,5 +73,8 @@
     "and-more": "and {{count}} more",
     "in-path": "in {{path}}",
     "form-data": "Form data:"
+  },
+  "actions": {
+    "search": "Search"
   }
 }
