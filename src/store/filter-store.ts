@@ -1,4 +1,4 @@
-import { action, computed, observable } from "mobx";
+import { action, computed, observable, toJS } from "mobx";
 import { formatQuery, OptionList, RuleGroupType } from "react-querybuilder";
 import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
@@ -51,7 +51,7 @@ export class FilterStore {
     if (currentQueryString !== this._queryCache.key) {
       this._queryCache = {
         key: currentQueryString,
-        value: formatToMongoDB(this.searchFilters),
+        value: formatToMongoDB(this.searchFilters, toJS(this.filterSchema)),
       };
     }
     return this._queryCache.value;

@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import {
   formatQuery,
+  type OptionList,
   RuleGroupType,
   RuleType,
   ValueProcessorByRule,
@@ -11,6 +12,8 @@ import {
 } from "react-querybuilder";
 
 import { DATETIME_TIMESTAMP, formatTimeByUserTZ } from "saltbox-common/utils/datetime";
+
+export const MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING = "booleanFromString" as const;
 
 const NUMERIC_ARRAY_FIELDS = ["osrelease_info", "grains.osrelease_info"];
 
@@ -57,6 +60,16 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) 
     if (numArr !== null) {
       return defaultRuleProcessorMongoDB({ ...rule, value: numArr }, options);
     }
+  }
+
+  const mongoCoercion = (options?.fieldData as { mongoValueCoercion?: string } | undefined)
+    ?.mongoValueCoercion;
+  if (
+    mongoCoercion === MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING &&
+    typeof rule.value === "string" &&
+    (rule.value === "true" || rule.value === "false")
+  ) {
+    return defaultRuleProcessorMongoDB({ ...rule, value: rule.value === "true" }, options);
   }
 
   return defaultRuleProcessorMongoDB(rule, options);
@@ -122,10 +135,11 @@ export function createRuleGroup(
   };
 }
 
-export function formatToMongoDB(filters: RuleGroupType): object {
+export function formatToMongoDB(filters: RuleGroupType, fields?: OptionList): object {
   const queryString = formatQuery(filters, {
     format: "mongodb",
     valueProcessor: customRuleProcessorMongoDB,
+    ...(fields && fields.length > 0 ? { fields } : {}),
   });
 
   try {
