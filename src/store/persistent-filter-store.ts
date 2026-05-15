@@ -37,6 +37,16 @@ export class PersistentFilterStore extends FilterStore {
     this.searchFilters = emptyRuleGroup;
   };
 
+  override handleResetFiltersSilent = () => {
+    if (this.storageKey) {
+      try {
+        localStorage.removeItem(this.storageKey);
+      } catch {}
+    }
+
+    this.currentFilters = emptyRuleGroup;
+  };
+
   @action
   private loadFromStorage(): void {
     if (!this.storageKey) return;

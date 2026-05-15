@@ -36,6 +36,11 @@ export class FilterStore {
   };
 
   @action
+  handleResetFiltersSilent = () => {
+    this.currentFilters = emptyRuleGroup;
+  };
+
+  @action
   handleSearch = () => {
     this.searchFilters = this.currentFilters;
   };
