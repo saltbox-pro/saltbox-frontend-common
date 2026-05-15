@@ -25,6 +25,7 @@ type SaltBoxQueryBuilderContainerProps = {
   };
   onSearchButtonClick?: () => void;
   onResetButtonClick?: () => void;
+  isFilterButton?: boolean;
 };
 
 export const SaltBoxQueryBuilderContainer = observer((props: SaltBoxQueryBuilderContainerProps) => {
@@ -32,8 +33,12 @@ export const SaltBoxQueryBuilderContainer = observer((props: SaltBoxQueryBuilder
   const [queryBuilderId, setQueryBuilderId] = useState(0);
 
   const getQueryBuilderKey = () => {
-    const rulesJSON = JSON.stringify(props.filterStore.currentFilters.rules);
-    return `rules-${queryBuilderId}-${rulesJSON}`;
+    if (props?.isFilterButton) {
+      const rulesJSON = JSON.stringify(props.filterStore.currentFilters.rules);
+      return `rules-${queryBuilderId}-${rulesJSON}`;
+    }
+    const isEmpty = !props.filterStore.currentFilters.rules.length;
+    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}`;
   };
 
   const handleSearchClick = () => {
