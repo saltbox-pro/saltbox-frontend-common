@@ -32,8 +32,8 @@ export const SaltBoxQueryBuilderContainer = observer((props: SaltBoxQueryBuilder
   const [queryBuilderId, setQueryBuilderId] = useState(0);
 
   const getQueryBuilderKey = () => {
-    const isEmpty = !props.filterStore.currentFilters.rules.length;
-    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}`;
+    const rulesJSON = JSON.stringify(props.filterStore.currentFilters.rules);
+    return `rules-${queryBuilderId}-${rulesJSON}`;
   };
 
   const handleSearchClick = () => {
