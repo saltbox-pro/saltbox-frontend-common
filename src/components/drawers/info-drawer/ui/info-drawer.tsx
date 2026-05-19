@@ -3,6 +3,7 @@ import {
   type Key,
   type PropsWithChildren,
   type ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -55,6 +56,7 @@ export function InfoDrawer({
   ...restProps
 }: InfoDrawerProps) {
   const onCloseRef = useRef(onClose);
+  const layoutAnchorRef = useRef<HTMLDivElement>(null);
 
   const hasError = !loading && !!errorMessage;
   const activeKey = useMemo(
@@ -65,6 +67,17 @@ export function InfoDrawer({
   useEffect(() => {
     onCloseRef.current = onClose;
   });
+
+  const resetDrawerBodyScroll = useCallback(() => {
+    if (!open) {
+      return;
+    }
+
+    const drawerBody = layoutAnchorRef.current?.closest<HTMLElement>(".ant-drawer-body");
+    if (drawerBody) {
+      drawerBody.scrollTop = 0;
+    }
+  }, [open]);
 
   useEffect(() => {
     return () => {
@@ -108,13 +121,19 @@ export function InfoDrawer({
     >
       <InfoDrawerLoader loading={loading} />
 
-      <SwitchTransitionLayout className={styles.layout} activeKey={activeKey}>
-        {() => (
-          <div className={styles.content}>
-            {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
-          </div>
-        )}
-      </SwitchTransitionLayout>
+      <div ref={layoutAnchorRef} className={styles.layoutAnchor}>
+        <SwitchTransitionLayout
+          className={styles.layout}
+          activeKey={activeKey}
+          onEnter={resetDrawerBodyScroll}
+        >
+          {() => (
+            <div className={styles.content}>
+              {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
+            </div>
+          )}
+        </SwitchTransitionLayout>
+      </div>
     </Drawer>
   );
 }

@@ -19,12 +19,17 @@
 }
 
 .content,
-.layout {
+.layout,
+.layoutAnchor {
   position: relative;
   width: 100%;
   min-height: 100%;
 
   flex-grow: 1;
+}
+
+.layoutAnchor {
+  display: flex;
 }
 
 .layout {

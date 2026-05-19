@@ -15,6 +15,7 @@ interface SwitchTransitionLayoutProps {
   activeKey: Key;
   timeout?: TransitionTimeout;
   className?: string;
+  onEnter?: () => void;
   children: (activeKey: Key) => ReactNode;
 }
 
@@ -22,6 +23,7 @@ export function SwitchTransitionLayout({
   activeKey,
   timeout = 200,
   className,
+  onEnter,
   children,
 }: SwitchTransitionLayoutProps) {
   const nodeRef = useRef<HTMLDivElement | null>(null);
@@ -47,6 +49,7 @@ export function SwitchTransitionLayout({
           exit: styles.fadeExit,
           exitActive: styles.fadeExitActive,
         }}
+        onEnter={onEnter}
       >
         <div ref={nodeRef} className={`${styles.fadeWrapper} ${className ?? ""}`}>
           {children(activeKey)}
