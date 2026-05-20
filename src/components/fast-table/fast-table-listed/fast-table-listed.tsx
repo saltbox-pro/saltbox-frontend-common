@@ -3,6 +3,7 @@ import {
   ExpandedState,
   OnChangeFn,
   Row,
+  RowSelectionState,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -38,6 +39,8 @@ export type FastTableListedProps<DataType> = {
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  rowSelection?: RowSelectionState;
   locale?: {
     sortAscending?: string;
     sortDescending?: string;
@@ -78,6 +81,8 @@ export function FastTableListed<DataType>({
   getRowId,
   locale,
   bodyRef,
+  onRowSelectionChange,
+  rowSelection,
 }: FastTableListedProps<DataType>) {
   const [tableLocale, setTableLocale] = useState(locale ?? {});
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -153,9 +158,11 @@ export function FastTableListed<DataType>({
     filterFns: {},
     onSortingChange,
     onExpandedChange,
+    onRowSelectionChange,
     state: {
       sorting,
       expanded,
+      rowSelection,
     },
     enableSorting: !!sorting,
   });
