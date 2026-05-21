@@ -44,6 +44,7 @@ export * from "./utils/server-error-middleware";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
+export * from "./utils/merge-refs";
 export type { ValueEditorProps } from "react-querybuilder";
 
 export * from "./utils/query-builder-utils";
@@ -55,6 +56,7 @@ export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
 
 export * from "./hooks/useUiCleanupEvent";
+export * from "./hooks/useFocusOnOpenChange";
 
 export * from "./store/filter-store";
 export * from "./store/persistent-filter-store";

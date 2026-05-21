@@ -1,7 +1,9 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Input, type InputProps, type InputRef } from "antd";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, type Ref } from "react";
 import { useTranslation } from "react-i18next";
+
+import { mergeRefs } from "saltbox-common/utils/merge-refs";
 
 import styles from "./search-input.module.css";
 
@@ -14,6 +16,7 @@ export interface SearchInputProps extends Omit<
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   onSearch: (value: string) => void;
+  ref?: Ref<InputRef>;
 }
 
 export function SearchInput({
@@ -25,11 +28,13 @@ export function SearchInput({
   placeholder,
   onSearch,
   onValueChange,
+  ref,
   ...restProps
 }: SearchInputProps) {
   const { t } = useTranslation("common");
 
   const inputRef = useRef<InputRef>(null);
+  const mergedInputRef = useMemo(() => mergeRefs(inputRef, ref), [ref]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimer = useCallback(() => {
@@ -96,7 +101,7 @@ export function SearchInput({
 
   return (
     <Input
-      ref={inputRef}
+      ref={mergedInputRef}
       prefix={<SearchOutlined className={styles.icon} />}
       allowClear={allowClear}
       autoFocus={autoFocus}
