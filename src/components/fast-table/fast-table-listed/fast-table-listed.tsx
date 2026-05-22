@@ -20,6 +20,7 @@ import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "saltbox-common/constants/dom
 
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { CellMeta } from "../types";
 import "./fast-table-listed.css";
 
@@ -41,13 +42,7 @@ export type FastTableListedProps<DataType> = {
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
-  locale?: {
-    sortAscending?: string;
-    sortDescending?: string;
-    clearSort?: string;
-    total?: string;
-    empty?: string;
-  };
+  locale?: FastTableLocaleOverrides;
   bodyRef?: RefObject<HTMLTableSectionElement>;
 };
 
@@ -84,20 +79,9 @@ export function FastTableListed<DataType>({
   onRowSelectionChange,
   rowSelection,
 }: FastTableListedProps<DataType>) {
-  const [tableLocale, setTableLocale] = useState(locale ?? {});
+  const tableLocale = useFastTableLocale(locale);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    const nextLocale: typeof locale = {
-      sortAscending: locale?.sortAscending ?? "Sort ascending",
-      sortDescending: locale?.sortDescending ?? "Sort descending",
-      clearSort: locale?.clearSort ?? "Clear sort",
-      total: locale?.total ?? "Total:",
-      empty: locale?.empty ?? "No data",
-    };
-    setTableLocale(nextLocale);
-  }, [locale]);
 
   const measureColumnWidths = useCallback(() => {
     if (!tableContainerRef.current) return;

@@ -1,22 +1,24 @@
 import {
-  ExpandedState,
-  OnChangeFn,
-  PaginationState,
-  Row,
-  RowSelectionState,
-  SortingState,
+  type ExpandedState,
+  type OnChangeFn,
+  type PaginationState,
+  type Row,
+  type RowSelectionState,
+  type SortingState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Empty, Pagination, PaginationProps, Spin } from "antd";
-import { PaginationLocale } from "antd/es/pagination/Pagination";
+import { Empty, Pagination, type PaginationProps, Spin } from "antd";
 import { toJS } from "mobx";
-import React, {
-  Fragment,
+import {
   type RefObject,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -28,8 +30,9 @@ import { useStableLoading } from "saltbox-common/utils/table-utils";
 
 import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "../../../constants/dom-selectors";
 import { CellActions } from "../cell-actions/cell-actions";
-import { FastTableHeader, HeaderLocale } from "../fast-table-header/fast-table-header";
-import { CellMeta } from "../types";
+import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
+import type { CellMeta } from "../types";
 import { getColumnWidthStyle } from "../utils/column";
 
 import "./fast-table-paginated.css";
@@ -45,22 +48,18 @@ export type FastTablePaginatedProps<DataType> = {
   onLazyLoad: (pagination: PaginationState, sorting: SortingState) => void;
   onRowClick?: (
     item: DataType,
-    event: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement>
+    event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
   ) => void; // TODO: rename or use separate event handlers
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
-  locale?: PaginationLocale &
-    HeaderLocale & {
-      total?: string;
-      empty?: string;
-    };
+  locale?: FastTableLocaleOverrides;
   useVirtualScroll?: boolean;
   overscan?: number;
   estimatedRowHeight?: number;
   estimatedExpandedRowHeight?: number;
   forceExpandAll?: boolean;
-  renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
+  renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
   bodyRef?: RefObject<HTMLTableSectionElement>;
 };
@@ -265,29 +264,9 @@ export function FastTablePaginated<DataType>({
     estimatedExpandedRowHeight
   );
 
-  const [tableLocale, setTableLocale] = useState(locale ?? {});
+  const tableLocale = useFastTableLocale(locale);
 
-  useEffect(() => {
-    const nextLocale: typeof locale = {
-      items_per_page: locale?.items_per_page ?? "/ page",
-      jump_to: locale?.jump_to ?? "Go to:",
-      jump_to_confirm: locale?.jump_to_confirm ?? "Go to confirm:",
-      page: locale?.page ?? "page",
-      prev_page: locale?.prev_page ?? "Prev",
-      next_page: locale?.next_page ?? "Next",
-      prev_5: locale?.prev_5 ?? "Prev 5",
-      next_5: locale?.next_5 ?? "Next 5",
-      sortAscending: locale?.sortAscending ?? "Sort ascending",
-      sortDescending: locale?.sortDescending ?? "Sort descending",
-      clearSort: locale?.clearSort ?? "Clear sort",
-      total: locale?.total ?? "Total:",
-      empty: locale?.empty ?? "No data",
-    };
-    setTableLocale(nextLocale);
-  }, [locale]);
-
-  const showTotal: PaginationProps["showTotal"] = (total) =>
-    (tableLocale?.total ?? "Total:") + ` ${total}`;
+  const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     table.setPagination({
@@ -512,7 +491,6 @@ export function FastTablePaginated<DataType>({
             defaultPageSize={50}
             showQuickJumper
             onChange={handlePaginationChange}
-            locale={tableLocale}
           />
         </div>
       </div>

@@ -76,5 +76,12 @@
   },
   "actions": {
     "search": "Search"
+  },
+  "fast-table": {
+    "empty": "No data",
+    "sort-ascending": "Sort ascending",
+    "sort-descending": "Sort descending",
+    "clear-sort": "Clear sort",
+    "total": "Total:"
   }
 }
