@@ -62,6 +62,7 @@ export type FastTablePaginatedProps<DataType> = {
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
   bodyRef?: RefObject<HTMLTableSectionElement>;
+  isRowClickable?: (item: DataType) => boolean;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -196,6 +197,7 @@ export function FastTablePaginated<DataType>({
   renderSubComponent,
   getRowCanExpand,
   bodyRef,
+  isRowClickable,
 }: FastTablePaginatedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
@@ -330,31 +332,34 @@ export function FastTablePaginated<DataType>({
 
   const renderTableRows = (rowCount?: number) => {
     const rowsToRender = rowCount === undefined ? rows : rows.slice(0, rowCount);
-    return rowsToRender.map((row) => (
-      <Fragment key={`${row.id}-group-row`}>
-        <tr
-          key={row.id}
-          role={onRowClick ? "button" : undefined}
-          className={row.id === activeRowId ? "fast-table-row-active" : undefined}
-          onClick={(event) => {
-            if (!onRowClick) return;
+    return rowsToRender.map((row) => {
+      const isClickable = onRowClick && (!isRowClickable || isRowClickable(row.original));
+      return (
+        <Fragment key={`${row.id}-group-row`}>
+          <tr
+            key={row.id}
+            role={isClickable ? "button" : undefined}
+            className={row.id === activeRowId ? "fast-table-row-active" : undefined}
+            onClick={(event) => {
+              if (!onRowClick || !isClickable) return;
 
-            const target = event.target as HTMLElement;
-            if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
-              return;
-            }
-            onRowClick(toJS(row.original), event);
-          }}
-        >
-          {renderTableRow(row)}
-        </tr>
-        {row.getIsExpanded() && (
-          <tr key={`${row.id}-sub-row`}>
-            <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
+              const target = event.target as HTMLElement;
+              if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
+                return;
+              }
+              onRowClick(toJS(row.original), event);
+            }}
+          >
+            {renderTableRow(row)}
           </tr>
-        )}
-      </Fragment>
-    ));
+          {row.getIsExpanded() && (
+            <tr key={`${row.id}-sub-row`}>
+              <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
+            </tr>
+          )}
+        </Fragment>
+      );
+    });
   };
 
   const renderVirtualizedRows = () => {
@@ -426,16 +431,17 @@ export function FastTablePaginated<DataType>({
         >
           {virtualRows.map((virtualRow) => {
             const row = rows[virtualRow.index];
+            const isClickable = onRowClick && (!isRowClickable || isRowClickable(row.original));
             return (
               <div
                 key={`${row.id}-group-row`}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
                 className={`virtual-row ${row.id === activeRowId ? "virtual-row-active" : ""}`}
-                role={onRowClick ? "button" : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
+                role={isClickable ? "button" : undefined}
+                tabIndex={isClickable ? 0 : undefined}
                 onClick={(event) => {
-                  if (!onRowClick) return;
+                  if (!onRowClick || !isClickable) return;
 
                   const target = event.target as HTMLElement;
                   if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
@@ -444,11 +450,11 @@ export function FastTablePaginated<DataType>({
                   onRowClick(toJS(row.original), event);
                 }}
                 onKeyDown={
-                  onRowClick
+                  isClickable
                     ? (event) => {
                         if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
-                          onRowClick(toJS(row.original), event);
+                          onRowClick!(toJS(row.original), event);
                         }
                       }
                     : undefined

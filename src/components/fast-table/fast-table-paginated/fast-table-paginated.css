@@ -86,7 +86,7 @@
   line-height: 1.1rem;
 }
 
-.fast-table table > tbody > tr:hover > td {
+.fast-table table > tbody > tr[role="button"]:hover > td {
   background-color: #fafafa;
 }
 
@@ -101,7 +101,7 @@
   background-color: transparent;
 }
 
-.fast-table .virtual-row:hover .virtual-cell {
+.fast-table .virtual-row[role="button"]:hover .virtual-cell {
   background-color: #fafafa;
 }
 
