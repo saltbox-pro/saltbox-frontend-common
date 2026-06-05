@@ -45,7 +45,6 @@ export class PersistentFilterStore extends FilterStore {
     }
 
     this.currentFilters = emptyRuleGroup;
-    this.searchFilters = emptyRuleGroup;
   };
 
   @action
