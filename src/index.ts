@@ -6,6 +6,7 @@ export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";
 export * from "./components/antd-wrappers/popover";
 export * from "./components/boolean-display";
+export * from "./components/text";
 export * from "./components/base-action-button/base-action-button";
 export * from "./components/dropdowns";
 export * from "./components/selected-items-counter";
