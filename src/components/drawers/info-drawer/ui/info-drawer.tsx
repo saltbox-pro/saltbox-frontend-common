@@ -22,6 +22,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   drawerId: string;
   titleName?: string;
   titleLabel?: string;
+  titleCopyable?: boolean;
   linkTo?: string;
   linkTitle?: string;
   linkComponent?: ComponentType<{ to: string; children: ReactNode }>;
@@ -37,6 +38,7 @@ export function InfoDrawer({
   open,
   titleName,
   titleLabel,
+  titleCopyable = true,
   linkTo,
   linkTitle,
   linkComponent,
@@ -102,6 +104,7 @@ export function InfoDrawer({
           activeTransitionKey={open ? "opened" : "closed"}
           name={titleName}
           label={titleLabel}
+          copyable={titleCopyable}
         />
       }
       extra={

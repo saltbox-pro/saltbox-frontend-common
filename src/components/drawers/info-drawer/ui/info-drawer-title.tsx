@@ -5,9 +5,15 @@ interface InfoDrawerTitleProps {
   activeTransitionKey?: string;
   name?: string;
   label?: string;
+  copyable?: boolean;
 }
 
-export function InfoDrawerTitle({ activeTransitionKey, name, label }: InfoDrawerTitleProps) {
+export function InfoDrawerTitle({
+  activeTransitionKey,
+  name,
+  label,
+  copyable = true,
+}: InfoDrawerTitleProps) {
   return (
     <SwitchTransitionLayout activeKey={activeTransitionKey}>
       {() => (
@@ -15,7 +21,7 @@ export function InfoDrawerTitle({ activeTransitionKey, name, label }: InfoDrawer
           {label}{" "}
           {!!name && (
             <>
-              {name} <CopyToClipboardButton text={name} />
+              {name} {copyable && <CopyToClipboardButton text={name} />}
             </>
           )}
         </>
