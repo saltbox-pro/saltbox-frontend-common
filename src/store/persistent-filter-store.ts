@@ -1,4 +1,4 @@
-import { action, makeObservable } from "mobx";
+import { action, makeObservable, override } from "mobx";
 import { OptionList, RuleGroupType } from "react-querybuilder";
 
 import { emptyRuleGroup, generateIdsForQuery } from "../utils/query-builder-utils";
@@ -37,7 +37,8 @@ export class PersistentFilterStore extends FilterStore {
     this.searchFilters = emptyRuleGroup;
   };
 
-  override handleResetFiltersSilent = () => {
+  @override
+  handleResetFiltersSilent = () => {
     if (this.storageKey) {
       try {
         localStorage.removeItem(this.storageKey);

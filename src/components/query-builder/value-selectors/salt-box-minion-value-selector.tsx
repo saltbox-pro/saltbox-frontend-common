@@ -17,6 +17,7 @@ export const SaltBoxMinionValueSelector = ({
   listsAsArrays,
   testID: _testID,
   rule: _rule,
+  ruleGroup: _ruleGroup,
   rules: _rules,
   level: _level,
   path: _path,
@@ -55,7 +56,7 @@ export const SaltBoxMinionValueSelector = ({
     [listsAsArrays, multiple, onChangeNoArrays, onChangeNormal]
   );
 
-  const dropdownStyle = { minWidth: 360 };
+  const selectPopupStyles = { popup: { root: { minWidth: 360 } } };
   const knownFieldValues = React.useMemo(
     () =>
       (options || [])
@@ -98,7 +99,7 @@ export const SaltBoxMinionValueSelector = ({
           title={title}
           className={className}
           popupMatchSelectWidth={false}
-          dropdownStyle={dropdownStyle}
+          styles={selectPopupStyles}
           disabled={disabled}
           value={isCustomValue ? "custom" : val}
           onChange={(v) => {
@@ -137,7 +138,7 @@ export const SaltBoxMinionValueSelector = ({
       title={title}
       className={className}
       popupMatchSelectWidth={false}
-      dropdownStyle={dropdownStyle}
+      styles={selectPopupStyles}
       disabled={disabled}
       value={val}
       onChange={onChange}
