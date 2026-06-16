@@ -16,8 +16,8 @@
     "selected": "Selected"
   },
   "query-builder": {
-    "add-group": "+ Group",
-    "add-rule": "+ Rule",
+    "add-group": "Group",
+    "add-rule": "Rule",
     "remove-rule": "Remove Rule",
     "remove-group": "Remove Group",
     "add-group-title": "Add Filters Group",

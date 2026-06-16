@@ -16,8 +16,8 @@
     "selected": "Выбрано"
   },
   "query-builder": {
-    "add-group": "+ Группу фильтров",
-    "add-rule": "+ Фильтр",
+    "add-group": "Группу фильтров",
+    "add-rule": "Фильтр",
     "remove-rule": "Удалить фильтр",
     "remove-group": "Удалить группу фильтров",
     "add-group-title": "Добавить группу фильтров",

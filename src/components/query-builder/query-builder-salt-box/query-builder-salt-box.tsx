@@ -3,11 +3,13 @@ import {
   CopyOutlined,
   DownOutlined,
   LockOutlined,
+  PlusOutlined,
   UnlockOutlined,
   UpOutlined,
 } from "@ant-design/icons";
 import {
   AntDActionElement,
+  AntDActionProps,
   AntDDragHandle,
   AntDNotToggle,
   AntDShiftActions,
@@ -23,8 +25,14 @@ import {
 
 import { SaltBoxValueSelector } from "../value-selectors/salt-box-value-selector";
 
+const SaltBoxAddActionElement = (props: AntDActionProps) => (
+  <AntDActionElement {...props} icon={<PlusOutlined />} />
+);
+
 export const antdControlElements: ControlElementsProp<FullField, string> = {
   actionElement: AntDActionElement,
+  addGroupAction: SaltBoxAddActionElement,
+  addRuleAction: SaltBoxAddActionElement,
   dragHandle: AntDDragHandle,
   notToggle: AntDNotToggle,
   shiftActions: AntDShiftActions,
