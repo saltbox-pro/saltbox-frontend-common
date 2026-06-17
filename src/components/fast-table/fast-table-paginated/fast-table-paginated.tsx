@@ -32,7 +32,7 @@ import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "../../../constants/dom-selec
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
-import type { CellMeta } from "../types";
+import type { CellActionLinkComponent, CellMeta } from "../types";
 import { getColumnWidthStyle } from "../utils/column";
 
 import "./fast-table-paginated.css";
@@ -63,6 +63,7 @@ export type FastTablePaginatedProps<DataType> = {
   getRowCanExpand?: (row: Row<DataType>) => boolean;
   bodyRef?: RefObject<HTMLTableSectionElement>;
   isRowClickable?: (item: DataType) => boolean;
+  actionLinkComponent?: CellActionLinkComponent;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -198,6 +199,7 @@ export function FastTablePaginated<DataType>({
   getRowCanExpand,
   bodyRef,
   isRowClickable,
+  actionLinkComponent,
 }: FastTablePaginatedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
@@ -312,6 +314,7 @@ export function FastTablePaginated<DataType>({
                 showCopy={meta.showCopy}
                 copyValue={meta.copyValue?.(row.original)}
                 actions={meta.actions}
+                linkComponent={actionLinkComponent}
               />
             )}
           </span>
@@ -403,6 +406,7 @@ export function FastTablePaginated<DataType>({
                   showCopy={meta.showCopy}
                   copyValue={meta.copyValue?.(row.original)}
                   actions={meta.actions}
+                  linkComponent={actionLinkComponent}
                 />
               )}
             </span>
