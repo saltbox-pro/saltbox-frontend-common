@@ -1,6 +1,7 @@
 import { ExportOutlined } from "@ant-design/icons";
-import { Button } from "antd";
 import type { ComponentType, ReactNode } from "react";
+
+import { ActionLinkButton } from "../../../action-link-button/action-link-button";
 
 export interface InfoDrawerLinkProps {
   to?: string;
@@ -14,14 +15,11 @@ export function InfoDrawerLink({ to, title, linkComponent: LinkComponent }: Info
   }
 
   return (
-    <LinkComponent to={to}>
-      <Button
-        color="default"
-        variant="outlined"
-        size="small"
-        icon={<ExportOutlined />}
-        title={title}
-      />
-    </LinkComponent>
+    <ActionLinkButton
+      href={to}
+      title={title}
+      icon={<ExportOutlined />}
+      linkComponent={LinkComponent}
+    />
   );
 }

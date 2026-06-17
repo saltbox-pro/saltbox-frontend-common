@@ -1,6 +1,7 @@
+import { ActionLinkButton } from "../../action-link-button/action-link-button";
 import { BaseActionButton } from "../../base-action-button/base-action-button";
 import { CopyToClipboardButton } from "../../copy-to-clipboard-button/copy-to-clipboard-button";
-import type { CellAction } from "../types";
+import type { CellAction, CellActionLinkComponent } from "../types";
 
 import styles from "./cell-actions.module.css";
 
@@ -10,6 +11,7 @@ export type CellActionsProps<T> = {
   showCopy?: boolean;
   copyValue?: string;
   actions?: CellAction<T>[];
+  linkComponent?: CellActionLinkComponent;
 };
 
 export function CellActions<T>({
@@ -18,6 +20,7 @@ export function CellActions<T>({
   showCopy,
   copyValue,
   actions = [],
+  linkComponent: LinkComponent,
 }: CellActionsProps<T>) {
   const visibleActions = actions.filter((action) => {
     if (!action.visible) return true;
@@ -33,6 +36,26 @@ export function CellActions<T>({
       {showCopy && <CopyToClipboardButton text={copyValue ?? String(value ?? "")} />}
       {visibleActions.map((action, index) => {
         const isDisabled = action.disabled?.(value, row) ?? false;
+        const href = action.getHref?.(value, row);
+
+        if (href) {
+          return (
+            <ActionLinkButton
+              key={index}
+              href={href}
+              icon={action.icon}
+              title={action.title}
+              {...action.buttonProps}
+              target={action.target ?? "_self"}
+              disabled={isDisabled}
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+              linkComponent={LinkComponent}
+            />
+          );
+        }
+
         return (
           <BaseActionButton
             key={index}
@@ -42,7 +65,7 @@ export function CellActions<T>({
             disabled={isDisabled}
             onClick={(e) => {
               e?.stopPropagation?.();
-              if (!isDisabled) {
+              if (!isDisabled && action.onClick) {
                 action.onClick(value, row, e);
               }
             }}

@@ -1,13 +1,18 @@
-import type { ReactNode, MouseEvent } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 import type { BaseActionButtonProps } from "saltbox-common/components/base-action-button/base-action-button";
+import type { ActionLinkLinkComponent } from "saltbox-common/components/action-link-button/action-link-button";
+
+export type CellActionLinkComponent = ActionLinkLinkComponent;
 
 export type CellAction<T = any> = {
   icon: ReactNode;
   title?: string;
   visible?: (value: any, row: T) => boolean;
   disabled?: (value: any, row: T) => boolean;
-  onClick: (value: any, row: T, event: MouseEvent) => void;
+  onClick?: (value: any, row: T, event: MouseEvent) => void;
+  getHref?: (value: any, row: T) => string;
+  target?: "_blank" | "_self";
   buttonProps?: Partial<Omit<BaseActionButtonProps, "icon" | "title" | "disabled" | "onClick">>;
 };
 
