@@ -13,8 +13,7 @@
   position: relative;
   contain: strict;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
 }
 
 .fast-table .fast-table-spinner-wrapper.fast-table-spinner-wrapper {
@@ -41,6 +40,10 @@
   table-layout: fixed;
 }
 
+.fast-table.virtual-scroll table {
+  width: 100%;
+}
+
 .fast-table.empty table {
   height: 100%;
 }
@@ -53,8 +56,8 @@
   position: absolute;
   left: 0;
   top: 0;
-  overflow: hidden;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .fast-table .virtual-tbody-content {
@@ -72,16 +75,43 @@
   line-height: 1.1rem;
 }
 
+.fast-table.virtual-scroll table > thead > tr > th {
+  box-sizing: border-box;
+}
+
 .fast-table .virtual-row-cells {
   display: flex;
   flex-direction: row;
   width: 100%;
 }
 
-.fast-table table > tbody > tr > td,
-.fast-table .virtual-cell,
-.fast-table .virtual-row-expanded {
+.fast-table table > tbody > tr > td {
   border: 1px solid #f0f0f0;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.1rem;
+}
+
+.fast-table .virtual-cell {
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.fast-table .virtual-row-cells .virtual-cell:first-child {
+  border-left: 1px solid #f0f0f0;
+}
+
+.fast-table .virtual-row-expanded {
+  border-top: none;
+  border-left: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
   padding: 0.5rem 0.75rem;
   line-height: 1.1rem;
 }
@@ -103,16 +133,6 @@
 
 .fast-table .virtual-row[role="button"]:hover .virtual-cell {
   background-color: #fafafa;
-}
-
-.fast-table .virtual-cell {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.fast-table .virtual-row-expanded {
-  border-top: none;
 }
 
 .fast-table .sample-row td {
