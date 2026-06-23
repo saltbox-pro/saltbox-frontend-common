@@ -116,6 +116,14 @@
   line-height: 1.1rem;
 }
 
+.fast-table .virtual-row.fast-table-row-group-alt .virtual-cell {
+  background-color: #f9f9f9;
+}
+
+.fast-table table > tbody > tr.fast-table-row-group-alt > td {
+  background-color: #f9f9f9;
+}
+
 .fast-table table > tbody > tr[role="button"]:hover > td {
   background-color: #fafafa;
 }
@@ -133,6 +141,11 @@
 
 .fast-table .virtual-row[role="button"]:hover .virtual-cell {
   background-color: #fafafa;
+}
+
+.fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td,
+.fast-table .virtual-row.fast-table-row-group-alt[role="button"]:hover .virtual-cell {
+  background-color: #f2f2f2;
 }
 
 .fast-table .sample-row td {

@@ -22,6 +22,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -38,6 +39,10 @@ import {
   areColumnWidthsMeasured,
   getVirtualCellWidthStyle,
 } from "../utils/column";
+import {
+  buildGroupedRowClassNames,
+  type GetRowGroupKey,
+} from "../utils/build-grouped-row-class-names";
 
 import "./fast-table-paginated.css";
 
@@ -68,6 +73,8 @@ export type FastTablePaginatedProps<DataType> = {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   isRowClickable?: (item: DataType) => boolean;
   actionLinkComponent?: CellActionLinkComponent;
+  getRowClassName?: (row: DataType, index: number) => string | undefined;
+  getRowGroupKey?: GetRowGroupKey<DataType>;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -229,6 +236,8 @@ export function FastTablePaginated<DataType>({
   bodyRef,
   isRowClickable,
   actionLinkComponent,
+  getRowClassName,
+  getRowGroupKey,
 }: FastTablePaginatedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
@@ -292,6 +301,11 @@ export function FastTablePaginated<DataType>({
 
   const rows = table.getRowModel().rows;
 
+  const groupedRowClassNames = useMemo(
+    () => (getRowGroupKey ? buildGroupedRowClassNames(stableData, getRowGroupKey) : undefined),
+    [getRowGroupKey, stableData]
+  );
+
   const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
   const isVirtualColumnsReady = areColumnWidthsMeasured(columnCount, columnWidths);
 
@@ -313,6 +327,28 @@ export function FastTablePaginated<DataType>({
       pageIndex: page - 1,
       pageSize,
     });
+  };
+
+  const getRowClassNames = (row: Row<DataType>, isVirtualRow = false) => {
+    const groupClassName = groupedRowClassNames?.[row.index];
+    const customClassName = getRowClassName?.(row.original, row.index);
+    const activeClassName =
+      row.id === activeRowId
+        ? isVirtualRow
+          ? "virtual-row-active"
+          : "fast-table-row-active"
+        : undefined;
+
+    const className = [
+      isVirtualRow ? "virtual-row" : undefined,
+      groupClassName,
+      customClassName,
+      activeClassName,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return className || undefined;
   };
 
   const renderTableRow = (row: Row<DataType>, applyMeasuredWidths: boolean) => {
@@ -380,7 +416,7 @@ export function FastTablePaginated<DataType>({
           <tr
             key={row.id}
             role={isClickable ? "button" : undefined}
-            className={row.id === activeRowId ? "fast-table-row-active" : undefined}
+            className={getRowClassNames(row)}
             onClick={(event) => {
               if (!onRowClick || !isClickable) return;
 
@@ -472,7 +508,7 @@ export function FastTablePaginated<DataType>({
                 key={`${row.id}-group-row`}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`virtual-row ${row.id === activeRowId ? "virtual-row-active" : ""}`}
+                className={getRowClassNames(row, true)}
                 role={isClickable ? "button" : undefined}
                 tabIndex={isClickable ? 0 : undefined}
                 onClick={(event) => {
