@@ -53,10 +53,14 @@ export class FilterStore {
   @computed
   get searchMongoDBQuery(): object {
     const currentQueryString = formatQuery(this.searchFilters, "json_without_ids");
-    if (currentQueryString !== this._queryCache.key) {
+    const fields = toJS(this.filterSchema);
+    const schemaKey = fields.length > 0 ? JSON.stringify(fields) : "";
+    const cacheKey = `${currentQueryString}|${schemaKey}`;
+
+    if (cacheKey !== this._queryCache.key) {
       this._queryCache = {
-        key: currentQueryString,
-        value: formatToMongoDB(this.searchFilters, toJS(this.filterSchema)),
+        key: cacheKey,
+        value: formatToMongoDB(this.searchFilters, fields),
       };
     }
     return this._queryCache.value;
