@@ -15,12 +15,21 @@ export function parseCommaSeparatedListValue(value: unknown): string[] {
   return [];
 }
 
+const LIST_VALUE_DELIMITERS = /[,\t\r\n]+/;
+
+function splitListInputValue(value: string): string[] {
+  return value
+    .split(LIST_VALUE_DELIMITERS)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 export function normalizeListInputValue(value: unknown): string[] {
   if (Array.isArray(value)) {
     return toStringList(value);
   }
   if (typeof value === "string" && value.trim()) {
-    return value.split(/[,\s]+/).filter(Boolean);
+    return splitListInputValue(value);
   }
   return [];
 }
