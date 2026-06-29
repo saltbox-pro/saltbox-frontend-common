@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { BaseActionButton } from "../base-action-button/base-action-button";
 
-interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon" | "title"> {
+interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
   text: string;
   successMessage?: string;
   errorMessage?: string;
@@ -14,6 +14,7 @@ export function CopyToClipboardButton({
   text,
   successMessage,
   errorMessage,
+  title,
   onClick,
   ...restProps
 }: CopyToClipboardButtonProps) {
@@ -40,7 +41,7 @@ export function CopyToClipboardButton({
       {contextHolder}
       <BaseActionButton
         icon={<CopyOutlined />}
-        title={t("copy-to-clipboard-button.copy")}
+        title={title ?? t("copy-to-clipboard-button.copy")}
         onClick={handleCopy}
         {...restProps}
       />
