@@ -1,7 +1,7 @@
 import type { MouseEvent, ReactNode } from "react";
 
-import type { BaseActionButtonProps } from "saltbox-common/components/base-action-button/base-action-button";
 import type { ActionLinkLinkComponent } from "saltbox-common/components/action-link-button/action-link-button";
+import type { BaseActionButtonProps } from "saltbox-common/components/base-action-button/base-action-button";
 
 export type CellActionLinkComponent = ActionLinkLinkComponent;
 

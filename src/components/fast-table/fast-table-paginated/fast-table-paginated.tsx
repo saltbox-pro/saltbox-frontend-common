@@ -35,14 +35,14 @@ import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import type { CellActionLinkComponent, CellMeta } from "../types";
 import {
+  buildGroupedRowClassNames,
+  type GetRowGroupKey,
+} from "../utils/build-grouped-row-class-names";
+import {
   getColumnWidthStyle,
   areColumnWidthsMeasured,
   getVirtualCellWidthStyle,
 } from "../utils/column";
-import {
-  buildGroupedRowClassNames,
-  type GetRowGroupKey,
-} from "../utils/build-grouped-row-class-names";
 
 import "./fast-table-paginated.css";
 

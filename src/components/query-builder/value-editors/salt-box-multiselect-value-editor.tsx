@@ -2,7 +2,7 @@ import { Select } from "antd";
 import { useMemo } from "react";
 import { ValueEditorProps } from "react-querybuilder";
 
-import { parseListValue } from "./utils/parse-list-value";
+import { parseCommaSeparatedListValue } from "saltbox-common/utils/normalize-list-input-value";
 
 type SelectOption = { label?: string; value: string };
 
@@ -13,7 +13,7 @@ export const SaltBoxMultiselectValueEditor = ({
   className,
   fieldData,
 }: ValueEditorProps) => {
-  const selectedValues = useMemo(() => parseListValue(value), [value]);
+  const selectedValues = useMemo(() => parseCommaSeparatedListValue(value), [value]);
   const options = (fieldData?.selectOptions ?? []) as SelectOption[];
 
   const handleChange = (newValues: string[]) => {
