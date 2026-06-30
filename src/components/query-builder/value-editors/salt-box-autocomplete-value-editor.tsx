@@ -1,6 +1,8 @@
-import { AutoComplete } from "antd";
-import { ComponentProps, useEffect, useState } from "react";
+import { AutoComplete, Input } from "antd";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { ValueEditorProps } from "react-querybuilder";
+
+import { useInNotInPasteHandler } from "./utils/use-in-not-in-paste-handler";
 
 type AutoCompleteProps = ComponentProps<typeof AutoComplete>;
 type AutoCompleteOptions = AutoCompleteProps["options"];
@@ -12,6 +14,13 @@ type AntDValueEditorProps = ValueEditorProps & {
 
 export const SaltBoxAutocompleteValueEditor = (props: AntDValueEditorProps) => {
   const [options, setOptions] = useState<AutoCompleteOptions>([]);
+  const inNotInOnPaste = useInNotInPasteHandler(props.operator, props.handleOnChange);
+  const onPaste = useCallback(
+    (event: React.ClipboardEvent<HTMLInputElement>) => {
+      inNotInOnPaste(event);
+    },
+    [inNotInOnPaste]
+  );
 
   useEffect(() => {
     props.onValueChange?.((newOptions) => {
@@ -28,6 +37,8 @@ export const SaltBoxAutocompleteValueEditor = (props: AntDValueEditorProps) => {
       disabled={props.disabled}
       onChange={props.handleOnChange}
       {...props.extraProps}
-    />
+    >
+      <Input onPaste={onPaste} />
+    </AutoComplete>
   );
 };

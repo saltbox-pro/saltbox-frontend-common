@@ -16,6 +16,7 @@ export function parseCommaSeparatedListValue(value: unknown): string[] {
 }
 
 const LIST_VALUE_DELIMITERS = /[,\t\r\n]+/;
+const LIST_PASTE_DELIMITER_PATTERN = /[,\t\r\n]/;
 
 function splitListInputValue(value: string): string[] {
   return value
@@ -32,4 +33,12 @@ export function normalizeListInputValue(value: unknown): string[] {
     return splitListInputValue(value);
   }
   return [];
+}
+
+export function isListPasteDelimiterPresent(text: string): boolean {
+  return LIST_PASTE_DELIMITER_PATTERN.test(text);
+}
+
+export function formatPastedListValue(text: string): string {
+  return normalizeListInputValue(text).join(",");
 }

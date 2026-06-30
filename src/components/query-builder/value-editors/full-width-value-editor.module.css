@@ -1,4 +1,38 @@
-.fullWidthValueEditor,
+.fullWidthValueEditor {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .fullWidthValueEditor > * {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.fullWidthValueEditor :global(.ant-select) {
+  max-width: 100%;
+}
+
+.fullWidthValueEditor :global(.ant-select-selector) {
+  overflow: hidden;
+}
+
+.fullWidthValueEditor :global(.ant-select-selection-overflow) {
+  flex-wrap: wrap;
+}
+
+.fullWidthValueEditor :global(.ant-select-selection-search) {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.fullWidthValueEditor :global(.ant-select-selection-search-input) {
+  max-width: 100%;
+}
+
+.fullWidthValueEditor :global(.ant-input),
+.fullWidthValueEditor :global(.ant-input-affix-wrapper) {
+  max-width: 100%;
 }

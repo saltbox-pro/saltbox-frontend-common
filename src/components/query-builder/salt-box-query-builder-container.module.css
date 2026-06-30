@@ -3,6 +3,17 @@
   background: none;
 }
 
+.queryBuilder :global(.rule) {
+  max-width: 100%;
+}
+
+.queryBuilder :global(.rule-value) {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .queryBuilderContainer {
   border-color: var(--rqb-border-color);
   border-style: var(--rqb-border-style);

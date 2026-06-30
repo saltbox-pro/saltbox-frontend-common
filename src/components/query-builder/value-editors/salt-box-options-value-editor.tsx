@@ -6,6 +6,7 @@ import { FullWidthValueEditor } from "./full-width-value-editor";
 import { SaltBoxDateTimeValueEditor } from "./salt-box-datetime-value-editor";
 import { SaltBoxMinionValueEditor } from "./salt-box-minion-value-editor";
 import { SaltBoxMultiselectValueEditor } from "./salt-box-multiselect-value-editor";
+import { useInNotInPasteHandler } from "./utils/use-in-not-in-paste-handler";
 
 export type OptionItem = { value: string; label?: string };
 
@@ -27,6 +28,9 @@ export const SaltBoxOptionsValueEditor: FC<SaltBoxOptionsValueEditorProps> = mem
       },
       [getOptions, props.field, props.value]
     );
+    const onPaste = useInNotInPasteHandler(props.operator, props.handleOnChange);
+    const antdExtraProps =
+      props.operator === "in" || props.operator === "notIn" ? { onPaste } : undefined;
 
     const editor =
       props?.inputType === "datetime-local" ? (
@@ -36,7 +40,7 @@ export const SaltBoxOptionsValueEditor: FC<SaltBoxOptionsValueEditorProps> = mem
       ) : getOptions != null ? (
         <SaltBoxMinionValueEditor onValueChange={handleValueChange} {...props} />
       ) : (
-        <AntDValueEditor {...props} />
+        <AntDValueEditor {...props} extraProps={antdExtraProps} />
       );
 
     return <FullWidthValueEditor>{editor}</FullWidthValueEditor>;

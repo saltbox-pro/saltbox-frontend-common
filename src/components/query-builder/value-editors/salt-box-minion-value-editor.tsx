@@ -5,6 +5,7 @@ import { ValueEditorProps } from "react-querybuilder";
 import { FullWidthValueEditor } from "./full-width-value-editor";
 import { SaltBoxAutocompleteValueEditor } from "./salt-box-autocomplete-value-editor";
 import { SaltBoxDateTimeValueEditor } from "./salt-box-datetime-value-editor";
+import { useInNotInPasteHandler } from "./utils/use-in-not-in-paste-handler";
 
 type AutoCompleteProps = ComponentProps<typeof SaltBoxAutocompleteValueEditor>;
 
@@ -14,6 +15,9 @@ export const SaltBoxMinionValueEditor: FC<
   const isDateTime = props?.inputType === "datetime-local";
   const isCheckbox = props.type === "checkbox";
   const isAutocomplete = props.fieldData.inputType === undefined;
+  const onPaste = useInNotInPasteHandler(props.operator, props.handleOnChange);
+  const antdExtraProps =
+    props.operator === "in" || props.operator === "notIn" ? { onPaste } : undefined;
 
   if (
     (isDateTime &&
@@ -31,7 +35,7 @@ export const SaltBoxMinionValueEditor: FC<
   ) : isAutocomplete ? (
     <SaltBoxAutocompleteValueEditor onValueChange={onValueChange} {...props} />
   ) : (
-    <AntDValueEditor {...props} />
+    <AntDValueEditor {...props} extraProps={antdExtraProps} />
   );
 
   if (isCheckbox) {
