@@ -503,12 +503,17 @@ export function FastTablePaginated<DataType>({
           {virtualRows.map((virtualRow) => {
             const row = rows[virtualRow.index];
             const isClickable = onRowClick && (!isRowClickable || isRowClickable(row.original));
+            const isFirstVirtualRow = virtualRow.start === 0;
+            const rowClassName = `${getRowClassNames(
+              row,
+              true
+            )} ${isFirstVirtualRow ? "virtual-row-first" : ""}`;
             return (
               <div
                 key={`${row.id}-group-row`}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={getRowClassNames(row, true)}
+                className={rowClassName}
                 role={isClickable ? "button" : undefined}
                 tabIndex={isClickable ? 0 : undefined}
                 onClick={(event) => {

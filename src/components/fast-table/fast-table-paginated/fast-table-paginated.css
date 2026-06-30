@@ -107,6 +107,10 @@
   border-left: 1px solid #f0f0f0;
 }
 
+.fast-table .virtual-row-first .virtual-cell {
+  border-top: 1px solid #f0f0f0;
+}
+
 .fast-table .virtual-row-expanded {
   border-top: none;
   border-left: 1px solid #f0f0f0;
@@ -114,6 +118,7 @@
   border-bottom: 1px solid #f0f0f0;
   padding: 0.5rem 0.75rem;
   line-height: 1.1rem;
+  cursor: default;
 }
 
 .fast-table .virtual-row.fast-table-row-group-alt .virtual-cell {

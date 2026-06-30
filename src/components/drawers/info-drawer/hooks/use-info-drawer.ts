@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { ANTD_OVERLAY_ROOT_SELECTORS } from "../../../../constants/dom-selectors";
+import {
+  ANTD_OVERLAY_ROOT_SELECTORS,
+  FAST_TABLE_VIRTUAL_BODY_SELECTOR,
+} from "../../../../constants/dom-selectors";
 
 export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
   getId: (arg: TArg) => TId;
@@ -80,11 +83,16 @@ export function useInfoDrawer<
 
       const mainContentEl = mainContentRef.current;
       const clickedInsideMainContent = !!mainContentEl && mainContentEl.contains(target);
+      const clickedInsideVirtualTable =
+        mainContentEl
+          ?.closest(".fast-table")
+          ?.querySelector(FAST_TABLE_VIRTUAL_BODY_SELECTOR)
+          ?.contains(target) ?? false;
       const clickedInsideDrawer = drawerId
         ? target.closest(`#sbx-drawer-${drawerId}`) != null
         : target.closest(".ant-drawer") != null;
 
-      if (!clickedInsideMainContent && !clickedInsideDrawer) {
+      if (!clickedInsideMainContent && !clickedInsideVirtualTable && !clickedInsideDrawer) {
         close();
       }
     };
