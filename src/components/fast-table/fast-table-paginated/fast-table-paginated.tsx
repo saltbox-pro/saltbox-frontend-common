@@ -29,7 +29,7 @@ import {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
-import { DEFAULT_PREVENT_ROW_CLICK_SELECTOR } from "../../../constants/dom-selectors";
+import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
@@ -421,7 +421,7 @@ export function FastTablePaginated<DataType>({
               if (!onRowClick || !isClickable) return;
 
               const target = event.target as HTMLElement;
-              if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
+              if (shouldPreventRowClick(target, event.currentTarget)) {
                 return;
               }
               onRowClick(toJS(row.original), event);
@@ -520,7 +520,7 @@ export function FastTablePaginated<DataType>({
                   if (!onRowClick || !isClickable) return;
 
                   const target = event.target as HTMLElement;
-                  if (target.closest(DEFAULT_PREVENT_ROW_CLICK_SELECTOR)) {
+                  if (shouldPreventRowClick(target, event.currentTarget)) {
                     return;
                   }
                   onRowClick(toJS(row.original), event);
