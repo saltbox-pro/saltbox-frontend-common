@@ -3,7 +3,12 @@ import { Button, Flex, Tooltip } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { backButtonProvider } from "saltbox-common/utils/page-header-utils";
+import {
+  backButtonProvider,
+  goBackInApp,
+  navigateToFallbackPath,
+  resolveFallbackParentPath,
+} from "saltbox-common/utils/page-header-utils";
 
 import styles from "./page-header.module.css";
 
@@ -16,21 +21,23 @@ export type PageHeaderProps = {
 export function PageHeader({ title, customParentPathGenerator, extra }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
-  const defaultParentPathGenerator = () => {
-    const pathname = window.location.pathname;
-    const segments = pathname.split("/").filter(Boolean).slice(0, -1);
-    return "/" + segments.join("/");
-  };
+  const fallbackPath = resolveFallbackParentPath(customParentPathGenerator);
+  const shouldShowBackButton = backButtonProvider.shouldShowBackButton(customParentPathGenerator);
 
   const handleBackButtonClick = () => {
-    window.history.pushState({}, "", (customParentPathGenerator ?? defaultParentPathGenerator)());
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    if (goBackInApp()) {
+      return;
+    }
+
+    if (fallbackPath) {
+      navigateToFallbackPath(fallbackPath);
+    }
   };
 
   return (
     <Flex className={styles.pageHeader} align="center" justify="space-between" gap="middle">
       <Flex align="center" gap={8}>
-        {backButtonProvider.shouldShowBackButton() && (
+        {shouldShowBackButton && (
           <Tooltip title={t("page-header.back-button")}>
             <Button icon={<ArrowLeftOutlined />} onClick={handleBackButtonClick}></Button>
           </Tooltip>
