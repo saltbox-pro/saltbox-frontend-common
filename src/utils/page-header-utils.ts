@@ -1,4 +1,11 @@
-const INVALID_FALLBACK_PATHS = new Set(["/", "/core", "/inventory", "/gateway", "/core/task"]);
+const INVALID_FALLBACK_PATHS = new Set([
+  "/",
+  "/core",
+  "/core/minions",
+  "/inventory",
+  "/gateway",
+  "/core/task",
+]);
 
 type NavigationWithEntries = {
   currentEntry: { index?: number } | null;
@@ -11,6 +18,60 @@ const getNavigation = (): NavigationWithEntries | undefined => {
 
 const isNestedPage = (): boolean => {
   return window.location.pathname.split("/").filter(Boolean).length > 2;
+};
+
+const isSameOriginUrl = (url: string): boolean => {
+  try {
+    return new URL(url).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+};
+
+const isOidcCallbackUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+
+    if (!isSameOriginUrl(url)) {
+      return false;
+    }
+
+    return parsedUrl.searchParams.has("state") && parsedUrl.searchParams.has("code");
+  } catch {
+    return false;
+  }
+};
+
+const isSaltBoxAppPathname = (pathname: string): boolean => {
+  return (
+    pathname.startsWith("/core") ||
+    pathname.startsWith("/gateway") ||
+    pathname.startsWith("/inventory") ||
+    pathname.startsWith("/scheduler") ||
+    pathname.startsWith("/scenarios")
+  );
+};
+
+const isSaltBoxAppUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+
+    if (!isSameOriginUrl(url)) {
+      return false;
+    }
+
+    if (isOidcCallbackUrl(url)) {
+      return false;
+    }
+
+    if (parsedUrl.pathname.startsWith("/auth/")) {
+      return false;
+    }
+
+    return isSaltBoxAppPathname(parsedUrl.pathname);
+  } catch {
+    return false;
+  }
 };
 
 export const getDefaultParentPath = (): string => {
@@ -52,32 +113,40 @@ export const resolveFallbackParentPath = (
   return fallback;
 };
 
-export const canGoBackInApp = (): boolean => {
+const getImmediatePreviousEntryUrl = (): string | null => {
   const navigation = getNavigation();
 
-  if (navigation?.entries) {
-    const currentIndex = navigation.currentEntry?.index;
+  if (!navigation?.entries) {
+    return null;
+  }
 
-    if (typeof currentIndex !== "number" || currentIndex <= 0) {
-      return false;
-    }
+  const currentIndex = navigation.currentEntry?.index;
 
-    const previousEntry = navigation.entries()[currentIndex - 1];
+  if (typeof currentIndex !== "number" || currentIndex <= 0) {
+    return null;
+  }
 
-    if (!previousEntry) {
-      return false;
-    }
+  return navigation.entries()[currentIndex - 1]?.url ?? null;
+};
 
-    try {
-      return new URL(previousEntry.url).origin === window.location.origin;
-    } catch {
-      return false;
-    }
+export const canGoBackInApp = (): boolean => {
+  const previousEntryUrl = getImmediatePreviousEntryUrl();
+
+  if (previousEntryUrl) {
+    return isSaltBoxAppUrl(previousEntryUrl);
   }
 
   const idx = window.history.state?.idx;
 
-  return typeof idx === "number" && idx > 0;
+  if (typeof idx !== "number" || idx <= 0) {
+    return false;
+  }
+
+  if (getNavigation()?.entries) {
+    return false;
+  }
+
+  return true;
 };
 
 export const goBackInApp = (): boolean => {
