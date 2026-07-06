@@ -29,10 +29,10 @@ import {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
-import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
+import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import type { CellActionLinkComponent, CellMeta } from "../types";
 import {
   buildGroupedRowClassNames,
@@ -43,7 +43,10 @@ import {
   areColumnWidthsMeasured,
   getVirtualCellWidthStyle,
 } from "../utils/column";
+import { getSortedColumnClassName } from "../utils/column-sort";
+import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
+import "../fast-table-tokens.css";
 import "./fast-table-paginated.css";
 
 export type FastTablePaginatedProps<DataType> = {
@@ -319,6 +322,7 @@ export function FastTablePaginated<DataType>({
   );
 
   const tableLocale = useFastTableLocale(locale);
+  const fastTableTokenStyle = useFastTableTokenStyle();
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
@@ -371,7 +375,7 @@ export function FastTablePaginated<DataType>({
       return (
         <td
           key={cell.id}
-          className={`cell-with-actions ${meta?.tdClassName ?? ""} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
+          className={`cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
           style={widthStyle}
         >
           <span className="cell-content">
@@ -454,7 +458,7 @@ export function FastTablePaginated<DataType>({
         return (
           <div
             key={cell.id}
-            className={`virtual-cell cell-with-actions ${meta?.tdClassName ?? ""} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
+            className={`virtual-cell cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
             style={widthStyle}
           >
             <span className="cell-content">
@@ -586,6 +590,7 @@ export function FastTablePaginated<DataType>({
       className={`fast-table ${shouldShowEmpty ? "empty" : ""} ${
         useVirtualScroll ? "virtual-scroll" : ""
       }`}
+      style={fastTableTokenStyle}
     >
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"

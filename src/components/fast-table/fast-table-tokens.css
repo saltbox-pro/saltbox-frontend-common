@@ -1,0 +1,9 @@
+.fast-table {
+  --fast-table-border-color: #f0f0f0;
+  --fast-table-header-bg: #fafafa;
+  --fast-table-header-color: rgba(0, 0, 0, 0.88);
+  --fast-table-row-hover-bg: #fafafa;
+  --fast-table-header-sort-hover-bg: #f5f5f5;
+  --fast-table-header-sort-active-bg: #f0f0f0;
+  --fast-table-body-sort-bg: #fafafa;
+}

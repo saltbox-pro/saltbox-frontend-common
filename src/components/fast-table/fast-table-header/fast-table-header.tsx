@@ -35,7 +35,14 @@ export function FastTableHeader<DataType>({
   };
 
   const getThClasses = (header: HeaderType) => {
-    return `fast-table-header-cell ${(header.column.columnDef.meta as any)?.thClassName} `;
+    const metaClassName =
+      (header.column.columnDef.meta as { thClassName?: string })?.thClassName ?? "";
+    const sortableClassName = header.column.getCanSort() ? "fast-table-column-has-sorters" : "";
+    const sortedClassName = header.column.getIsSorted() ? "fast-table-column-sort" : "";
+
+    return ["fast-table-header-cell", metaClassName, sortableClassName, sortedClassName]
+      .filter(Boolean)
+      .join(" ");
   };
 
   const getHeaderClasses = (header: HeaderType) => {
