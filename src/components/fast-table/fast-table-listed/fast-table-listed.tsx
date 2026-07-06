@@ -16,12 +16,14 @@ import { Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { Fragment, type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
-import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
-
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
+import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import { CellMeta } from "../types";
+import { getSortedColumnClassName } from "../utils/column-sort";
+import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
+import "../fast-table-tokens.css";
 import "./fast-table-listed.css";
 
 export type FastTableListedProps<DataType> = {
@@ -80,6 +82,7 @@ export function FastTableListed<DataType>({
   rowSelection,
 }: FastTableListedProps<DataType>) {
   const tableLocale = useFastTableLocale(locale);
+  const fastTableTokenStyle = useFastTableTokenStyle();
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
 
@@ -177,7 +180,7 @@ export function FastTableListed<DataType>({
             return (
               <td
                 key={cell.id}
-                className={`${meta?.tdClassName ?? ""} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
+                className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
                 style={
                   width
                     ? {
@@ -252,7 +255,10 @@ export function FastTableListed<DataType>({
   };
 
   return (
-    <div className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}>
+    <div
+      className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}
+      style={fastTableTokenStyle}
+    >
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table>
           <thead>

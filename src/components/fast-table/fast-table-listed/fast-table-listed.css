@@ -20,21 +20,22 @@
 }
 
 .fast-table table > thead > tr > th {
-  color: #000000;
+  color: var(--fast-table-header-color);
   font-weight: 600;
   text-align: start;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  padding: 0.75rem;
+  background: var(--fast-table-header-bg);
+  border: 1px solid var(--fast-table-border-color);
+  padding: 8px 12px;
+  transition: background 0.2s ease;
 }
 
 .fast-table table > tbody > tr > td {
-  border: 1px solid #f0f0f0;
-  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--fast-table-border-color);
+  padding: 8px 12px;
 }
 
 .fast-table table > tbody > tr:hover > td {
-  background-color: #fafafa;
+  background-color: var(--fast-table-row-hover-bg);
 }
 
 .fast-table table > tbody > tr.fast-table-row-active > td {
@@ -72,7 +73,7 @@
 }
 
 .fast-table .cell-color-accent .cell-content-text {
-  color: #1677ff;
+  color: var(--ant-color-primary, #1677ff);
 }
 
 /* Показываем actions при ховере на ЯЧЕЙКУ */
