@@ -31,7 +31,7 @@
     "button-show-filters": "Filters"
   },
   "page-header": {
-    "back-button": "Back to a higher level"
+    "back-button": "Back"
   },
   "json-editor-field": {
     "value-required": "Value is required",

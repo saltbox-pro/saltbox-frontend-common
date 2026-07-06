@@ -31,7 +31,7 @@
     "button-show-filters": "Фильтры"
   },
   "page-header": {
-    "back-button": "Вернуться на уровень выше"
+    "back-button": "Назад"
   },
   "json-editor-field": {
     "value-required": "Значение обязательно к заполнению",

@@ -66,13 +66,14 @@
 }
 
 .fast-table table > thead > tr > th {
-  color: #000000;
+  color: var(--fast-table-header-color);
   font-weight: 600;
   text-align: start;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  padding: 0.75rem;
+  background: var(--fast-table-header-bg);
+  border: 1px solid var(--fast-table-border-color);
+  padding: 8px 12px;
   line-height: 1.1rem;
+  transition: background 0.2s ease;
 }
 
 .fast-table.virtual-scroll table > thead > tr > th {
@@ -86,16 +87,16 @@
 }
 
 .fast-table table > tbody > tr > td {
-  border: 1px solid #f0f0f0;
-  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--fast-table-border-color);
+  padding: 8px 12px;
   line-height: 1.1rem;
 }
 
 .fast-table .virtual-cell {
   border: none;
-  border-bottom: 1px solid #f0f0f0;
-  border-right: 1px solid #f0f0f0;
-  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--fast-table-border-color);
+  border-right: 1px solid var(--fast-table-border-color);
+  padding: 8px 12px;
   line-height: 1.1rem;
   display: flex;
   align-items: center;
@@ -104,18 +105,18 @@
 }
 
 .fast-table .virtual-row-cells .virtual-cell:first-child {
-  border-left: 1px solid #f0f0f0;
+  border-left: 1px solid var(--fast-table-border-color);
 }
 
 .fast-table .virtual-row-first .virtual-cell {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--fast-table-border-color);
 }
 
 .fast-table .virtual-row-expanded {
   border-top: none;
-  border-left: 1px solid #f0f0f0;
-  border-right: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
+  border-left: 1px solid var(--fast-table-border-color);
+  border-right: 1px solid var(--fast-table-border-color);
+  border-bottom: 1px solid var(--fast-table-border-color);
   padding: 0.5rem 0.75rem;
   line-height: 1.1rem;
   cursor: default;
@@ -130,7 +131,7 @@
 }
 
 .fast-table table > tbody > tr[role="button"]:hover > td {
-  background-color: #fafafa;
+  background-color: var(--fast-table-row-hover-bg);
 }
 
 .fast-table table > tbody > tr.fast-table-row-active > td,
@@ -145,7 +146,7 @@
 }
 
 .fast-table .virtual-row[role="button"]:hover .virtual-cell {
-  background-color: #fafafa;
+  background-color: var(--fast-table-row-hover-bg);
 }
 
 .fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td,
@@ -186,7 +187,7 @@
 }
 
 .fast-table .cell-color-accent .cell-content-text {
-  color: #1677ff;
+  color: var(--ant-color-primary, #1677ff);
 }
 
 /* Показываем actions при ховере на ЯЧЕЙКУ */

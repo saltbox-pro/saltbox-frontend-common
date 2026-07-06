@@ -2,6 +2,19 @@
   height: 1em; /* header height fix for FF */
 }
 
+.fast-table table > thead > tr > th.fast-table-column-has-sorters:hover {
+  background: var(--fast-table-header-sort-hover-bg);
+}
+
+.fast-table table > thead > tr > th.fast-table-column-sort {
+  background: var(--fast-table-header-sort-active-bg);
+}
+
+.fast-table table > tbody > tr > td.fast-table-column-sort,
+.fast-table .virtual-cell.fast-table-column-sort {
+  background: var(--fast-table-body-sort-bg);
+}
+
 .fast-table-header {
   display: flex;
   justify-content: space-between;
@@ -31,5 +44,5 @@
 }
 
 .sort-icon.active {
-  color: #1677ff;
+  color: var(--ant-color-primary, #1677ff);
 }
