@@ -50,6 +50,11 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) 
     );
   }
 
+  const fieldData = options?.fieldData as
+    | { mongoValueCoercion?: string; inputType?: string | null; valueEditorType?: string | null }
+    | undefined;
+  const isNumberField = fieldData?.inputType === "number";
+
   if (
     (rule.operator === "in" || rule.operator === "notIn") &&
     rule.valueSource !== "field" &&
@@ -57,7 +62,7 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) 
   ) {
     const normalizedValues = normalizeListInputValue(rule.value);
     if (normalizedValues.length > 0) {
-      if (isNumericArrayField(rule.field)) {
+      if (isNumericArrayField(rule.field) || isNumberField) {
         const numArr = coerceToNumberArray(normalizedValues);
         if (numArr !== null) {
           return defaultRuleProcessorMongoDB({ ...rule, value: numArr }, options);
@@ -70,10 +75,18 @@ export const customRuleProcessorMongoDB: ValueProcessorByRule = (rule, options) 
     }
   }
 
-  const mongoCoercion = (options?.fieldData as { mongoValueCoercion?: string } | undefined)
-    ?.mongoValueCoercion;
+  if (isNumberField && typeof rule.value === "string" && rule.value.trim() !== "") {
+    const numValue = Number(rule.value);
+    if (Number.isFinite(numValue)) {
+      return defaultRuleProcessorMongoDB({ ...rule, value: numValue }, options);
+    }
+  }
+
+  const isBooleanField =
+    fieldData?.mongoValueCoercion === MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING ||
+    fieldData?.valueEditorType === "checkbox";
   if (
-    mongoCoercion === MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING &&
+    isBooleanField &&
     typeof rule.value === "string" &&
     (rule.value === "true" || rule.value === "false")
   ) {
