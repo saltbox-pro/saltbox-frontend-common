@@ -1,4 +1,7 @@
-import { createHasAcceptedMastersChecker } from "../utils/accepted-masters";
+import {
+  createHasAcceptedMastersChecker,
+  subscribeAcceptedMastersChanged,
+} from "../utils/accepted-masters";
 
 export type CreateMastersStoreParams = {
   loadAcceptedMastersCount: () => Promise<number>;
@@ -19,6 +22,10 @@ export function createMastersStore({
   maxAgeMs,
 }: CreateMastersStoreParams): MastersStore {
   const checker = createHasAcceptedMastersChecker({ loadAcceptedMastersCount, maxAgeMs });
+
+  subscribeAcceptedMastersChanged(() => {
+    checker.invalidate();
+  });
 
   return {
     hasAcceptedMasters: (params) => checker.check(params),

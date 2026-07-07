@@ -8,6 +8,7 @@ export enum UiEvent {
   CloseAllDropdowns = "ui.close_all_dropdowns",
   CloseAllPopovers = "ui.close_all_popovers",
   ServerError = "ui.server_error",
+  AcceptedMastersChanged = "ui.accepted_masters_changed",
 }
 
 export interface ServerErrorEventDetail {
