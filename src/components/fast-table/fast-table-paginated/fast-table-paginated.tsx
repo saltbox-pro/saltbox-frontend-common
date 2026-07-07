@@ -303,6 +303,7 @@ export function FastTablePaginated<DataType>({
   });
 
   const rows = table.getRowModel().rows;
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   const groupedRowClassNames = useMemo(
     () => (getRowGroupKey ? buildGroupedRowClassNames(stableData, getRowGroupKey) : undefined),
@@ -375,7 +376,7 @@ export function FastTablePaginated<DataType>({
       return (
         <td
           key={cell.id}
-          className={`cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
+          className={`cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
           style={widthStyle}
         >
           <span className="cell-content">
@@ -458,7 +459,7 @@ export function FastTablePaginated<DataType>({
         return (
           <div
             key={cell.id}
-            className={`virtual-cell cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
+            className={`virtual-cell cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
             style={widthStyle}
           >
             <span className="cell-content">

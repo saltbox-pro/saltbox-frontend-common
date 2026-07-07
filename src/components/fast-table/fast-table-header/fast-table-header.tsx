@@ -3,6 +3,7 @@ import { flexRender, Header, SortDirection, Table } from "@tanstack/react-table"
 import { Tooltip } from "antd";
 
 import { getColumnWidthStyle } from "../utils/column";
+import { getSortedColumnClassName } from "../utils/column-sort";
 
 import "./fast-table-header.css";
 
@@ -24,6 +25,7 @@ export function FastTableHeader<DataType>({
   columnWidths = {},
 }: FastTableHeaderProps<DataType>) {
   type HeaderType = Header<DataType, unknown>;
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   const getSortTitle = (header: HeaderType) => {
     if (!header.column.getCanSort()) return undefined;
@@ -38,7 +40,10 @@ export function FastTableHeader<DataType>({
     const metaClassName =
       (header.column.columnDef.meta as { thClassName?: string })?.thClassName ?? "";
     const sortableClassName = header.column.getCanSort() ? "fast-table-column-has-sorters" : "";
-    const sortedClassName = header.column.getIsSorted() ? "fast-table-column-sort" : "";
+    const sortedClassName = getSortedColumnClassName(
+      header.column.getIsSorted(),
+      visibleColumnCount
+    );
 
     return ["fast-table-header-cell", metaClassName, sortableClassName, sortedClassName]
       .filter(Boolean)

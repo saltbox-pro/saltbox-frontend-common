@@ -155,6 +155,7 @@ export function FastTableListed<DataType>({
   });
 
   const rows = table.getRowModel().rows;
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   const renderTableRows = () => {
     return rows.map((row) => (
@@ -180,7 +181,7 @@ export function FastTableListed<DataType>({
             return (
               <td
                 key={cell.id}
-                className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted())} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
+                className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
                 style={
                   width
                     ? {
