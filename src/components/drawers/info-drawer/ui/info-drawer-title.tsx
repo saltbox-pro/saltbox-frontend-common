@@ -1,4 +1,4 @@
-import { CopyToClipboardButton } from "saltbox-common/components/copy-to-clipboard-button/copy-to-clipboard-button";
+import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
 import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
 
 interface InfoDrawerTitleProps {

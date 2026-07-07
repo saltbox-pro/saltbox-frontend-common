@@ -1,4 +1,4 @@
-import { ActionLinkButton } from "../action-link-button/action-link-button";
+import { ActionLinkButton } from "../../action-link-button";
 
 export type NavigationIconLinkProps = {
   to: string;

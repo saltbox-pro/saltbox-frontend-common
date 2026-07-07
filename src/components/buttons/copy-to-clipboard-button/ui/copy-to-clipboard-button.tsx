@@ -2,7 +2,7 @@ import { CopyOutlined } from "@ant-design/icons";
 import { type ButtonProps, message } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { BaseActionButton } from "../base-action-button/base-action-button";
+import { BaseActionButton } from "../../base-action-button";
 
 interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
   text: string;

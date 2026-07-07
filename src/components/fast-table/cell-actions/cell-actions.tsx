@@ -1,6 +1,6 @@
-import { ActionLinkButton } from "../../action-link-button/action-link-button";
-import { BaseActionButton } from "../../base-action-button/base-action-button";
-import { CopyToClipboardButton } from "../../copy-to-clipboard-button/copy-to-clipboard-button";
+import { ActionLinkButton } from "../../buttons/action-link-button";
+import { BaseActionButton } from "../../buttons/base-action-button";
+import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
 import type { CellAction, CellActionLinkComponent } from "../types";
 
 import styles from "./cell-actions.module.css";

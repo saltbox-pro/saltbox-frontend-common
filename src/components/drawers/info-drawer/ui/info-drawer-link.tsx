@@ -1,7 +1,7 @@
 import { ExportOutlined } from "@ant-design/icons";
 import type { ComponentType, ReactNode } from "react";
 
-import { ActionLinkButton } from "../../../action-link-button/action-link-button";
+import { ActionLinkButton } from "../../../buttons/action-link-button";
 
 export interface InfoDrawerLinkProps {
   to?: string;

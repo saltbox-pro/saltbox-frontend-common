@@ -4,6 +4,9 @@
     "open-link": "Открыть ссылку",
     "close": "Закрыть"
   },
+  "refresh-button": {
+    "refresh": "Обновить"
+  },
   "copy-to-clipboard-button": {
     "copied": "Скопировано в буфер обмена",
     "copy": "Скопировать в буфер обмена",

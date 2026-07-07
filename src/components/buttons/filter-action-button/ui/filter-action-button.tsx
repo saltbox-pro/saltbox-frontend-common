@@ -1,10 +1,7 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
-import {
-  BaseActionButton,
-  type BaseActionButtonProps,
-} from "../base-action-button/base-action-button";
+import { BaseActionButton, type BaseActionButtonProps } from "../../base-action-button";
 
 export type FilterActionButtonProps = Omit<BaseActionButtonProps, "icon" | "title"> & {
   title?: string;

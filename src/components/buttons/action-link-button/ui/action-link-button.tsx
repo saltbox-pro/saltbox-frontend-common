@@ -2,10 +2,7 @@ import { ExportOutlined } from "@ant-design/icons";
 import type { ComponentType, MouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  BaseActionButton,
-  type BaseActionButtonProps,
-} from "../base-action-button/base-action-button";
+import { BaseActionButton, type BaseActionButtonProps } from "../../base-action-button";
 
 export type ActionLinkLinkComponent = ComponentType<{
   to: string;

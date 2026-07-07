@@ -2,7 +2,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import { type ButtonProps, Button, Flex } from "antd";
 import { useTranslation } from "react-i18next";
 
-import { FiltersCounter } from "../../filters-counter/filters-counter";
+import { FiltersCounter } from "../../../filters-counter/filters-counter";
 
 interface FilterToggleButtonProps {
   isOpen: boolean;

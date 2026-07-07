@@ -1,7 +1,7 @@
 import { Card, Flex, Typography } from "antd";
 import type { ReactNode } from "react";
 
-import { CopyToClipboardButton } from "saltbox-common/components/copy-to-clipboard-button/copy-to-clipboard-button";
+import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
 
 import styles from "./info-card.module.css";
 
