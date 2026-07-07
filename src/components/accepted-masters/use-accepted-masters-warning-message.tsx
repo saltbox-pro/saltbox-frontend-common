@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 const MASTERS_PATH = "/core/masters";
 
@@ -9,6 +9,8 @@ type RenderAcceptedMastersWarningParams = {
 };
 
 export function useAcceptedMastersWarningMessage() {
+  const { t } = useTranslation("common");
+
   return useCallback(
     ({ action, navigate }: RenderAcceptedMastersWarningParams) => (
       <Trans
@@ -19,7 +21,7 @@ export function useAcceptedMastersWarningMessage() {
           mastersLink: (
             <a
               href={MASTERS_PATH}
-              aria-label="Masters"
+              aria-label={t("accepted-masters.masters-link-aria-label")}
               onClick={(e) => {
                 e.preventDefault();
                 navigate(MASTERS_PATH);
@@ -29,6 +31,6 @@ export function useAcceptedMastersWarningMessage() {
         }}
       />
     ),
-    []
+    [t]
   );
 }
