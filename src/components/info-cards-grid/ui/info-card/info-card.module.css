@@ -37,6 +37,11 @@
   word-break: break-word;
 }
 
+.value :global(strong) {
+  display: inline-flex;
+  align-items: center;
+}
+
 .copyButton {
   flex-shrink: 0;
   align-self: center;

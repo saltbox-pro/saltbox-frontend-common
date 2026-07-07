@@ -45,6 +45,10 @@
     "load-failed": "Failed to load data",
     "access-denied": "Access denied"
   },
+  "accepted-masters": {
+    "warning-template": "To {{action}}, activate a master on the <mastersLink>\"Masters\"</mastersLink> page",
+    "error-load-salt-masters": "Failed to load masters"
+  },
   "sls-editor": {
     "tab-form-editor": "Form Editor",
     "tab-sls-editor": "SLS Editor",

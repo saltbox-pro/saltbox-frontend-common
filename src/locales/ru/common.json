@@ -45,6 +45,10 @@
     "load-failed": "Не удалось загрузить данные",
     "access-denied": "Доступ запрещен"
   },
+  "accepted-masters": {
+    "warning-template": "Для {{action}} активируйте мастера на странице <mastersLink>\"Мастера\"</mastersLink>",
+    "error-load-salt-masters": "Не удалось загрузить мастеров"
+  },
   "sls-editor": {
     "tab-form-editor": "Редактор формы",
     "tab-sls-editor": "Редактор SLS",
