@@ -52,6 +52,17 @@ const isSaltBoxAppPathname = (pathname: string): boolean => {
   );
 };
 
+const isSamePagePathname = (url: string): boolean => {
+  try {
+    const entry = new URL(url);
+    const current = new URL(window.location.href);
+
+    return entry.pathname === current.pathname && entry.search === current.search;
+  } catch {
+    return false;
+  }
+};
+
 const isSaltBoxAppUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
@@ -65,6 +76,10 @@ const isSaltBoxAppUrl = (url: string): boolean => {
     }
 
     if (parsedUrl.pathname.startsWith("/auth/")) {
+      return false;
+    }
+
+    if (INVALID_FALLBACK_PATHS.has(parsedUrl.pathname)) {
       return false;
     }
 
@@ -113,7 +128,11 @@ export const resolveFallbackParentPath = (
   return fallback;
 };
 
-const getImmediatePreviousEntryUrl = (): string | null => {
+const isChildPathname = (pathname: string, parentPathname: string): boolean => {
+  return pathname.startsWith(`${parentPathname}/`);
+};
+
+const getValidPreviousEntry = (): { stepsBack: number } | null => {
   const navigation = getNavigation();
 
   if (!navigation?.entries) {
@@ -126,14 +145,33 @@ const getImmediatePreviousEntryUrl = (): string | null => {
     return null;
   }
 
-  return navigation.entries()[currentIndex - 1]?.url ?? null;
+  const entries = navigation.entries();
+  const currentPathname = window.location.pathname;
+
+  for (let index = currentIndex - 1; index >= 0; index -= 1) {
+    const entryUrl = entries[index]?.url;
+
+    if (!entryUrl || !isSaltBoxAppUrl(entryUrl) || isSamePagePathname(entryUrl)) {
+      continue;
+    }
+
+    try {
+      if (isChildPathname(new URL(entryUrl).pathname, currentPathname)) {
+        continue;
+      }
+    } catch {
+      continue;
+    }
+
+    return { stepsBack: currentIndex - index };
+  }
+
+  return null;
 };
 
 export const canGoBackInApp = (): boolean => {
-  const previousEntryUrl = getImmediatePreviousEntryUrl();
-
-  if (previousEntryUrl) {
-    return isSaltBoxAppUrl(previousEntryUrl);
+  if (getValidPreviousEntry()) {
+    return true;
   }
 
   const idx = window.history.state?.idx;
@@ -150,7 +188,25 @@ export const canGoBackInApp = (): boolean => {
 };
 
 export const goBackInApp = (): boolean => {
-  if (!canGoBackInApp()) {
+  const validPreviousEntry = getValidPreviousEntry();
+
+  if (validPreviousEntry) {
+    if (validPreviousEntry.stepsBack === 1) {
+      window.history.back();
+    } else {
+      window.history.go(-validPreviousEntry.stepsBack);
+    }
+
+    return true;
+  }
+
+  const idx = window.history.state?.idx;
+
+  if (typeof idx !== "number" || idx <= 0) {
+    return false;
+  }
+
+  if (getNavigation()?.entries) {
     return false;
   }
 
