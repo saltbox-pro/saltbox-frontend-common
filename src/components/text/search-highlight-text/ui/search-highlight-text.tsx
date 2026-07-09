@@ -1,5 +1,3 @@
-import { Fragment } from "react";
-
 import {
   getSearchHighlightParts,
   hasSearchHighlightMatch,
@@ -24,16 +22,16 @@ export function SearchHighlightText({ text, query }: SearchHighlightTextProps) {
   }
 
   return (
-    <>
+    <span>
       {parts.map((part, index) =>
         part.highlight ? (
           <mark key={index} className={styles.mark}>
             {part.text}
           </mark>
         ) : (
-          <Fragment key={index}>{part.text}</Fragment>
+          part.text
         )
       )}
-    </>
+    </span>
   );
 }
