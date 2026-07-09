@@ -4,6 +4,10 @@
   gap: 8px;
 }
 
+.spinContainer {
+  padding: 12px 0;
+}
+
 .queryBuilder {
   display: flex;
   flex-direction: column;

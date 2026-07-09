@@ -1,4 +1,4 @@
-import { Spin } from "antd";
+import { Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import QueryBuilder from "react-querybuilder";
@@ -17,31 +17,39 @@ type SaltBoxReadonlyQueryBuilderProps = {
 const EmptyActionElement = () => null;
 
 export const SaltBoxReadonlyQueryBuilder = observer((props: SaltBoxReadonlyQueryBuilderProps) => {
+  if (props.filterStore.isLoading) {
+    return (
+      <div className={styles.queryBuilderContainer}>
+        <Flex justify="center" className={styles.spinContainer}>
+          <Spin />
+        </Flex>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.queryBuilderContainer}>
-      <Spin spinning={props.filterStore.isLoading}>
+      <QueryBuilderSaltBox>
         <QueryBuilderSaltBox>
-          <QueryBuilderSaltBox>
-            <QueryBuilder
-              fields={toJS(props.filterStore.filterSchema)}
-              query={toJS(props.filterStore.currentFilters)}
-              controlClassnames={{
-                queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
-                ruleGroup: "readonly-rule-group",
-                rule: "readonly-rule",
-              }}
-              controlElements={{
-                valueEditor: SaltBoxReadonlyValueEditor,
-                valueSelector: SaltBoxReadonlyValueSelector,
-                addGroupAction: EmptyActionElement,
-                addRuleAction: EmptyActionElement,
-                removeRuleAction: EmptyActionElement,
-                removeGroupAction: EmptyActionElement,
-              }}
-            />
-          </QueryBuilderSaltBox>
+          <QueryBuilder
+            fields={toJS(props.filterStore.filterSchema)}
+            query={toJS(props.filterStore.currentFilters)}
+            controlClassnames={{
+              queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
+              ruleGroup: "readonly-rule-group",
+              rule: "readonly-rule",
+            }}
+            controlElements={{
+              valueEditor: SaltBoxReadonlyValueEditor,
+              valueSelector: SaltBoxReadonlyValueSelector,
+              addGroupAction: EmptyActionElement,
+              addRuleAction: EmptyActionElement,
+              removeRuleAction: EmptyActionElement,
+              removeGroupAction: EmptyActionElement,
+            }}
+          />
         </QueryBuilderSaltBox>
-      </Spin>
+      </QueryBuilderSaltBox>
     </div>
   );
 });
