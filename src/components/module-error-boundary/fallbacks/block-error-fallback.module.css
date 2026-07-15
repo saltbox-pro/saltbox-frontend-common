@@ -1,0 +1,92 @@
+.default {
+  width: 100%;
+}
+
+.result {
+  padding: 16px 8px;
+}
+
+.result :global(.ant-result-icon) {
+  margin-bottom: 8px;
+}
+
+.result :global(.ant-result-icon > .anticon) {
+  font-size: 36px;
+}
+
+.result :global(.ant-result-title) {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.result :global(.ant-result-subtitle) {
+  font-size: 14px;
+}
+
+.compact {
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding-block: 4px;
+  box-sizing: border-box;
+}
+
+.compact :global(.ant-alert-icon) {
+  margin-inline-end: 8px;
+}
+
+.compact :global(.ant-alert-icon .anticon) {
+  font-size: 14px;
+}
+
+.compact :global(.ant-alert-content) {
+  flex: 1;
+  min-width: 0;
+}
+
+.compact :global(.ant-alert-message) {
+  margin-bottom: 0;
+}
+
+.compact :global(.ant-alert-action) {
+  align-self: center;
+  margin-inline-start: 8px;
+  flex-shrink: 0;
+}
+
+.compactRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.compactMessage {
+  font-weight: 500;
+  flex: 0 0 auto;
+}
+
+.compactDetails {
+  flex: 0 0 auto;
+}
+
+.buttonPopoverOverlay {
+  max-width: min(480px, 90vw);
+}
+
+.buttonPopoverOverlay :global(.ant-popover-inner) {
+  padding: 4px 8px;
+  background: #fff;
+}
+
+.buttonPopoverContent {
+  min-width: 280px;
+  max-width: min(400px, 85vw);
+}
+
+.buttonPopoverContent .result {
+  padding: 12px 4px 8px;
+}

@@ -36,6 +36,40 @@
   "page-header": {
     "back-button": "Back"
   },
+  "error-boundary": {
+    "actions": {
+      "retry": "Try again",
+      "reload": "Reload page",
+      "home": "Module home",
+      "details": "Technical details",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copy-failed": "Failed to copy"
+    },
+    "module": {
+      "title": "Module error: \"{{moduleName}}\"",
+      "subtitle-default": "An unexpected error occurred in the module shell.\nTry to recover or reload the page."
+    },
+    "route": {
+      "title": "Page error",
+      "unknown-error": "An unexpected error occurred on this page.\nTry again or go to the module home."
+    },
+    "block": {
+      "title-default": "A part of the UI failed to load",
+      "description-default": "An unexpected error occurred.\nTry again.",
+      "error-short": "Error"
+    },
+    "table": {
+      "title": "The table failed to load",
+      "description": "An unexpected error occurred while rendering the table.\nTry again."
+    },
+    "page-header": {
+      "title": "The page header failed to load"
+    },
+    "filters": {
+      "title": "Filters failed to load"
+    }
+  },
   "json-editor-field": {
     "value-required": "Value is required",
     "value-invalid-json": "Value must be valid JSON",

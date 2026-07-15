@@ -29,6 +29,7 @@ import {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
+import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
@@ -215,7 +216,15 @@ function useRowVirtualizer<DataType>(
   return { rowVirtualizer };
 }
 
-export function FastTablePaginated<DataType>({
+export function FastTablePaginated<DataType>(props: FastTablePaginatedProps<DataType>) {
+  return (
+    <TableErrorBoundary>
+      <FastTablePaginatedContent {...props} />
+    </TableErrorBoundary>
+  );
+}
+
+function FastTablePaginatedContent<DataType>({
   columns,
   data,
   total,

@@ -3,6 +3,7 @@ import { Button, Flex, Tooltip } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { PageHeaderErrorBoundary } from "saltbox-common/components/module-error-boundary/boundaries/page-header-error-boundary";
 import {
   backButtonProvider,
   goBackInApp,
@@ -18,7 +19,17 @@ export type PageHeaderProps = {
   extra?: ReactNode;
 };
 
-export function PageHeader({ title, customParentPathGenerator, extra }: PageHeaderProps) {
+export function PageHeader(props: PageHeaderProps) {
+  return (
+    <div className={styles.pageHeader}>
+      <PageHeaderErrorBoundary>
+        <PageHeaderContent {...props} />
+      </PageHeaderErrorBoundary>
+    </div>
+  );
+}
+
+function PageHeaderContent({ title, customParentPathGenerator, extra }: PageHeaderProps) {
   const { t } = useTranslation("common");
 
   const fallbackPath = resolveFallbackParentPath(customParentPathGenerator);
@@ -35,7 +46,7 @@ export function PageHeader({ title, customParentPathGenerator, extra }: PageHead
   };
 
   return (
-    <Flex className={styles.pageHeader} align="center" justify="space-between" gap="middle">
+    <Flex className={styles.pageHeaderContent} align="center" justify="space-between" gap="middle">
       <Flex align="center" gap={8}>
         {shouldShowBackButton && (
           <Tooltip title={t("page-header.back-button")}>

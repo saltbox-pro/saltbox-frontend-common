@@ -1,8 +1,14 @@
 .pageHeader {
+  display: flex;
+  align-items: center;
   min-height: calc(var(--app-header-height) - var(--app-layout-gap) - 1px);
-
   padding: 0 0 var(--app-layout-gap);
   margin-bottom: var(--app-layout-gap);
+}
+
+.pageHeaderContent {
+  width: 100%;
+  min-height: 100%;
 }
 
 .pageHeaderTitle {
@@ -10,4 +16,10 @@
   line-height: 1.25em;
   margin: 0;
   padding: 0.25em 0;
+}
+
+.pageHeader :global(.ant-alert) {
+  flex: 1;
+  width: 100%;
+  margin: 0;
 }

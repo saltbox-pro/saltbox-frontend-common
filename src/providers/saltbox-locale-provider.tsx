@@ -9,9 +9,10 @@ import type { Locale } from "antd/es/locale";
 import en_US from "antd/locale/en_US";
 import ru_RU from "antd/locale/ru_RU";
 import i18next, { type Resource } from "i18next";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 
+import { notifyLocaleChange } from "../components/module-error-boundary/utils/i18n";
 import { AppLanguage } from "../interfaces/locales";
 import enCommon from "../locales/en/common.json";
 import ruCommon from "../locales/ru/common.json";
@@ -50,7 +51,6 @@ function createI18nInstance(locale: AppLanguage, resources?: Resource) {
 interface SaltboxLocaleProviderProps {
   locale: AppLanguage;
   children: React.ReactNode;
-  /** Additional i18next resources from the microfrontend, e.g. { en: { base: enBase }, ru: { base: ruBase } } */
   resources?: Resource;
 }
 
@@ -60,6 +60,10 @@ export const SaltboxLocaleProvider: React.FC<SaltboxLocaleProviderProps> = ({
   resources,
 }) => {
   const i18nInstance = useMemo(() => createI18nInstance(locale, resources), []);
+
+  useEffect(() => {
+    notifyLocaleChange(locale);
+  }, [locale]);
 
   if (i18nInstance.language !== locale) {
     i18nInstance.changeLanguage(locale);

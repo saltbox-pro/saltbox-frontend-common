@@ -16,6 +16,7 @@ import { Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { Fragment, type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
+import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
@@ -61,7 +62,15 @@ function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "fo
   };
 }
 
-export function FastTableListed<DataType>({
+export function FastTableListed<DataType>(props: FastTableListedProps<DataType>) {
+  return (
+    <TableErrorBoundary>
+      <FastTableListedContent {...props} />
+    </TableErrorBoundary>
+  );
+}
+
+function FastTableListedContent<DataType>({
   columns,
   data,
   total,

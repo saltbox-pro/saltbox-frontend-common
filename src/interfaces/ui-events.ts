@@ -1,6 +1,3 @@
-/**
- * UI coordination events for cross-component communication
- */
 export enum UiEvent {
   CloseAllOverlays = "ui.close_all_overlays",
   CloseAllDrawers = "ui.close_all_drawers",
@@ -9,6 +6,7 @@ export enum UiEvent {
   CloseAllPopovers = "ui.close_all_popovers",
   ServerError = "ui.server_error",
   AcceptedMastersChanged = "ui.accepted_masters_changed",
+  LocaleChange = "saltbox:locale-change",
 }
 
 export interface ServerErrorEventDetail {
