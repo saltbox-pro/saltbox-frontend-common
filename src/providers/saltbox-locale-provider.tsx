@@ -1,9 +1,3 @@
-import {
-  TranslationContext,
-  en as formGeneratorEn,
-  ru as formGeneratorRu,
-  type Translation,
-} from "@saltbox/react-jsonschema-form-generator";
 import { ConfigProvider } from "antd";
 import type { Locale } from "antd/es/locale";
 import en_US from "antd/locale/en_US";
@@ -20,11 +14,6 @@ import ruCommon from "../locales/ru/common.json";
 const ANTD_LOCALE_MAP: Record<AppLanguage, Locale> = {
   [AppLanguage.EN]: en_US,
   [AppLanguage.RU]: ru_RU,
-};
-
-const FORM_GENERATOR_LOCALE_MAP: Record<AppLanguage, Translation> = {
-  [AppLanguage.EN]: formGeneratorEn,
-  [AppLanguage.RU]: formGeneratorRu,
 };
 
 function createI18nInstance(locale: AppLanguage, resources?: Resource) {
@@ -70,15 +59,10 @@ export const SaltboxLocaleProvider: React.FC<SaltboxLocaleProviderProps> = ({
   }
 
   const antdLocale = ANTD_LOCALE_MAP[locale];
-  const formGeneratorTranslation = FORM_GENERATOR_LOCALE_MAP[locale];
 
   return (
     <I18nextProvider i18n={i18nInstance}>
-      <ConfigProvider locale={antdLocale}>
-        <TranslationContext.Provider value={formGeneratorTranslation}>
-          {children}
-        </TranslationContext.Provider>
-      </ConfigProvider>
+      <ConfigProvider locale={antdLocale}>{children}</ConfigProvider>
     </I18nextProvider>
   );
 };
