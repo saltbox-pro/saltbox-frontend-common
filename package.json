@@ -39,7 +39,6 @@
     "@rjsf/core": "^6.4.2",
     "@rjsf/utils": "^6.4.2",
     "@rjsf/validator-ajv8": "^6.4.2",
-    "@saltbox/react-jsonschema-form-generator": "0.1.4",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
     "ajv": "^8.17.1",

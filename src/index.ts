@@ -29,7 +29,7 @@ export * from "./components/query-builder/value-editors/salt-box-job-value-edito
 export * from "./components/query-builder/value-editors/salt-box-autocomplete-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-minion-value-editor";
 export * from "./components/query-builder/value-editors/salt-box-options-value-editor";
-export * from "./components/sls-editor";
+export * from "./components/monaco";
 export * from "./components/json-form";
 export * from "./components/descriptions";
 export * from "./components/drawers";
