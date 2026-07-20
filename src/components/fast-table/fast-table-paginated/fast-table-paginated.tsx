@@ -53,6 +53,7 @@ import {
   buildResizeColumnConstraintsById,
   getVirtualCellWidthStyle,
   hasAllColumnSizes,
+  resolveCellTitle,
   resolveColumnMinWidth,
   resolveColumnWidth,
   sumColumnSizes,
@@ -448,7 +449,6 @@ function FastTablePaginatedContent<DataType>({
       seedColumnSizingFromPixels,
       replaceColumnSizingFromPixels,
       syncColumnSizingToColumns,
-      dataRevision: stableData,
     });
 
   const groupedRowClassNames = useMemo(
@@ -480,11 +480,11 @@ function FastTablePaginatedContent<DataType>({
       {
         key: "reset-column-widths",
         label: tableLocale.resetColumnWidths,
-        disabled: !hasPersistedSizing && !hasResizeColumnSizing,
+        disabled: !hasPersistedSizing,
         onClick: resetColumnSizing,
       },
     ],
-    [hasPersistedSizing, hasResizeColumnSizing, resetColumnSizing, tableLocale.resetColumnWidths]
+    [hasPersistedSizing, resetColumnSizing, tableLocale.resetColumnWidths]
   );
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
@@ -572,6 +572,9 @@ function FastTablePaginatedContent<DataType>({
     return row.getVisibleCells().map((cell) => {
       const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
       const isEllipsis = meta?.ellipsis ?? true;
+      const cellTitle = isEllipsis
+        ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
+        : undefined;
 
       return (
         <td
@@ -579,7 +582,10 @@ function FastTablePaginatedContent<DataType>({
           className={`cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
         >
           <span className="cell-content">
-            <span className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}>
+            <span
+              className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
+              title={cellTitle}
+            >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </span>
             {(meta?.showCopy || meta?.actions) && (
@@ -663,6 +669,9 @@ function FastTablePaginatedContent<DataType>({
         })();
 
         const isEllipsis = meta?.ellipsis ?? true;
+        const cellTitle = isEllipsis
+          ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
+          : undefined;
 
         return (
           <div
@@ -673,6 +682,7 @@ function FastTablePaginatedContent<DataType>({
             <span className="cell-content">
               <span
                 className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
+                title={cellTitle}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </span>

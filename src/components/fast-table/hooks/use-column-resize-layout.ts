@@ -31,7 +31,6 @@ type UseColumnResizeLayoutArgs<DataType> = {
   seedColumnSizingFromPixels: (pixelSizing: ColumnSizingState, replace?: boolean) => void;
   replaceColumnSizingFromPixels: (pixelSizing: ColumnSizingState) => void;
   syncColumnSizingToColumns: (columnIds: string[]) => void;
-  dataRevision: unknown;
 };
 
 export function useColumnResizeLayout<DataType>({
@@ -49,7 +48,6 @@ export function useColumnResizeLayout<DataType>({
   seedColumnSizingFromPixels,
   replaceColumnSizingFromPixels,
   syncColumnSizingToColumns,
-  dataRevision,
 }: UseColumnResizeLayoutArgs<DataType>) {
   const [containerWidth, setContainerWidth] = useState(0);
   const wasResizingRef = useRef(false);
@@ -112,42 +110,28 @@ export function useColumnResizeLayout<DataType>({
     if (isResizingColumnRef.current) return;
 
     const width = readElementContentWidth(tableContainerRef.current);
-    if (width <= 0) return;
-    setContainerWidth(width);
+    if (width > 0) {
+      setContainerWidth(width);
+    }
+  }, [enableColumnResize, hasPersistedSizing, leafColumnIdsKey, tableContainerRef]);
+
+  useLayoutEffect(() => {
+    if (!enableColumnResize || !hasPersistedSizing || !tableContainerRef.current) return;
+    if (isResizingColumnRef.current) return;
 
     const measured = measureLeafColumnWidthsFromHeader(tableContainerRef.current, leafColumns);
     if (!measured) return;
 
-    if (hasPersistedSizing) {
-      const missing = getMissingColumnSizing(columnSizing, measured, leafColumns);
-      if (Object.keys(missing).length === 0) return;
+    const missing = getMissingColumnSizing(columnSizing, measured, leafColumns);
+    if (Object.keys(missing).length === 0) return;
 
-      const next = { ...columnSizing, ...missing };
-      seedColumnSizingFromPixels(missing, false);
-      persistColumnSizing(next, leafColumnIds);
-      return;
-    }
-
-    if (hasSizing) return;
-
-    const sameAsState =
-      leafColumns.length > 0 &&
-      leafColumns.every((column) => {
-        const prev = columnSizing[column.id];
-        const next = measured[column.id];
-        return prev !== undefined && next !== undefined && Math.abs(prev - next) < 0.01;
-      });
-
-    if (sameAsState) return;
-
-    seedColumnSizingFromPixels(measured, true);
+    const next = { ...columnSizing, ...missing };
+    seedColumnSizingFromPixels(missing, false);
+    persistColumnSizing(next, leafColumnIds);
   }, [
     columnSizing,
-    containerWidth,
-    dataRevision,
-    hasPersistedSizing,
-    hasSizing,
     enableColumnResize,
+    hasPersistedSizing,
     leafColumnIds,
     leafColumnIdsKey,
     leafColumns,

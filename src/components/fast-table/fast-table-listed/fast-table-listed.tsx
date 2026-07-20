@@ -34,6 +34,7 @@ import {
   formatCssPx,
   getColWidthStyle,
   hasAllColumnSizes,
+  resolveCellTitle,
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
@@ -202,7 +203,6 @@ function FastTableListedContent<DataType>({
       seedColumnSizingFromPixels,
       replaceColumnSizingFromPixels,
       syncColumnSizingToColumns,
-      dataRevision: data,
     });
 
   const showTableLayoutToolbar = enableColumnResize;
@@ -212,11 +212,11 @@ function FastTableListedContent<DataType>({
       {
         key: "reset-column-widths",
         label: tableLocale.resetColumnWidths,
-        disabled: !hasPersistedSizing && !hasResizeColumnSizing,
+        disabled: !hasPersistedSizing,
         onClick: resetColumnSizing,
       },
     ],
-    [hasPersistedSizing, hasResizeColumnSizing, resetColumnSizing, tableLocale.resetColumnWidths]
+    [hasPersistedSizing, resetColumnSizing, tableLocale.resetColumnWidths]
   );
 
   const renderColGroup = () => (
@@ -283,6 +283,9 @@ function FastTableListedContent<DataType>({
           {row.getVisibleCells().map((cell) => {
             const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
             const isEllipsis = meta?.ellipsis ?? true;
+            const cellTitle = isEllipsis
+              ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
+              : undefined;
 
             return (
               <td
@@ -292,6 +295,7 @@ function FastTableListedContent<DataType>({
                 <span className="cell-content">
                   <span
                     className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
+                    title={cellTitle}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </span>

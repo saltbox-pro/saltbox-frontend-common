@@ -1,4 +1,4 @@
-export type ColumnWidthLayoutMode = "idle" | "seeded" | "dragging" | "persisted";
+export type ColumnWidthLayoutMode = "idle" | "dragging" | "persisted";
 
 export function resolveColumnWidthLayoutMode(args: {
   enableColumnResize: boolean;
@@ -15,12 +15,9 @@ export function resolveColumnWidthLayoutMode(args: {
   if (args.isResizingColumn && args.hasSizing) {
     return "dragging";
   }
-  if (args.hasSizing) {
-    return "seeded";
-  }
   return "idle";
 }
 
 export function isColumnWidthLocked(mode: ColumnWidthLayoutMode): boolean {
-  return mode !== "idle";
+  return mode === "dragging" || mode === "persisted";
 }

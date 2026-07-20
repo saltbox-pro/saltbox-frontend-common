@@ -34,6 +34,16 @@ export function resolveColumnMinWidth(meta?: CellMeta): number | undefined {
   return meta?.minWidth;
 }
 
+export function resolveCellTitle(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    return value.length > 0 ? value : undefined;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return undefined;
+}
+
 export function formatCssPx(width: number): string {
   return `${Number(width.toFixed(3))}px`;
 }
