@@ -5,6 +5,7 @@ import { Button } from "antd";
 export function createExpanderColumn<TData>(): ColumnDef<TData> {
   return {
     id: "expander",
+    enableResizing: false,
     cell: ({ row }) => {
       if (!row.getCanExpand()) return null;
 
@@ -17,6 +18,6 @@ export function createExpanderColumn<TData>(): ColumnDef<TData> {
         />
       );
     },
-    meta: { width: 49 },
+    meta: { width: 49, minWidth: 49, maxWidth: 49 },
   };
 }

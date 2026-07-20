@@ -1,4 +1,6 @@
+import { MoreOutlined } from "@ant-design/icons";
 import {
+  type ColumnDef,
   type ExpandedState,
   type OnChangeFn,
   type PaginationState,
@@ -11,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Empty, Pagination, type PaginationProps, Spin } from "antd";
+import { Button, Empty, Pagination, type PaginationProps, Spin } from "antd";
 import { toJS } from "mobx";
 import {
   type RefObject,
@@ -29,25 +31,41 @@ import {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
+import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
+import { usePersistedColumnSizing } from "../hooks/use-persisted-column-sizing";
+import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import type { CellActionLinkComponent, CellMeta } from "../types";
+import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
 import {
   buildGroupedRowClassNames,
   type GetRowGroupKey,
 } from "../utils/build-grouped-row-class-names";
 import {
-  getColumnWidthStyle,
+  formatCssPx,
+  getColWidthStyle,
   areColumnWidthsMeasured,
+  buildResizeColumnConstraintsById,
   getVirtualCellWidthStyle,
+  hasAllColumnSizes,
+  resolveColumnMinWidth,
+  resolveColumnWidth,
+  sumColumnSizes,
 } from "../utils/column";
+import {
+  createClampedColumnSizingChange,
+  resolveResizeColumnIds,
+} from "../utils/column-sizing-change";
 import { getSortedColumnClassName } from "../utils/column-sort";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
 import "../fast-table-tokens.css";
+import "../fast-table-column-resize.css";
 import "./fast-table-paginated.css";
 
 export type FastTablePaginatedProps<DataType> = {
@@ -79,6 +97,8 @@ export type FastTablePaginatedProps<DataType> = {
   actionLinkComponent?: CellActionLinkComponent;
   getRowClassName?: (row: DataType, index: number) => string | undefined;
   getRowGroupKey?: GetRowGroupKey<DataType>;
+  tableId: string;
+  enableColumnResize?: boolean;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -98,7 +118,9 @@ function useTableMeasurements(
   tableContainerRef: RefObject<HTMLElement>,
   data: unknown[],
   columnCount: number,
-  useVirtualScroll: boolean
+  useVirtualScroll: boolean,
+  columnSizingKey: string,
+  measureColumnWidthsEnabled: boolean
 ) {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
@@ -125,7 +147,7 @@ function useTableMeasurements(
   }, [tableContainerRef, useVirtualScroll]);
 
   const measureColumnWidths = useCallback(() => {
-    if (!useVirtualScroll || !tableContainerRef.current) return;
+    if (!useVirtualScroll || !measureColumnWidthsEnabled || !tableContainerRef.current) return;
 
     const tableElement = tableContainerRef.current.querySelector("table");
     if (!tableElement) return;
@@ -144,20 +166,41 @@ function useTableMeasurements(
 
     tableScrollWidthRef.current = tableElement.offsetWidth;
     setColumnWidths(widths);
-  }, [tableContainerRef, useVirtualScroll]);
+  }, [measureColumnWidthsEnabled, tableContainerRef, useVirtualScroll]);
 
   useLayoutEffect(() => {
     if (!useVirtualScroll) return;
 
     measureHeaderHeight();
     measureSampleRowHeight();
-  }, [columnCount, data, measureHeaderHeight, measureSampleRowHeight, useVirtualScroll]);
+  }, [
+    columnCount,
+    columnSizingKey,
+    data,
+    measureHeaderHeight,
+    measureSampleRowHeight,
+    useVirtualScroll,
+  ]);
 
   useLayoutEffect(() => {
     if (!useVirtualScroll || !tableContainerRef.current || data.length === 0) return;
 
-    measureColumnWidths();
-  }, [columnCount, data, measureColumnWidths, tableContainerRef, useVirtualScroll]);
+    if (measureColumnWidthsEnabled) {
+      measureColumnWidths();
+      return;
+    }
+
+    measureSampleRowHeight();
+  }, [
+    columnCount,
+    columnSizingKey,
+    data,
+    measureColumnWidths,
+    measureColumnWidthsEnabled,
+    measureSampleRowHeight,
+    tableContainerRef,
+    useVirtualScroll,
+  ]);
 
   useEffect(() => {
     if (!useVirtualScroll) return;
@@ -167,7 +210,11 @@ function useTableMeasurements(
 
     const observer = new ResizeObserver(() => {
       measureHeaderHeight();
-      measureColumnWidths();
+      if (measureColumnWidthsEnabled) {
+        measureColumnWidths();
+      } else {
+        measureSampleRowHeight();
+      }
     });
 
     observer.observe(element);
@@ -175,7 +222,15 @@ function useTableMeasurements(
     return () => {
       observer.disconnect();
     };
-  }, [data, measureColumnWidths, measureHeaderHeight, tableContainerRef, useVirtualScroll]);
+  }, [
+    data,
+    measureColumnWidths,
+    measureColumnWidthsEnabled,
+    measureHeaderHeight,
+    measureSampleRowHeight,
+    tableContainerRef,
+    useVirtualScroll,
+  ]);
 
   return { headerHeight, columnWidths, sampleRowHeightRef, tableScrollWidthRef };
 }
@@ -250,20 +305,50 @@ function FastTablePaginatedContent<DataType>({
   actionLinkComponent,
   getRowClassName,
   getRowGroupKey,
+  tableId,
+  enableColumnResize = true,
 }: FastTablePaginatedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
     delay: 0,
   });
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
-  const { headerHeight, columnWidths, sampleRowHeightRef, tableScrollWidthRef } =
-    useTableMeasurements(tableContainerRef, stableData, columns.length, useVirtualScroll);
+  const {
+    columnSizing,
+    hasPersistedSizing,
+    onColumnSizingChange,
+    persistColumnSizing,
+    resetColumnSizing,
+    syncColumnSizingToColumns,
+    seedColumnSizingFromPixels,
+    replaceColumnSizingFromPixels,
+  } = usePersistedColumnSizing(enableColumnResize ? tableId : undefined);
 
-  const effectiveEstimatedRowHeight =
-    sampleRowHeightRef.current > 0 ? sampleRowHeightRef.current : estimatedRowHeight;
+  const resizeColumns = useMemo(
+    () =>
+      applyColumnResizeDefaults(columns as Array<ColumnDef<DataType, unknown>>, enableColumnResize),
+    [columns, enableColumnResize]
+  );
+
+  const resizeConstraintsById = useMemo(
+    () => buildResizeColumnConstraintsById(resizeColumns),
+    [resizeColumns]
+  );
+
+  const resizeColumnIds = useMemo(() => resolveResizeColumnIds(resizeColumns), [resizeColumns]);
+
+  const handleColumnSizingChange = useMemo(
+    () =>
+      enableColumnResize
+        ? createClampedColumnSizingChange(onColumnSizingChange, resizeColumnIds, (id) =>
+            resizeConstraintsById.get(id)
+          )
+        : onColumnSizingChange,
+    [enableColumnResize, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
+  );
 
   const table = useReactTable({
-    columns,
+    columns: resizeColumns,
     data: stableData,
     getRowId,
     getCoreRowModel: getCoreRowModel<DataType>(),
@@ -271,6 +356,7 @@ function FastTablePaginatedContent<DataType>({
     getRowCanExpand: getRowCanExpand,
     onRowSelectionChange,
     onExpandedChange,
+    onColumnSizingChange: handleColumnSizingChange,
     onSortingChange: (updaterOrValue) => {
       const updatedSorting =
         typeof updaterOrValue === "function" ? updaterOrValue(sorting) : updaterOrValue;
@@ -304,15 +390,66 @@ function FastTablePaginatedContent<DataType>({
       sorting,
       rowSelection,
       expanded,
+      columnSizing,
     },
     enableSorting: !!sorting,
+    enableColumnResizing: enableColumnResize,
+    columnResizeMode: "onChange",
     manualSorting: true,
     manualPagination: true,
     rowCount: total,
   });
 
   const rows = table.getRowModel().rows;
-  const visibleColumnCount = table.getVisibleLeafColumns().length;
+  const leafColumns = table.getVisibleLeafColumns();
+  const { leafColumnIds, leafColumnIdsKey } = useStableLeafColumnIds(leafColumns);
+  const visibleColumnCount = leafColumnIds.length;
+  const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
+  const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
+
+  const frozenColumnSizingKeyRef = useRef("{}");
+  const columnSizingKey = useMemo(() => {
+    if (!useVirtualScroll) return "";
+    if (isResizingColumn) {
+      return frozenColumnSizingKeyRef.current;
+    }
+    const key = JSON.stringify(columnSizing);
+    frozenColumnSizingKeyRef.current = key;
+    return key;
+  }, [columnSizing, isResizingColumn, useVirtualScroll]);
+
+  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnResize;
+  const { headerHeight, columnWidths, sampleRowHeightRef, tableScrollWidthRef } =
+    useTableMeasurements(
+      tableContainerRef,
+      stableData,
+      columns.length,
+      useVirtualScroll,
+      columnSizingKey,
+      measureColumnWidthsEnabled
+    );
+
+  const effectiveEstimatedRowHeight =
+    sampleRowHeightRef.current > 0 ? sampleRowHeightRef.current : estimatedRowHeight;
+
+  const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
+    useColumnResizeLayout({
+      enableColumnResize,
+      tableContainerRef,
+      leafColumns,
+      leafColumnIds,
+      leafColumnIdsKey,
+      columnSizing,
+      hasPersistedSizing,
+      isResizingColumn,
+      resizeConstraintsById,
+      onColumnSizingChange: handleColumnSizingChange,
+      persistColumnSizing,
+      seedColumnSizingFromPixels,
+      replaceColumnSizingFromPixels,
+      syncColumnSizingToColumns,
+      dataRevision: stableData,
+    });
 
   const groupedRowClassNames = useMemo(
     () => (getRowGroupKey ? buildGroupedRowClassNames(stableData, getRowGroupKey) : undefined),
@@ -320,7 +457,10 @@ function FastTablePaginatedContent<DataType>({
   );
 
   const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
-  const isVirtualColumnsReady = areColumnWidthsMeasured(columnCount, columnWidths);
+  const isVirtualColumnsReady =
+    hasLockedColumnWidths ||
+    (enableColumnResize && hasResizeColumnSizing) ||
+    areColumnWidthsMeasured(columnCount, columnWidths);
 
   const { rowVirtualizer } = useRowVirtualizer(
     tableContainerRef,
@@ -333,6 +473,19 @@ function FastTablePaginatedContent<DataType>({
 
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
+  const showTableLayoutToolbar = enableColumnResize;
+
+  const tableViewMenuItems = useMemo(
+    () => [
+      {
+        key: "reset-column-widths",
+        label: tableLocale.resetColumnWidths,
+        disabled: !hasPersistedSizing && !hasResizeColumnSizing,
+        onClick: resetColumnSizing,
+      },
+    ],
+    [hasPersistedSizing, hasResizeColumnSizing, resetColumnSizing, tableLocale.resetColumnWidths]
+  );
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
@@ -365,34 +518,68 @@ function FastTablePaginatedContent<DataType>({
     return className || undefined;
   };
 
-  const renderTableRow = (row: Row<DataType>, applyMeasuredWidths: boolean) => {
-    return row.getVisibleCells().map((cell, index) => {
-      const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
-      const width = applyMeasuredWidths
-        ? (meta?.width ?? columnWidths[`col-${index}`])
-        : meta?.width;
-      const widthStyle = getColumnWidthStyle(
-        width,
-        meta && { minWidth: meta.minWidth, maxWidth: meta.maxWidth }
-      );
+  const renderColGroup = () => (
+    <colgroup>
+      {leafColumns.map((column, index) => {
+        const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
-      const cellValue = cell.getValue();
-      const title =
-        meta?.ellipsis && (typeof cellValue === "string" || typeof cellValue === "number")
-          ? String(cellValue)
-          : undefined;
+        if (hasLockedColumnWidths) {
+          const size = lockedColumnSizes?.[column.id] ?? column.getSize();
+          const explicitMinSize = resizeConstraintsById.get(column.id)?.minSize;
+          return (
+            <col
+              key={column.id}
+              style={getColWidthStyle(size, {
+                minWidth: explicitMinSize,
+                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+              })}
+            />
+          );
+        }
+
+        if (enableColumnResize && hasResizeColumnSizing) {
+          return (
+            <col
+              key={column.id}
+              style={getColWidthStyle(columnSizing[column.id] ?? column.getSize(), {
+                minWidth: resizeConstraintsById.get(column.id)?.minSize,
+                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+              })}
+            />
+          );
+        }
+
+        return (
+          <col
+            key={column.id}
+            style={getColWidthStyle(
+              resolveColumnWidth(
+                column,
+                useVirtualScroll ? columnWidths[`col-${index}`] : undefined
+              ),
+              {
+                minWidth: resolveColumnMinWidth(meta),
+                maxWidth: meta?.maxWidth,
+              }
+            )}
+          />
+        );
+      })}
+    </colgroup>
+  );
+
+  const renderTableRow = (row: Row<DataType>) => {
+    return row.getVisibleCells().map((cell) => {
+      const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+      const isEllipsis = meta?.ellipsis ?? true;
 
       return (
         <td
           key={cell.id}
           className={`cell-with-actions ${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} ${meta?.color ? `cell-color-${meta.color}` : ""}`}
-          style={widthStyle}
         >
           <span className="cell-content">
-            <span
-              className={`cell-content-text ${meta?.ellipsis ? "cell-content-text-ellipsis" : ""}`}
-              title={title}
-            >
+            <span className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </span>
             {(meta?.showCopy || meta?.actions) && (
@@ -416,7 +603,7 @@ function FastTablePaginatedContent<DataType>({
     if (!row) return null;
     return (
       <tr key={row.id} className="sample-row">
-        {renderTableRow(row, true)}
+        {renderTableRow(row)}
       </tr>
     );
   };
@@ -441,7 +628,7 @@ function FastTablePaginatedContent<DataType>({
               onRowClick(toJS(row.original), event);
             }}
           >
-            {renderTableRow(row, false)}
+            {renderTableRow(row)}
           </tr>
           {row.getIsExpanded() && (
             <tr key={`${row.id}-sub-row`}>
@@ -457,13 +644,25 @@ function FastTablePaginatedContent<DataType>({
     const renderRow = (row: Row<DataType>) => {
       return row.getVisibleCells().map((cell, index) => {
         const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
-        const widthStyle = getVirtualCellWidthStyle(columnWidths[`col-${index}`]);
+        const widthStyle = (() => {
+          if (hasLockedColumnWidths) {
+            return getVirtualCellWidthStyle(
+              lockedColumnSizes?.[cell.column.id] ?? cell.column.getSize()
+            );
+          }
 
-        const cellValue = cell.getValue();
-        const title =
-          meta?.ellipsis && (typeof cellValue === "string" || typeof cellValue === "number")
-            ? String(cellValue)
-            : undefined;
+          if (enableColumnResize) {
+            return getVirtualCellWidthStyle(columnSizing[cell.column.id] ?? cell.column.getSize());
+          }
+
+          const measuredWidth = columnWidths[`col-${index}`];
+          const resolvedWidth = resolveColumnWidth(cell.column, measuredWidth);
+          return getVirtualCellWidthStyle(
+            typeof resolvedWidth === "number" ? resolvedWidth : measuredWidth
+          );
+        })();
+
+        const isEllipsis = meta?.ellipsis ?? true;
 
         return (
           <div
@@ -473,8 +672,7 @@ function FastTablePaginatedContent<DataType>({
           >
             <span className="cell-content">
               <span
-                className={`cell-content-text ${meta?.ellipsis ? "cell-content-text-ellipsis" : ""}`}
-                title={title}
+                className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </span>
@@ -496,6 +694,17 @@ function FastTablePaginatedContent<DataType>({
 
     const virtualRows = rowVirtualizer.getVirtualItems();
     const paddingTop = virtualRows[0]?.start || 0;
+    const resizeSizingTotalWidth = hasResizeColumnSizing
+      ? sumColumnSizes(columnSizing, leafColumnIds)
+      : 0;
+    const virtualBodyWidth =
+      lockedColumnsTotalWidth !== undefined
+        ? formatCssPx(lockedColumnsTotalWidth)
+        : resizeSizingTotalWidth > 0
+          ? formatCssPx(resizeSizingTotalWidth)
+          : tableScrollWidthRef.current > 0
+            ? formatCssPx(tableScrollWidthRef.current)
+            : "100%";
 
     return (
       <div
@@ -503,7 +712,7 @@ function FastTablePaginatedContent<DataType>({
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
           top: `${headerHeight}px`,
-          width: tableScrollWidthRef.current > 0 ? `${tableScrollWidthRef.current}px` : "100%",
+          width: virtualBodyWidth,
           visibility: headerHeight > 0 && isVirtualColumnsReady ? "visible" : "hidden",
         }}
       >
@@ -599,21 +808,42 @@ function FastTablePaginatedContent<DataType>({
     <div
       className={`fast-table ${shouldShowEmpty ? "empty" : ""} ${
         useVirtualScroll ? "virtual-scroll" : ""
+      } ${hasLockedColumnWidths || (enableColumnResize && hasResizeColumnSizing) ? "has-column-resize" : ""} ${
+        isResizingColumn ? "is-column-resizing" : ""
       }`}
       style={fastTableTokenStyle}
     >
+      {showTableLayoutToolbar && (
+        <div className="fast-table-toolbar">
+          <Dropdown menu={{ items: tableViewMenuItems }} trigger={["click"]}>
+            <Button
+              type="text"
+              className="fast-table-toolbar-button"
+              icon={<MoreOutlined />}
+              aria-label={tableLocale.tableViewMenu}
+            />
+          </Dropdown>
+        </div>
+      )}
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"
         className="fast-table-spinner"
         spinning={stableIsLoading}
       >
         <div className="fast-table-wrapper" ref={tableContainerRef}>
-          <table>
+          <table
+            style={
+              lockedColumnsTotalWidth !== undefined
+                ? { width: formatCssPx(lockedColumnsTotalWidth) }
+                : undefined
+            }
+          >
+            {renderColGroup()}
             <thead>
               <FastTableHeader
                 table={table}
                 locale={tableLocale}
-                columnWidths={useVirtualScroll ? columnWidths : undefined}
+                onPrepareColumnResize={prepareColumnResize}
               />
             </thead>
             <tbody ref={bodyRef}>

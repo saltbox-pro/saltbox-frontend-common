@@ -35,13 +35,10 @@
 }
 
 .fast-table table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 100%;
   table-layout: fixed;
-}
-
-.fast-table.virtual-scroll table {
-  width: 100%;
 }
 
 .fast-table.empty table {
@@ -70,10 +67,20 @@
   font-weight: 600;
   text-align: start;
   background: var(--fast-table-header-bg);
-  border: 1px solid var(--fast-table-border-color);
-  padding: 8px 12px;
+  border: none;
+  border-right: 1px solid var(--fast-table-border-color);
+  border-bottom: 1px solid var(--fast-table-border-color);
+  padding: 0;
   line-height: 1.1rem;
   transition: background 0.2s ease;
+}
+
+.fast-table table > thead > tr > th:first-child {
+  border-left: 1px solid var(--fast-table-border-color);
+}
+
+.fast-table table > thead > tr:first-child > th {
+  border-top: 1px solid var(--fast-table-border-color);
 }
 
 .fast-table.virtual-scroll table > thead > tr > th {
@@ -87,9 +94,15 @@
 }
 
 .fast-table table > tbody > tr > td {
-  border: 1px solid var(--fast-table-border-color);
+  border: none;
+  border-right: 1px solid var(--fast-table-border-color);
+  border-bottom: 1px solid var(--fast-table-border-color);
   padding: 8px 12px;
   line-height: 1.1rem;
+}
+
+.fast-table table > tbody > tr > td:first-child {
+  border-left: 1px solid var(--fast-table-border-color);
 }
 
 .fast-table .virtual-cell {
@@ -176,14 +189,18 @@
 }
 
 .fast-table .cell-content-text {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .fast-table .cell-content-text-ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .fast-table .cell-color-accent .cell-content-text {

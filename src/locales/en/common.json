@@ -124,6 +124,8 @@
     "sort-ascending": "Sort ascending",
     "sort-descending": "Sort descending",
     "clear-sort": "Clear sort",
-    "total": "Total:"
+    "total": "Total:",
+    "table-view-menu": "Table view",
+    "reset-column-widths": "Reset column widths"
   }
 }

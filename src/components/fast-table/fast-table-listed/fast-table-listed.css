@@ -6,10 +6,12 @@
 
 .fast-table-wrapper {
   flex: 1;
+  overflow: auto;
 }
 
 .fast-table table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 100%;
   table-layout: fixed;
 }
@@ -24,14 +26,30 @@
   font-weight: 600;
   text-align: start;
   background: var(--fast-table-header-bg);
-  border: 1px solid var(--fast-table-border-color);
-  padding: 8px 12px;
+  border: none;
+  border-right: 1px solid var(--fast-table-border-color);
+  border-bottom: 1px solid var(--fast-table-border-color);
+  padding: 0;
   transition: background 0.2s ease;
 }
 
+.fast-table table > thead > tr > th:first-child {
+  border-left: 1px solid var(--fast-table-border-color);
+}
+
+.fast-table table > thead > tr:first-child > th {
+  border-top: 1px solid var(--fast-table-border-color);
+}
+
 .fast-table table > tbody > tr > td {
-  border: 1px solid var(--fast-table-border-color);
+  border: none;
+  border-right: 1px solid var(--fast-table-border-color);
+  border-bottom: 1px solid var(--fast-table-border-color);
   padding: 8px 12px;
+}
+
+.fast-table table > tbody > tr > td:first-child {
+  border-left: 1px solid var(--fast-table-border-color);
 }
 
 .fast-table table > tbody > tr:hover > td {
@@ -64,12 +82,16 @@
 .fast-table .cell-with-actions .cell-content-text {
   flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-.fast-table .cell-ellipsis .cell-content-text {
+.fast-table .cell-content-text-ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .fast-table .cell-color-accent .cell-content-text {

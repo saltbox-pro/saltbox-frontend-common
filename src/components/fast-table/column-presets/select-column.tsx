@@ -4,6 +4,7 @@ import { Checkbox } from "antd";
 export function createSelectColumn<TData>(): ColumnDef<TData> {
   return {
     id: "select",
+    enableResizing: false,
     header: ({ table }) => (
       <Checkbox
         className="prevent-row-click"
@@ -20,6 +21,6 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
         onChange={row.getToggleSelectedHandler()}
       />
     ),
-    meta: { width: 41 },
+    meta: { width: 42, minWidth: 42, maxWidth: 42 },
   };
 }

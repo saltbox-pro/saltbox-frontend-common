@@ -124,6 +124,8 @@
     "sort-ascending": "Сортировать по возрастанию",
     "sort-descending": "Сортировать по убыванию",
     "clear-sort": "Сбросить сортировку",
-    "total": "Всего:"
+    "total": "Всего:",
+    "table-view-menu": "Вид таблицы",
+    "reset-column-widths": "Сбросить ширины колонок"
   }
 }

@@ -74,6 +74,9 @@ FastTablePaginated - таблица с пагинацией и виртуаль�
     },
   },
   tags: ["autodocs"],
+  args: {
+    tableId: "story-fast-table-paginated",
+  },
 } satisfies Meta<typeof FastTablePaginatedStory>;
 
 export default meta;
@@ -531,6 +534,7 @@ const WithRowSelectionComponent = () => {
         Выбрано: {selectedRows.size} из {smallDataset.length}
       </div>
       <FastTablePaginated
+        tableId="story-fast-table-paginated-row-selection"
         columns={columns}
         data={smallDataset}
         getRowId={(row) => row.jid}

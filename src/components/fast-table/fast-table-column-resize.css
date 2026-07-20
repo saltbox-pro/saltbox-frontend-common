@@ -1,0 +1,75 @@
+.fast-table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+}
+
+.fast-table-toolbar-button.ant-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.fast-table-toolbar-button.ant-btn:hover {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.fast-table.has-column-resize table > thead > tr > th,
+.fast-table.has-column-resize table > tbody > tr > td {
+  box-sizing: border-box;
+}
+
+.fast-table.is-column-resizing,
+.fast-table.is-column-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.fast-table.is-column-resizing .fast-table-wrapper * {
+  pointer-events: none !important;
+}
+
+.fast-table.is-column-resizing .fast-table-resize-handle {
+  pointer-events: auto !important;
+}
+
+.fast-table.is-column-resizing table > thead > tr > th.fast-table-column-has-sorters:hover {
+  background: var(--fast-table-header-bg);
+}
+
+.fast-table.is-column-resizing table > thead > tr > th.fast-table-column-sort,
+.fast-table.is-column-resizing table > thead > tr > th.fast-table-column-sort:hover {
+  background: var(--fast-table-header-sort-active-bg);
+}
+
+.fast-table.is-column-resizing table > thead > tr > th.fast-table-column-resizing,
+.fast-table.is-column-resizing table > thead > tr > th.fast-table-column-resizing:hover {
+  background: var(--fast-table-header-sort-hover-bg);
+}
+
+.fast-table.is-column-resizing table > tbody > tr[role="button"]:hover > td,
+.fast-table.is-column-resizing .virtual-row[role="button"]:hover .virtual-cell,
+.fast-table.is-column-resizing
+  table
+  > tbody
+  > tr.fast-table-row-group-alt[role="button"]:hover
+  > td,
+.fast-table.is-column-resizing
+  .virtual-row.fast-table-row-group-alt[role="button"]:hover
+  .virtual-cell {
+  background-color: transparent;
+}
+
+.fast-table.is-column-resizing table > tbody > tr.fast-table-row-group-alt > td,
+.fast-table.is-column-resizing .virtual-row.fast-table-row-group-alt .virtual-cell {
+  background-color: #f9f9f9;
+}
+
+.fast-table.is-column-resizing .cell-with-actions:hover .cell-content .cell-actions {
+  visibility: hidden;
+  opacity: 0;
+}

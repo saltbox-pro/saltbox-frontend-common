@@ -92,6 +92,9 @@ FastTableListed - таблица без пагинации для отображ
     },
   },
   tags: ["autodocs"],
+  args: {
+    tableId: "story-fast-table-listed",
+  },
 } satisfies Meta<typeof FastTableListedStory>;
 
 export default meta;

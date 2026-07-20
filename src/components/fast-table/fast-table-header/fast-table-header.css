@@ -1,5 +1,23 @@
 .fast-table-header-cell {
-  height: 1em; /* header height fix for FF */
+  height: 1em;
+  overflow: hidden;
+}
+
+.fast-table-header-cell-inner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.fast-table-header-cell-inner > :not(.fast-table-resize-handle) {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fast-table table > thead > tr > th.fast-table-column-has-sorters .fast-table-header {
+  cursor: pointer;
 }
 
 .fast-table table > thead > tr > th.fast-table-column-has-sorters:hover {
@@ -10,6 +28,10 @@
   background: var(--fast-table-header-sort-active-bg);
 }
 
+.fast-table table > thead > tr > th.fast-table-column-resizing {
+  background: var(--fast-table-header-sort-hover-bg);
+}
+
 .fast-table table > tbody > tr > td.fast-table-column-sort,
 .fast-table .virtual-cell.fast-table-column-sort {
   background: var(--fast-table-body-sort-bg);
@@ -17,17 +39,26 @@
 
 .fast-table-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  gap: 5px;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 8px 12px;
+  box-sizing: border-box;
 }
 
-.fast-table-header-nosort {
-  display: flex;
-  justify-content: space-between;
-  cursor: default;
+.fast-table-header-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fast-table-sorter {
+  flex: 0 0 auto;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -45,4 +76,23 @@
 
 .sort-icon.active {
   color: var(--ant-color-primary, #1677ff);
+}
+
+.fast-table-resize-handle {
+  flex: 0 0 auto;
+  width: 7px;
+  box-sizing: border-box;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-right: 2px solid transparent;
+  transition: border-color 0.15s ease;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.fast-table-resize-handle:hover,
+.fast-table-resize-handle.is-resizing {
+  border-right-color: var(--ant-color-primary, #1677ff);
 }

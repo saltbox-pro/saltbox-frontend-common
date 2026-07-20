@@ -1,4 +1,6 @@
+import { MoreOutlined } from "@ant-design/icons";
 import {
+  type ColumnDef,
   ColumnFiltersState,
   ExpandedState,
   OnChangeFn,
@@ -12,19 +14,37 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Empty, Flex, Spin } from "antd";
+import { Button, Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
-import { Fragment, type RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from "react";
 
+import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
+import { usePersistedColumnSizing } from "../hooks/use-persisted-column-sizing";
+import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
+import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
+import {
+  buildResizeColumnConstraintsById,
+  formatCssPx,
+  getColWidthStyle,
+  hasAllColumnSizes,
+  resolveColumnMinWidth,
+  resolveColumnWidth,
+} from "../utils/column";
+import {
+  createClampedColumnSizingChange,
+  resolveResizeColumnIds,
+} from "../utils/column-sizing-change";
 import { getSortedColumnClassName } from "../utils/column-sort";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 import "../fast-table-tokens.css";
+import "../fast-table-column-resize.css";
 import "./fast-table-listed.css";
 
 export type FastTableListedProps<DataType> = {
@@ -47,6 +67,8 @@ export type FastTableListedProps<DataType> = {
   rowSelection?: RowSelectionState;
   locale?: FastTableLocaleOverrides;
   bodyRef?: RefObject<HTMLTableSectionElement>;
+  tableId: string;
+  enableColumnResize?: boolean;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
@@ -89,60 +111,50 @@ function FastTableListedContent<DataType>({
   bodyRef,
   onRowSelectionChange,
   rowSelection,
+  tableId,
+  enableColumnResize = true,
 }: FastTableListedProps<DataType>) {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
-  const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-
-  const measureColumnWidths = useCallback(() => {
-    if (!tableContainerRef.current) return;
-
-    const tableElement = tableContainerRef.current.querySelector("table");
-    if (!tableElement) return;
-
-    const headerCells = tableElement.querySelectorAll("thead th");
-    const widths: Record<string, number> = {};
-
-    headerCells.forEach((cell, index) => {
-      const width = cell.getBoundingClientRect().width;
-      widths[`col-${index}`] = width;
-    });
-
-    setColumnWidths(widths);
-  }, []);
-
-  useEffect(() => {
-    if (!tableContainerRef.current || data.length === 0) return;
-
-    const timer = setTimeout(() => {
-      measureColumnWidths();
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [data, measureColumnWidths]);
-
-  useEffect(() => {
-    if (!tableContainerRef.current || data.length === 0) return;
-
-    const handleResize = () => {
-      setColumnWidths({});
-      requestAnimationFrame(() => {
-        measureColumnWidths();
-      });
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [data, measureColumnWidths]);
-
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
 
+  const {
+    columnSizing,
+    hasPersistedSizing,
+    onColumnSizingChange,
+    persistColumnSizing,
+    resetColumnSizing,
+    syncColumnSizingToColumns,
+    seedColumnSizingFromPixels,
+    replaceColumnSizingFromPixels,
+  } = usePersistedColumnSizing(enableColumnResize ? tableId : undefined);
+
+  const resizeColumns = useMemo(
+    () =>
+      applyColumnResizeDefaults(columns as Array<ColumnDef<DataType, unknown>>, enableColumnResize),
+    [columns, enableColumnResize]
+  );
+
+  const resizeConstraintsById = useMemo(
+    () => buildResizeColumnConstraintsById(resizeColumns),
+    [resizeColumns]
+  );
+
+  const resizeColumnIds = useMemo(() => resolveResizeColumnIds(resizeColumns), [resizeColumns]);
+
+  const handleColumnSizingChange = useMemo(
+    () =>
+      enableColumnResize
+        ? createClampedColumnSizingChange(onColumnSizingChange, resizeColumnIds, (id) =>
+            resizeConstraintsById.get(id)
+          )
+        : onColumnSizingChange,
+    [enableColumnResize, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
+  );
+
   const table = useReactTable({
-    columns,
+    columns: resizeColumns,
     data,
     getRowId,
     getCoreRowModel: getCoreRowModel<DataType>(),
@@ -155,16 +167,101 @@ function FastTableListedContent<DataType>({
     onSortingChange,
     onExpandedChange,
     onRowSelectionChange,
+    onColumnSizingChange: handleColumnSizingChange,
     state: {
       sorting,
       expanded,
       rowSelection,
+      columnSizing,
     },
     enableSorting: !!sorting,
+    enableColumnResizing: enableColumnResize,
+    columnResizeMode: "onChange",
   });
 
   const rows = table.getRowModel().rows;
-  const visibleColumnCount = table.getVisibleLeafColumns().length;
+  const leafColumns = table.getVisibleLeafColumns();
+  const { leafColumnIds, leafColumnIdsKey } = useStableLeafColumnIds(leafColumns);
+  const visibleColumnCount = leafColumnIds.length;
+  const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
+  const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
+
+  const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
+    useColumnResizeLayout({
+      enableColumnResize,
+      tableContainerRef,
+      leafColumns,
+      leafColumnIds,
+      leafColumnIdsKey,
+      columnSizing,
+      hasPersistedSizing,
+      isResizingColumn,
+      resizeConstraintsById,
+      onColumnSizingChange: handleColumnSizingChange,
+      persistColumnSizing,
+      seedColumnSizingFromPixels,
+      replaceColumnSizingFromPixels,
+      syncColumnSizingToColumns,
+      dataRevision: data,
+    });
+
+  const showTableLayoutToolbar = enableColumnResize;
+
+  const tableViewMenuItems = useMemo(
+    () => [
+      {
+        key: "reset-column-widths",
+        label: tableLocale.resetColumnWidths,
+        disabled: !hasPersistedSizing && !hasResizeColumnSizing,
+        onClick: resetColumnSizing,
+      },
+    ],
+    [hasPersistedSizing, hasResizeColumnSizing, resetColumnSizing, tableLocale.resetColumnWidths]
+  );
+
+  const renderColGroup = () => (
+    <colgroup>
+      {leafColumns.map((column) => {
+        const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
+
+        if (hasLockedColumnWidths) {
+          const size = lockedColumnSizes?.[column.id] ?? column.getSize();
+          const explicitMinSize = resizeConstraintsById.get(column.id)?.minSize;
+          return (
+            <col
+              key={column.id}
+              style={getColWidthStyle(size, {
+                minWidth: explicitMinSize,
+                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+              })}
+            />
+          );
+        }
+
+        if (enableColumnResize && hasResizeColumnSizing) {
+          return (
+            <col
+              key={column.id}
+              style={getColWidthStyle(columnSizing[column.id] ?? column.getSize(), {
+                minWidth: resizeConstraintsById.get(column.id)?.minSize,
+                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+              })}
+            />
+          );
+        }
+
+        return (
+          <col
+            key={column.id}
+            style={getColWidthStyle(resolveColumnWidth(column), {
+              minWidth: resolveColumnMinWidth(meta),
+              maxWidth: meta?.maxWidth,
+            })}
+          />
+        );
+      })}
+    </colgroup>
+  );
 
   const renderTableRows = () => {
     return rows.map((row) => (
@@ -183,26 +280,19 @@ function FastTableListedContent<DataType>({
             onRowClick(toJS(row.original), event);
           }}
         >
-          {row.getVisibleCells().map((cell, index) => {
-            const width = columnWidths[`col-${index}`];
+          {row.getVisibleCells().map((cell) => {
             const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+            const isEllipsis = meta?.ellipsis ?? true;
 
             return (
               <td
                 key={cell.id}
                 className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
-                style={
-                  width
-                    ? {
-                        width: `${width}px`,
-                        minWidth: `${width}px`,
-                        maxWidth: `${width}px`,
-                      }
-                    : undefined
-                }
               >
                 <span className="cell-content">
-                  <span className="cell-content-text">
+                  <span
+                    className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </span>
                   {(meta?.showCopy || meta?.actions) && (
@@ -266,13 +356,40 @@ function FastTableListedContent<DataType>({
 
   return (
     <div
-      className={`fast-table ${isEmpty && "empty"} ${isLoading && "loading"}`}
+      className={`fast-table ${isEmpty ? "empty" : ""} ${isLoading ? "loading" : ""} ${
+        hasLockedColumnWidths || (enableColumnResize && hasResizeColumnSizing)
+          ? "has-column-resize"
+          : ""
+      } ${isResizingColumn ? "is-column-resizing" : ""}`}
       style={fastTableTokenStyle}
     >
+      {showTableLayoutToolbar && (
+        <div className="fast-table-toolbar">
+          <Dropdown menu={{ items: tableViewMenuItems }} trigger={["click"]}>
+            <Button
+              type="text"
+              className="fast-table-toolbar-button"
+              icon={<MoreOutlined />}
+              aria-label={tableLocale.tableViewMenu}
+            />
+          </Dropdown>
+        </div>
+      )}
       <div className="fast-table-wrapper" ref={tableContainerRef}>
-        <table>
+        <table
+          style={
+            lockedColumnsTotalWidth !== undefined
+              ? { width: formatCssPx(lockedColumnsTotalWidth) }
+              : undefined
+          }
+        >
+          {renderColGroup()}
           <thead>
-            <FastTableHeader table={table} locale={tableLocale} columnWidths={columnWidths} />
+            <FastTableHeader
+              table={table}
+              locale={tableLocale}
+              onPrepareColumnResize={prepareColumnResize}
+            />
           </thead>
           <tbody ref={bodyRef}>
             {renderTableRows()}
