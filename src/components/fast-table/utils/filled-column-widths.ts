@@ -34,25 +34,15 @@ export function applyExplicitFillColumnWidths(
     return { sizes, totalWidth };
   }
 
-  if (totalWidth === containerWidth) {
+  if (totalWidth >= containerWidth) {
     return { sizes, totalWidth };
   }
 
   const fillCurrent = sizes[fillColumnId] ?? 0;
   const sumOthers = totalWidth - fillCurrent;
   const minWidth = getMinWidth(fillColumnId);
-  const targetFill = containerWidth - sumOthers;
+  const filledWidth = Math.max(minWidth, containerWidth - sumOthers);
+  sizes[fillColumnId] = filledWidth;
 
-  if (totalWidth < containerWidth) {
-    const filledWidth = Math.max(minWidth, targetFill);
-    sizes[fillColumnId] = filledWidth;
-    return { sizes, totalWidth: sumOthers + filledWidth };
-  }
-
-  if (targetFill >= minWidth && targetFill < fillCurrent) {
-    sizes[fillColumnId] = targetFill;
-    return { sizes, totalWidth: containerWidth };
-  }
-
-  return { sizes, totalWidth };
+  return { sizes, totalWidth: sumOthers + filledWidth };
 }

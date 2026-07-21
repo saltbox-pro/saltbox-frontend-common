@@ -2,6 +2,8 @@ import type { Column, ColumnSizingState, OnChangeFn } from "@tanstack/react-tabl
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
+import type { CellMeta } from "../types";
+import { COLUMN_RESIZE_MIN_SIZE } from "../utils/apply-column-resize-defaults";
 import {
   type ColumnResizeConstraints,
   getMissingColumnSizing,
@@ -88,8 +90,13 @@ export function useColumnResizeLayout<DataType>({
       sizingFromGetSize[column.id] = column.getSize();
     }
 
-    const minWidthById = (columnId: string) =>
-      resizeConstraintsById.get(columnId)?.minSize ?? sizingFromGetSize[columnId] ?? 0;
+    const minWidthById = (columnId: string) => {
+      const column = leafColumns.find((item) => item.id === columnId);
+      const meta = column?.columnDef.meta as CellMeta | undefined;
+      return (
+        meta?.minWidth ?? resizeConstraintsById.get(columnId)?.minSize ?? COLUMN_RESIZE_MIN_SIZE
+      );
+    };
 
     const { sizes, totalWidth } = applyExplicitFillColumnWidths(
       sizingFromGetSize,
@@ -154,8 +161,13 @@ export function useColumnResizeLayout<DataType>({
         canResize: column.getCanResize(),
       }))
     );
-    const measuredMinWidthById = (columnId: string) =>
-      resizeConstraintsById.get(columnId)?.minSize ?? measured[columnId] ?? 0;
+    const measuredMinWidthById = (columnId: string) => {
+      const column = leafColumns.find((item) => item.id === columnId);
+      const meta = column?.columnDef.meta as CellMeta | undefined;
+      return (
+        meta?.minWidth ?? resizeConstraintsById.get(columnId)?.minSize ?? COLUMN_RESIZE_MIN_SIZE
+      );
+    };
 
     const { sizes: normalizedMeasured } = applyExplicitFillColumnWidths(
       measured,
