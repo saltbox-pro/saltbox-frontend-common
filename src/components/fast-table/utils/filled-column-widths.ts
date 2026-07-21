@@ -30,14 +30,29 @@ export function applyExplicitFillColumnWidths(
     totalWidth += width;
   }
 
-  if (!fillColumnId || containerWidth <= 0 || totalWidth <= 0 || totalWidth >= containerWidth) {
+  if (!fillColumnId || containerWidth <= 0 || totalWidth <= 0) {
+    return { sizes, totalWidth };
+  }
+
+  if (totalWidth === containerWidth) {
     return { sizes, totalWidth };
   }
 
   const fillCurrent = sizes[fillColumnId] ?? 0;
   const sumOthers = totalWidth - fillCurrent;
-  const filledWidth = Math.max(getMinWidth(fillColumnId), containerWidth - sumOthers);
-  sizes[fillColumnId] = filledWidth;
+  const minWidth = getMinWidth(fillColumnId);
+  const targetFill = containerWidth - sumOthers;
 
-  return { sizes, totalWidth: sumOthers + filledWidth };
+  if (totalWidth < containerWidth) {
+    const filledWidth = Math.max(minWidth, targetFill);
+    sizes[fillColumnId] = filledWidth;
+    return { sizes, totalWidth: sumOthers + filledWidth };
+  }
+
+  if (targetFill >= minWidth && targetFill < fillCurrent) {
+    sizes[fillColumnId] = targetFill;
+    return { sizes, totalWidth: containerWidth };
+  }
+
+  return { sizes, totalWidth };
 }

@@ -147,16 +147,34 @@ export function useColumnResizeLayout<DataType>({
     const measured = measureLeafColumnWidthsFromHeader(tableContainerRef.current, leafColumns);
     if (!measured) return;
 
+    const measuredContainerWidth = readElementContentWidth(tableContainerRef.current);
+    const measuredFillColumnId = resolveFillColumnId(
+      leafColumns.map((column) => ({
+        id: column.id,
+        canResize: column.getCanResize(),
+      }))
+    );
+    const measuredMinWidthById = (columnId: string) =>
+      resizeConstraintsById.get(columnId)?.minSize ?? measured[columnId] ?? 0;
+
+    const { sizes: normalizedMeasured } = applyExplicitFillColumnWidths(
+      measured,
+      leafColumnIds,
+      measuredFillColumnId,
+      measuredContainerWidth,
+      measuredMinWidthById
+    );
+
     flushSync(() => {
       if (hasPersistedSizing) {
-        const missing = getMissingColumnSizing(columnSizing, measured, leafColumns);
+        const missing = getMissingColumnSizing(columnSizing, normalizedMeasured, leafColumns);
         if (Object.keys(missing).length === 0) return;
         seedColumnSizingFromPixels(missing, false);
         persistColumnSizing({ ...columnSizing, ...missing }, leafColumnIds);
         return;
       }
 
-      replaceColumnSizingFromPixels(measured);
+      replaceColumnSizingFromPixels(normalizedMeasured);
     });
   }, [
     columnSizing,
@@ -166,6 +184,7 @@ export function useColumnResizeLayout<DataType>({
     leafColumns,
     persistColumnSizing,
     replaceColumnSizingFromPixels,
+    resizeConstraintsById,
     seedColumnSizingFromPixels,
     tableContainerRef,
   ]);

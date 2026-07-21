@@ -361,9 +361,7 @@ function FastTableListedContent<DataType>({
   return (
     <div
       className={`fast-table ${isEmpty ? "empty" : ""} ${isLoading ? "loading" : ""} ${
-        hasLockedColumnWidths || (enableColumnResize && hasResizeColumnSizing)
-          ? "has-column-resize"
-          : ""
+        enableColumnResize ? "has-column-resize" : ""
       } ${isResizingColumn ? "is-column-resizing" : ""}`}
       style={fastTableTokenStyle}
     >

@@ -19,7 +19,7 @@ export function applyColumnResizeDefaults<TData>(
   return columns.map((column) => {
     const meta = column.meta as CellMeta | undefined;
     const locked = isColumnWidthLocked(meta);
-    const minSize = column.minSize ?? DEFAULT_MIN_SIZE;
+    const minSize = column.minSize ?? meta?.minWidth ?? DEFAULT_MIN_SIZE;
 
     return {
       ...column,

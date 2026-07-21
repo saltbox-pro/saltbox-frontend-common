@@ -818,7 +818,7 @@ function FastTablePaginatedContent<DataType>({
     <div
       className={`fast-table ${shouldShowEmpty ? "empty" : ""} ${
         useVirtualScroll ? "virtual-scroll" : ""
-      } ${hasLockedColumnWidths || (enableColumnResize && hasResizeColumnSizing) ? "has-column-resize" : ""} ${
+      } ${enableColumnResize ? "has-column-resize" : ""} ${
         isResizingColumn ? "is-column-resizing" : ""
       }`}
       style={fastTableTokenStyle}

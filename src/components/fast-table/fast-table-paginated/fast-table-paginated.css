@@ -99,6 +99,8 @@
   border-bottom: 1px solid var(--fast-table-border-color);
   padding: 8px 12px;
   line-height: 1.1rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .fast-table table > tbody > tr > td:first-child {
@@ -191,6 +193,7 @@
 .fast-table .cell-content-text {
   flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
 }

@@ -23,6 +23,7 @@ type HeaderCellProps<DataType> = {
   header: Header<DataType, unknown>;
   locale: HeaderLocale;
   visibleColumnCount: number;
+  isLastLeafColumn: boolean;
   isResizingColumn: boolean;
   onPrepareColumnResize?: () => void;
 };
@@ -31,11 +32,12 @@ function FastTableHeaderCell<DataType>({
   header,
   locale,
   visibleColumnCount,
+  isLastLeafColumn,
   isResizingColumn,
   onPrepareColumnResize,
 }: HeaderCellProps<DataType>) {
   const canSort = header.column.getCanSort();
-  const canResize = header.column.getCanResize();
+  const canResize = header.column.getCanResize() && !isLastLeafColumn;
   const headerContent = header.isPlaceholder
     ? null
     : flexRender(header.column.columnDef.header, header.getContext());
@@ -137,7 +139,9 @@ export function FastTableHeader<DataType>({
   locale,
   onPrepareColumnResize,
 }: FastTableHeaderProps<DataType>) {
-  const visibleColumnCount = table.getVisibleLeafColumns().length;
+  const leafColumns = table.getVisibleLeafColumns();
+  const visibleColumnCount = leafColumns.length;
+  const lastLeafColumnId = leafColumns[leafColumns.length - 1]?.id;
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
 
   return table.getHeaderGroups().map((headerGroup) => (
@@ -148,6 +152,7 @@ export function FastTableHeader<DataType>({
           header={header}
           locale={locale}
           visibleColumnCount={visibleColumnCount}
+          isLastLeafColumn={header.column.id === lastLeafColumnId}
           isResizingColumn={isResizingColumn}
           onPrepareColumnResize={onPrepareColumnResize}
         />
