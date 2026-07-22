@@ -37,6 +37,7 @@ export * from "./components/drawers";
 export * from "./components/fields";
 export * from "./components/transition-layout";
 export * from "./components/accepted-masters";
+export * from "./components/http-error";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";

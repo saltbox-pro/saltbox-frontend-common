@@ -80,7 +80,17 @@
   },
   "errors": {
     "load-failed": "Failed to load data",
-    "access-denied": "Access denied"
+    "access-denied": "Access denied",
+    "page": {
+      "not-found": "The requested resource was not found.",
+      "forbidden": "You do not have access to this resource.",
+      "server-error": "An error occurred on the server. Please try again later.",
+      "service-unavailable": "The service is temporarily unavailable. Please try again later.",
+      "network-error": "A network error occurred. Please try again later.",
+      "generic": "An error occurred while loading the data.",
+      "back-home": "Back to home",
+      "retry": "Retry"
+    }
   },
   "accepted-masters": {
     "warning-template": "To {{action}}, activate a master on the <mastersLink>\"Masters\"</mastersLink> page",
