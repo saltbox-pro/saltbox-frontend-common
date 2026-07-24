@@ -197,10 +197,6 @@
   pointer-events: none;
 }
 
-.sourceAsideMenuLocked :global(.ant-menu-item),
-.sourceAsideMenuLocked :global(.ant-menu-item-selected),
-.sourceAsideMenuLocked :global(.ant-menu-item-disabled) {
+.sourceAsideMenuLocked :global(.ant-menu-item) {
   cursor: default !important;
-  color: inherit !important;
-  opacity: 1 !important;
 }

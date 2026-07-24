@@ -35,14 +35,18 @@ export function FileBrowserSourceAside({
     <Menu
       mode="inline"
       selectedKeys={selectedKey ? [selectedKey] : []}
-      onClick={disabled ? undefined : ({ key }) => onChange(key)}
+      onClick={({ key }) => {
+        if (disabled) {
+          return;
+        }
+        onChange(key);
+      }}
       className={`${styles.sourceAsideMenu} ${disabled ? styles.sourceAsideMenuLocked : ""}`}
       aria-disabled={disabled || undefined}
       items={items.map((item) => ({
         key: item.key,
         icon,
         label: item.label,
-        disabled,
       }))}
     />
   );
