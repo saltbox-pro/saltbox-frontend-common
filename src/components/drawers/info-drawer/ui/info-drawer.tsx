@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { Drawer, type DrawerProps } from "saltbox-common/components/antd-wrappers/drawer";
+import type { ResourceLoadError } from "saltbox-common/components/http-error";
 import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
 
 import { InfoDrawerError } from "./info-drawer-error";
@@ -26,7 +27,8 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   linkTo?: string;
   linkTitle?: string;
   linkComponent?: ComponentType<{ to: string; children: ReactNode }>;
-  errorMessage?: string | null;
+  loadError?: ResourceLoadError | null;
+  onRetry?: () => void;
   hasData?: boolean;
   transitionKey?: Key;
   onClose: () => void;
@@ -42,7 +44,8 @@ export function InfoDrawer({
   linkTo,
   linkTitle,
   linkComponent,
-  errorMessage,
+  loadError,
+  onRetry,
   loading,
   size = "large",
   placement = "right",
@@ -60,7 +63,7 @@ export function InfoDrawer({
   const onCloseRef = useRef(onClose);
   const layoutAnchorRef = useRef<HTMLDivElement>(null);
 
-  const hasError = !loading && !!errorMessage;
+  const hasError = !loading && !!loadError;
   const activeKey = useMemo(
     () => transitionKey ?? (hasError ? "error" : hasData ? "content" : "empty"),
     [hasData, hasError, transitionKey]
@@ -132,7 +135,11 @@ export function InfoDrawer({
         >
           {() => (
             <div className={styles.content}>
-              {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
+              {hasError && loadError ? (
+                <InfoDrawerError error={loadError} onRetry={onRetry} />
+              ) : hasData ? (
+                children
+              ) : null}
             </div>
           )}
         </SwitchTransitionLayout>
