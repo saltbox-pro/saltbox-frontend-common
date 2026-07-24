@@ -127,5 +127,38 @@
     "total": "Total:",
     "table-view-menu": "Table view",
     "reset-column-widths": "Reset column widths"
+  },
+  "file-browser": {
+    "empty": "Directory is empty",
+    "columns": {
+      "name": "Name",
+      "type": "Type",
+      "size": "Size",
+      "modified": "Modified",
+      "actions": "Actions"
+    },
+    "type": {
+      "directory": "Directory",
+      "file": "File"
+    },
+    "name-modal": {
+      "name-required": "Name is required",
+      "name-invalid": "Name cannot contain path separators or be \".\" / \"..\""
+    },
+    "actions": {
+      "download": "Download",
+      "rename": "Rename",
+      "delete": "Delete",
+      "delete-confirm": "Are you sure you want to delete this item?",
+      "delete-confirm-named": "Are you sure you want to delete \"{{name}}\"?",
+      "yes": "Yes",
+      "cancel": "Cancel",
+      "create-folder": "Create Folder",
+      "create-file": "Create File",
+      "create": "Create",
+      "folder-name-placeholder": "Folder name",
+      "file-name-placeholder": "File name",
+      "new-name-placeholder": "New name"
+    }
   }
 }

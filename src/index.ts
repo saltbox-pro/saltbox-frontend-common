@@ -1,4 +1,5 @@
 export * from "./components/fast-table";
+export * from "./components/file-browser";
 export * from "./components/page-header";
 export * from "./components/page-layout";
 export * from "./components/module-error-boundary";

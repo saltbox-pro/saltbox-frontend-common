@@ -3,18 +3,23 @@ export type WebSocketMessage<T> = {
   payload: T;
 };
 
+export type WebSocketServiceOptions = {
+  bufferFlushIntervalMs?: number;
+};
+
 export class WebSocketService<T> {
   private ws: WebSocket | null;
   private accessToken: string | null;
   private messageBuffer: WebSocketMessage<T>[];
   private flushTimeout: number | null;
+  private readonly bufferFlushIntervalMs: number;
 
-  readonly BUFFER_FLUSH_INTERVAL_MS = 2000;
-
-  constructor() {
+  constructor(options: WebSocketServiceOptions = {}) {
     this.ws = null;
     this.accessToken = null;
     this.messageBuffer = [];
+    this.flushTimeout = null;
+    this.bufferFlushIntervalMs = options.bufferFlushIntervalMs ?? 2000;
   }
 
   sendAccessToken = (accessToken: string | null) => {
@@ -69,12 +74,20 @@ export class WebSocketService<T> {
   };
 
   private flushBuffer = (onMessage: (update: Array<WebSocketMessage<T>>) => void) => {
-    if (this.messageBuffer.length > 0) {
-      this.flushTimeout = setTimeout(() => {
-        onMessage([...this.messageBuffer]);
-        this.clearBuffer();
-      }, this.BUFFER_FLUSH_INTERVAL_MS);
+    if (this.messageBuffer.length === 0) {
+      return;
     }
+
+    if (this.bufferFlushIntervalMs <= 0) {
+      onMessage([...this.messageBuffer]);
+      this.messageBuffer = [];
+      return;
+    }
+
+    this.flushTimeout = window.setTimeout(() => {
+      onMessage([...this.messageBuffer]);
+      this.clearBuffer();
+    }, this.bufferFlushIntervalMs);
   };
 
   private clearBuffer = () => {

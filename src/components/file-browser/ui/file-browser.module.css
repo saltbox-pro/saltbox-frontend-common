@@ -1,0 +1,206 @@
+.navBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.fileName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.folderIcon,
+.fileIcon {
+  line-height: 1;
+}
+
+.folderIcon {
+  color: #faad14;
+}
+
+.fileIcon {
+  color: #1677ff;
+}
+
+.breadcrumb {
+  margin: 0;
+  min-width: 0;
+}
+
+.breadcrumb :global(.ant-breadcrumb-separator) {
+  margin-inline: 4px;
+}
+
+.breadcrumbLabel {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.breadcrumbLocked :global(a.ant-breadcrumb-link) {
+  pointer-events: none;
+  cursor: default;
+}
+
+.navUpButtonLocked {
+  cursor: default !important;
+  opacity: 1 !important;
+  color: inherit !important;
+  pointer-events: none;
+}
+
+.navUpButtonLocked:hover,
+.navUpButtonLocked:focus {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.error {
+  color: var(--ant-color-error, #ff4d4f);
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rowActionsLocked,
+.actionButtonsLocked {
+  pointer-events: none;
+}
+
+.rowActionsLocked :global(.ant-btn),
+.actionButtonsLocked :global(.ant-btn) {
+  cursor: default !important;
+  opacity: 1 !important;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.tableArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.tableSpin {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableSpin :global(.ant-spin-nested-loading),
+.tableSpin :global(.ant-spin-container) {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.layoutSidebar {
+  flex: 0 0 200px;
+  padding-right: 16px;
+  padding-bottom: 20px;
+  border-right: 1px solid var(--app-color-gray100);
+  overflow-y: auto;
+}
+
+.layoutSidebarSmall {
+  flex-basis: 130px;
+}
+
+.layoutContent {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding-left: 16px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.layoutContentOnly {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sourceAsideLoading {
+  padding: 16px;
+  text-align: center;
+}
+
+.sourceAsideMenu {
+  border-inline-end: none !important;
+  border-right: none !important;
+}
+
+.sourceAsideMenu :global(.ant-menu-item) {
+  padding-left: 16px !important;
+}
+
+.sourceAsideMenuLocked {
+  pointer-events: none;
+}
+
+.sourceAsideMenuLocked :global(.ant-menu-item),
+.sourceAsideMenuLocked :global(.ant-menu-item-selected),
+.sourceAsideMenuLocked :global(.ant-menu-item-disabled) {
+  cursor: default !important;
+  color: inherit !important;
+  opacity: 1 !important;
+}

@@ -127,5 +127,38 @@
     "total": "Всего:",
     "table-view-menu": "Вид таблицы",
     "reset-column-widths": "Сбросить ширины колонок"
+  },
+  "file-browser": {
+    "empty": "Директория пуста",
+    "columns": {
+      "name": "Имя",
+      "type": "Тип",
+      "size": "Размер",
+      "modified": "Изменён",
+      "actions": "Действия"
+    },
+    "type": {
+      "directory": "Директория",
+      "file": "Файл"
+    },
+    "name-modal": {
+      "name-required": "Укажите имя",
+      "name-invalid": "Имя не должно содержать разделители пути или быть \".\" / \"..\""
+    },
+    "actions": {
+      "download": "Скачать",
+      "rename": "Переименовать",
+      "delete": "Удалить",
+      "delete-confirm": "Вы уверены, что хотите удалить этот объект?",
+      "delete-confirm-named": "Вы уверены, что хотите удалить \"{{name}}\"?",
+      "yes": "Да",
+      "cancel": "Отмена",
+      "create-folder": "Создать папку",
+      "create-file": "Создать файл",
+      "create": "Создать",
+      "folder-name-placeholder": "Название папки",
+      "file-name-placeholder": "Имя файла",
+      "new-name-placeholder": "Новое имя"
+    }
   }
 }
