@@ -46,6 +46,22 @@
 .breadcrumb {
   margin: 0;
   min-width: 0;
+  line-height: 24px;
+}
+
+.breadcrumb :global(ol) {
+  align-items: center;
+}
+
+.breadcrumb :global(li) {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.breadcrumb :global(.ant-breadcrumb-link) {
+  display: inline-flex;
+  align-items: center;
 }
 
 .breadcrumb :global(.ant-breadcrumb-separator) {
@@ -58,12 +74,47 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: bottom;
 }
 
-.breadcrumbLocked :global(a.ant-breadcrumb-link) {
+.breadcrumbItem {
+  height: 24px !important;
+  padding-inline: 4px !important;
+  margin-inline: -4px;
+  color: var(--ant-color-text-description, rgba(0, 0, 0, 0.45)) !important;
+  border-radius: var(--ant-border-radius-sm, 4px) !important;
+}
+
+.breadcrumbItem:global(.ant-btn-icon-only) {
+  width: auto !important;
+}
+
+.breadcrumbItem:hover,
+.breadcrumbItem:focus-visible {
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88)) !important;
+  background-color: var(--ant-color-bg-text-hover, rgba(0, 0, 0, 0.06)) !important;
+}
+
+.breadcrumbItemCurrent {
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88)) !important;
+  cursor: default !important;
+}
+
+.breadcrumbItemCurrent:hover,
+.breadcrumbItemCurrent:focus-visible {
+  color: var(--ant-color-text, rgba(0, 0, 0, 0.88)) !important;
+  background-color: transparent !important;
+}
+
+.breadcrumbItemLocked {
+  cursor: default !important;
+  opacity: 1 !important;
   pointer-events: none;
-  cursor: default;
+}
+
+.breadcrumbItemLocked:hover,
+.breadcrumbItemLocked:focus {
+  color: var(--ant-color-text-description, rgba(0, 0, 0, 0.45)) !important;
+  background-color: transparent !important;
 }
 
 .navUpButtonLocked {

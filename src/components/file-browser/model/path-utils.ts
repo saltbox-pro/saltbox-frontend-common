@@ -1,12 +1,5 @@
 export type FileBrowserPathStyle = "posix" | "win32";
 
-function normalizeWinDrive(drive: string): string {
-  if (drive.length < 2) {
-    return drive;
-  }
-  return `${drive[0].toUpperCase()}${drive.slice(1)}`;
-}
-
 export function isSafePathSegment(name: string): boolean {
   const trimmed = name.trim();
   if (!trimmed || trimmed === "." || trimmed === "..") {
@@ -29,7 +22,7 @@ export function splitPathSegments(
       return trimmed.split(/[\\/]+/).filter(Boolean);
     }
 
-    const drive = normalizeWinDrive(match[1]);
+    const drive = match[1];
     const rest = match[2];
     const parts = rest ? rest.split(/[\\/]+/).filter(Boolean) : [];
     return [drive, ...parts];
@@ -71,7 +64,7 @@ export function buildPathFromSegments(
       return "";
     }
 
-    const drive = normalizeWinDrive(segments[0]);
+    const drive = segments[0];
     if (segments.length === 1) {
       return `${drive}\\`;
     }
@@ -124,7 +117,7 @@ export function joinPathChild(
 
   if (pathStyle === "win32") {
     if (isRootPath(currentPath, pathStyle)) {
-      const drive = normalizeWinDrive(currentPath.trim().replace(/[\\/]+$/, ""));
+      const drive = currentPath.trim().replace(/[\\/]+$/, "");
       return `${drive}\\${segment}`;
     }
 

@@ -1,6 +1,6 @@
-import { Breadcrumb } from "antd";
+import { Breadcrumb, Button } from "antd";
 import type { ItemType } from "antd/es/breadcrumb/Breadcrumb";
-import { useMemo, type MouseEvent, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 
 import { MatIcon } from "../../mat-icon/mat-icon";
 import {
@@ -27,16 +27,42 @@ function BreadcrumbLabel({ children, title }: { children: ReactNode; title: stri
   );
 }
 
-function preventAndNavigate(
-  event: MouseEvent<HTMLAnchorElement | HTMLSpanElement>,
-  disabled: boolean,
-  navigate?: () => void
-) {
-  event.preventDefault();
-  if (disabled) {
-    return;
-  }
-  navigate?.();
+function BreadcrumbItemButton({
+  label,
+  icon,
+  title,
+  isCurrent = false,
+  locked = false,
+  onNavigate,
+}: {
+  label?: ReactNode;
+  icon?: ReactNode;
+  title?: string;
+  isCurrent?: boolean;
+  locked?: boolean;
+  onNavigate?: () => void;
+}) {
+  const interactionLocked = isCurrent || locked || onNavigate == null;
+
+  const className = `${styles.breadcrumbItem}${
+    isCurrent ? ` ${styles.breadcrumbItemCurrent}` : ""
+  }${locked && !isCurrent ? ` ${styles.breadcrumbItemLocked}` : ""}`;
+
+  return (
+    <Button
+      type="text"
+      size="small"
+      icon={icon}
+      title={title}
+      className={className}
+      aria-current={isCurrent ? "page" : undefined}
+      aria-disabled={interactionLocked || undefined}
+      tabIndex={interactionLocked ? -1 : undefined}
+      onClick={interactionLocked ? undefined : onNavigate}
+    >
+      {label}
+    </Button>
+  );
 }
 
 export function FileBrowserBreadcrumb({
@@ -51,64 +77,43 @@ export function FileBrowserBreadcrumb({
     const homePath = getRootPath(currentPath, pathStyle);
     const displaySegments = pathStyle === "win32" ? segments.slice(1) : segments;
     const driveOffset = pathStyle === "win32" ? 1 : 0;
+    const isHomeCurrent = displaySegments.length === 0;
 
-    const homeTitle =
-      pathStyle === "win32" ? (
-        <BreadcrumbLabel title={homePath}>{homePath}</BreadcrumbLabel>
-      ) : (
-        <MatIcon icon="home" size="small" />
-      );
-
-    const homeItem: ItemType = canNavigate
-      ? disabled
-        ? {
-            title: (
-              <span aria-disabled="true" tabIndex={-1}>
-                {homeTitle}
-              </span>
-            ),
+    const homeItem: ItemType = {
+      title: (
+        <BreadcrumbItemButton
+          icon={pathStyle === "win32" ? undefined : <MatIcon icon="home" size="small" />}
+          label={
+            pathStyle === "win32" ? (
+              <BreadcrumbLabel title={homePath}>{homePath}</BreadcrumbLabel>
+            ) : undefined
           }
-        : {
-            title: homeTitle,
-            href: "#",
-            onClick: (event) => preventAndNavigate(event, disabled, () => onNavigate?.(homePath)),
-          }
-      : { title: homeTitle };
+          title={homePath}
+          isCurrent={isHomeCurrent}
+          locked={disabled || !canNavigate}
+          onNavigate={canNavigate ? () => onNavigate?.(homePath) : undefined}
+        />
+      ),
+    };
 
     const segmentItems: ItemType[] = displaySegments.map((segment, index) => {
       const path = buildPathFromSegments(segments.slice(0, index + 1 + driveOffset), pathStyle);
-      const isLast = index === displaySegments.length - 1;
-      const title = <BreadcrumbLabel title={segment}>{segment}</BreadcrumbLabel>;
-
-      if (isLast || !canNavigate) {
-        return { title };
-      }
-
-      if (disabled) {
-        return {
-          title: (
-            <span aria-disabled="true" tabIndex={-1}>
-              {title}
-            </span>
-          ),
-        };
-      }
+      const isCurrent = index === displaySegments.length - 1;
 
       return {
-        title,
-        href: "#",
-        onClick: (event) => preventAndNavigate(event, disabled, () => onNavigate?.(path)),
+        title: (
+          <BreadcrumbItemButton
+            label={<BreadcrumbLabel title={segment}>{segment}</BreadcrumbLabel>}
+            isCurrent={isCurrent}
+            locked={disabled || !canNavigate}
+            onNavigate={canNavigate ? () => onNavigate?.(path) : undefined}
+          />
+        ),
       };
     });
 
     return [homeItem, ...segmentItems];
   }, [currentPath, disabled, onNavigate, pathStyle]);
 
-  return (
-    <Breadcrumb
-      className={`${styles.breadcrumb}${disabled ? ` ${styles.breadcrumbLocked}` : ""}`}
-      items={items}
-      separator=">"
-    />
-  );
+  return <Breadcrumb className={styles.breadcrumb} items={items} separator=">" />;
 }
