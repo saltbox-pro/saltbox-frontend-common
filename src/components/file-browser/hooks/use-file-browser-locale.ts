@@ -29,16 +29,15 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
         download: overrides?.actions?.download ?? t("file-browser.actions.download"),
         rename: overrides?.actions?.rename ?? t("file-browser.actions.rename"),
         delete: overrides?.actions?.delete ?? t("file-browser.actions.delete"),
-        deleteConfirm:
-          overrides?.actions?.deleteConfirm ?? t("file-browser.actions.delete-confirm"),
         yes: overrides?.actions?.yes ?? t("file-browser.actions.yes"),
         cancel: overrides?.actions?.cancel ?? t("file-browser.actions.cancel"),
-        createFolder: overrides?.actions?.createFolder ?? t("file-browser.actions.create-folder"),
+        createFolder:
+          overrides?.actions?.createFolder ?? t("file-browser.actions.create-directory"),
         createFile: overrides?.actions?.createFile ?? t("file-browser.actions.create-file"),
         create: overrides?.actions?.create ?? t("file-browser.actions.create"),
         folderNamePlaceholder:
           overrides?.actions?.folderNamePlaceholder ??
-          t("file-browser.actions.folder-name-placeholder"),
+          t("file-browser.actions.directory-name-placeholder"),
         fileNamePlaceholder:
           overrides?.actions?.fileNamePlaceholder ??
           t("file-browser.actions.file-name-placeholder"),

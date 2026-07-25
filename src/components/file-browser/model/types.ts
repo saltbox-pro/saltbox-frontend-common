@@ -36,8 +36,10 @@ export type FileBrowserLocaleOverrides = {
     download?: string;
     rename?: string;
     delete?: string;
-    deleteConfirm?: string;
-    deleteConfirmNamed?: string;
+    deleteConfirmFile?: string;
+    deleteConfirmDirectory?: string;
+    deleteConfirmFileNamed?: string;
+    deleteConfirmDirectoryNamed?: string;
     yes?: string;
     cancel?: string;
     createFolder?: string;

@@ -2,11 +2,12 @@ import { useTranslation } from "react-i18next";
 
 import { Modal } from "../../antd-wrappers/modal";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
-import type { FileBrowserLocaleOverrides } from "../model/types";
+import type { FileBrowserItemKind, FileBrowserLocaleOverrides } from "../model/types";
 
 export interface FileBrowserDeleteConfirmModalProps {
   open: boolean;
   itemName?: string;
+  itemKind?: FileBrowserItemKind;
   locale?: FileBrowserLocaleOverrides;
   confirmLoading?: boolean;
   onConfirm: () => void;
@@ -16,6 +17,7 @@ export interface FileBrowserDeleteConfirmModalProps {
 export function FileBrowserDeleteConfirmModal({
   open,
   itemName,
+  itemKind = "file",
   locale,
   confirmLoading,
   onConfirm,
@@ -23,14 +25,20 @@ export function FileBrowserDeleteConfirmModal({
 }: FileBrowserDeleteConfirmModalProps) {
   const { t } = useTranslation("common");
   const labels = useFileBrowserLocale(locale);
-  const message = itemName
-    ? t("file-browser.actions.delete-confirm-named", {
-        name: itemName,
-        ...(locale?.actions?.deleteConfirmNamed != null
-          ? { defaultValue: locale.actions.deleteConfirmNamed }
-          : {}),
-      })
-    : labels.actions.deleteConfirm;
+  const kindKey = itemKind === "directory" ? "directory" : "file";
+  const overrideMessage = itemName
+    ? kindKey === "directory"
+      ? locale?.actions?.deleteConfirmDirectoryNamed
+      : locale?.actions?.deleteConfirmFileNamed
+    : kindKey === "directory"
+      ? locale?.actions?.deleteConfirmDirectory
+      : locale?.actions?.deleteConfirmFile;
+
+  const message =
+    overrideMessage ??
+    (itemName
+      ? t(`file-browser.actions.delete-confirm-${kindKey}-named`, { name: itemName })
+      : t(`file-browser.actions.delete-confirm-${kindKey}`));
 
   return (
     <Modal

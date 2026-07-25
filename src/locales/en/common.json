@@ -149,16 +149,33 @@
       "download": "Download",
       "rename": "Rename",
       "delete": "Delete",
-      "delete-confirm": "Are you sure you want to delete this item?",
-      "delete-confirm-named": "Are you sure you want to delete \"{{name}}\"?",
+      "delete-confirm-file": "Are you sure you want to delete this file?",
+      "delete-confirm-directory": "Are you sure you want to delete this directory?",
+      "delete-confirm-file-named": "Are you sure you want to delete file \"{{name}}\"?",
+      "delete-confirm-directory-named": "Are you sure you want to delete directory \"{{name}}\"?",
       "yes": "Yes",
       "cancel": "Cancel",
-      "create-folder": "Create Folder",
+      "create-directory": "Create Directory",
       "create-file": "Create File",
       "create": "Create",
-      "folder-name-placeholder": "Folder name",
+      "directory-name-placeholder": "Directory name",
       "file-name-placeholder": "File name",
       "new-name-placeholder": "New name"
+    },
+    "notifications": {
+      "create-directory-progress": "Creating directory…",
+      "create-directory-success": "Directory \"{{name}}\" created successfully",
+      "create-directory-error": "Failed to create directory",
+      "create-file-success": "File \"{{name}}\" created successfully",
+      "create-file-error": "Failed to create file",
+      "delete-file-success": "File \"{{name}}\" deleted successfully",
+      "delete-file-error": "Failed to delete file",
+      "delete-directory-success": "Directory \"{{name}}\" deleted successfully",
+      "delete-directory-error": "Failed to delete directory",
+      "rename-file-success": "File \"{{name}}\" renamed successfully",
+      "rename-file-error": "Failed to rename file",
+      "rename-directory-success": "Directory \"{{name}}\" renamed successfully",
+      "rename-directory-error": "Failed to rename directory"
     }
   }
 }

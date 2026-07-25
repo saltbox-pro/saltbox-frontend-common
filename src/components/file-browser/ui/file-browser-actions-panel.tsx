@@ -19,6 +19,7 @@ export interface FileBrowserActionsPanelRenderProps {
 export interface FileBrowserActionsPanelProps {
   disabled?: boolean;
   locale?: FileBrowserLocaleOverrides;
+  isValidName?: (name: string) => boolean;
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
   onRename?: (item: FileBrowserItem, newName: string) => void | Promise<void>;
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
@@ -34,6 +35,7 @@ export interface FileBrowserActionsPanelProps {
 export function FileBrowserActionsPanel({
   disabled = false,
   locale,
+  isValidName = isSafePathSegment,
   onDownload,
   onRename,
   onDelete,
@@ -73,7 +75,7 @@ export function FileBrowserActionsPanel({
 
   const handleCreateFolder = useCallback(async () => {
     const trimmed = createFolderName.trim();
-    if (!trimmed || !isSafePathSegment(trimmed) || !onCreateFolder || actionLoading) {
+    if (!trimmed || !isValidName(trimmed) || !onCreateFolder || actionLoading) {
       return;
     }
 
@@ -86,11 +88,11 @@ export function FileBrowserActionsPanel({
     } finally {
       setActionLoading(false);
     }
-  }, [actionLoading, closeCreateFolder, createFolderName, onCreateFolder]);
+  }, [actionLoading, closeCreateFolder, createFolderName, isValidName, onCreateFolder]);
 
   const handleCreateFile = useCallback(async () => {
     const trimmed = createFileName.trim();
-    if (!trimmed || !isSafePathSegment(trimmed) || !onCreateFile || actionLoading) {
+    if (!trimmed || !isValidName(trimmed) || !onCreateFile || actionLoading) {
       return;
     }
 
@@ -103,7 +105,7 @@ export function FileBrowserActionsPanel({
     } finally {
       setActionLoading(false);
     }
-  }, [actionLoading, closeCreateFile, createFileName, onCreateFile]);
+  }, [actionLoading, closeCreateFile, createFileName, isValidName, onCreateFile]);
 
   const handleRenameConfirm = useCallback(async () => {
     const trimmed = renameName.trim();
@@ -111,7 +113,7 @@ export function FileBrowserActionsPanel({
       !renameItem ||
       !onRename ||
       !trimmed ||
-      !isSafePathSegment(trimmed) ||
+      !isValidName(trimmed) ||
       trimmed === renameItem.name ||
       actionLoading
     ) {
@@ -127,7 +129,7 @@ export function FileBrowserActionsPanel({
     } finally {
       setActionLoading(false);
     }
-  }, [actionLoading, closeRename, onRename, renameItem, renameName]);
+  }, [actionLoading, closeRename, isValidName, onRename, renameItem, renameName]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteItem || !onDelete || actionLoading) {
@@ -252,6 +254,7 @@ export function FileBrowserActionsPanel({
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
           confirmLoading={actionLoading}
+          isValidName={isValidName}
           onChange={setCreateFolderName}
           onConfirm={handleCreateFolder}
           onCancel={closeCreateFolder}
@@ -269,6 +272,7 @@ export function FileBrowserActionsPanel({
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
           confirmLoading={actionLoading}
+          isValidName={isValidName}
           onChange={setCreateFileName}
           onConfirm={handleCreateFile}
           onCancel={closeCreateFile}
@@ -287,10 +291,11 @@ export function FileBrowserActionsPanel({
           invalidNameMessage={labels.nameModal.nameInvalid}
           confirmDisabled={
             !renameName.trim() ||
-            !isSafePathSegment(renameName) ||
+            !isValidName(renameName.trim()) ||
             renameName.trim() === renameItem?.name
           }
           confirmLoading={actionLoading}
+          isValidName={isValidName}
           onChange={setRenameName}
           onConfirm={handleRenameConfirm}
           onCancel={closeRename}
@@ -301,6 +306,7 @@ export function FileBrowserActionsPanel({
         <FileBrowserDeleteConfirmModal
           open={deleteItem != null}
           itemName={deleteItem?.name}
+          itemKind={deleteItem?.kind}
           locale={locale}
           confirmLoading={actionLoading}
           onConfirm={handleDeleteConfirm}

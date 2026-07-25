@@ -16,6 +16,7 @@ export interface FileBrowserNameModalProps {
   invalidNameMessage?: string;
   confirmDisabled?: boolean;
   confirmLoading?: boolean;
+  isValidName?: (name: string) => boolean;
   onChange: (value: string) => void;
   onConfirm: () => void;
   onCancel: () => void;
@@ -32,6 +33,7 @@ export function FileBrowserNameModal({
   invalidNameMessage,
   confirmDisabled,
   confirmLoading,
+  isValidName = isSafePathSegment,
   onChange,
   onConfirm,
   onCancel,
@@ -43,7 +45,7 @@ export function FileBrowserNameModal({
   const trimmed = (watchedName ?? "").trim();
   const resolvedRequiredMessage = requiredMessage ?? labels.nameModal.nameRequired;
   const resolvedInvalidNameMessage = invalidNameMessage ?? labels.nameModal.nameInvalid;
-  const isConfirmDisabled = confirmDisabled ?? (!trimmed || !isSafePathSegment(trimmed));
+  const isConfirmDisabled = confirmDisabled ?? (!trimmed || !isValidName(trimmed));
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
@@ -82,7 +84,7 @@ export function FileBrowserNameModal({
                 if (!name.trim()) {
                   return;
                 }
-                if (!isSafePathSegment(name)) {
+                if (!isValidName(name.trim())) {
                   throw new Error(resolvedInvalidNameMessage);
                 }
               },

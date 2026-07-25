@@ -149,16 +149,33 @@
       "download": "Скачать",
       "rename": "Переименовать",
       "delete": "Удалить",
-      "delete-confirm": "Вы уверены, что хотите удалить этот объект?",
-      "delete-confirm-named": "Вы уверены, что хотите удалить \"{{name}}\"?",
+      "delete-confirm-file": "Вы уверены, что хотите удалить этот файл?",
+      "delete-confirm-directory": "Вы уверены, что хотите удалить эту директорию?",
+      "delete-confirm-file-named": "Вы уверены, что хотите удалить файл \"{{name}}\"?",
+      "delete-confirm-directory-named": "Вы уверены, что хотите удалить директорию \"{{name}}\"?",
       "yes": "Да",
       "cancel": "Отмена",
-      "create-folder": "Создать папку",
+      "create-directory": "Создать директорию",
       "create-file": "Создать файл",
       "create": "Создать",
-      "folder-name-placeholder": "Название папки",
+      "directory-name-placeholder": "Название директории",
       "file-name-placeholder": "Имя файла",
       "new-name-placeholder": "Новое имя"
+    },
+    "notifications": {
+      "create-directory-progress": "Создание директории…",
+      "create-directory-success": "Директория \"{{name}}\" успешно создана",
+      "create-directory-error": "Не удалось создать директорию",
+      "create-file-success": "Файл \"{{name}}\" успешно создан",
+      "create-file-error": "Не удалось создать файл",
+      "delete-file-success": "Файл \"{{name}}\" успешно удалён",
+      "delete-file-error": "Не удалось удалить файл",
+      "delete-directory-success": "Директория \"{{name}}\" успешно удалена",
+      "delete-directory-error": "Не удалось удалить директорию",
+      "rename-file-success": "Файл \"{{name}}\" успешно переименован",
+      "rename-file-error": "Не удалось переименовать файл",
+      "rename-directory-success": "Директория \"{{name}}\" успешно переименована",
+      "rename-directory-error": "Не удалось переименовать директорию"
     }
   }
 }
