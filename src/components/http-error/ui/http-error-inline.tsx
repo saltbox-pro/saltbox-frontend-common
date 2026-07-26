@@ -1,36 +1,68 @@
-import { Alert, Button, Flex } from "antd";
+import {
+  CloudServerOutlined,
+  DisconnectOutlined,
+  ExclamationCircleOutlined,
+  FileSearchOutlined,
+  LockOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import { Button } from "antd";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ResourceLoadError } from "../types/resource-load-error";
+import type { HttpErrorKind, ResourceLoadError } from "../types/resource-load-error";
 import { resolveHttpErrorPresentation } from "../utils/resolve-http-error-presentation";
+
+import styles from "./http-error-inline.module.css";
 
 type HttpErrorInlineProps = {
   error: ResourceLoadError;
   onRetry?: () => void;
-  showStatusInMessage?: boolean;
 };
 
-export const HttpErrorInline = ({
-  error,
-  onRetry,
-  showStatusInMessage = true,
-}: HttpErrorInlineProps) => {
+const iconByKind: Record<HttpErrorKind, ReactNode> = {
+  not_found: <FileSearchOutlined />,
+  forbidden: <LockOutlined />,
+  server: <CloudServerOutlined />,
+  unavailable: <CloudServerOutlined />,
+  network: <DisconnectOutlined />,
+  generic: <ExclamationCircleOutlined />,
+};
+
+const iconWrapClassByKind: Record<HttpErrorKind, string> = {
+  not_found: styles.iconWrapNotFound,
+  forbidden: styles.iconWrapForbidden,
+  server: styles.iconWrapServer,
+  unavailable: styles.iconWrapUnavailable,
+  network: styles.iconWrapNetwork,
+  generic: styles.iconWrapGeneric,
+};
+
+export const HttpErrorInline = ({ error, onRetry }: HttpErrorInlineProps) => {
   const { t } = useTranslation("common");
   const presentation = resolveHttpErrorPresentation(error, t);
 
-  const message =
-    showStatusInMessage && presentation.showStatusInTitle
-      ? `${presentation.title} - ${presentation.subtitle}`
-      : presentation.subtitle;
-
   return (
-    <Flex vertical gap={8}>
-      <Alert type="error" showIcon message={message} />
-      {onRetry && (
-        <Button type="primary" onClick={onRetry}>
-          {t("errors.page.retry")}
-        </Button>
-      )}
-    </Flex>
+    <div className={styles.root} role="alert" aria-live="polite">
+      <div className={`${styles.iconWrap} ${iconWrapClassByKind[presentation.kind]}`}>
+        {iconByKind[presentation.kind]}
+      </div>
+
+      <div className={styles.body}>
+        {presentation.statusLabel ? (
+          <span className={styles.status}>{presentation.statusLabel}</span>
+        ) : null}
+        <h3 className={styles.title}>{presentation.title}</h3>
+        <p className={styles.subtitle}>{presentation.subtitle}</p>
+      </div>
+
+      {onRetry ? (
+        <div className={styles.actions}>
+          <Button icon={<ReloadOutlined />} onClick={onRetry}>
+            {t("errors.page.retry")}
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 };

@@ -26,7 +26,7 @@ export const HttpErrorPage = ({ error, homePath, onRetry }: HttpErrorPageProps) 
     >
       <Result
         status={presentation.resultStatus}
-        title={presentation.showStatusInTitle ? presentation.title : undefined}
+        title={presentation.showStatusInTitle ? presentation.statusLabel : undefined}
         subTitle={presentation.subtitle}
         extra={<HttpErrorContent onRetry={onRetry} onNavigateHome={handleNavigateHome} />}
       />

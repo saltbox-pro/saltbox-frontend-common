@@ -1,12 +1,21 @@
 import type { TFunction } from "i18next";
 
-import type { ResourceLoadError } from "../types/resource-load-error";
+import type { HttpErrorKind, ResourceLoadError } from "../types/resource-load-error";
 
 export type HttpErrorPresentation = {
+  kind: HttpErrorKind;
   resultStatus: "404" | "403" | "500" | "error";
   title: string;
   subtitle: string;
+  statusLabel?: string;
   showStatusInTitle: boolean;
+};
+
+const resolveResultStatus = (status: number): HttpErrorPresentation["resultStatus"] => {
+  if (status === 404) return "404";
+  if (status === 403) return "403";
+  if (status === 500) return "500";
+  return "error";
 };
 
 export const resolveHttpErrorPresentation = (
@@ -15,7 +24,16 @@ export const resolveHttpErrorPresentation = (
 ): HttpErrorPresentation => {
   const { status, kind, message } = error;
 
-  const subtitleBykind: Record<ResourceLoadError["kind"], string> = {
+  const titleByKind: Record<HttpErrorKind, string> = {
+    not_found: t("errors.page.not-found-title"),
+    forbidden: t("errors.page.forbidden-title"),
+    server: t("errors.page.server-error-title"),
+    unavailable: t("errors.page.service-unavailable-title"),
+    network: t("errors.page.network-error-title"),
+    generic: t("errors.page.generic-title"),
+  };
+
+  const subtitleByKind: Record<HttpErrorKind, string> = {
     not_found: t("errors.page.not-found"),
     forbidden: t("errors.page.forbidden"),
     server: t("errors.page.server-error"),
@@ -24,21 +42,14 @@ export const resolveHttpErrorPresentation = (
     generic: t("errors.page.generic"),
   };
 
-  const subtitle = message?.trim() || subtitleBykind[kind];
+  const showStatusInTitle = status > 0;
 
-  if (status === 404) {
-    return { resultStatus: "404", title: "404", subtitle, showStatusInTitle: true };
-  }
-  if (status === 403) {
-    return { resultStatus: "403", title: "403", subtitle, showStatusInTitle: true };
-  }
-  if (status === 500) {
-    return { resultStatus: "500", title: "500", subtitle, showStatusInTitle: true };
-  }
   return {
-    resultStatus: "error",
-    title: status > 0 ? String(status) : t("errors.page.network-error"),
-    subtitle,
-    showStatusInTitle: status > 0,
+    kind,
+    resultStatus: resolveResultStatus(status),
+    title: titleByKind[kind],
+    subtitle: message?.trim() || subtitleByKind[kind],
+    statusLabel: showStatusInTitle ? String(status) : undefined,
+    showStatusInTitle,
   };
 };

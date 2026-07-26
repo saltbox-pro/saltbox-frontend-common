@@ -4,8 +4,8 @@ export const mapStatusToKind = (status: number): HttpErrorKind => {
   if (status === 0) return "network";
   if (status === 404) return "not_found";
   if (status === 403) return "forbidden";
-  if (status >= 500) return "server";
   if (status === 503) return "unavailable";
+  if (status >= 500) return "server";
   return "generic";
 };
 

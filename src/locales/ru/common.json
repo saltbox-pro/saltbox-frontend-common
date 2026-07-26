@@ -83,11 +83,17 @@
     "access-denied": "Доступ запрещен",
     "page": {
       "not-found": "Запрашиваемый ресурс не найден.",
+      "not-found-title": "Не найдено",
       "forbidden": "У вас нет доступа к этому ресурсу.",
+      "forbidden-title": "Нет доступа",
       "server-error": "На сервере произошла ошибка. Попробуйте позже.",
+      "server-error-title": "Ошибка сервера",
       "service-unavailable": "Сервис временно недоступен. Попробуйте позже.",
+      "service-unavailable-title": "Сервис недоступен",
       "network-error": "Ошибка подключения к серверу.",
+      "network-error-title": "Нет соединения",
       "generic": "Произошла ошибка при загрузке данных.",
+      "generic-title": "Ошибка загрузки",
       "back-home": "На главную",
       "retry": "Повторить"
     }

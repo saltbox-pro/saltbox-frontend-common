@@ -83,11 +83,17 @@
     "access-denied": "Access denied",
     "page": {
       "not-found": "The requested resource was not found.",
+      "not-found-title": "Not found",
       "forbidden": "You do not have access to this resource.",
+      "forbidden-title": "Access denied",
       "server-error": "An error occurred on the server. Please try again later.",
+      "server-error-title": "Server error",
       "service-unavailable": "The service is temporarily unavailable. Please try again later.",
+      "service-unavailable-title": "Service unavailable",
       "network-error": "A network error occurred. Please try again later.",
+      "network-error-title": "Connection lost",
       "generic": "An error occurred while loading the data.",
+      "generic-title": "Failed to load",
       "back-home": "Back to home",
       "retry": "Retry"
     }
