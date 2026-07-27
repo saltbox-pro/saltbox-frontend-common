@@ -4,6 +4,7 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "directory-already-exists": "file-browser.notifications.directory-already-exists",
   "file-already-exists": "file-browser.notifications.file-already-exists",
   "parent-directory-missing": "file-browser.notifications.parent-directory-missing",
+  "entry-not-in-current-directory": "file-browser.notifications.entry-not-in-current-directory",
   "create-error": "file-browser.notifications.create-error",
   "create-directory-error": "file-browser.notifications.create-directory-error",
   "create-file-error": "file-browser.notifications.create-file-error",

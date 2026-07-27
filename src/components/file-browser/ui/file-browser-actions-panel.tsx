@@ -26,6 +26,7 @@ export interface FileBrowserActionsPanelProps {
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
   onRename?: (item: FileBrowserItem, newName: string) => void | Promise<void>;
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
+  canRename?: (item: FileBrowserItem) => boolean;
   canDelete?: (item: FileBrowserItem) => boolean;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
@@ -44,6 +45,7 @@ export function FileBrowserActionsPanel({
   onDownload,
   onRename,
   onDelete,
+  canRename,
   canDelete,
   onCreateFolder,
   onCreateFile,
@@ -208,7 +210,7 @@ export function FileBrowserActionsPanel({
         deleteTitle={labels.actions.delete}
         onDownload={onDownload ? () => onDownload(item) : undefined}
         onRename={
-          onRename
+          onRename && (canRename?.(item) ?? true)
             ? () => {
                 if (disabled || actionLoading) {
                   return;
@@ -242,6 +244,7 @@ export function FileBrowserActionsPanel({
       labels.actions.rename,
       onDelete,
       canDelete,
+      canRename,
       onDownload,
       onRename,
       openModal,
@@ -340,7 +343,11 @@ export function FileBrowserActionsPanel({
       {onRename && renameItem != null && (
         <FileBrowserNameModal
           open={activeModal === "rename"}
-          title={labels.actions.rename}
+          title={
+            renameItem.kind === "directory"
+              ? labels.actions.renameTitleDirectory
+              : labels.actions.renameTitleFile
+          }
           value={renameName}
           placeholder={labels.actions.newNamePlaceholder}
           okText={labels.actions.rename}

@@ -152,6 +152,8 @@
     "actions": {
       "download": "Download",
       "rename": "Rename",
+      "rename-title-file": "Rename file",
+      "rename-title-directory": "Rename directory",
       "delete": "Delete",
       "delete-title-file": "Delete file",
       "delete-title-directory": "Delete directory",
@@ -177,6 +179,7 @@
       "directory-already-exists": "A directory with this name already exists",
       "file-already-exists": "A file with this name already exists",
       "parent-directory-missing": "The current directory no longer exists",
+      "entry-not-in-current-directory": "The object is not in the current directory",
       "create-file-success": "File \"{{name}}\" created successfully",
       "delete-file-success": "File \"{{name}}\" deleted successfully",
       "delete-directory-success": "Directory \"{{name}}\" deleted successfully",

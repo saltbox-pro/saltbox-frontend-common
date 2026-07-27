@@ -152,6 +152,8 @@
     "actions": {
       "download": "Скачать",
       "rename": "Переименовать",
+      "rename-title-file": "Переименовать файл",
+      "rename-title-directory": "Переименовать директорию",
       "delete": "Удалить",
       "delete-title-file": "Удаление файла",
       "delete-title-directory": "Удаление директории",
@@ -177,6 +179,7 @@
       "directory-already-exists": "Директория с таким именем уже существует",
       "file-already-exists": "Файл с таким именем уже существует",
       "parent-directory-missing": "Текущая директория больше не существует",
+      "entry-not-in-current-directory": "Объект не относится к текущей директории",
       "create-file-success": "Файл \"{{name}}\" успешно создан",
       "delete-file-success": "Файл \"{{name}}\" успешно удалён",
       "delete-directory-success": "Директория \"{{name}}\" успешно удалена",

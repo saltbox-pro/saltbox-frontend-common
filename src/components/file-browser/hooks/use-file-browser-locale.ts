@@ -35,6 +35,11 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
       actions: {
         download: overrides?.actions?.download ?? t("file-browser.actions.download"),
         rename: overrides?.actions?.rename ?? t("file-browser.actions.rename"),
+        renameTitleFile:
+          overrides?.actions?.renameTitleFile ?? t("file-browser.actions.rename-title-file"),
+        renameTitleDirectory:
+          overrides?.actions?.renameTitleDirectory ??
+          t("file-browser.actions.rename-title-directory"),
         delete: overrides?.actions?.delete ?? t("file-browser.actions.delete"),
         yes: overrides?.actions?.yes ?? t("file-browser.actions.yes"),
         cancel: overrides?.actions?.cancel ?? t("file-browser.actions.cancel"),

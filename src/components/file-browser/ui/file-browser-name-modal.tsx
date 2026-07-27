@@ -132,6 +132,7 @@ export function FileBrowserNameModal({
             placeholder={placeholder}
             onPressEnter={submit}
             disabled={okLoading}
+            allowClear
             autoComplete="off"
           />
         </Form.Item>

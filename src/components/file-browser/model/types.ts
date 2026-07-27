@@ -39,6 +39,8 @@ export type FileBrowserLocaleOverrides = {
   actions?: {
     download?: string;
     rename?: string;
+    renameTitleFile?: string;
+    renameTitleDirectory?: string;
     delete?: string;
     deleteTitleFile?: string;
     deleteTitleDirectory?: string;
