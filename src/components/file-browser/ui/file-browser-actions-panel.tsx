@@ -26,6 +26,7 @@ export interface FileBrowserActionsPanelProps {
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
   onRename?: (item: FileBrowserItem, newName: string) => void | Promise<void>;
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
+  canDelete?: (item: FileBrowserItem) => boolean;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
   onSubmitError?: (message: string) => void;
@@ -43,6 +44,7 @@ export function FileBrowserActionsPanel({
   onDownload,
   onRename,
   onDelete,
+  canDelete,
   onCreateFolder,
   onCreateFile,
   onSubmitError,
@@ -218,7 +220,7 @@ export function FileBrowserActionsPanel({
             : undefined
         }
         onDelete={
-          onDelete
+          onDelete && (canDelete?.(item) ?? true)
             ? () => {
                 if (disabled || actionLoading) {
                   return;
@@ -239,6 +241,7 @@ export function FileBrowserActionsPanel({
       labels.actions.download,
       labels.actions.rename,
       onDelete,
+      canDelete,
       onDownload,
       onRename,
       openModal,

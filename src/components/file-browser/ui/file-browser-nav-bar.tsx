@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import {
   getFileBrowserParentPath,
-  isRootPath,
+  isFileBrowserRootPath,
   type FileBrowserPathStyle,
 } from "../model/path-utils";
 
@@ -30,7 +30,7 @@ export function FileBrowserNavBar({
   onNavigateUp,
   toolbar,
 }: FileBrowserNavBarProps) {
-  const isRoot = isRootPath(currentPath, pathStyle);
+  const isRoot = isFileBrowserRootPath(currentPath, pathStyle);
   const parentPath = getFileBrowserParentPath(currentPath, pathStyle);
   const canNavigateUp =
     Boolean(onNavigateUp) && (parentPath != null || (isRoot && allowNavigateAboveRoot));

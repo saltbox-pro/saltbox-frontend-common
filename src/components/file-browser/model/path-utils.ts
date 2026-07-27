@@ -35,7 +35,10 @@ export function splitPathSegments(
   return path.split("/").filter(Boolean);
 }
 
-export function isRootPath(path: string, pathStyle: FileBrowserPathStyle = "posix"): boolean {
+export function isFileBrowserRootPath(
+  path: string,
+  pathStyle: FileBrowserPathStyle = "posix"
+): boolean {
   if (pathStyle === "win32") {
     return /^[A-Za-z]:[\\/]*$/.test(path.trim());
   }
@@ -84,7 +87,7 @@ export function getFileBrowserParentPath(
   pathStyle: FileBrowserPathStyle = "posix"
 ): string | null {
   if (pathStyle === "win32") {
-    if (isRootPath(path, pathStyle)) {
+    if (isFileBrowserRootPath(path, pathStyle)) {
       return null;
     }
 
@@ -116,7 +119,7 @@ export function joinFileBrowserPathChild(
   const segment = name.trim();
 
   if (pathStyle === "win32") {
-    if (isRootPath(currentPath, pathStyle)) {
+    if (isFileBrowserRootPath(currentPath, pathStyle)) {
       const drive = currentPath.trim().replace(/[\\/]+$/, "");
       return `${drive}\\${segment}`;
     }

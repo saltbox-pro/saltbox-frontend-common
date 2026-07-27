@@ -8,6 +8,7 @@ export type { FileBrowserPathStyle } from "./model/path-utils";
 export {
   getFileBrowserParentPath,
   isFileBrowserSafePathSegment,
+  isFileBrowserRootPath,
   joinFileBrowserPathChild,
 } from "./model/path-utils";
 export { getFileBrowserErrorI18nKey } from "./model/error-i18n-keys";
