@@ -101,32 +101,11 @@ export function FileBrowserActionsPanel({
     setActiveModal(modal);
   }, []);
 
-  const clearCreateFolderDraft = useCallback(() => {
-    if (activeModalRef.current === "create-folder") {
+  const clearNameModalDraft = useCallback((modal: ActiveModal, clear: () => void) => {
+    if (activeModalRef.current === modal) {
       return;
     }
-    setCreateFolderName("");
-    if (activeModalRef.current == null) {
-      setNameSubmitError(null);
-    }
-  }, []);
-
-  const clearCreateFileDraft = useCallback(() => {
-    if (activeModalRef.current === "create-file") {
-      return;
-    }
-    setCreateFileName("");
-    if (activeModalRef.current == null) {
-      setNameSubmitError(null);
-    }
-  }, []);
-
-  const clearRenameDraft = useCallback(() => {
-    if (activeModalRef.current === "rename") {
-      return;
-    }
-    setRenameItem(null);
-    setRenameName("");
+    clear();
     if (activeModalRef.current == null) {
       setNameSubmitError(null);
     }
@@ -153,62 +132,50 @@ export function FileBrowserActionsPanel({
     }
   }, []);
 
-  const handleCreateFolder = useCallback(async () => {
-    const trimmed = createFolderName.trim();
-    if (!trimmed || !isValidName(trimmed) || !onCreateFolder) {
-      return;
-    }
+  const runNameAction = useCallback(
+    async (modal: "create-folder" | "create-file" | "rename", action: () => Promise<void>) => {
+      await runLockedAction(async () => {
+        setNameSubmitError(null);
+        try {
+          await action();
+          setActiveModal(null);
+        } catch (error) {
+          reportNameSubmitError(modal, error);
+        }
+      });
+    },
+    [reportNameSubmitError, runLockedAction]
+  );
 
-    await runLockedAction(async () => {
-      setNameSubmitError(null);
-      try {
-        await onCreateFolder(trimmed);
-        setActiveModal(null);
-      } catch (error) {
-        reportNameSubmitError("create-folder", error);
+  const handleCreateFolder = useCallback(
+    async (name: string) => {
+      if (!onCreateFolder) {
+        return;
       }
-    });
-  }, [createFolderName, isValidName, onCreateFolder, reportNameSubmitError, runLockedAction]);
+      await runNameAction("create-folder", async () => onCreateFolder(name));
+    },
+    [onCreateFolder, runNameAction]
+  );
 
-  const handleCreateFile = useCallback(async () => {
-    const trimmed = createFileName.trim();
-    if (!trimmed || !isValidName(trimmed) || !onCreateFile) {
-      return;
-    }
-
-    await runLockedAction(async () => {
-      setNameSubmitError(null);
-      try {
-        await onCreateFile(trimmed);
-        setActiveModal(null);
-      } catch (error) {
-        reportNameSubmitError("create-file", error);
+  const handleCreateFile = useCallback(
+    async (name: string) => {
+      if (!onCreateFile) {
+        return;
       }
-    });
-  }, [createFileName, isValidName, onCreateFile, reportNameSubmitError, runLockedAction]);
+      await runNameAction("create-file", async () => onCreateFile(name));
+    },
+    [onCreateFile, runNameAction]
+  );
 
-  const handleRenameConfirm = useCallback(async () => {
-    const trimmed = renameName.trim();
-    if (
-      !renameItem ||
-      !onRename ||
-      !trimmed ||
-      !isValidName(trimmed) ||
-      trimmed === renameItem.name
-    ) {
-      return;
-    }
-
-    await runLockedAction(async () => {
-      setNameSubmitError(null);
-      try {
-        await onRename(renameItem, trimmed);
-        setActiveModal(null);
-      } catch (error) {
-        reportNameSubmitError("rename", error);
+  const handleRenameConfirm = useCallback(
+    async (name: string) => {
+      if (!renameItem || !onRename || name === renameItem.name) {
+        return;
       }
-    });
-  }, [isValidName, onRename, renameItem, renameName, reportNameSubmitError, runLockedAction]);
+      await runNameAction("rename", async () => onRename(renameItem, name));
+    },
+    [onRename, renameItem, runNameAction]
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteItem || !onDelete) {
@@ -282,6 +249,13 @@ export function FileBrowserActionsPanel({
 
   const toolbarLocked = disabled || actionLoading;
 
+  const openToolbarModal = (modal: Exclude<ActiveModal, null>) => {
+    if (toolbarLocked) {
+      return;
+    }
+    openModal(modal);
+  };
+
   const toolbar = (
     <div
       className={`${styles.actionButtons}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
@@ -293,12 +267,7 @@ export function FileBrowserActionsPanel({
           icon={<MatIcon icon="create_new_folder" size="small" />}
           aria-disabled={toolbarLocked || undefined}
           tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => {
-            if (toolbarLocked) {
-              return;
-            }
-            openModal("create-folder");
-          }}
+          onClick={() => openToolbarModal("create-folder")}
         >
           {labels.actions.createFolder}
         </Button>
@@ -309,12 +278,7 @@ export function FileBrowserActionsPanel({
           icon={<MatIcon icon="note_add" size="small" />}
           aria-disabled={toolbarLocked || undefined}
           tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => {
-            if (toolbarLocked) {
-              return;
-            }
-            openModal("create-file");
-          }}
+          onClick={() => openToolbarModal("create-file")}
         >
           {labels.actions.createFile}
         </Button>
@@ -336,7 +300,7 @@ export function FileBrowserActionsPanel({
           placeholder={labels.actions.folderNamePlaceholder}
           okText={labels.actions.create}
           cancelText={labels.actions.cancel}
-          requiredMessage={labels.nameModal.nameRequired}
+          requiredMessage={labels.nameModal.directoryNameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "create-folder" ? nameSubmitError : null}
           okLoading={actionLoading}
@@ -345,7 +309,7 @@ export function FileBrowserActionsPanel({
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFolder}
           onCancel={closeActiveModal}
-          afterClose={clearCreateFolderDraft}
+          afterClose={() => clearNameModalDraft("create-folder", () => setCreateFolderName(""))}
         />
       )}
 
@@ -357,7 +321,7 @@ export function FileBrowserActionsPanel({
           placeholder={labels.actions.fileNamePlaceholder}
           okText={labels.actions.create}
           cancelText={labels.actions.cancel}
-          requiredMessage={labels.nameModal.nameRequired}
+          requiredMessage={labels.nameModal.fileNameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "create-file" ? nameSubmitError : null}
           okLoading={actionLoading}
@@ -366,7 +330,7 @@ export function FileBrowserActionsPanel({
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFile}
           onCancel={closeActiveModal}
-          afterClose={clearCreateFileDraft}
+          afterClose={() => clearNameModalDraft("create-file", () => setCreateFileName(""))}
         />
       )}
 
@@ -381,18 +345,19 @@ export function FileBrowserActionsPanel({
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "rename" ? nameSubmitError : null}
-          confirmDisabled={
-            !renameName.trim() ||
-            !isValidName(renameName.trim()) ||
-            renameName.trim() === renameItem.name
-          }
+          confirmDisabled={renameName.trim() === renameItem.name}
           okLoading={actionLoading}
           isValidName={isValidName}
           onChange={setRenameName}
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleRenameConfirm}
           onCancel={closeActiveModal}
-          afterClose={clearRenameDraft}
+          afterClose={() =>
+            clearNameModalDraft("rename", () => {
+              setRenameItem(null);
+              setRenameName("");
+            })
+          }
         />
       )}
 

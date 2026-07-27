@@ -32,6 +32,8 @@ export type FileBrowserLocaleOverrides = {
   };
   nameModal?: {
     nameRequired?: string;
+    directoryNameRequired?: string;
+    fileNameRequired?: string;
     nameInvalid?: string;
   };
   actions?: {

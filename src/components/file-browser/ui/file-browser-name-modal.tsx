@@ -20,7 +20,7 @@ export interface FileBrowserNameModalProps {
   isValidName?: (name: string) => boolean;
   onChange: (value: string) => void;
   onClearSubmitError?: () => void;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: (name: string) => void | Promise<void>;
   onCancel: () => void;
   afterClose?: () => void;
 }
@@ -35,8 +35,8 @@ export function FileBrowserNameModal({
   requiredMessage,
   invalidNameMessage,
   submitError = null,
-  confirmDisabled,
-  okLoading,
+  confirmDisabled = false,
+  okLoading = false,
   isValidName = isFileBrowserSafePathSegment,
   onChange,
   onClearSubmitError,
@@ -49,12 +49,6 @@ export function FileBrowserNameModal({
   const wasOpenRef = useRef(false);
   const isOpenRef = useRef(open);
   isOpenRef.current = open;
-  const watchedName = Form.useWatch("name", form);
-  const trimmed = (watchedName ?? "").trim();
-  const resolvedRequiredMessage = requiredMessage ?? labels.nameModal.nameRequired;
-  const resolvedInvalidNameMessage = invalidNameMessage ?? labels.nameModal.nameInvalid;
-  const isConfirmDisabled = confirmDisabled ?? (!trimmed || !isValidName(trimmed));
-  const hasSubmitError = submitError != null && submitError.length > 0;
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
@@ -64,11 +58,16 @@ export function FileBrowserNameModal({
   }, [form, open, value]);
 
   const submit = async () => {
-    if (okLoading || isConfirmDisabled) {
+    if (okLoading || confirmDisabled) {
       return;
     }
-    await form.validateFields();
-    await onConfirm();
+    let values: { name: string };
+    try {
+      values = await form.validateFields();
+    } catch {
+      return;
+    }
+    await onConfirm(values.name.trim());
   };
 
   return (
@@ -86,7 +85,7 @@ export function FileBrowserNameModal({
       okText={okText}
       cancelText={cancelText}
       okButtonProps={{
-        disabled: isConfirmDisabled || okLoading,
+        disabled: confirmDisabled || okLoading,
         loading: okLoading,
       }}
       maskClosable
@@ -100,17 +99,21 @@ export function FileBrowserNameModal({
             return;
           }
           onChange(values.name ?? "");
-          if (hasSubmitError) {
+          if (submitError) {
             onClearSubmitError?.();
           }
         }}
       >
         <Form.Item
           name="name"
-          validateStatus={hasSubmitError ? "error" : undefined}
-          help={hasSubmitError ? submitError : undefined}
+          validateStatus={submitError ? "error" : undefined}
+          help={submitError || undefined}
           rules={[
-            { required: true, whitespace: true, message: resolvedRequiredMessage },
+            {
+              required: true,
+              whitespace: true,
+              message: requiredMessage ?? labels.nameModal.nameRequired,
+            },
             {
               validator: async (_, raw: unknown) => {
                 const name = typeof raw === "string" ? raw : "";
@@ -118,14 +121,19 @@ export function FileBrowserNameModal({
                   return;
                 }
                 if (!isValidName(name.trim())) {
-                  return Promise.reject(resolvedInvalidNameMessage);
+                  return Promise.reject(invalidNameMessage ?? labels.nameModal.nameInvalid);
                 }
               },
             },
           ]}
           style={{ marginBottom: 0 }}
         >
-          <Input placeholder={placeholder} onPressEnter={submit} disabled={okLoading} />
+          <Input
+            placeholder={placeholder}
+            onPressEnter={submit}
+            disabled={okLoading}
+            autoComplete="off"
+          />
         </Form.Item>
       </Form>
     </Modal>

@@ -25,6 +25,11 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
       nameModal: {
         nameRequired:
           overrides?.nameModal?.nameRequired ?? t("file-browser.name-modal.name-required"),
+        directoryNameRequired:
+          overrides?.nameModal?.directoryNameRequired ??
+          t("file-browser.name-modal.directory-name-required"),
+        fileNameRequired:
+          overrides?.nameModal?.fileNameRequired ?? t("file-browser.name-modal.file-name-required"),
         nameInvalid: overrides?.nameModal?.nameInvalid ?? t("file-browser.name-modal.name-invalid"),
       },
       actions: {
