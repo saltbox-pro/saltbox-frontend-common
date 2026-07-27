@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 
 import { Modal } from "../../antd-wrappers/modal";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
-import { isSafePathSegment } from "../model/path-utils";
+import { isFileBrowserSafePathSegment } from "../model/path-utils";
 
 export interface FileBrowserNameModalProps {
   open: boolean;
@@ -14,12 +14,15 @@ export interface FileBrowserNameModalProps {
   cancelText: string;
   requiredMessage?: string;
   invalidNameMessage?: string;
+  submitError?: string | null;
   confirmDisabled?: boolean;
-  confirmLoading?: boolean;
+  okLoading?: boolean;
   isValidName?: (name: string) => boolean;
   onChange: (value: string) => void;
-  onConfirm: () => void;
+  onClearSubmitError?: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
+  afterClose?: () => void;
 }
 
 export function FileBrowserNameModal({
@@ -31,35 +34,41 @@ export function FileBrowserNameModal({
   cancelText,
   requiredMessage,
   invalidNameMessage,
+  submitError = null,
   confirmDisabled,
-  confirmLoading,
-  isValidName = isSafePathSegment,
+  okLoading,
+  isValidName = isFileBrowserSafePathSegment,
   onChange,
+  onClearSubmitError,
   onConfirm,
   onCancel,
+  afterClose,
 }: FileBrowserNameModalProps) {
   const labels = useFileBrowserLocale();
   const [form] = Form.useForm<{ name: string }>();
   const wasOpenRef = useRef(false);
+  const isOpenRef = useRef(open);
+  isOpenRef.current = open;
   const watchedName = Form.useWatch("name", form);
   const trimmed = (watchedName ?? "").trim();
   const resolvedRequiredMessage = requiredMessage ?? labels.nameModal.nameRequired;
   const resolvedInvalidNameMessage = invalidNameMessage ?? labels.nameModal.nameInvalid;
   const isConfirmDisabled = confirmDisabled ?? (!trimmed || !isValidName(trimmed));
+  const hasSubmitError = submitError != null && submitError.length > 0;
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
       form.setFieldsValue({ name: value });
     }
-    if (!open && wasOpenRef.current) {
-      form.resetFields();
-    }
     wasOpenRef.current = open;
   }, [form, open, value]);
 
   const submit = async () => {
+    if (okLoading || isConfirmDisabled) {
+      return;
+    }
     await form.validateFields();
-    onConfirm();
+    await onConfirm();
   };
 
   return (
@@ -68,14 +77,38 @@ export function FileBrowserNameModal({
       open={open}
       onOk={submit}
       onCancel={onCancel}
+      afterClose={() => {
+        if (!isOpenRef.current) {
+          form.resetFields();
+        }
+        afterClose?.();
+      }}
       okText={okText}
       cancelText={cancelText}
-      confirmLoading={confirmLoading}
-      okButtonProps={{ disabled: isConfirmDisabled || confirmLoading }}
+      okButtonProps={{
+        disabled: isConfirmDisabled || okLoading,
+        loading: okLoading,
+      }}
+      maskClosable
+      closable
+      keyboard
     >
-      <Form form={form} onValuesChange={(_, values) => onChange(values.name ?? "")}>
+      <Form
+        form={form}
+        onValuesChange={(_, values) => {
+          if (okLoading) {
+            return;
+          }
+          onChange(values.name ?? "");
+          if (hasSubmitError) {
+            onClearSubmitError?.();
+          }
+        }}
+      >
         <Form.Item
           name="name"
+          validateStatus={hasSubmitError ? "error" : undefined}
+          help={hasSubmitError ? submitError : undefined}
           rules={[
             { required: true, whitespace: true, message: resolvedRequiredMessage },
             {
@@ -85,14 +118,14 @@ export function FileBrowserNameModal({
                   return;
                 }
                 if (!isValidName(name.trim())) {
-                  throw new Error(resolvedInvalidNameMessage);
+                  return Promise.reject(resolvedInvalidNameMessage);
                 }
               },
             },
           ]}
           style={{ marginBottom: 0 }}
         >
-          <Input placeholder={placeholder} onPressEnter={submit} autoFocus />
+          <Input placeholder={placeholder} onPressEnter={submit} disabled={okLoading} />
         </Form.Item>
       </Form>
     </Modal>

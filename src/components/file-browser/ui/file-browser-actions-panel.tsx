@@ -1,15 +1,18 @@
 import { Button } from "antd";
-import { type ReactNode, useCallback, useState } from "react";
+import { type ReactNode, useCallback, useRef, useState } from "react";
 
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
-import { isSafePathSegment } from "../model/path-utils";
+import { isFileBrowserSafePathSegment } from "../model/path-utils";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
+import { getSubmitErrorMessage } from "../utils/get-submit-error-message";
 
 import { FileBrowserDeleteConfirmModal } from "./file-browser-delete-confirm-modal";
 import { FileBrowserNameModal } from "./file-browser-name-modal";
 import { FileBrowserRowActions } from "./file-browser-row-actions";
 import styles from "./file-browser.module.css";
+
+type ActiveModal = "create-folder" | "create-file" | "rename" | "delete" | null;
 
 export interface FileBrowserActionsPanelRenderProps {
   toolbar: ReactNode;
@@ -25,6 +28,7 @@ export interface FileBrowserActionsPanelProps {
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
+  onSubmitError?: (message: string) => void;
   toolbarLeading?: ReactNode;
   toolbarTrailing?: ReactNode;
   renderLeadingActions?: (item: FileBrowserItem) => ReactNode;
@@ -35,12 +39,13 @@ export interface FileBrowserActionsPanelProps {
 export function FileBrowserActionsPanel({
   disabled = false,
   locale,
-  isValidName = isSafePathSegment,
+  isValidName = isFileBrowserSafePathSegment,
   onDownload,
   onRename,
   onDelete,
   onCreateFolder,
   onCreateFile,
+  onSubmitError,
   toolbarLeading,
   toolbarTrailing,
   renderLeadingActions,
@@ -49,63 +54,138 @@ export function FileBrowserActionsPanel({
 }: FileBrowserActionsPanelProps) {
   const labels = useFileBrowserLocale(locale);
 
-  const [createFolderOpen, setCreateFolderOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [createFolderName, setCreateFolderName] = useState("");
-  const [createFileOpen, setCreateFileOpen] = useState(false);
   const [createFileName, setCreateFileName] = useState("");
   const [renameItem, setRenameItem] = useState<FileBrowserItem | null>(null);
   const [renameName, setRenameName] = useState("");
   const [deleteItem, setDeleteItem] = useState<FileBrowserItem | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [nameSubmitError, setNameSubmitError] = useState<string | null>(null);
+  const actionLockRef = useRef(false);
+  const activeModalRef = useRef<ActiveModal>(null);
+  activeModalRef.current = activeModal;
 
-  const closeCreateFolder = useCallback(() => {
-    setCreateFolderOpen(false);
+  const clearNameSubmitError = useCallback(() => {
+    setNameSubmitError(null);
+  }, []);
+
+  const reportNameSubmitError = useCallback(
+    (modal: Exclude<ActiveModal, null>, error: unknown) => {
+      const message = getSubmitErrorMessage(error);
+      if (message == null) {
+        return;
+      }
+      if (activeModalRef.current === modal) {
+        setNameSubmitError(message);
+        return;
+      }
+      onSubmitError?.(message);
+    },
+    [onSubmitError]
+  );
+
+  const closeActiveModal = useCallback(() => {
+    setNameSubmitError(null);
+    setActiveModal(null);
+  }, []);
+
+  const openModal = useCallback((modal: Exclude<ActiveModal, null>) => {
+    setNameSubmitError(null);
+    if (modal === "create-folder") {
+      setCreateFolderName("");
+    }
+    if (modal === "create-file") {
+      setCreateFileName("");
+    }
+    setActiveModal(modal);
+  }, []);
+
+  const clearCreateFolderDraft = useCallback(() => {
+    if (activeModalRef.current === "create-folder") {
+      return;
+    }
     setCreateFolderName("");
+    if (activeModalRef.current == null) {
+      setNameSubmitError(null);
+    }
   }, []);
 
-  const closeCreateFile = useCallback(() => {
-    setCreateFileOpen(false);
+  const clearCreateFileDraft = useCallback(() => {
+    if (activeModalRef.current === "create-file") {
+      return;
+    }
     setCreateFileName("");
+    if (activeModalRef.current == null) {
+      setNameSubmitError(null);
+    }
   }, []);
 
-  const closeRename = useCallback(() => {
+  const clearRenameDraft = useCallback(() => {
+    if (activeModalRef.current === "rename") {
+      return;
+    }
     setRenameItem(null);
     setRenameName("");
+    if (activeModalRef.current == null) {
+      setNameSubmitError(null);
+    }
+  }, []);
+
+  const clearDeleteDraft = useCallback(() => {
+    if (activeModalRef.current === "delete") {
+      return;
+    }
+    setDeleteItem(null);
+  }, []);
+
+  const runLockedAction = useCallback(async (action: () => Promise<void>) => {
+    if (actionLockRef.current) {
+      return;
+    }
+    actionLockRef.current = true;
+    setActionLoading(true);
+    try {
+      await action();
+    } finally {
+      actionLockRef.current = false;
+      setActionLoading(false);
+    }
   }, []);
 
   const handleCreateFolder = useCallback(async () => {
     const trimmed = createFolderName.trim();
-    if (!trimmed || !isValidName(trimmed) || !onCreateFolder || actionLoading) {
+    if (!trimmed || !isValidName(trimmed) || !onCreateFolder) {
       return;
     }
 
-    setActionLoading(true);
-    try {
-      await onCreateFolder(trimmed);
-      closeCreateFolder();
-    } catch {
-      // Keep modal open; host handlers show the error toast.
-    } finally {
-      setActionLoading(false);
-    }
-  }, [actionLoading, closeCreateFolder, createFolderName, isValidName, onCreateFolder]);
+    await runLockedAction(async () => {
+      setNameSubmitError(null);
+      try {
+        await onCreateFolder(trimmed);
+        setActiveModal(null);
+      } catch (error) {
+        reportNameSubmitError("create-folder", error);
+      }
+    });
+  }, [createFolderName, isValidName, onCreateFolder, reportNameSubmitError, runLockedAction]);
 
   const handleCreateFile = useCallback(async () => {
     const trimmed = createFileName.trim();
-    if (!trimmed || !isValidName(trimmed) || !onCreateFile || actionLoading) {
+    if (!trimmed || !isValidName(trimmed) || !onCreateFile) {
       return;
     }
 
-    setActionLoading(true);
-    try {
-      await onCreateFile(trimmed);
-      closeCreateFile();
-    } catch {
-      // Keep modal open; host handlers show the error toast.
-    } finally {
-      setActionLoading(false);
-    }
-  }, [actionLoading, closeCreateFile, createFileName, isValidName, onCreateFile]);
+    await runLockedAction(async () => {
+      setNameSubmitError(null);
+      try {
+        await onCreateFile(trimmed);
+        setActiveModal(null);
+      } catch (error) {
+        reportNameSubmitError("create-file", error);
+      }
+    });
+  }, [createFileName, isValidName, onCreateFile, reportNameSubmitError, runLockedAction]);
 
   const handleRenameConfirm = useCallback(async () => {
     const trimmed = renameName.trim();
@@ -114,38 +194,40 @@ export function FileBrowserActionsPanel({
       !onRename ||
       !trimmed ||
       !isValidName(trimmed) ||
-      trimmed === renameItem.name ||
-      actionLoading
+      trimmed === renameItem.name
     ) {
       return;
     }
 
-    setActionLoading(true);
-    try {
-      await onRename(renameItem, trimmed);
-      closeRename();
-    } catch {
-      // Keep modal open; host handlers show the error toast.
-    } finally {
-      setActionLoading(false);
-    }
-  }, [actionLoading, closeRename, isValidName, onRename, renameItem, renameName]);
+    await runLockedAction(async () => {
+      setNameSubmitError(null);
+      try {
+        await onRename(renameItem, trimmed);
+        setActiveModal(null);
+      } catch (error) {
+        reportNameSubmitError("rename", error);
+      }
+    });
+  }, [isValidName, onRename, renameItem, renameName, reportNameSubmitError, runLockedAction]);
 
   const handleDeleteConfirm = useCallback(async () => {
-    if (!deleteItem || !onDelete || actionLoading) {
+    if (!deleteItem || !onDelete) {
       return;
     }
 
-    setActionLoading(true);
-    try {
-      await onDelete(deleteItem);
-      setDeleteItem(null);
-    } catch {
-      // Keep modal open; host handlers show the error toast.
-    } finally {
-      setActionLoading(false);
-    }
-  }, [actionLoading, deleteItem, onDelete]);
+    await runLockedAction(async () => {
+      try {
+        await onDelete(deleteItem);
+        setActiveModal(null);
+      } catch (error) {
+        const message = getSubmitErrorMessage(error);
+        if (message == null) {
+          return;
+        }
+        onSubmitError?.(message);
+      }
+    });
+  }, [deleteItem, onDelete, onSubmitError, runLockedAction]);
 
   const renderRowActions = useCallback(
     (item: FileBrowserItem) => (
@@ -164,6 +246,7 @@ export function FileBrowserActionsPanel({
                 }
                 setRenameItem(item);
                 setRenameName(item.name);
+                openModal("rename");
               }
             : undefined
         }
@@ -174,6 +257,7 @@ export function FileBrowserActionsPanel({
                   return;
                 }
                 setDeleteItem(item);
+                openModal("delete");
               }
             : undefined
         }
@@ -190,6 +274,7 @@ export function FileBrowserActionsPanel({
       onDelete,
       onDownload,
       onRename,
+      openModal,
       renderLeadingActions,
       renderTrailingActions,
     ]
@@ -212,7 +297,7 @@ export function FileBrowserActionsPanel({
             if (toolbarLocked) {
               return;
             }
-            setCreateFolderOpen(true);
+            openModal("create-folder");
           }}
         >
           {labels.actions.createFolder}
@@ -228,7 +313,7 @@ export function FileBrowserActionsPanel({
             if (toolbarLocked) {
               return;
             }
-            setCreateFileOpen(true);
+            openModal("create-file");
           }}
         >
           {labels.actions.createFile}
@@ -245,7 +330,7 @@ export function FileBrowserActionsPanel({
 
       {onCreateFolder && (
         <FileBrowserNameModal
-          open={createFolderOpen}
+          open={activeModal === "create-folder"}
           title={labels.actions.createFolder}
           value={createFolderName}
           placeholder={labels.actions.folderNamePlaceholder}
@@ -253,17 +338,20 @@ export function FileBrowserActionsPanel({
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
-          confirmLoading={actionLoading}
+          submitError={activeModal === "create-folder" ? nameSubmitError : null}
+          okLoading={actionLoading}
           isValidName={isValidName}
           onChange={setCreateFolderName}
+          onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFolder}
-          onCancel={closeCreateFolder}
+          onCancel={closeActiveModal}
+          afterClose={clearCreateFolderDraft}
         />
       )}
 
       {onCreateFile && (
         <FileBrowserNameModal
-          open={createFileOpen}
+          open={activeModal === "create-file"}
           title={labels.actions.createFile}
           value={createFileName}
           placeholder={labels.actions.fileNamePlaceholder}
@@ -271,17 +359,20 @@ export function FileBrowserActionsPanel({
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
-          confirmLoading={actionLoading}
+          submitError={activeModal === "create-file" ? nameSubmitError : null}
+          okLoading={actionLoading}
           isValidName={isValidName}
           onChange={setCreateFileName}
+          onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFile}
-          onCancel={closeCreateFile}
+          onCancel={closeActiveModal}
+          afterClose={clearCreateFileDraft}
         />
       )}
 
-      {onRename && (
+      {onRename && renameItem != null && (
         <FileBrowserNameModal
-          open={renameItem != null}
+          open={activeModal === "rename"}
           title={labels.actions.rename}
           value={renameName}
           placeholder={labels.actions.newNamePlaceholder}
@@ -289,32 +380,33 @@ export function FileBrowserActionsPanel({
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.nameRequired}
           invalidNameMessage={labels.nameModal.nameInvalid}
+          submitError={activeModal === "rename" ? nameSubmitError : null}
           confirmDisabled={
             !renameName.trim() ||
             !isValidName(renameName.trim()) ||
-            renameName.trim() === renameItem?.name
+            renameName.trim() === renameItem.name
           }
-          confirmLoading={actionLoading}
+          okLoading={actionLoading}
           isValidName={isValidName}
           onChange={setRenameName}
+          onClearSubmitError={clearNameSubmitError}
           onConfirm={handleRenameConfirm}
-          onCancel={closeRename}
+          onCancel={closeActiveModal}
+          afterClose={clearRenameDraft}
         />
       )}
 
-      {onDelete && (
+      {onDelete && deleteItem != null && (
         <FileBrowserDeleteConfirmModal
-          open={deleteItem != null}
-          itemName={deleteItem?.name}
-          itemKind={deleteItem?.kind}
+          open={activeModal === "delete"}
+          itemName={deleteItem.name}
+          itemPath={deleteItem.path}
+          itemKind={deleteItem.kind}
           locale={locale}
-          confirmLoading={actionLoading}
+          okLoading={actionLoading}
           onConfirm={handleDeleteConfirm}
-          onCancel={() => {
-            if (!actionLoading) {
-              setDeleteItem(null);
-            }
-          }}
+          onCancel={closeActiveModal}
+          afterClose={clearDeleteDraft}
         />
       )}
     </>

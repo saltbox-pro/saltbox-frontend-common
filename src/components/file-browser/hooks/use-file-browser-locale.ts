@@ -9,6 +9,8 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
   return useMemo(
     () => ({
       empty: overrides?.empty ?? t("file-browser.empty"),
+      awaitingDisk: overrides?.awaitingDisk ?? t("file-browser.awaiting-disk"),
+      retry: overrides?.retry ?? t("file-browser.retry"),
       columns: {
         name: overrides?.columns?.name ?? t("file-browser.columns.name"),
         type: overrides?.columns?.type ?? t("file-browser.columns.type"),

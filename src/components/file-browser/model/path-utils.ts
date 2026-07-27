@@ -1,6 +1,6 @@
 export type FileBrowserPathStyle = "posix" | "win32";
 
-export function isSafePathSegment(name: string): boolean {
+export function isFileBrowserSafePathSegment(name: string): boolean {
   const trimmed = name.trim();
   if (!trimmed || trimmed === "." || trimmed === "..") {
     return false;
@@ -79,7 +79,7 @@ export function buildPathFromSegments(
   return `/${segments.join("/")}`;
 }
 
-export function getParentPath(
+export function getFileBrowserParentPath(
   path: string,
   pathStyle: FileBrowserPathStyle = "posix"
 ): string | null {
@@ -104,12 +104,12 @@ export function getParentPath(
   return buildPathFromSegments(segments.slice(0, -1), pathStyle);
 }
 
-export function joinPathChild(
+export function joinFileBrowserPathChild(
   currentPath: string,
   name: string,
   pathStyle: FileBrowserPathStyle = "posix"
 ): string {
-  if (!isSafePathSegment(name)) {
+  if (!isFileBrowserSafePathSegment(name)) {
     throw new Error("Invalid path segment");
   }
 

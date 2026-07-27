@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { getParentPath, type FileBrowserPathStyle } from "../model/path-utils";
+import { getFileBrowserParentPath, type FileBrowserPathStyle } from "../model/path-utils";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
 
 import { FileBrowserNavBar } from "./file-browser-nav-bar";
@@ -50,7 +50,7 @@ export function FileBrowserView({
     onNavigateUp ??
     (onNavigate
       ? () => {
-          const parentPath = getParentPath(currentPath, pathStyle);
+          const parentPath = getFileBrowserParentPath(currentPath, pathStyle);
           if (parentPath == null) {
             return;
           }

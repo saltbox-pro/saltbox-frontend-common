@@ -251,3 +251,17 @@
 .sourceAsideMenuLocked :global(.ant-menu-item) {
   cursor: default !important;
 }
+
+.deleteConfirmPath {
+  display: block;
+  margin: 1em 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--app-color-gray50, #f5f5f5);
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  word-break: break-all;
+}

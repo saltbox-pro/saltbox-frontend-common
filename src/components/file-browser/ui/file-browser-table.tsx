@@ -8,7 +8,7 @@ import { FastTableListed } from "../../fast-table/fast-table-listed/fast-table-l
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
-import { formatFileSize } from "../utils/format-file-size";
+import { formatFileBrowserSize } from "../utils/format-file-browser-size";
 import { getFileBrowserItemIcon } from "../utils/get-file-icon";
 
 import styles from "./file-browser.module.css";
@@ -75,7 +75,7 @@ export function FileBrowserTable({
         meta: { width: "10%", minWidth: 170 },
         cell: ({ row }) =>
           row.original.kind === "file" && row.original.sizeBytes != null
-            ? formatFileSize(row.original.sizeBytes, i18n.language)
+            ? formatFileBrowserSize(row.original.sizeBytes, i18n.language)
             : "—",
       }),
       columnHelper.accessor("modifiedAt", {

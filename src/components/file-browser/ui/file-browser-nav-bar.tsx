@@ -2,7 +2,11 @@ import { Button } from "antd";
 import type { ReactNode } from "react";
 
 import { MatIcon } from "../../mat-icon/mat-icon";
-import { getParentPath, isRootPath, type FileBrowserPathStyle } from "../model/path-utils";
+import {
+  getFileBrowserParentPath,
+  isRootPath,
+  type FileBrowserPathStyle,
+} from "../model/path-utils";
 
 import { FileBrowserBreadcrumb } from "./file-browser-breadcrumb";
 import styles from "./file-browser.module.css";
@@ -27,7 +31,7 @@ export function FileBrowserNavBar({
   toolbar,
 }: FileBrowserNavBarProps) {
   const isRoot = isRootPath(currentPath, pathStyle);
-  const parentPath = getParentPath(currentPath, pathStyle);
+  const parentPath = getFileBrowserParentPath(currentPath, pathStyle);
   const canNavigateUp =
     Boolean(onNavigateUp) && (parentPath != null || (isRoot && allowNavigateAboveRoot));
   const upInteractionLocked = disabled || !canNavigateUp;

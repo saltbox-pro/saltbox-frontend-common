@@ -17,6 +17,8 @@ export interface FileBrowserSourceItem {
 
 export type FileBrowserLocaleOverrides = {
   empty?: string;
+  awaitingDisk?: string;
+  retry?: string;
   columns?: {
     name?: string;
     type?: string;
@@ -36,10 +38,12 @@ export type FileBrowserLocaleOverrides = {
     download?: string;
     rename?: string;
     delete?: string;
+    deleteTitleFile?: string;
+    deleteTitleDirectory?: string;
     deleteConfirmFile?: string;
     deleteConfirmDirectory?: string;
-    deleteConfirmFileNamed?: string;
-    deleteConfirmDirectoryNamed?: string;
+    deleteConfirmFileWarning?: string;
+    deleteConfirmDirectoryWarning?: string;
     yes?: string;
     cancel?: string;
     createFolder?: string;

@@ -1,4 +1,4 @@
-export function formatFileSize(bytes: number, locale?: string): string {
+export function formatFileBrowserSize(bytes: number, locale?: string): string {
   if (!Number.isFinite(bytes) || bytes < 0) {
     return "—";
   }
