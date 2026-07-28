@@ -35,6 +35,7 @@ export type FileBrowserLocaleOverrides = {
     directoryNameRequired?: string;
     fileNameRequired?: string;
     nameInvalid?: string;
+    nameForbidden?: string;
   };
   actions?: {
     download?: string;

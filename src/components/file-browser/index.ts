@@ -13,7 +13,10 @@ export {
 } from "./model/path-utils";
 export { getFileBrowserErrorI18nKey } from "./model/error-i18n-keys";
 export { formatFileBrowserSize } from "./utils/format-file-browser-size";
-export { FileBrowserSubmitError } from "./utils/get-submit-error-message";
+export {
+  FileBrowserSubmitError,
+  FileBrowserKeepModalOpenError,
+} from "./utils/get-submit-error-message";
 export { FileBrowserActionsPanel } from "./ui/file-browser-actions-panel";
 export type {
   FileBrowserActionsPanelProps,

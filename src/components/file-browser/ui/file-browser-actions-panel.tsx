@@ -23,6 +23,7 @@ export interface FileBrowserActionsPanelProps {
   disabled?: boolean;
   locale?: FileBrowserLocaleOverrides;
   isValidName?: (name: string) => boolean;
+  isForbiddenName?: (name: string) => boolean;
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
   onRename?: (item: FileBrowserItem, newName: string) => void | Promise<void>;
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
@@ -42,6 +43,7 @@ export function FileBrowserActionsPanel({
   disabled = false,
   locale,
   isValidName = isFileBrowserSafePathSegment,
+  isForbiddenName,
   onDownload,
   onRename,
   onDelete,
@@ -262,6 +264,9 @@ export function FileBrowserActionsPanel({
     openModal(modal);
   };
 
+  const resolveInvalidNameMessage = (name: string) =>
+    isForbiddenName?.(name) ? labels.nameModal.nameForbidden : labels.nameModal.nameInvalid;
+
   const toolbar = (
     <div
       className={`${styles.actionButtons}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
@@ -307,10 +312,10 @@ export function FileBrowserActionsPanel({
           okText={labels.actions.create}
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.directoryNameRequired}
-          invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "create-folder" ? nameSubmitError : null}
           okLoading={actionLoading}
           isValidName={isValidName}
+          getInvalidNameMessage={resolveInvalidNameMessage}
           onChange={setCreateFolderName}
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFolder}
@@ -328,10 +333,10 @@ export function FileBrowserActionsPanel({
           okText={labels.actions.create}
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.fileNameRequired}
-          invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "create-file" ? nameSubmitError : null}
           okLoading={actionLoading}
           isValidName={isValidName}
+          getInvalidNameMessage={resolveInvalidNameMessage}
           onChange={setCreateFileName}
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleCreateFile}
@@ -353,11 +358,11 @@ export function FileBrowserActionsPanel({
           okText={labels.actions.rename}
           cancelText={labels.actions.cancel}
           requiredMessage={labels.nameModal.nameRequired}
-          invalidNameMessage={labels.nameModal.nameInvalid}
           submitError={activeModal === "rename" ? nameSubmitError : null}
           confirmDisabled={renameName.trim() === renameItem.name}
           okLoading={actionLoading}
           isValidName={isValidName}
+          getInvalidNameMessage={resolveInvalidNameMessage}
           onChange={setRenameName}
           onClearSubmitError={clearNameSubmitError}
           onConfirm={handleRenameConfirm}

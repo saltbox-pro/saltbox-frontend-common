@@ -147,7 +147,8 @@
       "name-required": "Name is required",
       "directory-name-required": "Enter directory name",
       "file-name-required": "Enter file name",
-      "name-invalid": "Name cannot contain path separators or be \".\" / \"..\""
+      "name-invalid": "Name cannot contain path separators or be \".\" / \"..\"",
+      "name-forbidden": "The specified name is not allowed"
     },
     "actions": {
       "download": "Download",

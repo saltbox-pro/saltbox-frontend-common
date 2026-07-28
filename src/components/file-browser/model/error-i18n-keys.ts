@@ -1,5 +1,6 @@
 export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "directory-name-invalid": "file-browser.name-modal.name-invalid",
+  "name-forbidden": "file-browser.name-modal.name-forbidden",
   "name-already-exists": "file-browser.notifications.name-already-exists",
   "directory-already-exists": "file-browser.notifications.directory-already-exists",
   "file-already-exists": "file-browser.notifications.file-already-exists",

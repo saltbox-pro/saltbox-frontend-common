@@ -18,6 +18,7 @@ export interface FileBrowserNameModalProps {
   confirmDisabled?: boolean;
   okLoading?: boolean;
   isValidName?: (name: string) => boolean;
+  getInvalidNameMessage?: (name: string) => string;
   onChange: (value: string) => void;
   onClearSubmitError?: () => void;
   onConfirm: (name: string) => void | Promise<void>;
@@ -38,6 +39,7 @@ export function FileBrowserNameModal({
   confirmDisabled = false,
   okLoading = false,
   isValidName = isFileBrowserSafePathSegment,
+  getInvalidNameMessage,
   onChange,
   onClearSubmitError,
   onConfirm,
@@ -117,11 +119,16 @@ export function FileBrowserNameModal({
             {
               validator: async (_, raw: unknown) => {
                 const name = typeof raw === "string" ? raw : "";
-                if (!name.trim()) {
+                const trimmed = name.trim();
+                if (!trimmed) {
                   return;
                 }
-                if (!isValidName(name.trim())) {
-                  return Promise.reject(invalidNameMessage ?? labels.nameModal.nameInvalid);
+                if (!isValidName(trimmed)) {
+                  return Promise.reject(
+                    getInvalidNameMessage?.(trimmed) ??
+                      invalidNameMessage ??
+                      labels.nameModal.nameInvalid
+                  );
                 }
               },
             },

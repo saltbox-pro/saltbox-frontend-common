@@ -31,6 +31,8 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
         fileNameRequired:
           overrides?.nameModal?.fileNameRequired ?? t("file-browser.name-modal.file-name-required"),
         nameInvalid: overrides?.nameModal?.nameInvalid ?? t("file-browser.name-modal.name-invalid"),
+        nameForbidden:
+          overrides?.nameModal?.nameForbidden ?? t("file-browser.name-modal.name-forbidden"),
       },
       actions: {
         download: overrides?.actions?.download ?? t("file-browser.actions.download"),

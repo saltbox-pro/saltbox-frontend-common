@@ -43,7 +43,7 @@ export function FileBrowserTable({
     const baseColumns: ColumnDef<FileBrowserItem>[] = [
       columnHelper.accessor("name", {
         header: labels.columns.name,
-        meta: { width: "60%", minWidth: 250 },
+        meta: { width: "60%", minWidth: 350 },
         cell: ({ row }) => {
           const isDirectory = row.original.kind === "directory";
           return (
@@ -62,7 +62,7 @@ export function FileBrowserTable({
       baseColumns.push(
         columnHelper.accessor("kind", {
           header: labels.columns.type,
-          meta: { width: "10%", minWidth: 170 },
+          meta: { width: "10%", minWidth: 120 },
           cell: ({ getValue }) =>
             getValue() === "directory" ? labels.type.directory : labels.type.file,
         })
@@ -72,7 +72,7 @@ export function FileBrowserTable({
     baseColumns.push(
       columnHelper.accessor("sizeBytes", {
         header: labels.columns.size,
-        meta: { width: "10%", minWidth: 170 },
+        meta: { width: "10%", minWidth: 100 },
         cell: ({ row }) =>
           row.original.kind === "file" && row.original.sizeBytes != null
             ? formatFileBrowserSize(row.original.sizeBytes, i18n.language)
@@ -93,7 +93,7 @@ export function FileBrowserTable({
         columnHelper.display({
           id: "actions",
           header: labels.columns.actions,
-          meta: { width: "15%", minWidth: 177 },
+          meta: { width: "15%" },
           cell: ({ row }) => renderRowActions(row.original),
         })
       );

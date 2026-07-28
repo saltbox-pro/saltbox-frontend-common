@@ -144,10 +144,11 @@
       "file": "Файл"
     },
     "name-modal": {
-      "name-required": "Укажите название",
-      "directory-name-required": "Укажите название директории",
-      "file-name-required": "Укажите название файла",
-      "name-invalid": "Название не должно содержать разделители пути или быть \".\" / \"..\""
+      "name-required": "Укажите имя",
+      "directory-name-required": "Укажите имя директории",
+      "file-name-required": "Укажите имя файла",
+      "name-invalid": "Имя не должно содержать разделители пути или быть \".\" / \"..\"",
+      "name-forbidden": "Указано недопустимое имя"
     },
     "actions": {
       "download": "Скачать",
@@ -166,9 +167,9 @@
       "create-directory": "Создать директорию",
       "create-file": "Создать файл",
       "create": "Создать",
-      "directory-name-placeholder": "Название директории",
-      "file-name-placeholder": "Название файла",
-      "new-name-placeholder": "Новое название"
+      "directory-name-placeholder": "Имя директории",
+      "file-name-placeholder": "Имя файла",
+      "new-name-placeholder": "Новое имя"
     },
     "notifications": {
       "create-directory-success": "Директория \"{{name}}\" успешно создана",
