@@ -163,6 +163,7 @@
       "delete-confirm-directory": "Do you really want to delete the directory \"{{name}}\"?",
       "delete-confirm-directory-warning": "If the directory contains nested files and directories, they will also be deleted. This operation cannot be undone",
       "yes": "Yes",
+      "no": "No",
       "cancel": "Cancel",
       "create-directory": "Create Directory",
       "create-file": "Create File",
@@ -171,7 +172,22 @@
       "file-name-placeholder": "File name",
       "new-name-placeholder": "New name"
     },
+    "content-modal": {
+      "save": "Save",
+      "close": "Close",
+      "read-only": "Read only",
+      "unsaved-changes": "Unsaved changes",
+      "unsaved-title": "You have unsaved changes",
+      "unsaved-confirm": "Close without saving?",
+      "empty-file": "File is empty",
+      "copy-path": "Copy path",
+      "copy-content": "Copy content"
+    },
     "notifications": {
+      "file-too-large": "File is too large to preview",
+      "file-size-invalid": "Unable to determine the file size for preview",
+      "binary-not-supported": "Previewing binary files is not supported",
+      "file-read-error": "Failed to read the file",
       "create-directory-success": "Directory \"{{name}}\" created successfully",
       "create-error": "Failed to create object",
       "create-directory-error": "Failed to create directory",

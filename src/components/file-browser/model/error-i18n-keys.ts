@@ -25,6 +25,10 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "no-current-directory": "file-browser.notifications.no-current-directory",
   "listing-reload-error": "file-browser.notifications.listing-reload-error",
   "rename-error": "file-browser.notifications.rename-error",
+  "file-too-large": "file-browser.notifications.file-too-large",
+  "file-size-invalid": "file-browser.notifications.file-size-invalid",
+  "binary-not-supported": "file-browser.notifications.binary-not-supported",
+  "file-read-error": "file-browser.notifications.file-read-error",
 } as const;
 
 export type FileBrowserNotificationErrorCode = keyof typeof FILE_BROWSER_ERROR_I18N_KEYS;

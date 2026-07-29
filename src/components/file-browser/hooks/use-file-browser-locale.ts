@@ -44,6 +44,7 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
           t("file-browser.actions.rename-title-directory"),
         delete: overrides?.actions?.delete ?? t("file-browser.actions.delete"),
         yes: overrides?.actions?.yes ?? t("file-browser.actions.yes"),
+        no: overrides?.actions?.no ?? t("file-browser.actions.no"),
         cancel: overrides?.actions?.cancel ?? t("file-browser.actions.cancel"),
         createFolder:
           overrides?.actions?.createFolder ?? t("file-browser.actions.create-directory"),

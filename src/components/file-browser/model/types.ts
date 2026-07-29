@@ -50,6 +50,7 @@ export type FileBrowserLocaleOverrides = {
     deleteConfirmFileWarning?: string;
     deleteConfirmDirectoryWarning?: string;
     yes?: string;
+    no?: string;
     cancel?: string;
     createFolder?: string;
     createFile?: string;

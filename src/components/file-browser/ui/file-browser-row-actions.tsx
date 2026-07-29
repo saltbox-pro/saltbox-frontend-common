@@ -40,7 +40,7 @@ export function FileBrowserRowActions({
   const resolvedRenameTitle = renameTitle ?? labels.actions.rename;
   const resolvedDeleteTitle = deleteTitle ?? labels.actions.delete;
 
-  const downloadLocked = disabled || isDirectory;
+  const fileActionLocked = disabled || isDirectory;
 
   return (
     <div className={`${styles.rowActions}${disabled ? ` ${styles.rowActionsLocked}` : ""}`}>
@@ -54,11 +54,11 @@ export function FileBrowserRowActions({
           title={resolvedDownloadTitle}
           aria-label={resolvedDownloadTitle}
           disabled={isDirectory}
-          aria-disabled={downloadLocked || undefined}
+          aria-disabled={fileActionLocked || undefined}
           tabIndex={disabled ? -1 : undefined}
           onClick={(event) => {
             stopRowClick(event);
-            if (downloadLocked) {
+            if (fileActionLocked) {
               return;
             }
             onDownload();

@@ -22,6 +22,7 @@ interface FileBrowserTableProps {
   locale?: FileBrowserLocaleOverrides;
   showTypeColumn?: boolean;
   showActionsColumn?: boolean;
+  isItemClickable?: (item: FileBrowserItem) => boolean;
   onItemClick?: (item: FileBrowserItem) => void;
   renderRowActions?: (item: FileBrowserItem) => ReactNode;
 }
@@ -33,10 +34,11 @@ export function FileBrowserTable({
   locale,
   showTypeColumn = false,
   showActionsColumn = false,
+  isItemClickable,
   onItemClick,
   renderRowActions,
 }: FileBrowserTableProps) {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation("common");
   const labels = useFileBrowserLocale(locale);
 
   const columns = useMemo<ColumnDef<FileBrowserItem>[]>(() => {
@@ -114,6 +116,7 @@ export function FileBrowserTable({
         hideFooter
         getRowId={(row) => row.id}
         onRowClick={onItemClick ? (item) => onItemClick(item) : undefined}
+        isRowClickable={isItemClickable}
         locale={{ empty: labels.empty }}
       />
     </Spin>

@@ -58,6 +58,7 @@ export type FastTableListedProps<DataType> = {
   forceExpandAll?: boolean;
   activeRowId?: string | null;
   onRowClick?: (item: DataType, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => void;
+  isRowClickable?: (item: DataType) => boolean;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
   columnFilters?: ColumnFiltersState;
@@ -103,6 +104,7 @@ function FastTableListedContent<DataType>({
   forceExpandAll,
   activeRowId,
   onRowClick,
+  isRowClickable,
   renderSubComponent,
   getRowCanExpand,
   sorting,
@@ -264,62 +266,67 @@ function FastTableListedContent<DataType>({
   );
 
   const renderTableRows = () => {
-    return rows.map((row) => (
-      <Fragment key={`${row.id}-group-row`}>
-        <tr
-          key={row.id}
-          role={onRowClick ? "button" : undefined}
-          className={row.id === activeRowId ? "fast-table-row-active" : undefined}
-          onClick={(event) => {
-            if (!onRowClick) return;
+    return rows.map((row) => {
+      const isClickable = Boolean(
+        onRowClick && (isRowClickable == null || isRowClickable(row.original))
+      );
+      return (
+        <Fragment key={`${row.id}-group-row`}>
+          <tr
+            key={row.id}
+            role={isClickable ? "button" : undefined}
+            className={row.id === activeRowId ? "fast-table-row-active" : undefined}
+            onClick={(event) => {
+              if (!onRowClick || !isClickable) return;
 
-            const target = event.target as HTMLElement;
-            if (shouldPreventRowClick(target, event.currentTarget)) {
-              return;
-            }
-            onRowClick(toJS(row.original), event);
-          }}
-        >
-          {row.getVisibleCells().map((cell) => {
-            const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
-            const isEllipsis = meta?.ellipsis ?? true;
-            const cellTitle = isEllipsis
-              ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
-              : undefined;
+              const target = event.target as HTMLElement;
+              if (shouldPreventRowClick(target, event.currentTarget)) {
+                return;
+              }
+              onRowClick(toJS(row.original), event);
+            }}
+          >
+            {row.getVisibleCells().map((cell) => {
+              const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+              const isEllipsis = meta?.ellipsis ?? true;
+              const cellTitle = isEllipsis
+                ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
+                : undefined;
 
-            return (
-              <td
-                key={cell.id}
-                className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
-              >
-                <span className="cell-content">
-                  <span
-                    className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
-                    title={cellTitle}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              return (
+                <td
+                  key={cell.id}
+                  className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
+                >
+                  <span className="cell-content">
+                    <span
+                      className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
+                      title={cellTitle}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </span>
+                    {(meta?.showCopy || meta?.actions) && (
+                      <CellActions
+                        value={cell.getValue()}
+                        row={row.original}
+                        showCopy={meta.showCopy}
+                        copyValue={meta.copyValue?.(row.original)}
+                        actions={meta.actions}
+                      />
+                    )}
                   </span>
-                  {(meta?.showCopy || meta?.actions) && (
-                    <CellActions
-                      value={cell.getValue()}
-                      row={row.original}
-                      showCopy={meta.showCopy}
-                      copyValue={meta.copyValue?.(row.original)}
-                      actions={meta.actions}
-                    />
-                  )}
-                </span>
-              </td>
-            );
-          })}
-        </tr>
-        {row.getIsExpanded() && (
-          <tr>
-            <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
+                </td>
+              );
+            })}
           </tr>
-        )}
-      </Fragment>
-    ));
+          {row.getIsExpanded() && (
+            <tr>
+              <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
+            </tr>
+          )}
+        </Fragment>
+      );
+    });
   };
 
   const renderEmptyState = () => {

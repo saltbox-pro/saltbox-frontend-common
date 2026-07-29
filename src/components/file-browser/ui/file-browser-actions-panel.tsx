@@ -203,41 +203,43 @@ export function FileBrowserActionsPanel({
   }, [deleteItem, onDelete, onSubmitError, runLockedAction]);
 
   const renderRowActions = useCallback(
-    (item: FileBrowserItem) => (
-      <FileBrowserRowActions
-        isDirectory={item.kind === "directory"}
-        disabled={disabled || actionLoading}
-        downloadTitle={labels.actions.download}
-        renameTitle={labels.actions.rename}
-        deleteTitle={labels.actions.delete}
-        onDownload={onDownload ? () => onDownload(item) : undefined}
-        onRename={
-          onRename && (canRename?.(item) ?? true)
-            ? () => {
-                if (disabled || actionLoading) {
-                  return;
+    (item: FileBrowserItem) => {
+      return (
+        <FileBrowserRowActions
+          isDirectory={item.kind === "directory"}
+          disabled={disabled || actionLoading}
+          downloadTitle={labels.actions.download}
+          renameTitle={labels.actions.rename}
+          deleteTitle={labels.actions.delete}
+          onDownload={onDownload ? () => onDownload(item) : undefined}
+          onRename={
+            onRename && (canRename?.(item) ?? true)
+              ? () => {
+                  if (disabled || actionLoading) {
+                    return;
+                  }
+                  setRenameItem(item);
+                  setRenameName(item.name);
+                  openModal("rename");
                 }
-                setRenameItem(item);
-                setRenameName(item.name);
-                openModal("rename");
-              }
-            : undefined
-        }
-        onDelete={
-          onDelete && (canDelete?.(item) ?? true)
-            ? () => {
-                if (disabled || actionLoading) {
-                  return;
+              : undefined
+          }
+          onDelete={
+            onDelete && (canDelete?.(item) ?? true)
+              ? () => {
+                  if (disabled || actionLoading) {
+                    return;
+                  }
+                  setDeleteItem(item);
+                  openModal("delete");
                 }
-                setDeleteItem(item);
-                openModal("delete");
-              }
-            : undefined
-        }
-        leadingActions={renderLeadingActions?.(item)}
-        trailingActions={renderTrailingActions?.(item)}
-      />
-    ),
+              : undefined
+          }
+          leadingActions={renderLeadingActions?.(item)}
+          trailingActions={renderTrailingActions?.(item)}
+        />
+      );
+    },
     [
       actionLoading,
       disabled,

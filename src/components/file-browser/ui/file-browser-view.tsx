@@ -20,6 +20,7 @@ export interface FileBrowserViewProps {
   showTypeColumn?: boolean;
   showActionsColumn?: boolean;
   toolbar?: ReactNode;
+  isItemClickable?: (item: FileBrowserItem) => boolean;
   onNavigate?: (path: string) => void;
   onNavigateUp?: () => void;
   onItemClick?: (item: FileBrowserItem) => void;
@@ -39,6 +40,7 @@ export function FileBrowserView({
   showTypeColumn = false,
   showActionsColumn,
   toolbar,
+  isItemClickable,
   onNavigate,
   onNavigateUp,
   onItemClick,
@@ -83,6 +85,7 @@ export function FileBrowserView({
           locale={locale}
           showTypeColumn={showTypeColumn}
           showActionsColumn={shouldShowActionsColumn}
+          isItemClickable={isItemClickable}
           onItemClick={isNavigationDisabled ? undefined : onItemClick}
           renderRowActions={renderRowActions}
         />

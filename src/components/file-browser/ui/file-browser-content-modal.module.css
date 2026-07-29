@@ -1,0 +1,104 @@
+.editorContainer {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.editorContainer_readOnly :global(.monaco-editor) {
+  cursor: default;
+}
+
+.editorContainer_readOnly :global(.monaco-editor .inputarea) {
+  pointer-events: none;
+}
+
+.editorContainer_readOnly :global(.monaco-editor .cursor) {
+  display: none !important;
+}
+
+.editorContainer_readOnly :global(.monaco-editor .current-line),
+.editorContainer_readOnly :global(.monaco-editor .current-line-margin) {
+  background-color: transparent !important;
+}
+
+.editorContainer_readOnly :global(.monaco-editor-overlaymessage) {
+  display: none !important;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.pathRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 8px 0 12px;
+}
+
+.pathText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.pathRowContentCopy {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.emptyContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding-inline-end: 24px;
+}
+
+.headerTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.headerFileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dirtyIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #faad14;
+  display: inline-block;
+  flex-shrink: 0;
+}

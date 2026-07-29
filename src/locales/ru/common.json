@@ -163,6 +163,7 @@
       "delete-confirm-directory": "Вы действительно хотите удалить директорию \"{{name}}\"?",
       "delete-confirm-directory-warning": "Если директория содержит вложенные файлы и директории, они также будут удалены. Операцию невозможно отменить",
       "yes": "Да",
+      "no": "Нет",
       "cancel": "Отмена",
       "create-directory": "Создать директорию",
       "create-file": "Создать файл",
@@ -171,7 +172,22 @@
       "file-name-placeholder": "Имя файла",
       "new-name-placeholder": "Новое имя"
     },
+    "content-modal": {
+      "save": "Сохранить",
+      "close": "Закрыть",
+      "read-only": "Только чтение",
+      "unsaved-changes": "Несохранённые изменения",
+      "unsaved-title": "У вас есть несохранённые изменения",
+      "unsaved-confirm": "Закрыть без сохранения?",
+      "empty-file": "Файл пуст",
+      "copy-path": "Копировать путь",
+      "copy-content": "Копировать содержимое"
+    },
     "notifications": {
+      "file-too-large": "Файл слишком большой для просмотра",
+      "file-size-invalid": "Не удалось определить размер файла для просмотра",
+      "binary-not-supported": "Просмотр бинарных файлов не поддерживается",
+      "file-read-error": "Не удалось прочитать файл",
       "create-directory-success": "Директория \"{{name}}\" успешно создана",
       "create-error": "Не удалось создать объект",
       "create-directory-error": "Не удалось создать директорию",
