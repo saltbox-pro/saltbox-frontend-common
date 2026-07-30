@@ -29,6 +29,10 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "file-size-invalid": "file-browser.notifications.file-size-invalid",
   "binary-not-supported": "file-browser.notifications.binary-not-supported",
   "file-read-error": "file-browser.notifications.file-read-error",
+  "file-too-large-to-save": "file-browser.notifications.file-too-large-to-save",
+  "file-modified-externally": "file-browser.notifications.file-modified-externally",
+  "file-write-error": "file-browser.notifications.file-write-error",
+  "file-save-unconfirmed": "file-browser.notifications.file-save-unconfirmed",
 } as const;
 
 export type FileBrowserNotificationErrorCode = keyof typeof FILE_BROWSER_ERROR_I18N_KEYS;

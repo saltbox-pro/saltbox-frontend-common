@@ -1,8 +1,8 @@
-import { LockOutlined } from "@ant-design/icons";
+import { EditOutlined, LockOutlined } from "@ant-design/icons";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { Alert, Button, Empty, Spin, Tag } from "antd";
+import { Alert, Button, Empty, Flex, Skeleton, Tag } from "antd";
 import type { editor } from "monaco-editor";
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Modal } from "../../antd-wrappers/modal";
@@ -38,15 +38,19 @@ export interface FileBrowserContentModalProps {
   loading?: boolean;
   empty?: boolean;
   error?: ReactNode;
+  editorError?: ReactNode;
   readOnly?: boolean;
+  canEdit?: boolean;
   isDirty?: boolean;
   isSaving?: boolean;
+  saveDisabled?: boolean;
   locale?: FileBrowserLocaleOverrides;
   headerExtra?: ReactNode;
   onChange?: (value: string) => void;
+  onEdit?: () => void;
+  onCancelEdit?: () => void;
   onSave?: () => void | Promise<void>;
   onClose: () => void;
-  onEditorMount?: OnMount;
 }
 
 export function FileBrowserContentModal({
@@ -62,29 +66,60 @@ export function FileBrowserContentModal({
   loading = false,
   empty = false,
   error,
+  editorError,
   readOnly = false,
+  canEdit = false,
   isDirty = false,
   isSaving = false,
+  saveDisabled = false,
   locale,
   headerExtra,
   onChange,
+  onEdit,
+  onCancelEdit,
   onSave,
   onClose,
-  onEditorMount,
 }: FileBrowserContentModalProps) {
   const { t } = useTranslation("common");
   const labels = useFileBrowserLocale(locale);
   const [unsavedConfirmOpen, setUnsavedConfirmOpen] = useState(false);
+  const [savingConfirmOpen, setSavingConfirmOpen] = useState(false);
   const resolvedLanguage = language ?? getMonacoLanguage(fileName);
   const resolvedPathCopyText = pathCopyText ?? filePath ?? "";
   const showPathCopy = resolvedPathCopyText.length > 0;
   const showContentCopy = !loading && error == null && !empty && content.length > 0;
 
+  const saveShortcutRef = useRef({
+    readOnly,
+    isDirty,
+    isSaving,
+    saveDisabled,
+    loading,
+    hasError: error != null,
+    onSave,
+  });
+  saveShortcutRef.current = {
+    readOnly,
+    isDirty,
+    isSaving,
+    saveDisabled,
+    loading,
+    hasError: error != null,
+    onSave,
+  };
+
   useEffect(() => {
     if (!open) {
       setUnsavedConfirmOpen(false);
+      setSavingConfirmOpen(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!isSaving) {
+      setSavingConfirmOpen(false);
+    }
+  }, [isSaving]);
 
   const handleChange = useCallback(
     (value: string | undefined) => {
@@ -98,6 +133,7 @@ export function FileBrowserContentModal({
 
   const handleClose = useCallback(() => {
     if (isSaving) {
+      setSavingConfirmOpen(true);
       return;
     }
     if (!readOnly && isDirty) {
@@ -112,6 +148,35 @@ export function FileBrowserContentModal({
     onClose();
   }, [onClose]);
 
+  const handleCancelEdit = useCallback(() => {
+    if (isSaving || loading) {
+      return;
+    }
+    (onCancelEdit ?? onClose)();
+  }, [isSaving, loading, onCancelEdit, onClose]);
+
+  const handleCloseWhileSaving = useCallback(() => {
+    setSavingConfirmOpen(false);
+    onClose();
+  }, [onClose]);
+
+  const handleEditorMount = useCallback<OnMount>((editorInstance, monacoApi) => {
+    editorInstance.addCommand(monacoApi.KeyMod.CtrlCmd | monacoApi.KeyCode.KeyS, () => {
+      const state = saveShortcutRef.current;
+      if (
+        state.readOnly ||
+        !state.isDirty ||
+        state.isSaving ||
+        state.saveDisabled ||
+        state.loading ||
+        state.hasError
+      ) {
+        return;
+      }
+      Promise.resolve(state.onSave?.()).catch(() => undefined);
+    });
+  }, []);
+
   const options = useMemo(
     () => ({
       ...EDITOR_OPTIONS,
@@ -124,11 +189,13 @@ export function FileBrowserContentModal({
   );
 
   const title = (
-    <div className={styles.headerInfo}>
-      <div className={styles.headerTitleRow}>
+    <Flex vertical gap={4} className={styles.headerInfo}>
+      <Flex align="center" gap="small" className={styles.headerTitleRow}>
         <span className={styles.headerFileName}>{fileName}</span>
         <Tag>{resolvedLanguage}</Tag>
-        {readOnly && <Tag icon={<LockOutlined />}>{t("file-browser.content-modal.read-only")}</Tag>}
+        {readOnly && onEdit == null && (
+          <Tag icon={<LockOutlined />}>{t("file-browser.content-modal.read-only")}</Tag>
+        )}
         {headerExtra}
         {!readOnly && isDirty && (
           <span
@@ -136,14 +203,15 @@ export function FileBrowserContentModal({
             title={t("file-browser.content-modal.unsaved-changes")}
           />
         )}
-      </div>
-    </div>
+      </Flex>
+    </Flex>
   );
 
-  const showPathRow = (filePath != null && filePath.length > 0) || showContentCopy;
+  const showEdit = onEdit != null && error == null;
+  const showPathRow = (filePath != null && filePath.length > 0) || showEdit || showContentCopy;
 
   const pathRow = showPathRow ? (
-    <div className={styles.pathRow}>
+    <Flex align="center" gap={4} className={styles.pathRow}>
       {filePath != null && filePath.length > 0 && (
         <>
           <div className={styles.pathText} title={filePath}>
@@ -161,83 +229,90 @@ export function FileBrowserContentModal({
           )}
         </>
       )}
-      {showContentCopy && (
-        <CopyToClipboardButton
-          className={styles.pathRowContentCopy}
-          text={content}
-          size="small"
-          type="text"
-          title={t("file-browser.content-modal.copy-content")}
-        />
+      {(showContentCopy || showEdit) && (
+        <Flex align="center" gap="small" className={styles.pathRowEnd}>
+          {showContentCopy && (
+            <CopyToClipboardButton
+              text={content}
+              size="middle"
+              title={t("file-browser.content-modal.copy-content")}
+            />
+          )}
+          {showEdit && (
+            <Button
+              icon={<EditOutlined />}
+              onClick={onEdit}
+              disabled={!readOnly || !canEdit || loading}
+            >
+              {t("file-browser.content-modal.edit")}
+            </Button>
+          )}
+        </Flex>
       )}
-    </div>
+    </Flex>
   ) : null;
 
-  const footer = (
-    <>
-      <Button onClick={handleClose} disabled={isSaving}>
-        {readOnly ? t("file-browser.content-modal.close") : labels.actions.cancel}
-      </Button>
-      {!readOnly && (
-        <Button
-          type="primary"
-          onClick={() => {
-            Promise.resolve(onSave?.()).catch(() => undefined);
-          }}
-          disabled={!isDirty || isSaving || loading || error != null}
-          loading={isSaving}
-        >
-          {t("file-browser.content-modal.save")}
-        </Button>
-      )}
-    </>
+  const bottomActions = (
+    <Flex vertical gap="small" className={styles.bottomActions}>
+      {editorError != null && <Alert type="error" showIcon message={editorError} />}
+      <Flex justify="end" gap="small">
+        <Button onClick={handleClose}>{t("file-browser.content-modal.close")}</Button>
+        {!readOnly && (
+          <>
+            <Button onClick={handleCancelEdit} disabled={isSaving || loading}>
+              {labels.actions.cancel}
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                Promise.resolve(onSave?.()).catch(() => undefined);
+              }}
+              disabled={!isDirty || isSaving || saveDisabled || loading || error != null}
+              loading={isSaving}
+            >
+              {t("file-browser.content-modal.save")}
+            </Button>
+          </>
+        )}
+      </Flex>
+    </Flex>
   );
 
-  let body: ReactNode;
+  let bodyContent: ReactNode;
   if (loading) {
-    body = (
-      <div className={styles.body}>
-        {pathRow}
-        <div className={styles.loadingContainer}>
-          <Spin size="large" />
-        </div>
-      </div>
+    bodyContent = (
+      <Flex className={`${styles.fillContainer} ${styles.editorSkeleton}`}>
+        <Skeleton active />
+      </Flex>
     );
   } else if (error != null) {
-    body = (
-      <div className={styles.body}>
-        {pathRow}
+    bodyContent = (
+      <Flex vertical className={styles.fillContainer}>
         <Alert type="error" showIcon message={error} />
-      </div>
+      </Flex>
     );
-  } else if (empty) {
-    body = (
-      <div className={styles.body}>
-        {pathRow}
-        <div className={styles.emptyContainer}>
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={t("file-browser.content-modal.empty-file")}
-          />
-        </div>
-      </div>
+  } else if (empty && readOnly) {
+    bodyContent = (
+      <Flex align="center" justify="center" className={styles.fillContainer}>
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={t("file-browser.content-modal.empty-file")}
+        />
+      </Flex>
     );
   } else {
-    body = (
-      <div className={styles.body}>
-        {pathRow}
-        <div
-          className={`${styles.editorContainer}${readOnly ? ` ${styles.editorContainer_readOnly}` : ""}`}
-        >
-          <Editor
-            height="100%"
-            language={resolvedLanguage}
-            value={content}
-            onChange={handleChange}
-            onMount={onEditorMount}
-            options={options}
-          />
-        </div>
+    bodyContent = (
+      <div
+        className={`${styles.editorContainer}${readOnly ? ` ${styles.editorContainer_readOnly}` : ""}`}
+      >
+        <Editor
+          height="100%"
+          language={resolvedLanguage}
+          value={content}
+          onChange={handleChange}
+          onMount={handleEditorMount}
+          options={options}
+        />
       </div>
     );
   }
@@ -247,17 +322,21 @@ export function FileBrowserContentModal({
       <Modal
         open={open}
         title={title}
-        footer={footer}
+        footer={null}
         onCancel={handleClose}
         width="95vw"
         centered
         styles={{ body: { height: "85vh", padding: 0, overflow: "hidden" } }}
         destroyOnHidden
-        maskClosable={!isSaving}
-        closable={!isSaving}
-        keyboard={!isSaving}
+        maskClosable
+        closable
+        keyboard
       >
-        {body}
+        <Flex vertical className={styles.body}>
+          {pathRow}
+          {bodyContent}
+          {bottomActions}
+        </Flex>
       </Modal>
       <Modal
         title={t("file-browser.content-modal.unsaved-title")}
@@ -271,6 +350,19 @@ export function FileBrowserContentModal({
         keyboard
       >
         <p>{t("file-browser.content-modal.unsaved-confirm")}</p>
+      </Modal>
+      <Modal
+        title={t("file-browser.content-modal.saving-title")}
+        open={savingConfirmOpen}
+        onOk={handleCloseWhileSaving}
+        onCancel={() => setSavingConfirmOpen(false)}
+        okText={labels.actions.yes}
+        cancelText={labels.actions.no}
+        maskClosable
+        closable
+        keyboard
+      >
+        <p>{t("file-browser.content-modal.saving-confirm")}</p>
       </Modal>
     </>
   );
