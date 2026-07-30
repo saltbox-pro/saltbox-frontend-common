@@ -7,7 +7,6 @@ import {
   Row,
   RowSelectionState,
   SortingState,
-  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -20,11 +19,16 @@ import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from "
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
-import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
+import {
+  type FastTableVirtualScrollOptions,
+  isFastTableVirtualColumnsReady,
+  useFastTableVirtualColumnSizingKey,
+  useFastTableVirtualization,
+} from "../hooks/use-fast-table-virtualization";
 import { usePersistedColumnSizing } from "../hooks/use-persisted-column-sizing";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
@@ -34,7 +38,6 @@ import {
   formatCssPx,
   getColWidthStyle,
   hasAllColumnSizes,
-  resolveCellTitle,
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
@@ -42,13 +45,17 @@ import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
-import { getSortedColumnClassName } from "../utils/column-sort";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
+import {
+  FastTableVirtualBody,
+  renderFastTableSampleRow,
+  renderFastTableTableCells,
+} from "../virtual-scroll/fast-table-virtual-body";
 import "../fast-table-tokens.css";
 import "../fast-table-column-resize.css";
 import "./fast-table-listed.css";
 
-export type FastTableListedProps<DataType> = {
+export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   columns: Array<any>;
   data: Array<DataType>;
   total?: number;
@@ -116,6 +123,10 @@ function FastTableListedContent<DataType>({
   rowSelection,
   tableId,
   enableColumnResize = true,
+  useVirtualScroll = false,
+  overscan = 20,
+  estimatedRowHeight = 45,
+  estimatedExpandedRowHeight = estimatedRowHeight * 20,
 }: FastTableListedProps<DataType>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableLocale = useFastTableLocale(locale);
@@ -207,6 +218,51 @@ function FastTableListedContent<DataType>({
       syncColumnSizingToColumns,
     });
 
+  const columnSizingKey = useFastTableVirtualColumnSizingKey({
+    useVirtualScroll,
+    columnSizing,
+    isResizingColumn,
+  });
+
+  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnResize;
+  const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
+    useFastTableVirtualization({
+      enabled: useVirtualScroll,
+      tableContainerRef,
+      data,
+      rows,
+      columnCount: leafColumns.length,
+      columnSizingKey,
+      measureColumnWidthsEnabled,
+      overscan,
+      estimatedRowHeight,
+      estimatedExpandedRowHeight,
+    });
+
+  const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
+  const isVirtualColumnsReady = isFastTableVirtualColumnsReady({
+    columnCount,
+    columnWidths,
+    hasLockedColumnWidths,
+    enableColumnResize,
+    hasResizeColumnSizing,
+  });
+
+  const shouldRenderVirtualRows = useVirtualScroll && !isEmpty && !isLoading && rows.length > 0;
+
+  const getRowClassNames = (row: Row<DataType>, isVirtualRow = false) => {
+    const activeClassName =
+      row.id === activeRowId
+        ? isVirtualRow
+          ? "virtual-row virtual-row-active"
+          : "fast-table-row-active"
+        : isVirtualRow
+          ? "virtual-row"
+          : undefined;
+
+    return activeClassName;
+  };
+
   const showTableLayoutToolbar = enableColumnResize;
 
   const tableViewMenuItems = useMemo(
@@ -223,7 +279,7 @@ function FastTableListedContent<DataType>({
 
   const renderColGroup = () => (
     <colgroup>
-      {leafColumns.map((column) => {
+      {leafColumns.map((column, index) => {
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
@@ -255,10 +311,16 @@ function FastTableListedContent<DataType>({
         return (
           <col
             key={column.id}
-            style={getColWidthStyle(resolveColumnWidth(column), {
-              minWidth: resolveColumnMinWidth(meta),
-              maxWidth: meta?.maxWidth,
-            })}
+            style={getColWidthStyle(
+              resolveColumnWidth(
+                column,
+                useVirtualScroll ? columnWidths[`col-${index}`] : undefined
+              ),
+              {
+                minWidth: resolveColumnMinWidth(meta),
+                maxWidth: meta?.maxWidth,
+              }
+            )}
           />
         );
       })}
@@ -275,7 +337,7 @@ function FastTableListedContent<DataType>({
           <tr
             key={row.id}
             role={isClickable ? "button" : undefined}
-            className={row.id === activeRowId ? "fast-table-row-active" : undefined}
+            className={getRowClassNames(row)}
             onClick={(event) => {
               if (!onRowClick || !isClickable) return;
 
@@ -286,38 +348,7 @@ function FastTableListedContent<DataType>({
               onRowClick(toJS(row.original), event);
             }}
           >
-            {row.getVisibleCells().map((cell) => {
-              const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
-              const isEllipsis = meta?.ellipsis ?? true;
-              const cellTitle = isEllipsis
-                ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
-                : undefined;
-
-              return (
-                <td
-                  key={cell.id}
-                  className={`${meta?.tdClassName ?? ""} ${getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount)} cell-with-actions${meta?.color ? ` cell-color-${meta.color}` : ""}`}
-                >
-                  <span className="cell-content">
-                    <span
-                      className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
-                      title={cellTitle}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </span>
-                    {(meta?.showCopy || meta?.actions) && (
-                      <CellActions
-                        value={cell.getValue()}
-                        row={row.original}
-                        showCopy={meta.showCopy}
-                        copyValue={meta.copyValue?.(row.original)}
-                        actions={meta.actions}
-                      />
-                    )}
-                  </span>
-                </td>
-              );
-            })}
+            {renderFastTableTableCells({ row, visibleColumnCount })}
           </tr>
           {row.getIsExpanded() && (
             <tr>
@@ -368,8 +399,10 @@ function FastTableListedContent<DataType>({
   return (
     <div
       className={`fast-table ${isEmpty ? "empty" : ""} ${isLoading ? "loading" : ""} ${
-        enableColumnResize ? "has-column-resize" : ""
-      } ${isResizingColumn ? "is-column-resizing" : ""}`}
+        useVirtualScroll ? "virtual-scroll" : ""
+      } ${enableColumnResize ? "has-column-resize" : ""} ${
+        isResizingColumn ? "is-column-resizing" : ""
+      }`}
       style={fastTableTokenStyle}
     >
       {showTableLayoutToolbar && (
@@ -401,11 +434,35 @@ function FastTableListedContent<DataType>({
             />
           </thead>
           <tbody ref={bodyRef}>
-            {renderTableRows()}
+            {shouldRenderVirtualRows
+              ? renderFastTableSampleRow({ row: rows[0], visibleColumnCount })
+              : renderTableRows()}
             {isEmpty && renderEmptyState()}
             {isLoading && renderLoadingState()}
           </tbody>
         </table>
+        {shouldRenderVirtualRows && (
+          <FastTableVirtualBody
+            rows={rows}
+            rowVirtualizer={rowVirtualizer}
+            headerHeight={headerHeight}
+            isVirtualColumnsReady={isVirtualColumnsReady}
+            tableScrollWidthRef={tableScrollWidthRef}
+            visibleColumnCount={visibleColumnCount}
+            hasLockedColumnWidths={hasLockedColumnWidths}
+            lockedColumnSizes={lockedColumnSizes}
+            lockedColumnsTotalWidth={lockedColumnsTotalWidth}
+            enableColumnResize={enableColumnResize}
+            columnSizing={columnSizing}
+            columnWidths={columnWidths}
+            leafColumnIds={leafColumnIds}
+            hasResizeColumnSizing={hasResizeColumnSizing}
+            onRowClick={onRowClick}
+            isRowClickable={isRowClickable}
+            getRowClassName={getRowClassNames}
+            renderSubComponent={renderSubComponent}
+          />
+        )}
       </div>
       {!hideFooter && renderTableFooter()}
     </div>

@@ -1,5 +1,8 @@
+@import "../virtual-scroll/fast-table-virtual-scroll.css";
+
 .fast-table {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }

@@ -109,6 +109,7 @@ export function FileBrowserTable({
       <FastTableListed
         tableId={tableId}
         enableColumnResize={false}
+        useVirtualScroll
         columns={columns}
         data={items}
         isLoading={false}

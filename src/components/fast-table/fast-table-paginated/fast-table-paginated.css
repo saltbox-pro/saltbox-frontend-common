@@ -1,3 +1,5 @@
+@import "../virtual-scroll/fast-table-virtual-scroll.css";
+
 .fast-table {
   min-height: 0;
   flex: 1;
@@ -6,13 +8,6 @@
 }
 
 .fast-table-wrapper {
-  overflow: auto;
-}
-
-.fast-table.virtual-scroll .fast-table-wrapper {
-  position: relative;
-  contain: strict;
-  height: 100%;
   overflow: auto;
 }
 
@@ -45,23 +40,6 @@
   height: 100%;
 }
 
-.fast-table .sample-row {
-  visibility: hidden;
-}
-
-.fast-table .virtual-tbody-container {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.fast-table .virtual-tbody-content {
-  position: relative;
-  will-change: transform;
-}
-
 .fast-table table > thead > tr > th {
   color: var(--fast-table-header-color);
   font-weight: 600;
@@ -83,16 +61,6 @@
   border-top: 1px solid var(--fast-table-border-color);
 }
 
-.fast-table.virtual-scroll table > thead > tr > th {
-  box-sizing: border-box;
-}
-
-.fast-table .virtual-row-cells {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-}
-
 .fast-table table > tbody > tr > td {
   border: none;
   border-right: 1px solid var(--fast-table-border-color);
@@ -107,40 +75,6 @@
   border-left: 1px solid var(--fast-table-border-color);
 }
 
-.fast-table .virtual-cell {
-  border: none;
-  border-bottom: 1px solid var(--fast-table-border-color);
-  border-right: 1px solid var(--fast-table-border-color);
-  padding: 8px 12px;
-  line-height: 1.1rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  box-sizing: border-box;
-}
-
-.fast-table .virtual-row-cells .virtual-cell:first-child {
-  border-left: 1px solid var(--fast-table-border-color);
-}
-
-.fast-table .virtual-row-first .virtual-cell {
-  border-top: 1px solid var(--fast-table-border-color);
-}
-
-.fast-table .virtual-row-expanded {
-  border-top: none;
-  border-left: 1px solid var(--fast-table-border-color);
-  border-right: 1px solid var(--fast-table-border-color);
-  border-bottom: 1px solid var(--fast-table-border-color);
-  padding: 0.5rem 0.75rem;
-  line-height: 1.1rem;
-  cursor: default;
-}
-
-.fast-table .virtual-row.fast-table-row-group-alt .virtual-cell {
-  background-color: #f9f9f9;
-}
-
 .fast-table table > tbody > tr.fast-table-row-group-alt > td {
   background-color: #f9f9f9;
 }
@@ -149,8 +83,7 @@
   background-color: var(--fast-table-row-hover-bg);
 }
 
-.fast-table table > tbody > tr.fast-table-row-active > td,
-.fast-table .virtual-row.virtual-row-active .virtual-cell {
+.fast-table table > tbody > tr.fast-table-row-active > td {
   background-color: #f5f8ff;
 }
 
@@ -160,25 +93,12 @@
   background-color: transparent;
 }
 
-.fast-table .virtual-row[role="button"]:hover .virtual-cell {
-  background-color: var(--fast-table-row-hover-bg);
-}
-
-.fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td,
-.fast-table .virtual-row.fast-table-row-group-alt[role="button"]:hover .virtual-cell {
+.fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td {
   background-color: #f2f2f2;
-}
-
-.fast-table .sample-row td {
-  border-color: transparent;
 }
 
 /* Курсор pointer для кликабельных строк */
 .fast-table table > tbody > tr[role="button"] {
-  cursor: pointer;
-}
-
-.fast-table .virtual-row[role="button"] {
   cursor: pointer;
 }
 
