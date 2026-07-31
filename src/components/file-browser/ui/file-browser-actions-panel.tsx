@@ -1,6 +1,7 @@
 import { Button } from "antd";
-import { type ReactNode, useCallback, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
+import { RefreshButton } from "../../buttons/refresh-button";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import { isFileBrowserSafePathSegment } from "../model/path-utils";
@@ -31,6 +32,7 @@ export interface FileBrowserActionsPanelProps {
   canDelete?: (item: FileBrowserItem) => boolean;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
+  onReload?: () => void | Promise<void>;
   onSubmitError?: (message: string) => void;
   toolbarLeading?: ReactNode;
   toolbarTrailing?: ReactNode;
@@ -51,6 +53,7 @@ export function FileBrowserActionsPanel({
   canDelete,
   onCreateFolder,
   onCreateFile,
+  onReload,
   onSubmitError,
   toolbarLeading,
   toolbarTrailing,
@@ -67,10 +70,20 @@ export function FileBrowserActionsPanel({
   const [renameName, setRenameName] = useState("");
   const [deleteItem, setDeleteItem] = useState<FileBrowserItem | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   const [nameSubmitError, setNameSubmitError] = useState<string | null>(null);
   const actionLockRef = useRef(false);
+  const reloadLockRef = useRef(false);
+  const isMountedRef = useRef(true);
   const activeModalRef = useRef<ActiveModal>(null);
   activeModalRef.current = activeModal;
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const clearNameSubmitError = useCallback(() => {
     setNameSubmitError(null);
@@ -259,6 +272,25 @@ export function FileBrowserActionsPanel({
 
   const toolbarLocked = disabled || actionLoading;
 
+  const handleReload = useCallback(async () => {
+    if (onReload == null || toolbarLocked || reloadLockRef.current) {
+      return;
+    }
+
+    reloadLockRef.current = true;
+    setIsReloading(true);
+    try {
+      await onReload();
+    } catch {
+      // Module/store owns user-facing error handling for listing reload.
+    } finally {
+      reloadLockRef.current = false;
+      if (isMountedRef.current) {
+        setIsReloading(false);
+      }
+    }
+  }, [onReload, toolbarLocked]);
+
   const openToolbarModal = (modal: Exclude<ActiveModal, null>) => {
     if (toolbarLocked) {
       return;
@@ -273,6 +305,15 @@ export function FileBrowserActionsPanel({
     <div
       className={`${styles.actionButtons}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
     >
+      {onReload && (
+        <RefreshButton
+          loading={isReloading}
+          aria-disabled={toolbarLocked || undefined}
+          tabIndex={toolbarLocked ? -1 : undefined}
+          onClick={handleReload}
+        />
+      )}
+
       {toolbarLeading}
 
       {onCreateFolder && (
