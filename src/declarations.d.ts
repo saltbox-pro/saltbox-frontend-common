@@ -42,3 +42,7 @@ declare module "*.module.css" {
   const classes: { [key: string]: string };
   export default classes;
 }
+
+// process.env.NODE_ENV подменяется бандлером приложения-потребителя (webpack DefinePlugin);
+// объявление нужно только для tsc, @types/node не подключаем сознательно.
+declare const process: { env: { NODE_ENV?: string } };

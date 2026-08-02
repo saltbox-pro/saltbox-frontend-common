@@ -18,10 +18,16 @@ import { Button, Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from "react";
 
+import type { LoadSource } from "../../../error-handling/create-loader";
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import {
+  FastTableBodyFallback,
+  FastTableRefreshAlert,
+  useLoaderBinding,
+} from "../fast-table-load-error";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
@@ -71,6 +77,8 @@ export type FastTableListedProps<DataType> = {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
   enableColumnResize?: boolean;
+  /** Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика */
+  loader?: LoadSource;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
@@ -116,7 +124,9 @@ function FastTableListedContent<DataType>({
   rowSelection,
   tableId,
   enableColumnResize = true,
+  loader,
 }: FastTableListedProps<DataType>) {
+  useLoaderBinding(loader);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
@@ -384,6 +394,7 @@ function FastTableListedContent<DataType>({
           </Dropdown>
         </div>
       )}
+      <FastTableRefreshAlert loader={loader} />
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table
           style={
@@ -402,7 +413,16 @@ function FastTableListedContent<DataType>({
           </thead>
           <tbody ref={bodyRef}>
             {renderTableRows()}
-            {isEmpty && renderEmptyState()}
+            {isEmpty &&
+              (loader ? (
+                <FastTableBodyFallback
+                  loader={loader}
+                  colSpan={table.getAllColumns().length}
+                  emptyDescription={tableLocale.empty}
+                />
+              ) : (
+                renderEmptyState()
+              ))}
             {isLoading && renderLoadingState()}
           </tbody>
         </table>

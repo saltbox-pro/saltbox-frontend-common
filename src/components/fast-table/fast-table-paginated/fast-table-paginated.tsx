@@ -31,10 +31,16 @@ import {
 
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
+import type { LoadSource } from "../../../error-handling/create-loader";
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { CellActions } from "../cell-actions/cell-actions";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import {
+  FastTableBodyFallback,
+  FastTableRefreshAlert,
+  useLoaderBinding,
+} from "../fast-table-load-error";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
@@ -100,6 +106,8 @@ export type FastTablePaginatedProps<DataType> = {
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
   enableColumnResize?: boolean;
+  /** Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика */
+  loader?: LoadSource;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -308,7 +316,9 @@ function FastTablePaginatedContent<DataType>({
   getRowGroupKey,
   tableId,
   enableColumnResize = true,
+  loader,
 }: FastTablePaginatedProps<DataType>) {
+  useLoaderBinding(loader);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { stableIsLoading, stableData } = useStableLoading(isLoading, data, {
     delay: 0,
@@ -835,6 +845,7 @@ function FastTablePaginatedContent<DataType>({
           </Dropdown>
         </div>
       )}
+      <FastTableRefreshAlert loader={loader} />
       <Spin
         wrapperClassName="fast-table-spinner-wrapper"
         className="fast-table-spinner"
@@ -857,7 +868,16 @@ function FastTablePaginatedContent<DataType>({
               />
             </thead>
             <tbody ref={bodyRef}>
-              {shouldShowEmpty && renderEmptyState()}
+              {shouldShowEmpty &&
+                (loader ? (
+                  <FastTableBodyFallback
+                    loader={loader}
+                    colSpan={table.getAllColumns().length}
+                    emptyDescription={tableLocale.empty}
+                  />
+                ) : (
+                  renderEmptyState()
+                ))}
               {useVirtualScroll ? renderSampleRow() : renderTableRows()}
             </tbody>
           </table>

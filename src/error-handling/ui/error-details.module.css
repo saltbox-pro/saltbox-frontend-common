@@ -1,0 +1,51 @@
+.root {
+  width: 100%;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.meta {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--fill);
+}
+
+.metaList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.metaList dt {
+  font-weight: 600;
+}
+
+.metaList dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.url {
+  font-family: monospace;
+}
+
+.bodyBlock {
+  margin-top: 8px;
+}
+
+.pre {
+  max-height: 180px;
+  margin: 4px 0 0;
+  padding: 8px;
+  overflow: auto;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

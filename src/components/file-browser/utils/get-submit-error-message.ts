@@ -1,4 +1,4 @@
-import { isGlobalServerError } from "../../../utils/server-error-middleware";
+import { isGlobalServerError } from "../../../utils/legacy-global-error";
 
 const FILE_BROWSER_SUBMIT_ERROR_BRAND = "saltbox.FileBrowserSubmitError";
 const FILE_BROWSER_KEEP_MODAL_OPEN_ERROR_BRAND = "saltbox.FileBrowserKeepModalOpenError";
