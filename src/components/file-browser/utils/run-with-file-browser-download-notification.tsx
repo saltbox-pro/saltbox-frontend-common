@@ -1,7 +1,7 @@
 import { Spin } from "antd";
 import type { ReactNode } from "react";
 
-import { isGlobalServerError } from "../../../utils/server-error-middleware";
+import { isGlobalServerError } from "../../../utils/legacy-global-error";
 import type { FileBrowserDownloadLabels } from "../hooks/use-file-browser-messages";
 
 const DOWNLOAD_NOTIFICATION_PLACEMENT = "bottomRight" as const;
