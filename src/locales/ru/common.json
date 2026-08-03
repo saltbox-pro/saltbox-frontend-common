@@ -170,6 +170,7 @@
       "create-file": "Создать файл",
       "create": "Создать",
       "go-to-root": "К корню",
+      "copy-path": "Копировать путь",
       "copy-salt-path": "Копировать путь (salt://)",
       "directory-name-placeholder": "Имя директории",
       "file-name-placeholder": "Имя файла",
@@ -204,7 +205,6 @@
       "refresh-keep-mine": "Оставить текущие изменения",
       "refresh-keep-mine-hint": "Изменения останутся в редакторе. При сохранении содержимое файла на клиенте будет перезаписано без объединения версий",
       "empty-file": "Файл пуст",
-      "copy-path": "Копировать путь",
       "copy-content": "Копировать содержимое"
     },
     "notifications": {
@@ -217,8 +217,8 @@
       "file-write-error": "Не удалось сохранить файл",
       "file-save-unconfirmed": "Не удалось подтвердить сохранение файла. Обновите содержимое перед повторным редактированием",
       "file-save-success": "Файл \"{{name}}\" успешно сохранен",
-      "salt-path-copied": "Путь скопирован: \"{{path}}\"",
-      "salt-path-copy-error": "Не удалось скопировать путь",
+      "path-copied": "Путь скопирован: \"{{path}}\"",
+      "path-copy-error": "Не удалось скопировать путь",
       "create-directory-success": "Директория \"{{name}}\" успешно создана",
       "create-error": "Не удалось создать объект",
       "create-directory-error": "Не удалось создать директорию",

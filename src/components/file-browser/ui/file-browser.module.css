@@ -17,6 +17,10 @@
   flex: 1 1 auto;
 }
 
+.copyPathButton {
+  flex-shrink: 0;
+}
+
 .navRight {
   display: flex;
   align-items: center;

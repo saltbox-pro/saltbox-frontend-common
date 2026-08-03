@@ -8,18 +8,23 @@ interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
   text: string;
   successMessage?: string;
   errorMessage?: string;
+  onCopySuccess?: (text: string) => void;
+  onCopyError?: () => void;
 }
 
 export function CopyToClipboardButton({
   text,
   successMessage,
   errorMessage,
+  onCopySuccess,
+  onCopyError,
   title,
   onClick,
   ...restProps
 }: CopyToClipboardButtonProps) {
   const { t } = useTranslation("common");
   const [messageApi, contextHolder] = message.useMessage();
+  const needsBuiltInToast = onCopySuccess == null || onCopyError == null;
 
   const handleCopy: ButtonProps["onClick"] = (e) => {
     e?.stopPropagation?.();
@@ -29,16 +34,24 @@ export function CopyToClipboardButton({
     navigator.clipboard
       .writeText(value)
       .then(() => {
+        if (onCopySuccess != null) {
+          onCopySuccess(value);
+          return;
+        }
         messageApi.success(successMessage ?? t("copy-to-clipboard-button.copied"));
       })
       .catch(() => {
+        if (onCopyError != null) {
+          onCopyError();
+          return;
+        }
         messageApi.error(errorMessage ?? t("copy-to-clipboard-button.error"));
       });
   };
 
   return (
     <>
-      {contextHolder}
+      {needsBuiltInToast && contextHolder}
       <BaseActionButton
         icon={<CopyOutlined />}
         title={title ?? t("copy-to-clipboard-button.copy")}

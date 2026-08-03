@@ -46,6 +46,11 @@ export type { FileBrowserUploadModalProps } from "./ui/file-browser-upload-modal
 export type { FileBrowserUploadItem } from "./model/upload-types";
 export { FileBrowserView } from "./ui/file-browser-view";
 export type { FileBrowserViewProps } from "./ui/file-browser-view";
+export { FileBrowserCopyPathButton } from "./ui/file-browser-copy-path-button";
+export type {
+  FileBrowserCopyPathAppearance,
+  FileBrowserCopyPathButtonProps,
+} from "./ui/file-browser-copy-path-button";
 export { FileBrowserLayout } from "./ui/file-browser-layout";
 export type {
   FileBrowserLayoutProps,

@@ -1,6 +1,6 @@
 export const FILE_BROWSER_SUCCESS_I18N_KEYS = {
   "file-save-success": "file-browser.notifications.file-save-success",
-  "salt-path-copied": "file-browser.notifications.salt-path-copied",
+  "path-copied": "file-browser.notifications.path-copied",
   "create-directory-success": "file-browser.notifications.create-directory-success",
   "create-file-success": "file-browser.notifications.create-file-success",
   "delete-file-success": "file-browser.notifications.delete-file-success",
