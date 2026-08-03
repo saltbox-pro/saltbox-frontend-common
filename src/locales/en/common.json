@@ -152,6 +152,7 @@
     },
     "actions": {
       "download": "Download",
+      "upload": "Upload",
       "rename": "Rename",
       "rename-title-file": "Rename file",
       "rename-title-directory": "Rename directory",
@@ -168,9 +169,25 @@
       "create-directory": "Create Directory",
       "create-file": "Create File",
       "create": "Create",
+      "go-to-root": "Go to root",
+      "copy-salt-path": "Copy path (salt://)",
       "directory-name-placeholder": "Directory name",
       "file-name-placeholder": "File name",
       "new-name-placeholder": "New name"
+    },
+    "download": {
+      "started": "Preparing file for download",
+      "success": "File is ready for download",
+      "cancelled": "Download cancelled",
+      "error": "Download failed"
+    },
+    "upload": {
+      "title": "Upload Files",
+      "drag-text": "Click or drag files here to upload",
+      "hint": "Supports single or multiple file uploads",
+      "preparing": "Preparing…",
+      "cancelled": "Cancelled",
+      "chunk-error": "Failed to upload chunk"
     },
     "content-modal": {
       "save": "Save",
@@ -200,6 +217,8 @@
       "file-write-error": "Failed to save the file",
       "file-save-unconfirmed": "The file save could not be confirmed. Refresh the content before editing again",
       "file-save-success": "File \"{{name}}\" saved successfully",
+      "salt-path-copied": "Path copied: \"{{path}}\"",
+      "salt-path-copy-error": "Failed to copy path",
       "create-directory-success": "Directory \"{{name}}\" created successfully",
       "create-error": "Failed to create object",
       "create-directory-error": "Failed to create directory",

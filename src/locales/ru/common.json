@@ -152,6 +152,7 @@
     },
     "actions": {
       "download": "Скачать",
+      "upload": "Загрузить",
       "rename": "Переименовать",
       "rename-title-file": "Переименовать файл",
       "rename-title-directory": "Переименовать директорию",
@@ -168,9 +169,25 @@
       "create-directory": "Создать директорию",
       "create-file": "Создать файл",
       "create": "Создать",
+      "go-to-root": "К корню",
+      "copy-salt-path": "Копировать путь (salt://)",
       "directory-name-placeholder": "Имя директории",
       "file-name-placeholder": "Имя файла",
       "new-name-placeholder": "Новое имя"
+    },
+    "download": {
+      "started": "Подготовка файла к скачиванию",
+      "success": "Файл готов к скачиванию",
+      "cancelled": "Скачивание отменено",
+      "error": "Не удалось скачать файл"
+    },
+    "upload": {
+      "title": "Загрузка файлов",
+      "drag-text": "Нажмите или перетащите файлы сюда для загрузки",
+      "hint": "Поддерживается загрузка одного или нескольких файлов",
+      "preparing": "Подготовка…",
+      "cancelled": "Отменено",
+      "chunk-error": "Не удалось загрузить часть файла"
     },
     "content-modal": {
       "save": "Сохранить",
@@ -200,6 +217,8 @@
       "file-write-error": "Не удалось сохранить файл",
       "file-save-unconfirmed": "Не удалось подтвердить сохранение файла. Обновите содержимое перед повторным редактированием",
       "file-save-success": "Файл \"{{name}}\" успешно сохранен",
+      "salt-path-copied": "Путь скопирован: \"{{path}}\"",
+      "salt-path-copy-error": "Не удалось скопировать путь",
       "create-directory-success": "Директория \"{{name}}\" успешно создана",
       "create-error": "Не удалось создать объект",
       "create-directory-error": "Не удалось создать директорию",

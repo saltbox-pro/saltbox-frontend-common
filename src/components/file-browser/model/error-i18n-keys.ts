@@ -33,6 +33,10 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "file-modified-externally": "file-browser.notifications.file-modified-externally",
   "file-write-error": "file-browser.notifications.file-write-error",
   "file-save-unconfirmed": "file-browser.notifications.file-save-unconfirmed",
+  "download-error": "file-browser.download.error",
+  "upload-cancelled": "file-browser.upload.cancelled",
+  "upload-chunk": "file-browser.upload.chunk-error",
+  "salt-path-copy-error": "file-browser.notifications.salt-path-copy-error",
 } as const;
 
 export type FileBrowserNotificationErrorCode = keyof typeof FILE_BROWSER_ERROR_I18N_KEYS;

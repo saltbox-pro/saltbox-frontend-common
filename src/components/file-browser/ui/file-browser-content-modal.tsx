@@ -1,6 +1,6 @@
 import { EditOutlined, LockOutlined } from "@ant-design/icons";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { Alert, Button, Empty, Flex, Skeleton, Tag } from "antd";
+import { Alert, Button, Empty, Flex, Skeleton, Tag, Tooltip } from "antd";
 import type { editor } from "monaco-editor";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,11 @@ const EDITOR_OPTIONS: EditorOptions = {
   automaticLayout: true,
 };
 
+export interface FileBrowserContentModalConflictActions {
+  onRefreshFromFile: () => void;
+  onKeepCurrentChanges?: () => void;
+}
+
 export interface FileBrowserContentModalProps {
   open: boolean;
   fileName: string;
@@ -39,6 +44,8 @@ export interface FileBrowserContentModalProps {
   empty?: boolean;
   error?: ReactNode;
   editorError?: ReactNode;
+  isRefreshing?: boolean;
+  conflictActions?: FileBrowserContentModalConflictActions;
   readOnly?: boolean;
   canEdit?: boolean;
   isDirty?: boolean;
@@ -67,6 +74,8 @@ export function FileBrowserContentModal({
   empty = false,
   error,
   editorError,
+  isRefreshing = false,
+  conflictActions,
   readOnly = false,
   canEdit = false,
   isDirty = false,
@@ -252,9 +261,46 @@ export function FileBrowserContentModal({
     </Flex>
   ) : null;
 
+  const editorErrorMessage =
+    editorError == null ? undefined : conflictActions == null ? (
+      editorError
+    ) : (
+      <Flex align="center" justify="space-between" gap="middle">
+        <span>{editorError}</span>
+        <Flex gap="small" flex="none">
+          <Button
+            size="small"
+            loading={isRefreshing}
+            onClick={() => {
+              conflictActions.onRefreshFromFile();
+            }}
+          >
+            {t(
+              isDirty
+                ? "file-browser.content-modal.refresh-take-disk"
+                : "file-browser.content-modal.refresh-file"
+            )}
+          </Button>
+          {isDirty && conflictActions.onKeepCurrentChanges != null && (
+            <Tooltip title={t("file-browser.content-modal.refresh-keep-mine-hint")}>
+              <Button
+                size="small"
+                loading={isRefreshing}
+                onClick={() => {
+                  conflictActions.onKeepCurrentChanges?.();
+                }}
+              >
+                {t("file-browser.content-modal.refresh-keep-mine")}
+              </Button>
+            </Tooltip>
+          )}
+        </Flex>
+      </Flex>
+    );
+
   const bottomActions = (
     <Flex vertical gap="small" className={styles.bottomActions}>
-      {editorError != null && <Alert type="error" showIcon message={editorError} />}
+      {editorErrorMessage != null && <Alert type="error" showIcon message={editorErrorMessage} />}
       <Flex justify="end" gap="small">
         <Button onClick={handleClose}>{t("file-browser.content-modal.close")}</Button>
         {!readOnly && (
