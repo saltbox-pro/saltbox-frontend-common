@@ -1,3 +1,5 @@
+import type { AppErrorKind } from "../error-handling/app-error";
+
 export enum UiEvent {
   CloseAllOverlays = "ui.close_all_overlays",
   CloseAllDrawers = "ui.close_all_drawers",
@@ -24,11 +26,23 @@ export interface ToastAction {
   onClick?: () => void;
 }
 
+/**
+ * Код ошибки для тоста. Едет данными, а не строкой: расшифровку («500 · Ошибка сервера»)
+ * переводит ToastHost в base — у него есть i18n-неймспейс common, а runMutation работает
+ * вне React и своего t() не имеет.
+ */
+export interface ToastErrorCode {
+  status: number;
+  kind: AppErrorKind;
+}
+
 /** Полезная нагрузка UiEvent.Toast. Все строки — уже переведённые (t() зовётся в приложении). */
 export interface ToastEventDetail {
   type: ToastType;
   title: string;
   description?: string;
+  /** Код + расшифровка показываются отдельной строкой над описанием */
+  errorCode?: ToastErrorCode;
   /** replace/дедупликация: тост с тем же key заменяет предыдущий */
   key?: string;
   /** 0 — не закрывать автоматически; по умолчанию host назначает по type */

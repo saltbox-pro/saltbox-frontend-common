@@ -27,7 +27,8 @@ export const HttpErrorPage = ({ error, homePath, onRetry }: HttpErrorPageProps) 
     >
       <Result
         status={presentation.resultStatus}
-        title={presentation.showStatusInTitle ? presentation.statusLabel : undefined}
+        // код и его расшифровка вместе: «404 · Не найдено», а не голое «404»
+        title={presentation.codeLine}
         subTitle={presentation.subtitle}
         extra={
           <HttpErrorContent

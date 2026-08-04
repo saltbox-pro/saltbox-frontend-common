@@ -1,4 +1,4 @@
-import { Alert } from "antd";
+import { Alert, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
 import type { AppError } from "../app-error";
@@ -30,7 +30,8 @@ export const MutationErrorAlert = ({ error, fallback, onClose }: MutationErrorAl
       message={fallback}
       description={
         <>
-          {error.serverMessage ?? presentation.subtitle}
+          <Typography.Text type="secondary">{presentation.codeLine}</Typography.Text>
+          <div>{error.serverMessage ?? presentation.subtitle}</div>
           <ErrorDetails error={error} />
         </>
       }

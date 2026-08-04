@@ -10,6 +10,7 @@ import type { LoadSource } from "../create-loader";
 import { ErrorZone } from "./error-zone";
 import { HttpErrorInline } from "./http-error-inline";
 import { HttpErrorPage } from "./http-error-page";
+import { MutationErrorAlert } from "./mutation-error-alert";
 
 const ALL_KINDS: Array<{ kind: AppErrorKind; status: number }> = [
   { kind: "network", status: 0 },
@@ -88,6 +89,31 @@ export const ServerMessage: Story = {
           "Коллекция «Продакшн-серверы» уже содержит клиент с таким ID"
         )}
         onRetry={() => undefined}
+      />
+    </Card>
+  ),
+};
+
+/**
+ * Ошибка действия в модалке: персональный заголовок операции, под ним код с расшифровкой,
+ * причина от бекенда и раскрывашка деталей.
+ */
+export const MutationError: Story = {
+  render: () => (
+    <Card style={{ margin: 24, width: 520 }}>
+      <MutationErrorAlert
+        error={{
+          ...makeError("conflict", 409, "Задача с таким расписанием уже существует"),
+          diagnostics: {
+            url: "https://saltbox.local/api/v1/scheduler/tasks/42",
+            status: 409,
+            statusText: "Conflict",
+            responseBody: '{"detail":"Задача с таким расписанием уже существует"}',
+            timestamp: new Date().toISOString(),
+          },
+        }}
+        fallback="Не удалось сохранить расписание"
+        onClose={() => undefined}
       />
     </Card>
   ),

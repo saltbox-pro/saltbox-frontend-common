@@ -53,7 +53,9 @@ describe("runMutation", () => {
       expect.objectContaining({
         title: "Не удалось сохранить",
         description: "Слаг уже занят",
-        // диагностика собрана из Response — кнопка «скопировать детали» в тосте
+        // код едет данными: расшифровку «409 · Конфликт данных» переводит ToastHost
+        errorCode: { status: 409, kind: "conflict" },
+        // диагностика собрана из Response — раскрывашка и копирование в тосте
         debugText: expect.stringContaining("Status: 409"),
       })
     );

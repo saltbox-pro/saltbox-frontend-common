@@ -46,7 +46,8 @@ export async function runMutation<T>(options: RunMutationOptions<T>): Promise<Mu
     notify.error({
       title: options.errorMessage,
       description: error.serverMessage,
-      // транспортная диагностика доступна прямо из тоста, отдельного канала не нужно
+      // код + расшифровку и раскрывашку деталей рисует ToastHost
+      errorCode: { status: error.status, kind: error.kind },
       debugText: error.diagnostics ? buildErrorDebugText(error) : undefined,
     });
     return { ok: false, error };
