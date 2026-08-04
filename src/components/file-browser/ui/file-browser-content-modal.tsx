@@ -392,6 +392,7 @@ export function FileBrowserContentModal({
         onCancel={() => setUnsavedConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard
@@ -405,6 +406,7 @@ export function FileBrowserContentModal({
         onCancel={() => setSavingConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard
