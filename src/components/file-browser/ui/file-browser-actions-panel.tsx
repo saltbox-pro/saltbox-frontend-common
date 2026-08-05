@@ -342,9 +342,8 @@ export function FileBrowserActionsPanel({
             {createActionsAppearance !== "icon" && labels.actions.createFile}
           </Button>
         )}
-
-        {toolbarTrailing}
       </div>
+      {toolbarTrailing}
     </div>
   );
 
