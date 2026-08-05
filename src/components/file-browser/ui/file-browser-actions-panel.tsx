@@ -303,47 +303,48 @@ export function FileBrowserActionsPanel({
     isForbiddenName?.(name) ? labels.nameModal.nameForbidden : labels.nameModal.nameInvalid;
 
   const toolbar = (
-    <div
-      className={`${styles.actionButtons}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
-    >
-      {onReload && (
-        <RefreshButton
-          loading={isReloading}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={handleReload}
-        />
-      )}
-
+    <div className={styles.actionButtons}>
       {toolbarLeading}
+      <div
+        className={`${styles.actionButtonsGroup}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
+      >
+        {onReload && (
+          <RefreshButton
+            loading={isReloading}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={handleReload}
+          />
+        )}
 
-      {onCreateFolder && (
-        <Button
-          icon={<MatIcon icon="create_new_folder" size="small" />}
-          title={createActionsAppearance === "icon" ? labels.actions.createFolder : undefined}
-          aria-label={labels.actions.createFolder}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => openToolbarModal("create-folder")}
-        >
-          {createActionsAppearance !== "icon" && labels.actions.createFolder}
-        </Button>
-      )}
+        {onCreateFolder && (
+          <Button
+            icon={<MatIcon icon="create_new_folder" size="small" />}
+            title={createActionsAppearance === "icon" ? labels.actions.createFolder : undefined}
+            aria-label={labels.actions.createFolder}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={() => openToolbarModal("create-folder")}
+          >
+            {createActionsAppearance !== "icon" && labels.actions.createFolder}
+          </Button>
+        )}
 
-      {onCreateFile && (
-        <Button
-          icon={<MatIcon icon="note_add" size="small" />}
-          title={createActionsAppearance === "icon" ? labels.actions.createFile : undefined}
-          aria-label={labels.actions.createFile}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => openToolbarModal("create-file")}
-        >
-          {createActionsAppearance !== "icon" && labels.actions.createFile}
-        </Button>
-      )}
+        {onCreateFile && (
+          <Button
+            icon={<MatIcon icon="note_add" size="small" />}
+            title={createActionsAppearance === "icon" ? labels.actions.createFile : undefined}
+            aria-label={labels.actions.createFile}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={() => openToolbarModal("create-file")}
+          >
+            {createActionsAppearance !== "icon" && labels.actions.createFile}
+          </Button>
+        )}
 
-      {toolbarTrailing}
+        {toolbarTrailing}
+      </div>
     </div>
   );
 

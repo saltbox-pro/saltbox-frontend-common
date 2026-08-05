@@ -23,6 +23,8 @@ export { dismissFileBrowserToast } from "./utils/show-file-browser-toast";
 export { useFileBrowserNotificationToasts } from "./hooks/use-file-browser-notification-toasts";
 export { useFileBrowserMessages } from "./hooks/use-file-browser-messages";
 export type { TranslateFileBrowserError } from "./hooks/use-file-browser-messages";
+export { useFileBrowserUploadNotification } from "./hooks/use-file-browser-upload-notification";
+export type { UseFileBrowserUploadNotificationOptions } from "./hooks/use-file-browser-upload-notification";
 export type {
   FileBrowserNotificationToasts,
   FileBrowserToastAction,
@@ -43,7 +45,10 @@ export type {
 } from "./ui/file-browser-content-modal";
 export { FileBrowserUploadModal } from "./ui/file-browser-upload-modal";
 export type { FileBrowserUploadModalProps } from "./ui/file-browser-upload-modal";
+export { FileBrowserUploadList } from "./ui/file-browser-upload-list";
+export type { FileBrowserUploadListProps } from "./ui/file-browser-upload-list";
 export type { FileBrowserUploadItem } from "./model/upload-types";
+export { hasActiveFileBrowserUpload } from "./utils/has-active-file-browser-upload";
 export { FileBrowserView } from "./ui/file-browser-view";
 export type { FileBrowserViewProps } from "./ui/file-browser-view";
 export { FileBrowserCopyPathButton } from "./ui/file-browser-copy-path-button";

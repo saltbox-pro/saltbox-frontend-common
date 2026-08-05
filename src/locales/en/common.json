@@ -186,7 +186,6 @@
       "title": "Upload Files",
       "drag-text": "Click or drag files here to upload",
       "hint": "Supports single or multiple file uploads",
-      "preparing": "Preparing…",
       "cancelled": "Cancelled",
       "chunk-error": "Failed to upload chunk"
     },
@@ -226,7 +225,7 @@
       "name-already-exists": "An object with this name already exists",
       "directory-already-exists": "A directory with this name already exists",
       "file-already-exists": "A file with this name already exists",
-      "parent-directory-missing": "The current directory no longer exists",
+      "parent-directory-missing": "The directory no longer exists",
       "entry-not-in-current-directory": "The object is no longer in the current directory",
       "file-not-in-current-directory": "The file is no longer in the current directory",
       "directory-not-in-current-directory": "The directory is no longer in the current directory",

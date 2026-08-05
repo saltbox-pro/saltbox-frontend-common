@@ -3,11 +3,11 @@ import { memo, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
+import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type {
   ShowFileBrowserErrorByCode,
   ShowFileBrowserSuccessByKey,
 } from "../hooks/use-file-browser-notification-toasts";
-import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import { formatFileBrowserCopyPath } from "../model/path-utils";
 import type { FileBrowserLocaleOverrides } from "../model/types";
 

@@ -7,16 +7,16 @@ import { useTranslation } from "react-i18next";
 
 import { Modal } from "../../antd-wrappers/modal";
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
+import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type {
   ShowFileBrowserErrorByCode,
   ShowFileBrowserSuccessByKey,
 } from "../hooks/use-file-browser-notification-toasts";
-import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type { FileBrowserLocaleOverrides } from "../model/types";
 import { getMonacoLanguage } from "../utils/language-utils";
 
-import { FileBrowserCopyPathButton } from "./file-browser-copy-path-button";
 import styles from "./file-browser-content-modal.module.css";
+import { FileBrowserCopyPathButton } from "./file-browser-copy-path-button";
 
 type EditorOptions = editor.IStandaloneEditorConstructionOptions;
 
