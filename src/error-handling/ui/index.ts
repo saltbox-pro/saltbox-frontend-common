@@ -1,4 +1,6 @@
 export * from "./error-details";
+export * from "./error-details-panel";
+export * from "./error-state";
 export * from "./error-zone";
 export * from "./http-error-page";
 export * from "./http-error-inline";

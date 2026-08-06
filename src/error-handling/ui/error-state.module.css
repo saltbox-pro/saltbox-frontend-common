@@ -1,0 +1,166 @@
+/*
+ * Габариты корня фиксированы при любом состоянии: детали не раздвигают блок,
+ * а занимают место основного содержимого. Поэтому «Показать детали» не двигает
+ * ни соседний контент, ни сам блок.
+ */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.block {
+  height: 320px;
+}
+
+/* height: 100% схлопнулся бы в auto у родителя без явной высоты — поэтому фиксируем */
+.page {
+  height: 440px;
+}
+
+/* Основной вид: центрируется по всей высоте корня */
+.main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.icon :global(.anticon) {
+  font-size: 24px;
+}
+
+.page .icon {
+  width: 72px;
+  height: 72px;
+}
+
+.page .icon :global(.anticon) {
+  font-size: 32px;
+}
+
+.iconNotFound,
+.iconGeneric {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.iconForbidden {
+  background: rgba(250, 173, 20, 0.12);
+  color: #d48806;
+}
+
+.iconServer {
+  background: rgba(255, 77, 79, 0.08);
+  color: #cf1322;
+}
+
+.iconNetwork {
+  background: rgba(22, 119, 255, 0.08);
+  color: #1677ff;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 360px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page .body {
+  max-width: 480px;
+}
+
+/* Бейдж с кодом — отдельной строкой над заголовком */
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.page .status {
+  min-width: 48px;
+  height: 30px;
+  border-radius: 15px;
+  font-size: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.page .title {
+  font-size: 20px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+/* Режим деталей: занимает всю высоту корня, панель скроллится внутри себя */
+.detailsView {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  text-align: left;
+}
+
+.detailsHeader {
+  flex: 0 0 auto;
+}
+
+.detailsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.detailsBody {
+  flex: 1 1 auto;
+  min-height: 0;
+}

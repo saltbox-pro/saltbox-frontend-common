@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Card, Flex } from "antd";
+import { Button, Card, Flex, Form, Input } from "antd";
 import React from "react";
 
 import { FastTablePaginated } from "../../components/fast-table/fast-table-paginated/fast-table-paginated";
+import { AppLanguage } from "../../interfaces/locales";
+import { SaltboxLocaleProvider } from "../../providers";
 import type { AppError, AppErrorKind } from "../app-error";
 import type { LoadSource } from "../create-loader";
+import { runMutation } from "../run-mutation";
 
 import { ErrorZone } from "./error-zone";
 import { HttpErrorInline } from "./http-error-inline";
@@ -47,6 +50,14 @@ const makeSource = (
 const meta: Meta = {
   title: "ErrorHandling/Ошибки",
   parameters: { layout: "fullscreen" },
+  // без провайдера i18next компоненты показали бы ключи вместо текста
+  decorators: [
+    (Story) => (
+      <SaltboxLocaleProvider locale={AppLanguage.RU}>
+        <Story />
+      </SaltboxLocaleProvider>
+    ),
+  ],
 };
 export default meta;
 
@@ -76,6 +87,35 @@ export const InlineAllKinds: Story = {
       ))}
     </Flex>
   ),
+};
+
+/**
+ * Page и block — одна разметка, разный масштаб. Раскрывашка деталей не меняет
+ * габариты блока: детали открываются в слоте внутри фиксированной высоты.
+ */
+export const PageVsBlock: Story = {
+  render: () => {
+    const error = {
+      ...makeError("server", 500, "Не удалось обработать запрос"),
+      diagnostics: {
+        url: "https://saltbox.local/api/v1/scheduler/tasks",
+        status: 500,
+        statusText: "Internal Server Error",
+        responseBody: '{"detail":"Не удалось обработать запрос"}',
+        timestamp: new Date().toISOString(),
+      },
+    };
+    return (
+      <Flex gap={16} align="stretch" style={{ padding: 24 }}>
+        <Card title="level=block" style={{ width: 420 }} styles={{ body: { padding: 0 } }}>
+          <HttpErrorInline error={error} onRetry={() => undefined} />
+        </Card>
+        <Card title="level=page" style={{ width: 560 }} styles={{ body: { padding: 0 } }}>
+          <HttpErrorPage error={error} homePath="/" onRetry={() => undefined} />
+        </Card>
+      </Flex>
+    );
+  },
 };
 
 /** Сообщение бекенда (serverMessage) замещает стандартный подзаголовок. */
@@ -117,6 +157,61 @@ export const MutationError: Story = {
       />
     </Card>
   ),
+};
+
+function validationResponseError(detail: Array<{ loc: string[]; msg: string }>): Error {
+  const error = new Error("Response returned an error code");
+  error.name = "ResponseError";
+  (error as unknown as { response: Response }).response = new Response(JSON.stringify({ detail }), {
+    status: 422,
+  });
+  return error;
+}
+
+/**
+ * 422 при действии: сообщения бекенда раскладываются по полям формы, тоста нет.
+ * `runMutation` срезает служебный префикс FastAPI (`body`) из `loc`, поэтому
+ * `["body","title"]` попадает в поле `title`, а `["body","schedule","cron"]` —
+ * во вложенное `["schedule","cron"]`.
+ *
+ * Если ни один `loc` сопоставить не удалось, механизм откатывается к тосту —
+ * в Storybook он не виден, потому что ToastHost живёт в base.
+ */
+const ValidationFormDemo = () => {
+  const [form] = Form.useForm();
+
+  const handleSave = () =>
+    runMutation({
+      run: () =>
+        Promise.reject(
+          validationResponseError([
+            { loc: ["body", "title"], msg: "Название обязательно" },
+            { loc: ["body", "schedule", "cron"], msg: "Некорректное cron-выражение" },
+          ])
+        ),
+      errorMessage: "Не удалось сохранить задачу",
+      form,
+    });
+
+  return (
+    <Card title="Создание задачи" style={{ margin: 24, width: 480 }}>
+      <Form form={form} layout="vertical">
+        <Form.Item name="title" label="Название">
+          <Input placeholder="Ежедневная синхронизация" />
+        </Form.Item>
+        <Form.Item name={["schedule", "cron"]} label="Расписание (cron)">
+          <Input placeholder="0 3 * * *" />
+        </Form.Item>
+        <Button type="primary" onClick={handleSave}>
+          Сохранить (получить 422)
+        </Button>
+      </Form>
+    </Card>
+  );
+};
+
+export const FormValidation422: Story = {
+  render: () => <ValidationFormDemo />,
 };
 
 /** Вложенные зоны: ошибка блока не закрывает страницу. */
