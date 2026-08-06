@@ -240,6 +240,8 @@
       "remove-file-error": "Failed to delete file",
       "exists-check-error": "Failed to complete the operation",
       "path-not-found": "Path not found",
+      "unknown-source": "Source not found",
+      "no-sources": "No sources available",
       "directory-unavailable": "Directory is unavailable",
       "operation-busy": "Wait for the current operation to finish",
       "no-current-directory": "No current directory is selected",

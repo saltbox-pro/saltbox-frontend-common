@@ -20,6 +20,8 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "remove-file-error": "file-browser.notifications.remove-file-error",
   "exists-check-error": "file-browser.notifications.exists-check-error",
   "path-not-found": "file-browser.notifications.path-not-found",
+  "unknown-source": "file-browser.notifications.unknown-source",
+  "no-sources": "file-browser.notifications.no-sources",
   "directory-unavailable": "file-browser.notifications.directory-unavailable",
   "operation-busy": "file-browser.notifications.operation-busy",
   "no-current-directory": "file-browser.notifications.no-current-directory",

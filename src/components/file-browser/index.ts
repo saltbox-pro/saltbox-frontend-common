@@ -11,6 +11,15 @@ export {
   isFileBrowserRootPath,
   joinFileBrowserPathChild,
 } from "./model/path-utils";
+export type {
+  FileBrowserLocationQuery,
+  FileBrowserLocationQueryPatch,
+} from "./model/location-query";
+export {
+  applyFileBrowserLocationQuery,
+  readFileBrowserLocationQuery,
+  toFileBrowserLocationQueryPath,
+} from "./model/location-query";
 export type { FileBrowserNotificationErrorCode } from "./model/error-i18n-keys";
 export type { FileBrowserNotificationSuccessKey } from "./model/success-i18n-keys";
 export { formatFileBrowserSize } from "./utils/format-file-browser-size";

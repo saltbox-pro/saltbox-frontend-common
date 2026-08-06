@@ -23,7 +23,7 @@ export function FileBrowserSourceAside({
   icon = <FolderOutlined />,
   onChange,
 }: FileBrowserSourceAsideProps) {
-  if (loading) {
+  if (loading && items.length === 0) {
     return (
       <div className={styles.sourceAsideLoading}>
         <Spin size="small" />

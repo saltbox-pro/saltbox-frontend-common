@@ -240,6 +240,8 @@
       "remove-file-error": "Не удалось удалить файл",
       "exists-check-error": "Не удалось выполнить операцию",
       "path-not-found": "Путь не найден",
+      "unknown-source": "Источник не найден",
+      "no-sources": "Нет доступных источников",
       "directory-unavailable": "Директория недоступна",
       "operation-busy": "Дождитесь завершения текущей операции",
       "no-current-directory": "Не выбрана текущая директория",
