@@ -1,11 +1,11 @@
-import { CopyOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import { Button, Flex } from "antd";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { AppError } from "../app-error";
 
-import { ErrorDetailsPanel, useErrorDebugCopy } from "./error-details-panel";
+import { CopyErrorDebugButton, ErrorDetailsPanel } from "./error-details-panel";
 import styles from "./error-details.module.css";
 
 /**
@@ -16,7 +16,6 @@ import styles from "./error-details.module.css";
 export const ErrorDetails = ({ error }: { error: AppError }) => {
   const { t } = useTranslation("common");
   const [expanded, setExpanded] = useState(false);
-  const copyDebug = useErrorDebugCopy(error);
   const diagnostics = error.diagnostics;
 
   if (!diagnostics) return null;
@@ -32,9 +31,7 @@ export const ErrorDetails = ({ error }: { error: AppError }) => {
         >
           {expanded ? t("errors.hide-details") : t("errors.show-details")}
         </Button>
-        <Button type="link" size="small" icon={<CopyOutlined />} onClick={copyDebug}>
-          {t("errors.copy-debug")}
-        </Button>
+        <CopyErrorDebugButton error={error} />
       </Flex>
 
       {expanded ? (

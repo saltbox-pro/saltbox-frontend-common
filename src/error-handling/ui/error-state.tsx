@@ -1,6 +1,5 @@
 import {
   CloudServerOutlined,
-  CopyOutlined,
   DisconnectOutlined,
   DownOutlined,
   ExclamationCircleOutlined,
@@ -17,7 +16,7 @@ import { useTranslation } from "react-i18next";
 
 import type { AppError, AppErrorKind } from "../app-error";
 
-import { ErrorDetailsPanel, useErrorDebugCopy } from "./error-details-panel";
+import { CopyErrorDebugButton, ErrorDetailsPanel } from "./error-details-panel";
 import styles from "./error-state.module.css";
 import { resolveHttpErrorPresentation } from "./resolve-http-error-presentation";
 
@@ -69,7 +68,6 @@ export const ErrorState = ({
 }: ErrorStateProps) => {
   const { t } = useTranslation("common");
   const [expanded, setExpanded] = useState(false);
-  const copyDebug = useErrorDebugCopy(error);
 
   const presentation = resolveHttpErrorPresentation(error, t);
   const diagnostics = error.diagnostics;
@@ -85,9 +83,7 @@ export const ErrorState = ({
           <Flex align="center" justify="space-between" gap={8} className={styles.detailsHeader}>
             <span className={styles.detailsTitle}>{presentation.codeLine}</span>
             <Flex gap={4}>
-              <Button type="link" size="small" icon={<CopyOutlined />} onClick={copyDebug}>
-                {t("errors.copy-debug")}
-              </Button>
+              <CopyErrorDebugButton error={error} />
               <Button
                 type="link"
                 size="small"
@@ -140,9 +136,7 @@ export const ErrorState = ({
               >
                 {t("errors.show-details")}
               </Button>
-              <Button type="link" size="small" icon={<CopyOutlined />} onClick={copyDebug}>
-                {t("errors.copy-debug")}
-              </Button>
+              <CopyErrorDebugButton error={error} />
             </Flex>
           ) : null}
         </div>

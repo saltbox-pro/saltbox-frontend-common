@@ -104,8 +104,6 @@
       "back-home": "Back to home",
       "retry": "Retry"
     },
-    "debug-copied": "Debug info copied",
-    "debug-copy-failed": "Failed to copy to clipboard",
     "copy-debug": "Copy debug info",
     "show-details": "Show details",
     "hide-details": "Hide details",

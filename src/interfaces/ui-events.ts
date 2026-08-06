@@ -16,6 +16,14 @@ export enum UiEvent {
 export type ToastType = "success" | "error" | "info" | "warning";
 
 /**
+ * Как показать сообщение:
+ * - notification — угловой стек с описанием, действиями и деталями (ошибки);
+ * - message — лёгкая строка по центру сверху для коротких подтверждений (копирование).
+ *   В этом режиме используется только title.
+ */
+export type ToastSurface = "notification" | "message";
+
+/**
  * Действие тоста. Только дескриптор, не ReactNode: тост рендерится в дереве base,
  * элементы из деревьев других приложений ломаются о чужие контексты (Router и т.п.).
  * href host открывает через singleSpa.navigateToUrl.
@@ -39,6 +47,7 @@ export interface ToastErrorCode {
 /** Полезная нагрузка UiEvent.Toast. Все строки — уже переведённые (t() зовётся в приложении). */
 export interface ToastEventDetail {
   type: ToastType;
+  surface?: ToastSurface;
   title: string;
   description?: string;
   /** Код + расшифровка показываются отдельной строкой над описанием */

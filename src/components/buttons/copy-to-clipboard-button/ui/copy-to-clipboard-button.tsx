@@ -1,7 +1,8 @@
 import { CopyOutlined } from "@ant-design/icons";
-import { type ButtonProps, message } from "antd";
+import { type ButtonProps } from "antd";
 import { useTranslation } from "react-i18next";
 
+import { notify } from "../../../../error-handling/notify";
 import { BaseActionButton } from "../../base-action-button";
 
 interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
@@ -10,6 +11,10 @@ interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
   errorMessage?: string;
 }
 
+/**
+ * Подтверждение копирования уходит в общий ToastHost (base) через шину, а не в свой
+ * antd-инстанс: эфемерные сообщения рисует один отрисовщик на весь продукт.
+ */
 export function CopyToClipboardButton({
   text,
   successMessage,
@@ -19,7 +24,6 @@ export function CopyToClipboardButton({
   ...restProps
 }: CopyToClipboardButtonProps) {
   const { t } = useTranslation("common");
-  const [messageApi, contextHolder] = message.useMessage();
 
   const handleCopy: ButtonProps["onClick"] = (e) => {
     e?.stopPropagation?.();
@@ -29,22 +33,19 @@ export function CopyToClipboardButton({
     navigator.clipboard
       .writeText(value)
       .then(() => {
-        messageApi.success(successMessage ?? t("copy-to-clipboard-button.copied"));
+        notify.message.success(successMessage ?? t("copy-to-clipboard-button.copied"));
       })
       .catch(() => {
-        messageApi.error(errorMessage ?? t("copy-to-clipboard-button.error"));
+        notify.message.error(errorMessage ?? t("copy-to-clipboard-button.error"));
       });
   };
 
   return (
-    <>
-      {contextHolder}
-      <BaseActionButton
-        icon={<CopyOutlined />}
-        title={title ?? t("copy-to-clipboard-button.copy")}
-        onClick={handleCopy}
-        {...restProps}
-      />
-    </>
+    <BaseActionButton
+      icon={<CopyOutlined />}
+      title={title ?? t("copy-to-clipboard-button.copy")}
+      onClick={handleCopy}
+      {...restProps}
+    />
   );
 }

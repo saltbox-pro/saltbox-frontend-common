@@ -4,8 +4,6 @@ import { Button, Card, Flex, Form, Input } from "antd";
 import React from "react";
 
 import { FastTablePaginated } from "../../components/fast-table/fast-table-paginated/fast-table-paginated";
-import { AppLanguage } from "../../interfaces/locales";
-import { SaltboxLocaleProvider } from "../../providers";
 import type { AppError, AppErrorKind } from "../app-error";
 import type { LoadSource } from "../create-loader";
 import { runMutation } from "../run-mutation";
@@ -50,14 +48,6 @@ const makeSource = (
 const meta: Meta = {
   title: "ErrorHandling/Ошибки",
   parameters: { layout: "fullscreen" },
-  // без провайдера i18next компоненты показали бы ключи вместо текста
-  decorators: [
-    (Story) => (
-      <SaltboxLocaleProvider locale={AppLanguage.RU}>
-        <Story />
-      </SaltboxLocaleProvider>
-    ),
-  ],
 };
 export default meta;
 
@@ -175,7 +165,7 @@ function validationResponseError(detail: Array<{ loc: string[]; msg: string }>):
  * во вложенное `["schedule","cron"]`.
  *
  * Если ни один `loc` сопоставить не удалось, механизм откатывается к тосту —
- * в Storybook он не виден, потому что ToastHost живёт в base.
+ * в Storybook его показывает мок-host из .storybook/storybook-toast-host.tsx.
  */
 const ValidationFormDemo = () => {
   const [form] = Form.useForm();

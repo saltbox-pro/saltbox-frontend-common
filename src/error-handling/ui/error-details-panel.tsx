@@ -1,7 +1,8 @@
-import { message, theme, Typography } from "antd";
+import { theme, Typography } from "antd";
 import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CopyToClipboardButton } from "../../components/buttons";
 import { AppError, buildErrorDebugText, type ErrorDiagnostics } from "../app-error";
 
 import styles from "./error-details-panel.module.css";
@@ -14,19 +15,24 @@ const formatTime = (timestamp: string): string => {
   return date.toLocaleString();
 };
 
-/** Копирование debug-текста — общий обработчик для всех поверхностей. */
-export function useErrorDebugCopy(error: AppError): () => Promise<void> {
+/**
+ * Кнопка копирования debug-текста. Обёртка над общим CopyToClipboardButton —
+ * сообщение об успехе и об ошибке приходят оттуда, как во всём проекте.
+ */
+export const CopyErrorDebugButton = ({ error }: { error: AppError }) => {
   const { t } = useTranslation("common");
-
-  return async () => {
-    try {
-      await navigator.clipboard.writeText(buildErrorDebugText(error));
-      message.success({ content: t("errors.debug-copied"), duration: 2 });
-    } catch {
-      message.error({ content: t("errors.debug-copy-failed"), duration: 3 });
-    }
-  };
-}
+  return (
+    <CopyToClipboardButton
+      text={buildErrorDebugText(error)}
+      type="link"
+      variant="link"
+      color="primary"
+      size="small"
+    >
+      {t("errors.copy-debug")}
+    </CopyToClipboardButton>
+  );
+};
 
 /**
  * Панель транспортной диагностики. Своей высоты не навязывает — её задаёт слот,

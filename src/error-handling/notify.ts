@@ -1,4 +1,4 @@
-import { ToastEventDetail, ToastType, UiEvent } from "../interfaces/ui-events";
+import { ToastEventDetail, ToastSurface, ToastType, UiEvent } from "../interfaces/ui-events";
 import { publish, subscribe } from "../utils/custom-events";
 
 declare global {
@@ -30,9 +30,10 @@ function ensureSubscribed(): void {
   });
 }
 
-function send(type: ToastType, input: ToastInput): void {
-  const detail: ToastEventDetail =
+function send(type: ToastType, input: ToastInput, surface?: ToastSurface): void {
+  const base: ToastEventDetail =
     typeof input === "string" ? { type, title: input } : { type, ...input };
+  const detail: ToastEventDetail = surface ? { ...base, surface } : base;
 
   if (isHostReady()) {
     publish(UiEvent.Toast, detail);
@@ -52,6 +53,13 @@ export const notify = {
   error: (input: ToastInput) => send("error", input),
   info: (input: ToastInput) => send("info", input),
   warning: (input: ToastInput) => send("warning", input),
+  /** Лёгкие подтверждения (копирование и т.п.): строка по центру сверху, без описания */
+  message: {
+    success: (input: ToastInput) => send("success", input, "message"),
+    error: (input: ToastInput) => send("error", input, "message"),
+    info: (input: ToastInput) => send("info", input, "message"),
+    warning: (input: ToastInput) => send("warning", input, "message"),
+  },
 };
 
 /** Только для тестов: сброс модульного состояния. */
