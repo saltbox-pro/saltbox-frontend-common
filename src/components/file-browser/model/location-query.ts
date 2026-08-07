@@ -112,3 +112,20 @@ export function applyFileBrowserLocationQuery(
 
   return next;
 }
+
+export function clearFileBrowserLocationQueryFromWindow(): void {
+  const current = new URLSearchParams(window.location.search);
+  const location = readFileBrowserLocationQuery(current);
+  if (location.path == null && location.file == null && location.source == null) {
+    return;
+  }
+
+  const next = applyFileBrowserLocationQuery(current, {
+    path: null,
+    file: null,
+    source: null,
+  });
+  const search = next.toString();
+  const url = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`;
+  window.history.replaceState(window.history.state, "", url);
+}

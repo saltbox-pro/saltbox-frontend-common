@@ -65,6 +65,7 @@ export const FileBrowserUploadModal = observer(function FileBrowserUploadModal<
         multiple
         disabled={disabled}
         showUploadList={false}
+        fileList={[]}
         beforeUpload={(file) => {
           if (disabled) {
             return false;

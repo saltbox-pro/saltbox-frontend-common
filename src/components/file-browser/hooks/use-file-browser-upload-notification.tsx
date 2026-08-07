@@ -1,7 +1,9 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 
+import { toUploadNoticeEntries, uploadNotice } from "../../../error-handling/upload-notice";
 import type { FileBrowserUploadItem } from "../model/upload-types";
-import { FileBrowserUploadNotificationPanel } from "../ui/file-browser-upload-notification-panel";
+import { getFileBrowserUploadsContentRevision } from "../utils/get-file-browser-uploads-content-revision";
+import { hasActiveFileBrowserUpload } from "../utils/has-active-file-browser-upload";
 
 import { useFileBrowserMessages } from "./use-file-browser-messages";
 
@@ -13,6 +15,7 @@ export interface UseFileBrowserUploadNotificationOptions<
   onCancelUpload: (uploadId: string) => void;
   onClearFinished: () => void;
   formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  noticeKey?: string;
 }
 
 export function useFileBrowserUploadNotification<
@@ -23,52 +26,71 @@ export function useFileBrowserUploadNotification<
   onCancelUpload,
   onClearFinished,
   formatError,
+  noticeKey: externalNoticeKey,
 }: UseFileBrowserUploadNotificationOptions<TItem>) {
-  const { uploadLabels, actionLabels } = useFileBrowserMessages();
-  const [panelVisible, setPanelVisible] = useState(false);
+  const { uploadLabels } = useFileBrowserMessages();
+  const reactId = useId();
+  const noticeKey = externalNoticeKey ?? `file-browser-upload:${reactId}`;
 
-  const onCancelUploadRef = useRef(onCancelUpload);
-  onCancelUploadRef.current = onCancelUpload;
-  const onClearFinishedRef = useRef(onClearFinished);
-  onClearFinishedRef.current = onClearFinished;
-  const formatErrorRef = useRef(formatError);
-  formatErrorRef.current = formatError;
+  const stateRef = useRef({
+    uploads: uploads as ReadonlyMap<string, FileBrowserUploadItem>,
+    onCancelUpload,
+    formatError,
+    title: uploadLabels.title,
+    canClose: false,
+    onClose: () => undefined as void,
+  });
 
-  const hidePanel = useCallback(() => {
-    setPanelVisible(false);
-  }, []);
+  const canClose = !hasActiveFileBrowserUpload(uploads);
+  const contentRevision = getFileBrowserUploadsContentRevision(uploads);
+  const showNotice = !open && uploads.size > 0;
 
-  const requestClose = useCallback(() => {
-    hidePanel();
-    onClearFinishedRef.current();
-  }, [hidePanel]);
+  stateRef.current = {
+    uploads: uploads as ReadonlyMap<string, FileBrowserUploadItem>,
+    onCancelUpload,
+    formatError,
+    title: uploadLabels.title,
+    canClose,
+    onClose: () => {
+      onClearFinished();
+      uploadNotice.remove(noticeKey);
+    },
+  };
 
-  useLayoutEffect(() => {
-    if (!open && uploads.size > 0) {
+  useEffect(() => {
+    if (!showNotice) {
+      uploadNotice.remove(noticeKey);
       return;
     }
-    hidePanel();
-  }, [hidePanel, open, uploads.size]);
 
-  const markPanelPending = useCallback(() => {
-    setPanelVisible(true);
-  }, []);
+    uploadNotice.upsert({
+      key: noticeKey,
+      title: stateRef.current.title,
+      canClose: stateRef.current.canClose,
+      uploads: toUploadNoticeEntries(stateRef.current.uploads),
+      onCancelUpload: (uploadId) => {
+        stateRef.current.onCancelUpload(uploadId);
+      },
+      formatError: (errorCode, upload) => stateRef.current.formatError?.(errorCode, upload),
+      onClose: () => {
+        stateRef.current.onClose();
+      },
+    });
 
-  const showPanel = panelVisible && !open && uploads.size > 0;
+    return () => {
+      uploadNotice.remove(noticeKey);
+    };
+  }, [noticeKey, showNotice]);
 
-  return {
-    panel: showPanel ? (
-      <FileBrowserUploadNotificationPanel
-        title={uploadLabels.title}
-        uploads={uploads}
-        onCancelUpload={(uploadId) => {
-          onCancelUploadRef.current(uploadId);
-        }}
-        formatError={(errorCode, upload) => formatErrorRef.current?.(errorCode, upload)}
-        closeLabel={actionLabels.toastClose}
-        onRequestClose={requestClose}
-      />
-    ) : null,
-    markPanelPending,
-  };
+  useEffect(() => {
+    if (!showNotice) {
+      return;
+    }
+    uploadNotice.patch({
+      key: noticeKey,
+      title: stateRef.current.title,
+      canClose: stateRef.current.canClose,
+      uploads: toUploadNoticeEntries(stateRef.current.uploads),
+    });
+  }, [canClose, contentRevision, noticeKey, showNotice, uploadLabels.title]);
 }

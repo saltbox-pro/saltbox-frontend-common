@@ -17,6 +17,7 @@ export type {
 } from "./model/location-query";
 export {
   applyFileBrowserLocationQuery,
+  clearFileBrowserLocationQueryFromWindow,
   readFileBrowserLocationQuery,
   toFileBrowserLocationQueryPath,
 } from "./model/location-query";
@@ -34,6 +35,7 @@ export { useFileBrowserMessages } from "./hooks/use-file-browser-messages";
 export type { TranslateFileBrowserError } from "./hooks/use-file-browser-messages";
 export { useFileBrowserUploadNotification } from "./hooks/use-file-browser-upload-notification";
 export type { UseFileBrowserUploadNotificationOptions } from "./hooks/use-file-browser-upload-notification";
+export { useUploadNoticeHost } from "./hooks/use-upload-notice-host";
 export type {
   FileBrowserNotificationToasts,
   FileBrowserToastAction,
@@ -56,8 +58,11 @@ export { FileBrowserUploadModal } from "./ui/file-browser-upload-modal";
 export type { FileBrowserUploadModalProps } from "./ui/file-browser-upload-modal";
 export { FileBrowserUploadList } from "./ui/file-browser-upload-list";
 export type { FileBrowserUploadListProps } from "./ui/file-browser-upload-list";
+export { FileBrowserUploadNotificationBody } from "./ui/file-browser-upload-notification-body";
+export type { FileBrowserUploadNotificationBodyProps } from "./ui/file-browser-upload-notification-body";
 export type { FileBrowserUploadItem } from "./model/upload-types";
 export { hasActiveFileBrowserUpload } from "./utils/has-active-file-browser-upload";
+export { shouldEmitUploadProgress } from "./utils/should-emit-upload-progress";
 export { FileBrowserView } from "./ui/file-browser-view";
 export type { FileBrowserViewProps } from "./ui/file-browser-view";
 export { FileBrowserCopyPathButton } from "./ui/file-browser-copy-path-button";

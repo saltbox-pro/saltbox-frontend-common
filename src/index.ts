@@ -46,6 +46,7 @@ export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
 export * from "./utils/merge-refs";
+export * from "./utils/mount-singleton-react-root";
 export type { ValueEditorProps } from "react-querybuilder";
 
 export * from "./utils/accepted-masters";

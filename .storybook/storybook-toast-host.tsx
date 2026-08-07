@@ -2,6 +2,7 @@ import { message, notification } from "antd";
 import { useEffect } from "react";
 
 import { useToastRenderer } from "../src/error-handling/toast-renderer";
+import { useUploadNoticeHost } from "../src/components/file-browser/hooks/use-upload-notice-host";
 import { ToastEventDetail, UiEvent } from "../src/interfaces/ui-events";
 import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
 
@@ -12,11 +13,18 @@ import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
  */
 export const StorybookToastHost = () => {
   const [notificationApi, notificationHolder] = notification.useNotification({ maxCount: 5 });
+  const [uploadNotificationApi, uploadNotificationHolder] = notification.useNotification({
+    placement: "bottomRight",
+    maxCount: 8,
+    stack: false,
+  });
   const [messageApi, messageHolder] = message.useMessage();
 
   const showToast = useToastRenderer(notificationApi, messageApi, {
     onNavigate: (href) => window.open(href, "_self"),
   });
+
+  useUploadNoticeHost(uploadNotificationApi);
 
   useEffect(() => {
     const listener = (event: Event) => {
@@ -38,6 +46,7 @@ export const StorybookToastHost = () => {
   return (
     <>
       {notificationHolder}
+      {uploadNotificationHolder}
       {messageHolder}
     </>
   );
