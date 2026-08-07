@@ -35,7 +35,6 @@ export interface FileBrowserUploadLabels {
   title: string;
   dragText: string;
   hint: string;
-  preparing: string;
 }
 
 export interface FileBrowserMessages {
@@ -99,7 +98,6 @@ export function useFileBrowserMessages(): FileBrowserMessages {
       title: t("file-browser.upload.title"),
       dragText: t("file-browser.upload.drag-text"),
       hint: t("file-browser.upload.hint"),
-      preparing: t("file-browser.upload.preparing"),
     }),
     [t]
   );

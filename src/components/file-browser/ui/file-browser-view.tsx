@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+import type {
+  ShowFileBrowserErrorByCode,
+  ShowFileBrowserSuccessByKey,
+} from "../hooks/use-file-browser-notification-toasts";
 import { getFileBrowserParentPath, type FileBrowserPathStyle } from "../model/path-utils";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
 
@@ -19,6 +23,11 @@ export interface FileBrowserViewProps {
   allowNavigateAboveRoot?: boolean;
   showTypeColumn?: boolean;
   showActionsColumn?: boolean;
+  showCopyPath?: boolean;
+  pathCopyPrefix?: string;
+  pathCopyTitle?: string;
+  showSuccessByKey?: ShowFileBrowserSuccessByKey;
+  showErrorByCode?: ShowFileBrowserErrorByCode;
   toolbar?: ReactNode;
   isItemClickable?: (item: FileBrowserItem) => boolean;
   onNavigate?: (path: string) => void;
@@ -39,6 +48,11 @@ export function FileBrowserView({
   allowNavigateAboveRoot = false,
   showTypeColumn = false,
   showActionsColumn,
+  showCopyPath = true,
+  pathCopyPrefix,
+  pathCopyTitle,
+  showSuccessByKey,
+  showErrorByCode,
   toolbar,
   isItemClickable,
   onNavigate,
@@ -69,6 +83,12 @@ export function FileBrowserView({
         pathStyle={pathStyle}
         allowNavigateAboveRoot={allowNavigateAboveRoot && onNavigateUp != null}
         disabled={isNavigationDisabled}
+        showCopyPath={showCopyPath}
+        pathCopyPrefix={pathCopyPrefix}
+        pathCopyTitle={pathCopyTitle}
+        showSuccessByKey={showSuccessByKey}
+        showErrorByCode={showErrorByCode}
+        locale={locale}
         onNavigate={onNavigate}
         onNavigateUp={handleNavigateUp}
         toolbar={toolbar}

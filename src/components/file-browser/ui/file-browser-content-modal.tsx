@@ -8,10 +8,15 @@ import { useTranslation } from "react-i18next";
 import { Modal } from "../../antd-wrappers/modal";
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
+import type {
+  ShowFileBrowserErrorByCode,
+  ShowFileBrowserSuccessByKey,
+} from "../hooks/use-file-browser-notification-toasts";
 import type { FileBrowserLocaleOverrides } from "../model/types";
 import { getMonacoLanguage } from "../utils/language-utils";
 
 import styles from "./file-browser-content-modal.module.css";
+import { FileBrowserCopyPathButton } from "./file-browser-copy-path-button";
 
 type EditorOptions = editor.IStandaloneEditorConstructionOptions;
 
@@ -34,10 +39,10 @@ export interface FileBrowserContentModalProps {
   open: boolean;
   fileName: string;
   filePath?: string;
-  pathCopyText?: string;
+  pathCopyPrefix?: string;
   pathCopyTitle?: string;
-  pathCopySuccessMessage?: string;
-  pathCopyErrorMessage?: string;
+  showSuccessByKey?: ShowFileBrowserSuccessByKey;
+  showErrorByCode?: ShowFileBrowserErrorByCode;
   language?: string;
   content: string;
   loading?: boolean;
@@ -64,10 +69,10 @@ export function FileBrowserContentModal({
   open,
   fileName,
   filePath,
-  pathCopyText,
+  pathCopyPrefix,
   pathCopyTitle,
-  pathCopySuccessMessage,
-  pathCopyErrorMessage,
+  showSuccessByKey,
+  showErrorByCode,
   language,
   content,
   loading = false,
@@ -94,8 +99,6 @@ export function FileBrowserContentModal({
   const [unsavedConfirmOpen, setUnsavedConfirmOpen] = useState(false);
   const [savingConfirmOpen, setSavingConfirmOpen] = useState(false);
   const resolvedLanguage = language ?? getMonacoLanguage(fileName);
-  const resolvedPathCopyText = pathCopyText ?? filePath ?? "";
-  const showPathCopy = resolvedPathCopyText.length > 0;
   const showContentCopy = !loading && error == null && !empty && content.length > 0;
 
   const saveShortcutRef = useRef({
@@ -226,16 +229,14 @@ export function FileBrowserContentModal({
           <div className={styles.pathText} title={filePath}>
             {filePath}
           </div>
-          {showPathCopy && (
-            <CopyToClipboardButton
-              text={resolvedPathCopyText}
-              size="small"
-              type="text"
-              title={pathCopyTitle ?? t("file-browser.content-modal.copy-path")}
-              successMessage={pathCopySuccessMessage}
-              errorMessage={pathCopyErrorMessage}
-            />
-          )}
+          <FileBrowserCopyPathButton
+            path={filePath}
+            pathCopyPrefix={pathCopyPrefix}
+            title={pathCopyTitle}
+            locale={locale}
+            showSuccessByKey={showSuccessByKey}
+            showErrorByCode={showErrorByCode}
+          />
         </>
       )}
       {(showContentCopy || showEdit) && (
@@ -391,6 +392,7 @@ export function FileBrowserContentModal({
         onCancel={() => setUnsavedConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard
@@ -404,6 +406,7 @@ export function FileBrowserContentModal({
         onCancel={() => setSavingConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard

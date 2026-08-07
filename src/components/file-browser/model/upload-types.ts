@@ -1,4 +1,4 @@
-export type FileBrowserUploadStatus = "uploading" | "done" | "error";
+export type FileBrowserUploadStatus = "queued" | "uploading" | "done" | "error";
 
 export interface FileBrowserUploadItem {
   fileName: string;
@@ -6,6 +6,7 @@ export interface FileBrowserUploadItem {
   total: number;
   status: FileBrowserUploadStatus;
   error?: string;
+  targetDirectory?: string;
 }
 
 export type FileBrowserUploadFileHandler = (file: File) => void | Promise<void>;

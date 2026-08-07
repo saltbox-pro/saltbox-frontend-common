@@ -55,6 +55,7 @@ export type FileBrowserLocaleOverrides = {
     createFolder?: string;
     createFile?: string;
     create?: string;
+    copyPath?: string;
     folderNamePlaceholder?: string;
     fileNamePlaceholder?: string;
     newNamePlaceholder?: string;

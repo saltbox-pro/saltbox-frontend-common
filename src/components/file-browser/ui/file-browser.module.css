@@ -17,6 +17,10 @@
   flex: 1 1 auto;
 }
 
+.copyPathButton {
+  flex-shrink: 0;
+}
+
 .navRight {
   display: flex;
   align-items: center;
@@ -147,6 +151,12 @@
   gap: 8px;
 }
 
+.actionButtonsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .rowActionsLocked,
 .actionButtonsLocked {
   pointer-events: none;
@@ -264,4 +274,182 @@
   font-size: 12px;
   line-height: 1.4;
   word-break: break-all;
+}
+
+@keyframes uploadProgressSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.uploadProgressIcon {
+  display: inline-block;
+  animation: uploadProgressSpin 1s linear infinite;
+}
+
+.uploadModalFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.uploadDraggerIcon {
+  margin: 0;
+  font-size: 48px;
+  color: #1677ff;
+}
+
+.uploadDraggerText {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.uploadDraggerHint {
+  color: #888;
+}
+
+.uploadList {
+  margin-top: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.uploadListCompact {
+  max-height: 280px;
+  overflow-y: auto;
+  min-width: 280px;
+}
+
+.uploadItem {
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.uploadItem:not(:last-child) {
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+.uploadItemRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.uploadStatusDone,
+.uploadStatusError,
+.uploadStatusActive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.uploadStatusDone {
+  color: #52c41a;
+}
+
+.uploadStatusError {
+  color: #ff4d4f;
+}
+
+.uploadStatusActive {
+  color: #1677ff;
+}
+
+.uploadFileName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploadSize {
+  flex-shrink: 0;
+  min-width: 7.5rem;
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.uploadCancelSlot {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.uploadProgressBar {
+  height: 16px;
+}
+
+.uploadError {
+  color: #ff4d4f;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.uploadNotificationPanel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1050;
+  box-sizing: border-box;
+  width: min(384px, calc(100vw - 48px));
+  padding: 16px 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.uploadNotificationTitle {
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.uploadTargetPath {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #888;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploadNotificationGroup + .uploadNotificationGroup {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.uploadNotificationFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.uploadNotificationCloseButton {
+  height: auto;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.4;
 }

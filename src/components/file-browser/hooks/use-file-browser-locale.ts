@@ -50,6 +50,7 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
           overrides?.actions?.createFolder ?? t("file-browser.actions.create-directory"),
         createFile: overrides?.actions?.createFile ?? t("file-browser.actions.create-file"),
         create: overrides?.actions?.create ?? t("file-browser.actions.create"),
+        copyPath: overrides?.actions?.copyPath ?? t("file-browser.actions.copy-path"),
         folderNamePlaceholder:
           overrides?.actions?.folderNamePlaceholder ??
           t("file-browser.actions.directory-name-placeholder"),
