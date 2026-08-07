@@ -106,7 +106,11 @@ export type FastTablePaginatedProps<DataType> = {
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
   enableColumnResize?: boolean;
-  /** Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика */
+  /**
+   * Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика.
+   * `isLoading` всё равно передавайте отдельно (`loader.isLoading`) — сама таблица не observer
+   * и подписаться на состояние лоадера не может; реактивны только error-подкомпоненты.
+   */
   loader?: LoadSource;
 };
 

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { AppError } from "../app-error";
 
 import { ErrorDetails } from "./error-details";
+import styles from "./mutation-error-alert.module.css";
 import { resolveHttpErrorPresentation } from "./resolve-http-error-presentation";
 
 type MutationErrorAlertProps = {
@@ -25,6 +26,7 @@ export const MutationErrorAlert = ({ error, fallback, onClose }: MutationErrorAl
   const presentation = resolveHttpErrorPresentation(error, t);
   return (
     <Alert
+      className={styles.root}
       type="error"
       showIcon
       message={fallback}

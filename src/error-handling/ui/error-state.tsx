@@ -10,8 +10,8 @@ import {
   UpOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
-import { Button, Flex } from "antd";
-import { useState, type ReactNode } from "react";
+import { Button, Flex, theme } from "antd";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { AppError, AppErrorKind } from "../app-error";
@@ -67,6 +67,7 @@ export const ErrorState = ({
   onNavigateHome,
 }: ErrorStateProps) => {
   const { t } = useTranslation("common");
+  const { token } = theme.useToken();
   const [expanded, setExpanded] = useState(false);
 
   const presentation = resolveHttpErrorPresentation(error, t);
@@ -75,6 +76,20 @@ export const ErrorState = ({
   return (
     <div
       className={`${styles.root} ${variant === "page" ? styles.page : styles.block}`}
+      style={
+        {
+          "--es-text": token.colorText,
+          "--es-text-secondary": token.colorTextDescription,
+          "--es-fill": token.colorFillQuaternary,
+          "--es-status-fill": token.colorFillSecondary,
+          "--es-warning-bg": token.colorWarningBg,
+          "--es-warning-text": token.colorWarningText,
+          "--es-error-bg": token.colorErrorBg,
+          "--es-error-text": token.colorErrorText,
+          "--es-info-bg": token.colorInfoBg,
+          "--es-info-text": token.colorInfoText,
+        } as CSSProperties
+      }
       role="alert"
       aria-live="polite"
     >

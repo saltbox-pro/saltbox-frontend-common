@@ -3,7 +3,7 @@ import { computed, makeObservable, observable, runInAction } from "mobx";
 import { UiEvent } from "../interfaces/ui-events";
 import { publish } from "../utils/custom-events";
 
-import { AppError, isAbortError, normalizeApiError } from "./app-error";
+import { AppError, buildErrorDebugText, isAbortError, normalizeApiError } from "./app-error";
 
 export type LoadStatus = "idle" | "loading" | "success" | "error";
 
@@ -28,6 +28,8 @@ export interface UnhandledLoadErrorEventDetail {
   status: number;
   kind: AppError["kind"];
   serverMessage?: string;
+  /** Готовый текст диагностики: сетка показывает ту же кнопку «скопировать детали», что и тосты */
+  debugText?: string;
   raw: unknown;
 }
 
@@ -71,19 +73,14 @@ export class Loader<Args extends unknown[], T> implements LoadSource {
       this.error = null;
     });
 
+    let data: T;
     try {
       const request = this.options.run(...args);
       if (!request) {
         this.settle(current, this.hasSucceeded ? "success" : "idle");
         return;
       }
-      const data = await request;
-      if (current !== this.seq) return; // устаревший запрос — пришёл более новый
-      runInAction(() => {
-        this.options.onSuccess?.(data, ...args);
-        this.hasSucceeded = true;
-        this.status = "success";
-      });
+      data = await request;
     } catch (e) {
       if (current !== this.seq) return;
       if (isAbortError(e)) {
@@ -97,7 +94,19 @@ export class Loader<Args extends unknown[], T> implements LoadSource {
         this.error = appError;
       });
       this.reportIfUnbound(current, appError);
+      return;
     }
+
+    if (current !== this.seq) return; // устаревший запрос — пришёл более новый
+
+    // onSuccess вне try: исключение в маппинге ответа — баг приложения, а не ошибка
+    // загрузки. Состояние успеха уже проставлено, ошибка всплывает наружу как есть
+    // и не превращается в AppError с фиктивным status 0.
+    runInAction(() => {
+      this.hasSucceeded = true;
+      this.status = "success";
+      this.options.onSuccess?.(data, ...args);
+    });
   };
 
   retry = (): void => {
@@ -131,6 +140,7 @@ export class Loader<Args extends unknown[], T> implements LoadSource {
         status: appError.status,
         kind: appError.kind,
         serverMessage: appError.serverMessage,
+        debugText: appError.diagnostics ? buildErrorDebugText(appError) : undefined,
         raw: appError.raw,
       });
       if (process.env.NODE_ENV !== "production") {

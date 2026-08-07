@@ -36,7 +36,7 @@ export interface AppError {
   serverMessage?: string;
   /** Элементы FastAPI detail[] для 422 — маппинг на поля формы */
   validationItems?: AppErrorValidationItem[];
-  /** Диагностика транспорта (url, method, тела) — для раскрывашки деталей и копирования */
+  /** Диагностика транспорта (url, статус, тело ответа) — для раскрывашки деталей и копирования */
   diagnostics?: ErrorDiagnostics;
   /** Исходная ошибка для отладки и телеметрии */
   raw: unknown;

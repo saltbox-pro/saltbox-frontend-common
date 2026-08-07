@@ -25,9 +25,22 @@ const KIND_SEVERITY: AppErrorKind[] = [
 export interface ErrorZoneProps {
   /** page — полностраничный Result + «на главную»; block — компактный блок для виджетов/drawer-ов. */
   level?: "page" | "block";
+  /**
+   * Набор лоадеров зоны. Длина массива должна быть постоянной всё время жизни зоны:
+   * элементы используются как зависимости эффекта bind/unbind, и React падает,
+   * если их количество меняется между рендерами. Нужен условный набор — монтируйте
+   * отдельную зону вокруг условной части дерева.
+   */
   loaders: readonly LoadSource[];
-  /** Только для level="page": куда ведёт кнопка «на главную». */
+  /** Только для level="page": фолбэк-адрес кнопки «на главную» (полная перезагрузка). */
   homePath?: string;
+  /** Только для level="page": навигация средствами приложения, без перезагрузки. */
+  onNavigateHome?: () => void;
+  /**
+   * Содержимое остаётся осмысленным и без ответа бекенда (например, часть данных
+   * рассчитана на клиенте): ошибка всегда показывается баннером сверху, зона не закрывается.
+   */
+  keepContentOnError?: boolean;
   children: ReactNode;
 }
 
@@ -38,11 +51,19 @@ export interface ErrorZoneProps {
  * - Ошибка первой загрузки (isInitialLoad) — контент замещается error-состоянием.
  * - Ошибка обновления при уже показанных данных — контент остаётся, сверху индикатор
  *   «не удалось обновить».
+ * - keepContentOnError — контент не замещается никогда, ошибка только баннером.
  * - bind/unbind сообщают лоадеру, что отрисовщик есть, — иначе ошибка уйдёт
  *   в страховочную сетку base (UiEvent.UnhandledLoadError).
  */
 export const ErrorZone = observer(
-  ({ level = "block", loaders, homePath, children }: ErrorZoneProps) => {
+  ({
+    level = "block",
+    loaders,
+    homePath,
+    onNavigateHome,
+    keepContentOnError = false,
+    children,
+  }: ErrorZoneProps) => {
     const { t } = useTranslation("common");
 
     useEffect(() => {
@@ -56,17 +77,19 @@ export const ErrorZone = observer(
     if (!failed.length) return <>{children}</>;
 
     const retryFailed = () => failed.forEach((loader) => loader.retry());
-    const blocking = failed.filter((loader) => loader.isInitialLoad);
+    const blocking = keepContentOnError ? [] : failed.filter((loader) => loader.isInitialLoad);
 
     if (!blocking.length) {
-      // refresh-ошибка: данные на экране валидны, зону не закрываем
+      // данные на экране валидны, зону не закрываем: либо это ошибка обновления,
+      // либо контент не зависит от упавшей загрузки (keepContentOnError)
+      const hasInitialFailure = failed.some((loader) => loader.isInitialLoad);
       return (
         <>
           <Alert
             type="warning"
             showIcon
             banner
-            message={t("errors.refresh-failed")}
+            message={t(hasInitialFailure ? "errors.partial-load-failed" : "errors.refresh-failed")}
             action={
               <Button size="small" onClick={retryFailed}>
                 {t("errors.page.retry")}
@@ -83,7 +106,14 @@ export const ErrorZone = observer(
     );
 
     if (level === "page") {
-      return <HttpErrorPage error={worst.error!} homePath={homePath} onRetry={retryFailed} />;
+      return (
+        <HttpErrorPage
+          error={worst.error!}
+          homePath={homePath}
+          onNavigateHome={onNavigateHome}
+          onRetry={retryFailed}
+        />
+      );
     }
     return <HttpErrorInline error={worst.error!} onRetry={retryFailed} />;
   }

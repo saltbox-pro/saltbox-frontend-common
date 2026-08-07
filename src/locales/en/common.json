@@ -82,6 +82,7 @@
     "load-failed": "Failed to load data",
     "access-denied": "Access denied",
     "refresh-failed": "Failed to refresh data, the information shown may be out of date",
+    "partial-load-failed": "Some of the data failed to load, the view is incomplete",
     "page": {
       "not-found": "The requested resource was not found.",
       "not-found-title": "Not found",
@@ -107,7 +108,6 @@
     "copy-debug": "Copy debug info",
     "show-details": "Show details",
     "hide-details": "Hide details",
-    "detail-method": "Method",
     "detail-url": "URL",
     "detail-status": "Status",
     "detail-time": "Time",

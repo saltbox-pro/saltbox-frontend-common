@@ -61,6 +61,25 @@ describe("runMutation", () => {
     );
   });
 
+  it("отмена: ни тоста, ни onError, ни полей формы", async () => {
+    const abortError = new Error("The user aborted a request");
+    abortError.name = "AbortError";
+    const form = { setFields: vi.fn() };
+    const onError = vi.fn();
+
+    const result = await runMutation({
+      run: () => Promise.reject(abortError),
+      errorMessage: "Не удалось сохранить",
+      form,
+      onError,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(notify.error).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+    expect(form.setFields).not.toHaveBeenCalled();
+  });
+
   it("422 с формой: ошибки в поля, тоста нет", async () => {
     const form = { setFields: vi.fn() };
     await runMutation({

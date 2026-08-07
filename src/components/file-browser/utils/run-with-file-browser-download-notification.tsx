@@ -1,17 +1,23 @@
 import { Spin } from "antd";
 import type { ReactNode } from "react";
 
-import { isGlobalServerError } from "../../../utils/legacy-global-error";
 import type { FileBrowserDownloadLabels } from "../hooks/use-file-browser-messages";
 
 const DOWNLOAD_NOTIFICATION_PLACEMENT = "bottomRight" as const;
+
+/** crypto.randomUUID есть только в secure context — по http нужен фолбэк. */
+let notificationSeq = 0;
+const createNotificationId = (): string =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${++notificationSeq}`;
 
 export function getFileBrowserDownloadNotificationKey(parts: {
   itemName: string;
   itemPath?: string | null;
   id?: string;
 }): string {
-  const id = parts.id ?? crypto.randomUUID();
+  const id = parts.id ?? createNotificationId();
   const path = parts.itemPath != null && parts.itemPath.length > 0 ? parts.itemPath : "";
   return `file-browser-download:${path}:${parts.itemName}:${id}`;
 }
@@ -84,11 +90,6 @@ export async function runWithFileBrowserDownloadNotification({
         description: itemName,
         placement: DOWNLOAD_NOTIFICATION_PLACEMENT,
       });
-      return;
-    }
-
-    if (isGlobalServerError(error)) {
-      notificationApi.destroy(notificationKey);
       return;
     }
 

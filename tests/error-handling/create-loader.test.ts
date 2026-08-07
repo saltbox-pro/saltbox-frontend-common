@@ -65,6 +65,21 @@ describe("createLoader: базовый цикл", () => {
     expect(loader.isInitialLoad).toBe(true);
   });
 
+  it("исключение в onSuccess — баг маппинга, а не ошибка загрузки", async () => {
+    const loader = createLoader({
+      run: () => Promise.resolve("data"),
+      onSuccess: () => {
+        throw new Error("Ошибка маппинга ответа");
+      },
+    });
+
+    await expect(loader.run()).rejects.toThrow("Ошибка маппинга ответа");
+
+    expect(loader.status).toBe("success");
+    expect(loader.error).toBeNull();
+    expect(publish).not.toHaveBeenCalled();
+  });
+
   it("undefined от run (API не готов) → откат в idle", async () => {
     const loader = createLoader({ run: () => undefined });
     await loader.run();

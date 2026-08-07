@@ -1,7 +1,8 @@
 /*
- * Габариты корня фиксированы при любом состоянии: детали не раздвигают блок,
- * а занимают место основного содержимого. Поэтому «Показать детали» не двигает
- * ни соседний контент, ни сам блок.
+ * Габариты корня ограничены сверху при любом состоянии: детали не раздвигают блок,
+ * а занимают место основного содержимого и скроллятся внутри себя. Снизу — min-height,
+ * чтобы в узком виджете или ячейке таблицы блок не распирал контейнер.
+ * Цвета приходят CSS-переменными из токенов antd (см. error-state.tsx).
  */
 .root {
   display: flex;
@@ -15,12 +16,13 @@
 }
 
 .block {
-  height: 320px;
+  min-height: 220px;
+  max-height: 320px;
 }
 
-/* height: 100% схлопнулся бы в auto у родителя без явной высоты — поэтому фиксируем */
 .page {
-  height: 440px;
+  min-height: 320px;
+  max-height: 440px;
 }
 
 /* Основной вид: центрируется по всей высоте корня */
@@ -43,8 +45,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(0, 0, 0, 0.45);
+  background: var(--es-fill);
+  color: var(--es-text-secondary);
 }
 
 .icon :global(.anticon) {
@@ -62,23 +64,23 @@
 
 .iconNotFound,
 .iconGeneric {
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(0, 0, 0, 0.45);
+  background: var(--es-fill);
+  color: var(--es-text-secondary);
 }
 
 .iconForbidden {
-  background: rgba(250, 173, 20, 0.12);
-  color: #d48806;
+  background: var(--es-warning-bg);
+  color: var(--es-warning-text);
 }
 
 .iconServer {
-  background: rgba(255, 77, 79, 0.08);
-  color: #cf1322;
+  background: var(--es-error-bg);
+  color: var(--es-error-text);
 }
 
 .iconNetwork {
-  background: rgba(22, 119, 255, 0.08);
-  color: #1677ff;
+  background: var(--es-info-bg);
+  color: var(--es-info-text);
 }
 
 .body {
@@ -104,8 +106,8 @@
   height: 26px;
   padding: 0 10px;
   border-radius: 13px;
-  background: rgba(0, 0, 0, 0.06);
-  color: rgba(0, 0, 0, 0.88);
+  background: var(--es-status-fill);
+  color: var(--es-text);
   font-size: 14px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -124,7 +126,7 @@
   font-size: 16px;
   font-weight: 600;
   line-height: 1.4;
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--es-text);
 }
 
 .page .title {
@@ -135,11 +137,11 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--es-text-secondary);
   overflow: hidden;
 }
 
-/* Режим деталей: занимает всю высоту корня, панель скроллится внутри себя */
+/* Режим деталей: занимает всю высоту корня, содержимое скроллится внутри себя */
 .detailsView {
   display: flex;
   flex: 1 1 auto;
@@ -157,10 +159,11 @@
   font-size: 14px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--es-text);
 }
 
 .detailsBody {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: auto;
 }

@@ -1,5 +1,5 @@
-import { Button, Progress, Spin, Upload } from "antd";
-import type { ReactNode } from "react";
+import { Button, Progress, Spin, Upload, theme } from "antd";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Modal } from "../../antd-wrappers/modal";
 import { MatIcon } from "../../mat-icon/mat-icon";
@@ -10,6 +10,8 @@ import type {
   FileBrowserUploadStatus,
 } from "../model/upload-types";
 import { formatFileBrowserSize } from "../utils/format-file-browser-size";
+
+import styles from "./file-browser-upload-modal.module.css";
 
 const { Dragger } = Upload;
 
@@ -37,6 +39,17 @@ const statusIcon = (status: FileBrowserUploadStatus): ReactNode => {
   }
 };
 
+const statusIconClass = (status: FileBrowserUploadStatus): string => {
+  switch (status) {
+    case "done":
+      return `${styles.statusIcon} ${styles.statusIconDone}`;
+    case "error":
+      return `${styles.statusIcon} ${styles.statusIconError}`;
+    default:
+      return styles.statusIcon;
+  }
+};
+
 export function FileBrowserUploadModal<
   TItem extends FileBrowserUploadItem = FileBrowserUploadItem,
 >({
@@ -50,8 +63,17 @@ export function FileBrowserUploadModal<
   formatError,
 }: FileBrowserUploadModalProps<TItem>) {
   const { translateError, actionLabels, uploadLabels } = useFileBrowserMessages();
+  const { token } = theme.useToken();
 
   const hasActive = Array.from(uploads.values()).some((upload) => upload.status === "uploading");
+
+  const tokenStyle = {
+    "--fb-primary": token.colorPrimary,
+    "--fb-text-secondary": token.colorTextDescription,
+    "--fb-split": token.colorSplit,
+    "--fb-success": token.colorSuccess,
+    "--fb-error": token.colorError,
+  } as CSSProperties;
 
   const handleClose = () => {
     if (hasActive) {
@@ -70,7 +92,7 @@ export function FileBrowserUploadModal<
       destroyOnHidden={false}
       footer={
         uploads.size > 0 ? (
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div className={styles.footer}>
             <Button onClick={handleClose} disabled={hasActive}>
               {actionLabels.cancel}
             </Button>
@@ -78,114 +100,82 @@ export function FileBrowserUploadModal<
         ) : null
       }
     >
-      <Dragger
-        multiple
-        disabled={disabled}
-        showUploadList={false}
-        beforeUpload={(file) => {
-          if (disabled) {
+      <div style={tokenStyle}>
+        <Dragger
+          multiple
+          disabled={disabled}
+          showUploadList={false}
+          beforeUpload={(file) => {
+            if (disabled) {
+              return false;
+            }
+            Promise.resolve(onUpload(file)).catch(() => undefined);
             return false;
-          }
-          Promise.resolve(onUpload(file)).catch(() => undefined);
-          return false;
-        }}
-      >
-        <p style={{ fontSize: 48, color: "#1677ff", margin: 0 }}>
-          <MatIcon icon="cloud_upload" />
-        </p>
-        <p style={{ fontSize: 16, marginTop: 8 }}>{uploadLabels.dragText}</p>
-        <p style={{ color: "#888" }}>{uploadLabels.hint}</p>
-      </Dragger>
+          }}
+        >
+          <p className={styles.uploadIcon}>
+            <MatIcon icon="cloud_upload" />
+          </p>
+          <p className={styles.dragText}>{uploadLabels.dragText}</p>
+          <p className={styles.dragHint}>{uploadLabels.hint}</p>
+        </Dragger>
 
-      {uploads.size > 0 && (
-        <div style={{ marginTop: 16, maxHeight: 300, overflowY: "auto" }}>
-          {Array.from(uploads.entries()).map(([id, upload]) => {
-            const percent = upload.total > 0 ? Math.round((upload.loaded / upload.total) * 100) : 0;
+        {uploads.size > 0 && (
+          <div className={styles.list}>
+            {Array.from(uploads.entries()).map(([id, upload]) => {
+              const percent =
+                upload.total > 0 ? Math.round((upload.loaded / upload.total) * 100) : 0;
 
-            return (
-              <div
-                key={id}
-                style={{
-                  padding: "8px 0",
-                  borderBottom: "1px solid #f0f0f0",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span
-                    style={{
-                      color:
-                        upload.status === "done"
-                          ? "#52c41a"
-                          : upload.status === "error"
-                            ? "#ff4d4f"
-                            : "#1677ff",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {statusIcon(upload.status)}
-                  </span>
-                  <span
-                    style={{
-                      flex: 1,
-                      fontSize: 13,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                    title={upload.fileName}
-                  >
-                    {upload.fileName}
-                  </span>
-                  <span style={{ fontSize: 12, color: "#888", whiteSpace: "nowrap" }}>
-                    {upload.status === "done"
-                      ? formatFileBrowserSize(upload.total)
-                      : `${formatFileBrowserSize(upload.loaded)} / ${formatFileBrowserSize(upload.total)}`}
-                  </span>
-                  {upload.status === "uploading" && (
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      onClick={() => onCancelUpload(id)}
-                      icon={<MatIcon icon="close" size="small" />}
-                    />
+              return (
+                <div key={id} className={styles.item}>
+                  <div className={styles.itemRow}>
+                    <span className={statusIconClass(upload.status)}>
+                      {statusIcon(upload.status)}
+                    </span>
+                    <span className={styles.fileName} title={upload.fileName}>
+                      {upload.fileName}
+                    </span>
+                    <span className={styles.fileSize}>
+                      {upload.status === "done"
+                        ? formatFileBrowserSize(upload.total)
+                        : `${formatFileBrowserSize(upload.loaded)} / ${formatFileBrowserSize(upload.total)}`}
+                    </span>
+                    {upload.status === "uploading" && (
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        onClick={() => onCancelUpload(id)}
+                        icon={<MatIcon icon="close" size="small" />}
+                      />
+                    )}
+                  </div>
+                  {upload.status === "uploading" &&
+                    (upload.loaded === 0 ? (
+                      <div className={styles.preparing}>
+                        <Spin size="small" />
+                        {uploadLabels.preparing}
+                      </div>
+                    ) : (
+                      <Progress
+                        percent={percent}
+                        size="small"
+                        showInfo={false}
+                        status="active"
+                        className={styles.progress}
+                      />
+                    ))}
+                  {upload.status === "error" && upload.error != null && upload.error !== "" && (
+                    <div className={styles.itemError}>
+                      {translateError(upload.error) ?? formatError?.(upload.error) ?? upload.error}
+                    </div>
                   )}
                 </div>
-                {upload.status === "uploading" &&
-                  (upload.loaded === 0 ? (
-                    <div
-                      style={{
-                        marginTop: 4,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 12,
-                        color: "#888",
-                      }}
-                    >
-                      <Spin size="small" />
-                      {uploadLabels.preparing}
-                    </div>
-                  ) : (
-                    <Progress
-                      percent={percent}
-                      size="small"
-                      showInfo={false}
-                      status="active"
-                      style={{ marginTop: 4 }}
-                    />
-                  ))}
-                {upload.status === "error" && upload.error != null && upload.error !== "" && (
-                  <div style={{ fontSize: 12, color: "#ff4d4f", marginTop: 2 }}>
-                    {translateError(upload.error) ?? formatError?.(upload.error) ?? upload.error}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </Modal>
   );
 }

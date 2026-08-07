@@ -1,31 +1,28 @@
 import { message, notification } from "antd";
 import { useEffect } from "react";
 
+import { useToastRenderer } from "../src/error-handling/toast-renderer";
 import { ToastEventDetail, UiEvent } from "../src/interfaces/ui-events";
 import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
 
 /**
  * Мини-аналог ToastHost из base: в Storybook его нет, а компоненты общей библиотеки
- * (копирование, runMutation) публикуют сообщения в шину. Без него подтверждения
- * молча пропадали бы.
+ * (копирование, runMutation) публикуют сообщения в шину. Отрисовка — тот же
+ * useToastRenderer, что и в продукте, поэтому вид тостов здесь настоящий.
  */
 export const StorybookToastHost = () => {
   const [notificationApi, notificationHolder] = notification.useNotification({ maxCount: 5 });
   const [messageApi, messageHolder] = message.useMessage();
 
+  const showToast = useToastRenderer(notificationApi, messageApi, {
+    onNavigate: (href) => window.open(href, "_self"),
+  });
+
   useEffect(() => {
     const listener = (event: Event) => {
       const detail = (event as CustomEvent<ToastEventDetail>).detail;
       if (!detail) return;
-      if (detail.surface === "message") {
-        messageApi.open({ type: detail.type, content: detail.title });
-        return;
-      }
-      notificationApi.open({
-        type: detail.type,
-        message: detail.title,
-        description: detail.description,
-      });
+      showToast(detail);
     };
 
     subscribe(UiEvent.Toast, listener);
@@ -36,7 +33,7 @@ export const StorybookToastHost = () => {
       window.__saltboxToastHostReady = false;
       unsubscribe(UiEvent.Toast, listener);
     };
-  }, [messageApi, notificationApi]);
+  }, [showToast]);
 
   return (
     <>
