@@ -40,12 +40,13 @@ export * from "./components/accepted-masters";
 
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
-export * from "./utils/server-error-middleware";
+export * from "./utils/legacy-global-error";
 export * from "./utils/api";
 export * from "./utils/websocket-service";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
 export * from "./utils/merge-refs";
+export * from "./utils/mount-singleton-react-root";
 export type { ValueEditorProps } from "react-querybuilder";
 
 export * from "./utils/accepted-masters";
@@ -68,3 +69,5 @@ export { default as enCommon } from "./locales/en/common.json";
 export { default as ruCommon } from "./locales/ru/common.json";
 
 export * from "./providers";
+
+export * from "./error-handling";

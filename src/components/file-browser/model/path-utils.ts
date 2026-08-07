@@ -135,3 +135,12 @@ export function joinFileBrowserPathChild(
 
   return `${base}/${segment}`;
 }
+
+export function formatFileBrowserCopyPath(path: string, prefix?: string): string {
+  if (prefix == null || prefix === "") {
+    return path;
+  }
+
+  const normalized = path.replace(/\/+/g, "/").replace(/^\//, "");
+  return `${prefix}${normalized}`;
+}

@@ -32,6 +32,7 @@ export interface FileBrowserActionsPanelProps {
   canDelete?: (item: FileBrowserItem) => boolean;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
+  createActionsAppearance?: "label" | "icon";
   onReload?: () => void | Promise<void>;
   onSubmitError?: (message: string) => void;
   toolbarLeading?: ReactNode;
@@ -53,6 +54,7 @@ export function FileBrowserActionsPanel({
   canDelete,
   onCreateFolder,
   onCreateFile,
+  createActionsAppearance = "label",
   onReload,
   onSubmitError,
   toolbarLeading,
@@ -282,7 +284,6 @@ export function FileBrowserActionsPanel({
     try {
       await onReload();
     } catch {
-      // Module/store owns user-facing error handling for listing reload.
     } finally {
       reloadLockRef.current = false;
       if (isMountedRef.current) {
@@ -302,42 +303,46 @@ export function FileBrowserActionsPanel({
     isForbiddenName?.(name) ? labels.nameModal.nameForbidden : labels.nameModal.nameInvalid;
 
   const toolbar = (
-    <div
-      className={`${styles.actionButtons}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
-    >
-      {onReload && (
-        <RefreshButton
-          loading={isReloading}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={handleReload}
-        />
-      )}
-
+    <div className={styles.actionButtons}>
       {toolbarLeading}
+      <div
+        className={`${styles.actionButtonsGroup}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
+      >
+        {onReload && (
+          <RefreshButton
+            loading={isReloading}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={handleReload}
+          />
+        )}
 
-      {onCreateFolder && (
-        <Button
-          icon={<MatIcon icon="create_new_folder" size="small" />}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => openToolbarModal("create-folder")}
-        >
-          {labels.actions.createFolder}
-        </Button>
-      )}
+        {onCreateFolder && (
+          <Button
+            icon={<MatIcon icon="create_new_folder" size="small" />}
+            title={createActionsAppearance === "icon" ? labels.actions.createFolder : undefined}
+            aria-label={labels.actions.createFolder}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={() => openToolbarModal("create-folder")}
+          >
+            {createActionsAppearance !== "icon" && labels.actions.createFolder}
+          </Button>
+        )}
 
-      {onCreateFile && (
-        <Button
-          icon={<MatIcon icon="note_add" size="small" />}
-          aria-disabled={toolbarLocked || undefined}
-          tabIndex={toolbarLocked ? -1 : undefined}
-          onClick={() => openToolbarModal("create-file")}
-        >
-          {labels.actions.createFile}
-        </Button>
-      )}
-
+        {onCreateFile && (
+          <Button
+            icon={<MatIcon icon="note_add" size="small" />}
+            title={createActionsAppearance === "icon" ? labels.actions.createFile : undefined}
+            aria-label={labels.actions.createFile}
+            aria-disabled={toolbarLocked || undefined}
+            tabIndex={toolbarLocked ? -1 : undefined}
+            onClick={() => openToolbarModal("create-file")}
+          >
+            {createActionsAppearance !== "icon" && labels.actions.createFile}
+          </Button>
+        )}
+      </div>
       {toolbarTrailing}
     </div>
   );

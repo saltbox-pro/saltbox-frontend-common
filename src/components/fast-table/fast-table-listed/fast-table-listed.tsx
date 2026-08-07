@@ -17,9 +17,15 @@ import { Button, Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from "react";
 
+import type { LoadSource } from "../../../error-handling/create-loader";
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
+import {
+  FastTableBodyFallback,
+  FastTableRefreshAlert,
+  useLoaderBinding,
+} from "../fast-table-load-error";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
@@ -78,6 +84,12 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
   enableColumnResize?: boolean;
+  /**
+   * Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика.
+   * `isLoading` всё равно передавайте отдельно (`loader.isLoading`) — сама таблица не observer
+   * и подписаться на состояние лоадера не может; реактивны только error-подкомпоненты.
+   */
+  loader?: LoadSource;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
@@ -127,7 +139,9 @@ function FastTableListedContent<DataType>({
   overscan = 20,
   estimatedRowHeight = 45,
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
+  loader,
 }: FastTableListedProps<DataType>) {
+  useLoaderBinding(loader);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
@@ -417,6 +431,7 @@ function FastTableListedContent<DataType>({
           </Dropdown>
         </div>
       )}
+      <FastTableRefreshAlert loader={loader} />
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table
           style={
@@ -437,7 +452,16 @@ function FastTableListedContent<DataType>({
             {shouldRenderVirtualRows
               ? renderFastTableSampleRow({ row: rows[0], visibleColumnCount })
               : renderTableRows()}
-            {isEmpty && renderEmptyState()}
+            {isEmpty &&
+              (loader ? (
+                <FastTableBodyFallback
+                  loader={loader}
+                  colSpan={table.getAllColumns().length}
+                  emptyDescription={tableLocale.empty}
+                />
+              ) : (
+                renderEmptyState()
+              ))}
             {isLoading && renderLoadingState()}
           </tbody>
         </table>

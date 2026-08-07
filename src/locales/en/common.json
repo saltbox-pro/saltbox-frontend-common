@@ -80,7 +80,38 @@
   },
   "errors": {
     "load-failed": "Failed to load data",
-    "access-denied": "Access denied"
+    "access-denied": "Access denied",
+    "refresh-failed": "Failed to refresh data, the information shown may be out of date",
+    "partial-load-failed": "Some of the data failed to load, the view is incomplete",
+    "page": {
+      "not-found": "The requested resource was not found.",
+      "not-found-title": "Not found",
+      "forbidden": "You do not have access to this resource.",
+      "forbidden-title": "Access denied",
+      "unauthorized": "Your session has expired. Please sign in again.",
+      "unauthorized-title": "Sign-in required",
+      "server-error": "An error occurred on the server. Please try again later.",
+      "server-error-title": "Server error",
+      "service-unavailable": "The service is temporarily unavailable. Please try again later.",
+      "service-unavailable-title": "Service unavailable",
+      "network-error": "A network error occurred. Please try again later.",
+      "network-error-title": "Connection lost",
+      "conflict": "The data has changed. Refresh the page and try again.",
+      "conflict-title": "Data conflict",
+      "validation": "The server rejected the request data.",
+      "validation-title": "Validation error",
+      "generic": "An error occurred while loading the data.",
+      "generic-title": "Failed to load",
+      "back-home": "Back to home",
+      "retry": "Retry"
+    },
+    "copy-debug": "Copy debug info",
+    "show-details": "Show details",
+    "hide-details": "Hide details",
+    "detail-url": "URL",
+    "detail-status": "Status",
+    "detail-time": "Time",
+    "detail-response-body": "Response body"
   },
   "accepted-masters": {
     "warning-template": "To {{action}}, activate a master on the <mastersLink>\"Masters\"</mastersLink> page",
@@ -152,6 +183,7 @@
     },
     "actions": {
       "download": "Download",
+      "upload": "Upload",
       "rename": "Rename",
       "rename-title-file": "Rename file",
       "rename-title-directory": "Rename directory",
@@ -168,9 +200,25 @@
       "create-directory": "Create Directory",
       "create-file": "Create File",
       "create": "Create",
+      "go-to-root": "Go to root",
+      "copy-path": "Copy path",
+      "copy-salt-path": "Copy path (salt://)",
       "directory-name-placeholder": "Directory name",
       "file-name-placeholder": "File name",
       "new-name-placeholder": "New name"
+    },
+    "download": {
+      "started": "Preparing file for download",
+      "success": "File is ready for download",
+      "cancelled": "Download cancelled",
+      "error": "Download failed"
+    },
+    "upload": {
+      "title": "Upload Files",
+      "drag-text": "Click or drag files here to upload",
+      "hint": "Supports single or multiple file uploads",
+      "cancelled": "Cancelled",
+      "chunk-error": "Failed to upload chunk"
     },
     "content-modal": {
       "save": "Save",
@@ -187,7 +235,6 @@
       "refresh-keep-mine": "Keep current changes",
       "refresh-keep-mine-hint": "Your changes stay in the editor. Saving overwrites the file on the client without merging versions",
       "empty-file": "File is empty",
-      "copy-path": "Copy path",
       "copy-content": "Copy content"
     },
     "notifications": {
@@ -200,6 +247,8 @@
       "file-write-error": "Failed to save the file",
       "file-save-unconfirmed": "The file save could not be confirmed. Refresh the content before editing again",
       "file-save-success": "File \"{{name}}\" saved successfully",
+      "path-copied": "Path copied: \"{{path}}\"",
+      "path-copy-error": "Failed to copy path",
       "create-directory-success": "Directory \"{{name}}\" created successfully",
       "create-error": "Failed to create object",
       "create-directory-error": "Failed to create directory",
@@ -207,7 +256,7 @@
       "name-already-exists": "An object with this name already exists",
       "directory-already-exists": "A directory with this name already exists",
       "file-already-exists": "A file with this name already exists",
-      "parent-directory-missing": "The current directory no longer exists",
+      "parent-directory-missing": "The directory no longer exists",
       "entry-not-in-current-directory": "The object is no longer in the current directory",
       "file-not-in-current-directory": "The file is no longer in the current directory",
       "directory-not-in-current-directory": "The directory is no longer in the current directory",
@@ -222,6 +271,8 @@
       "remove-file-error": "Failed to delete file",
       "exists-check-error": "Failed to complete the operation",
       "path-not-found": "Path not found",
+      "unknown-source": "Source not found",
+      "no-sources": "No sources available",
       "directory-unavailable": "Directory is unavailable",
       "operation-busy": "Wait for the current operation to finish",
       "no-current-directory": "No current directory is selected",

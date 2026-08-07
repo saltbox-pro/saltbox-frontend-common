@@ -80,7 +80,38 @@
   },
   "errors": {
     "load-failed": "Не удалось загрузить данные",
-    "access-denied": "Доступ запрещен"
+    "access-denied": "Доступ запрещен",
+    "refresh-failed": "Не удалось обновить данные, информация может быть устаревшей",
+    "partial-load-failed": "Часть данных не загрузилась, показано неполное представление",
+    "page": {
+      "not-found": "Запрашиваемый ресурс не найден.",
+      "not-found-title": "Не найдено",
+      "forbidden": "У вас нет доступа к этому ресурсу.",
+      "forbidden-title": "Нет доступа",
+      "unauthorized": "Сессия истекла. Войдите заново.",
+      "unauthorized-title": "Требуется вход",
+      "server-error": "На сервере произошла ошибка. Попробуйте позже.",
+      "server-error-title": "Ошибка сервера",
+      "service-unavailable": "Сервис временно недоступен. Попробуйте позже.",
+      "service-unavailable-title": "Сервис недоступен",
+      "network-error": "Ошибка подключения к серверу.",
+      "network-error-title": "Нет соединения",
+      "conflict": "Данные изменились. Обновите страницу и повторите.",
+      "conflict-title": "Конфликт данных",
+      "validation": "Сервер отклонил данные запроса.",
+      "validation-title": "Ошибка валидации",
+      "generic": "Произошла ошибка при загрузке данных.",
+      "generic-title": "Ошибка загрузки",
+      "back-home": "На главную",
+      "retry": "Повторить"
+    },
+    "copy-debug": "Скопировать детали",
+    "show-details": "Показать детали",
+    "hide-details": "Скрыть детали",
+    "detail-url": "URL",
+    "detail-status": "Статус",
+    "detail-time": "Время",
+    "detail-response-body": "Тело ответа"
   },
   "accepted-masters": {
     "warning-template": "Для {{action}} активируйте контроллер на странице <mastersLink>\"Контроллеры\"</mastersLink>",
@@ -152,6 +183,7 @@
     },
     "actions": {
       "download": "Скачать",
+      "upload": "Загрузить",
       "rename": "Переименовать",
       "rename-title-file": "Переименовать файл",
       "rename-title-directory": "Переименовать директорию",
@@ -168,9 +200,25 @@
       "create-directory": "Создать директорию",
       "create-file": "Создать файл",
       "create": "Создать",
+      "go-to-root": "К корню",
+      "copy-path": "Копировать путь",
+      "copy-salt-path": "Копировать путь (salt://)",
       "directory-name-placeholder": "Имя директории",
       "file-name-placeholder": "Имя файла",
       "new-name-placeholder": "Новое имя"
+    },
+    "download": {
+      "started": "Подготовка файла к скачиванию",
+      "success": "Файл готов к скачиванию",
+      "cancelled": "Скачивание отменено",
+      "error": "Не удалось скачать файл"
+    },
+    "upload": {
+      "title": "Загрузка файлов",
+      "drag-text": "Нажмите или перетащите файлы сюда для загрузки",
+      "hint": "Поддерживается загрузка одного или нескольких файлов",
+      "cancelled": "Отменено",
+      "chunk-error": "Не удалось загрузить часть файла"
     },
     "content-modal": {
       "save": "Сохранить",
@@ -187,7 +235,6 @@
       "refresh-keep-mine": "Оставить текущие изменения",
       "refresh-keep-mine-hint": "Изменения останутся в редакторе. При сохранении содержимое файла на клиенте будет перезаписано без объединения версий",
       "empty-file": "Файл пуст",
-      "copy-path": "Копировать путь",
       "copy-content": "Копировать содержимое"
     },
     "notifications": {
@@ -200,6 +247,8 @@
       "file-write-error": "Не удалось сохранить файл",
       "file-save-unconfirmed": "Не удалось подтвердить сохранение файла. Обновите содержимое перед повторным редактированием",
       "file-save-success": "Файл \"{{name}}\" успешно сохранен",
+      "path-copied": "Путь скопирован: \"{{path}}\"",
+      "path-copy-error": "Не удалось скопировать путь",
       "create-directory-success": "Директория \"{{name}}\" успешно создана",
       "create-error": "Не удалось создать объект",
       "create-directory-error": "Не удалось создать директорию",
@@ -207,7 +256,7 @@
       "name-already-exists": "Объект с таким именем уже существует",
       "directory-already-exists": "Директория с таким именем уже существует",
       "file-already-exists": "Файл с таким именем уже существует",
-      "parent-directory-missing": "Текущая директория больше не существует",
+      "parent-directory-missing": "Директория больше не существует",
       "entry-not-in-current-directory": "Объект больше не находится в текущей директории",
       "file-not-in-current-directory": "Файл больше не находится в текущей директории",
       "directory-not-in-current-directory": "Директория больше не находится в текущей директории",
@@ -222,6 +271,8 @@
       "remove-file-error": "Не удалось удалить файл",
       "exists-check-error": "Не удалось выполнить операцию",
       "path-not-found": "Путь не найден",
+      "unknown-source": "Источник не найден",
+      "no-sources": "Нет доступных источников",
       "directory-unavailable": "Директория недоступна",
       "operation-busy": "Дождитесь завершения текущей операции",
       "no-current-directory": "Не выбрана текущая директория",

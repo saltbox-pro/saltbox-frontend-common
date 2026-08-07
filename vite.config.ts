@@ -15,16 +15,21 @@ export default defineConfig({
     rollupOptions: {
       external: [
         "react",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
         "react-dom",
+        "react-dom/client",
         "antd",
         "mobx",
         "mobx-react",
         "react-i18next",
+        "i18next",
       ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react-dom/client": "ReactDOM",
           antd: "antd",
           mobx: "mobx",
         },

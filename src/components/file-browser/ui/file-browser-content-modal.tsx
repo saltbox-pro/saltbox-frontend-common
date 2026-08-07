@@ -1,6 +1,6 @@
 import { EditOutlined, LockOutlined } from "@ant-design/icons";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { Alert, Button, Empty, Flex, Skeleton, Tag } from "antd";
+import { Alert, Button, Empty, Flex, Skeleton, Tag, Tooltip } from "antd";
 import type { editor } from "monaco-editor";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,10 +8,15 @@ import { useTranslation } from "react-i18next";
 import { Modal } from "../../antd-wrappers/modal";
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
+import type {
+  ShowFileBrowserErrorByCode,
+  ShowFileBrowserSuccessByKey,
+} from "../hooks/use-file-browser-notification-toasts";
 import type { FileBrowserLocaleOverrides } from "../model/types";
 import { getMonacoLanguage } from "../utils/language-utils";
 
 import styles from "./file-browser-content-modal.module.css";
+import { FileBrowserCopyPathButton } from "./file-browser-copy-path-button";
 
 type EditorOptions = editor.IStandaloneEditorConstructionOptions;
 
@@ -25,20 +30,27 @@ const EDITOR_OPTIONS: EditorOptions = {
   automaticLayout: true,
 };
 
+export interface FileBrowserContentModalConflictActions {
+  onRefreshFromFile: () => void;
+  onKeepCurrentChanges?: () => void;
+}
+
 export interface FileBrowserContentModalProps {
   open: boolean;
   fileName: string;
   filePath?: string;
-  pathCopyText?: string;
+  pathCopyPrefix?: string;
   pathCopyTitle?: string;
-  pathCopySuccessMessage?: string;
-  pathCopyErrorMessage?: string;
+  showSuccessByKey?: ShowFileBrowserSuccessByKey;
+  showErrorByCode?: ShowFileBrowserErrorByCode;
   language?: string;
   content: string;
   loading?: boolean;
   empty?: boolean;
   error?: ReactNode;
   editorError?: ReactNode;
+  isRefreshing?: boolean;
+  conflictActions?: FileBrowserContentModalConflictActions;
   readOnly?: boolean;
   canEdit?: boolean;
   isDirty?: boolean;
@@ -57,16 +69,18 @@ export function FileBrowserContentModal({
   open,
   fileName,
   filePath,
-  pathCopyText,
+  pathCopyPrefix,
   pathCopyTitle,
-  pathCopySuccessMessage,
-  pathCopyErrorMessage,
+  showSuccessByKey,
+  showErrorByCode,
   language,
   content,
   loading = false,
   empty = false,
   error,
   editorError,
+  isRefreshing = false,
+  conflictActions,
   readOnly = false,
   canEdit = false,
   isDirty = false,
@@ -85,8 +99,6 @@ export function FileBrowserContentModal({
   const [unsavedConfirmOpen, setUnsavedConfirmOpen] = useState(false);
   const [savingConfirmOpen, setSavingConfirmOpen] = useState(false);
   const resolvedLanguage = language ?? getMonacoLanguage(fileName);
-  const resolvedPathCopyText = pathCopyText ?? filePath ?? "";
-  const showPathCopy = resolvedPathCopyText.length > 0;
   const showContentCopy = !loading && error == null && !empty && content.length > 0;
 
   const saveShortcutRef = useRef({
@@ -217,16 +229,14 @@ export function FileBrowserContentModal({
           <div className={styles.pathText} title={filePath}>
             {filePath}
           </div>
-          {showPathCopy && (
-            <CopyToClipboardButton
-              text={resolvedPathCopyText}
-              size="small"
-              type="text"
-              title={pathCopyTitle ?? t("file-browser.content-modal.copy-path")}
-              successMessage={pathCopySuccessMessage}
-              errorMessage={pathCopyErrorMessage}
-            />
-          )}
+          <FileBrowserCopyPathButton
+            path={filePath}
+            pathCopyPrefix={pathCopyPrefix}
+            title={pathCopyTitle}
+            locale={locale}
+            showSuccessByKey={showSuccessByKey}
+            showErrorByCode={showErrorByCode}
+          />
         </>
       )}
       {(showContentCopy || showEdit) && (
@@ -252,9 +262,46 @@ export function FileBrowserContentModal({
     </Flex>
   ) : null;
 
+  const editorErrorMessage =
+    editorError == null ? undefined : conflictActions == null ? (
+      editorError
+    ) : (
+      <Flex align="center" justify="space-between" gap="middle">
+        <span>{editorError}</span>
+        <Flex gap="small" flex="none">
+          <Button
+            size="small"
+            loading={isRefreshing}
+            onClick={() => {
+              conflictActions.onRefreshFromFile();
+            }}
+          >
+            {t(
+              isDirty
+                ? "file-browser.content-modal.refresh-take-disk"
+                : "file-browser.content-modal.refresh-file"
+            )}
+          </Button>
+          {isDirty && conflictActions.onKeepCurrentChanges != null && (
+            <Tooltip title={t("file-browser.content-modal.refresh-keep-mine-hint")}>
+              <Button
+                size="small"
+                loading={isRefreshing}
+                onClick={() => {
+                  conflictActions.onKeepCurrentChanges?.();
+                }}
+              >
+                {t("file-browser.content-modal.refresh-keep-mine")}
+              </Button>
+            </Tooltip>
+          )}
+        </Flex>
+      </Flex>
+    );
+
   const bottomActions = (
     <Flex vertical gap="small" className={styles.bottomActions}>
-      {editorError != null && <Alert type="error" showIcon message={editorError} />}
+      {editorErrorMessage != null && <Alert type="error" showIcon message={editorErrorMessage} />}
       <Flex justify="end" gap="small">
         <Button onClick={handleClose}>{t("file-browser.content-modal.close")}</Button>
         {!readOnly && (
@@ -345,6 +392,7 @@ export function FileBrowserContentModal({
         onCancel={() => setUnsavedConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard
@@ -358,6 +406,7 @@ export function FileBrowserContentModal({
         onCancel={() => setSavingConfirmOpen(false)}
         okText={labels.actions.yes}
         cancelText={labels.actions.no}
+        destroyOnHidden
         maskClosable
         closable
         keyboard

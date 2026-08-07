@@ -1,0 +1,169 @@
+/*
+ * Габариты корня ограничены сверху при любом состоянии: детали не раздвигают блок,
+ * а занимают место основного содержимого и скроллятся внутри себя. Снизу — min-height,
+ * чтобы в узком виджете или ячейке таблицы блок не распирал контейнер.
+ * Цвета приходят CSS-переменными из токенов antd (см. error-state.tsx).
+ */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.block {
+  min-height: 220px;
+  max-height: 320px;
+}
+
+.page {
+  min-height: 320px;
+  max-height: 440px;
+}
+
+/* Основной вид: центрируется по всей высоте корня */
+.main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--es-fill);
+  color: var(--es-text-secondary);
+}
+
+.icon :global(.anticon) {
+  font-size: 24px;
+}
+
+.page .icon {
+  width: 72px;
+  height: 72px;
+}
+
+.page .icon :global(.anticon) {
+  font-size: 32px;
+}
+
+.iconNotFound,
+.iconGeneric {
+  background: var(--es-fill);
+  color: var(--es-text-secondary);
+}
+
+.iconForbidden {
+  background: var(--es-warning-bg);
+  color: var(--es-warning-text);
+}
+
+.iconServer {
+  background: var(--es-error-bg);
+  color: var(--es-error-text);
+}
+
+.iconNetwork {
+  background: var(--es-info-bg);
+  color: var(--es-info-text);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 360px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page .body {
+  max-width: 480px;
+}
+
+/* Бейдж с кодом — отдельной строкой над заголовком */
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: var(--es-status-fill);
+  color: var(--es-text);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.page .status {
+  min-width: 48px;
+  height: 30px;
+  border-radius: 15px;
+  font-size: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--es-text);
+}
+
+.page .title {
+  font-size: 20px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--es-text-secondary);
+  overflow: hidden;
+}
+
+/* Режим деталей: занимает всю высоту корня, содержимое скроллится внутри себя */
+.detailsView {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  text-align: left;
+}
+
+.detailsHeader {
+  flex: 0 0 auto;
+}
+
+.detailsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--es-text);
+}
+
+.detailsBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}

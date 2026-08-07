@@ -20,6 +20,8 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "remove-file-error": "file-browser.notifications.remove-file-error",
   "exists-check-error": "file-browser.notifications.exists-check-error",
   "path-not-found": "file-browser.notifications.path-not-found",
+  "unknown-source": "file-browser.notifications.unknown-source",
+  "no-sources": "file-browser.notifications.no-sources",
   "directory-unavailable": "file-browser.notifications.directory-unavailable",
   "operation-busy": "file-browser.notifications.operation-busy",
   "no-current-directory": "file-browser.notifications.no-current-directory",
@@ -33,6 +35,10 @@ export const FILE_BROWSER_ERROR_I18N_KEYS = {
   "file-modified-externally": "file-browser.notifications.file-modified-externally",
   "file-write-error": "file-browser.notifications.file-write-error",
   "file-save-unconfirmed": "file-browser.notifications.file-save-unconfirmed",
+  "download-error": "file-browser.download.error",
+  "upload-cancelled": "file-browser.upload.cancelled",
+  "upload-chunk": "file-browser.upload.chunk-error",
+  "path-copy-error": "file-browser.notifications.path-copy-error",
 } as const;
 
 export type FileBrowserNotificationErrorCode = keyof typeof FILE_BROWSER_ERROR_I18N_KEYS;

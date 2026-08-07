@@ -1,0 +1,33 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.codeLine {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.description {
+  word-break: break-word;
+}
+
+.action {
+  height: auto;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.pre {
+  max-height: 220px;
+  margin: 4px 0 0;
+  padding: 8px;
+  overflow: auto;
+  border-radius: 6px;
+  background: var(--toast-fill);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
