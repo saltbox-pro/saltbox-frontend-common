@@ -41,6 +41,9 @@
 }
 
 .fast-table table > thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   color: var(--fast-table-header-color);
   font-weight: 600;
   text-align: start;
@@ -87,7 +90,6 @@
   background-color: #f5f8ff;
 }
 
-/* Исключаем hover для empty и loading строк */
 .fast-table table > tbody > tr.empty-state-row:hover > td,
 .fast-table table > tbody > tr.loading-state-row:hover > td {
   background-color: transparent;
@@ -97,12 +99,10 @@
   background-color: #f2f2f2;
 }
 
-/* Курсор pointer для кликабельных строк */
 .fast-table table > tbody > tr[role="button"] {
   cursor: pointer;
 }
 
-/* Контейнер для контента ячейки с действиями */
 .fast-table .cell-with-actions .cell-content {
   display: flex;
   align-items: center;
@@ -130,7 +130,6 @@
   color: var(--ant-color-primary, #1677ff);
 }
 
-/* Показываем actions при ховере на ЯЧЕЙКУ */
 .fast-table .cell-with-actions:hover .cell-content .cell-actions {
   visibility: visible;
   opacity: 1;

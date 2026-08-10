@@ -66,10 +66,7 @@ export { shouldEmitUploadProgress } from "./utils/should-emit-upload-progress";
 export { FileBrowserView } from "./ui/file-browser-view";
 export type { FileBrowserViewProps } from "./ui/file-browser-view";
 export { FileBrowserCopyPathButton } from "./ui/file-browser-copy-path-button";
-export type {
-  FileBrowserCopyPathAppearance,
-  FileBrowserCopyPathButtonProps,
-} from "./ui/file-browser-copy-path-button";
+export type { FileBrowserCopyPathButtonProps } from "./ui/file-browser-copy-path-button";
 export { FileBrowserLayout } from "./ui/file-browser-layout";
 export type {
   FileBrowserLayoutProps,

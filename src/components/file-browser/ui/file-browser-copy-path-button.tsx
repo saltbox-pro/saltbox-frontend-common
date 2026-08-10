@@ -11,14 +11,11 @@ import type {
 import { formatFileBrowserCopyPath } from "../model/path-utils";
 import type { FileBrowserLocaleOverrides } from "../model/types";
 
-export type FileBrowserCopyPathAppearance = "default" | "row";
-
 export interface FileBrowserCopyPathButtonProps extends Omit<ButtonProps, "icon" | "children"> {
   path: string;
   pathCopyPrefix?: string;
   title?: string;
   locale?: FileBrowserLocaleOverrides;
-  appearance?: FileBrowserCopyPathAppearance;
   showSuccessByKey?: ShowFileBrowserSuccessByKey;
   showErrorByCode?: ShowFileBrowserErrorByCode;
 }
@@ -28,7 +25,6 @@ export const FileBrowserCopyPathButton = memo(function FileBrowserCopyPathButton
   pathCopyPrefix,
   title,
   locale,
-  appearance = "default",
   showSuccessByKey,
   showErrorByCode,
   onClick,
@@ -39,14 +35,6 @@ export const FileBrowserCopyPathButton = memo(function FileBrowserCopyPathButton
   const copyText = formatFileBrowserCopyPath(path, pathCopyPrefix);
   const label = title ?? labels.actions.copyPath;
   const usePageToasts = showSuccessByKey != null && showErrorByCode != null;
-  const rowAppearanceProps: ButtonProps =
-    appearance === "row"
-      ? {
-          type: "default",
-          shape: "circle",
-          size: "middle",
-        }
-      : {};
 
   const handleClick: ButtonProps["onClick"] = (event: MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -57,7 +45,6 @@ export const FileBrowserCopyPathButton = memo(function FileBrowserCopyPathButton
     <CopyToClipboardButton
       text={copyText}
       {...restProps}
-      {...rowAppearanceProps}
       title={label}
       aria-label={label}
       successMessage={

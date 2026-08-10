@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { ActionLinkButton } from "../../buttons/action-link-button";
 import { BaseActionButton } from "../../buttons/base-action-button";
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
@@ -10,6 +12,7 @@ export type CellActionsProps<T> = {
   row: T;
   showCopy?: boolean;
   copyValue?: string;
+  renderCopy?: ReactNode;
   actions?: CellAction<T>[];
   linkComponent?: CellActionLinkComponent;
 };
@@ -19,6 +22,7 @@ export function CellActions<T>({
   row,
   showCopy,
   copyValue,
+  renderCopy,
   actions = [],
   linkComponent: LinkComponent,
 }: CellActionsProps<T>) {
@@ -27,13 +31,15 @@ export function CellActions<T>({
     return action.visible(value, row);
   });
 
-  if (!showCopy && visibleActions.length === 0) {
+  const hasCopy = Boolean(showCopy || renderCopy);
+
+  if (!hasCopy && visibleActions.length === 0) {
     return null;
   }
 
   return (
     <span className={`${styles.actions} cell-actions`}>
-      {showCopy && <CopyToClipboardButton text={copyValue ?? String(value ?? "")} />}
+      {hasCopy && (renderCopy ?? <CopyToClipboardButton text={copyValue ?? String(value ?? "")} />)}
       {visibleActions.map((action, index) => {
         const isDisabled = action.disabled?.(value, row) ?? false;
         const href = action.getHref?.(value, row);

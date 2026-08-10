@@ -10,13 +10,14 @@ import {
   useState,
 } from "react";
 
-import { areColumnWidthsMeasured } from "../utils/column";
+export const FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN = 8;
 
 export type FastTableVirtualScrollOptions = {
   useVirtualScroll?: boolean;
   overscan?: number;
   estimatedRowHeight?: number;
   estimatedExpandedRowHeight?: number;
+  enableDynamicRowHeight?: boolean;
 };
 
 export type UseFastTableVirtualColumnSizingKeyOptions = {
@@ -45,6 +46,16 @@ export function useFastTableVirtualColumnSizingKey({
   }, [columnSizing, isResizingColumn, useVirtualScroll]);
 }
 
+function areColumnWidthMapsEqual(
+  prev: Record<string, number>,
+  next: Record<string, number>
+): boolean {
+  const prevKeys = Object.keys(prev);
+  const nextKeys = Object.keys(next);
+  if (prevKeys.length !== nextKeys.length) return false;
+  return nextKeys.every((key) => prev[key] === next[key]);
+}
+
 export type UseFastTableVirtualizationOptions<DataType> = {
   enabled: boolean;
   tableContainerRef: RefObject<HTMLElement | null>;
@@ -66,13 +77,12 @@ export function useFastTableVirtualization<DataType>({
   columnCount,
   columnSizingKey,
   measureColumnWidthsEnabled,
-  overscan = 20,
+  overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
 }: UseFastTableVirtualizationOptions<DataType>) {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-  const sampleRowHeightRef = useRef(0);
   const tableScrollWidthRef = useRef(0);
 
   const measureHeaderHeight = useCallback(() => {
@@ -83,15 +93,6 @@ export function useFastTableVirtualization<DataType>({
 
     const height = thead.getBoundingClientRect().height;
     setHeaderHeight((prev) => (prev === height ? prev : height));
-  }, [enabled, tableContainerRef]);
-
-  const measureSampleRowHeight = useCallback(() => {
-    if (!enabled || !tableContainerRef.current) return;
-
-    const sampleRow = tableContainerRef.current.querySelector("tbody tr.sample-row");
-    if (!sampleRow) return;
-
-    sampleRowHeightRef.current = sampleRow.getBoundingClientRect().height;
   }, [enabled, tableContainerRef]);
 
   const measureColumnWidths = useCallback(() => {
@@ -107,31 +108,20 @@ export function useFastTableVirtualization<DataType>({
       widths[`col-${index}`] = cell.getBoundingClientRect().width;
     });
 
-    const sampleRow = tableContainerRef.current.querySelector("tbody tr.sample-row");
-    if (sampleRow) {
-      sampleRowHeightRef.current = sampleRow.getBoundingClientRect().height;
-    }
-
     tableScrollWidthRef.current = tableElement.offsetWidth;
-    setColumnWidths(widths);
+    setColumnWidths((prev) => (areColumnWidthMapsEqual(prev, widths) ? prev : widths));
   }, [enabled, measureColumnWidthsEnabled, tableContainerRef]);
 
   useLayoutEffect(() => {
     if (!enabled) return;
 
     measureHeaderHeight();
-    measureSampleRowHeight();
-  }, [columnCount, columnSizingKey, data, enabled, measureHeaderHeight, measureSampleRowHeight]);
 
-  useLayoutEffect(() => {
-    if (!enabled || !tableContainerRef.current || data.length === 0) return;
+    if (data.length === 0) return;
 
     if (measureColumnWidthsEnabled) {
       measureColumnWidths();
-      return;
     }
-
-    measureSampleRowHeight();
   }, [
     columnCount,
     columnSizingKey,
@@ -139,8 +129,7 @@ export function useFastTableVirtualization<DataType>({
     enabled,
     measureColumnWidths,
     measureColumnWidthsEnabled,
-    measureSampleRowHeight,
-    tableContainerRef,
+    measureHeaderHeight,
   ]);
 
   useEffect(() => {
@@ -153,8 +142,6 @@ export function useFastTableVirtualization<DataType>({
       measureHeaderHeight();
       if (measureColumnWidthsEnabled) {
         measureColumnWidths();
-      } else {
-        measureSampleRowHeight();
       }
     });
 
@@ -169,7 +156,6 @@ export function useFastTableVirtualization<DataType>({
     measureColumnWidths,
     measureColumnWidthsEnabled,
     measureHeaderHeight,
-    measureSampleRowHeight,
     tableContainerRef,
   ]);
 
@@ -188,9 +174,6 @@ export function useFastTableVirtualization<DataType>({
     [estimatedExpandedRowHeight, estimatedRowHeight]
   );
 
-  const effectiveEstimatedRowHeight =
-    sampleRowHeightRef.current > 0 ? sampleRowHeightRef.current : estimatedRowHeight;
-
   const rowVirtualizer = useVirtualizer({
     enabled: enabled && rows.length > 0,
     count: rows.length,
@@ -198,37 +181,13 @@ export function useFastTableVirtualization<DataType>({
     estimateSize,
     getItemKey,
     overscan,
-    paddingEnd: 1,
+    scrollMargin: headerHeight,
   });
 
   return {
     headerHeight,
     columnWidths,
-    sampleRowHeightRef,
     tableScrollWidthRef,
     rowVirtualizer,
-    effectiveEstimatedRowHeight,
   };
-}
-
-export type IsFastTableVirtualColumnsReadyOptions = {
-  columnCount: number;
-  columnWidths: Record<string, number>;
-  hasLockedColumnWidths: boolean;
-  enableColumnResize: boolean;
-  hasResizeColumnSizing: boolean;
-};
-
-export function isFastTableVirtualColumnsReady({
-  columnCount,
-  columnWidths,
-  hasLockedColumnWidths,
-  enableColumnResize,
-  hasResizeColumnSizing,
-}: IsFastTableVirtualColumnsReadyOptions) {
-  return (
-    hasLockedColumnWidths ||
-    (enableColumnResize && hasResizeColumnSizing) ||
-    areColumnWidthsMeasured(columnCount, columnWidths)
-  );
 }

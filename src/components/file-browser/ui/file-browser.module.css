@@ -140,11 +140,6 @@
   flex-shrink: 0;
 }
 
-.rowActions {
-  display: flex;
-  gap: 8px;
-}
-
 .actionButtons {
   display: flex;
   align-items: center;
@@ -157,12 +152,10 @@
   gap: 8px;
 }
 
-.rowActionsLocked,
 .actionButtonsLocked {
   pointer-events: none;
 }
 
-.rowActionsLocked :global(.ant-btn),
 .actionButtonsLocked :global(.ant-btn) {
   cursor: default !important;
   opacity: 1 !important;

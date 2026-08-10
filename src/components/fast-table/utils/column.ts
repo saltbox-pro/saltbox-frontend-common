@@ -138,16 +138,3 @@ export function getVirtualCellWidthStyle(measuredWidth: number | undefined): CSS
 
   return { flex: 1 };
 }
-
-export function areColumnWidthsMeasured(
-  columnCount: number,
-  columnWidths: Record<string, number>
-): boolean {
-  if (columnCount === 0) {
-    return false;
-  }
-
-  return Array.from({ length: columnCount }, (_, index) => columnWidths[`col-${index}`]).every(
-    (width) => width !== undefined
-  );
-}

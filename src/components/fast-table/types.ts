@@ -19,6 +19,7 @@ export type CellAction<T = any> = {
 export type CellMeta<T = any> = {
   showCopy?: boolean;
   copyValue?: (row: T) => string;
+  renderCopy?: (row: T) => ReactNode;
   actions?: CellAction<T>[];
   tdClassName?: string;
   width?: number | string;

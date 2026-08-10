@@ -167,8 +167,7 @@
       "name": "Name",
       "type": "Type",
       "size": "Size",
-      "modified": "Modified",
-      "actions": "Actions"
+      "modified": "Modified"
     },
     "type": {
       "directory": "Directory",

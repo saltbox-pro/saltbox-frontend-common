@@ -1,7 +1,9 @@
+import { DeleteOutlined, DownloadOutlined, EditOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { RefreshButton } from "../../buttons/refresh-button";
+import type { CellAction } from "../../fast-table/types";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import { isFileBrowserSafePathSegment } from "../model/path-utils";
@@ -10,14 +12,13 @@ import { getSubmitErrorMessage } from "../utils/get-submit-error-message";
 
 import { FileBrowserDeleteConfirmModal } from "./file-browser-delete-confirm-modal";
 import { FileBrowserNameModal } from "./file-browser-name-modal";
-import { FileBrowserRowActions } from "./file-browser-row-actions";
 import styles from "./file-browser.module.css";
 
 type ActiveModal = "create-folder" | "create-file" | "rename" | "delete" | null;
 
 export interface FileBrowserActionsPanelRenderProps {
   toolbar: ReactNode;
-  renderRowActions: (item: FileBrowserItem) => ReactNode;
+  rowActions: CellAction<FileBrowserItem>[];
 }
 
 export interface FileBrowserActionsPanelProps {
@@ -37,8 +38,8 @@ export interface FileBrowserActionsPanelProps {
   onSubmitError?: (message: string) => void;
   toolbarLeading?: ReactNode;
   toolbarTrailing?: ReactNode;
-  renderLeadingActions?: (item: FileBrowserItem) => ReactNode;
-  renderTrailingActions?: (item: FileBrowserItem) => ReactNode;
+  leadingRowActions?: CellAction<FileBrowserItem>[];
+  trailingRowActions?: CellAction<FileBrowserItem>[];
   children: (props: FileBrowserActionsPanelRenderProps) => ReactNode;
 }
 
@@ -59,8 +60,8 @@ export function FileBrowserActionsPanel({
   onSubmitError,
   toolbarLeading,
   toolbarTrailing,
-  renderLeadingActions,
-  renderTrailingActions,
+  leadingRowActions,
+  trailingRowActions,
   children,
 }: FileBrowserActionsPanelProps) {
   const labels = useFileBrowserLocale(locale);
@@ -79,6 +80,21 @@ export function FileBrowserActionsPanel({
   const isMountedRef = useRef(true);
   const activeModalRef = useRef<ActiveModal>(null);
   activeModalRef.current = activeModal;
+
+  const onDownloadRef = useRef(onDownload);
+  onDownloadRef.current = onDownload;
+  const onRenameRef = useRef(onRename);
+  onRenameRef.current = onRename;
+  const onDeleteRef = useRef(onDelete);
+  onDeleteRef.current = onDelete;
+  const canRenameRef = useRef(canRename);
+  canRenameRef.current = canRename;
+  const canDeleteRef = useRef(canDelete);
+  canDeleteRef.current = canDelete;
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
+  const actionLoadingRef = useRef(actionLoading);
+  actionLoadingRef.current = actionLoading;
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -217,60 +233,70 @@ export function FileBrowserActionsPanel({
     });
   }, [deleteItem, onDelete, onSubmitError, runLockedAction]);
 
-  const renderRowActions = useCallback(
-    (item: FileBrowserItem) => {
-      return (
-        <FileBrowserRowActions
-          isDirectory={item.kind === "directory"}
-          disabled={disabled || actionLoading}
-          downloadTitle={labels.actions.download}
-          renameTitle={labels.actions.rename}
-          deleteTitle={labels.actions.delete}
-          onDownload={onDownload ? () => onDownload(item) : undefined}
-          onRename={
-            onRename && (canRename?.(item) ?? true)
-              ? () => {
-                  if (disabled || actionLoading) {
-                    return;
-                  }
-                  setRenameItem(item);
-                  setRenameName(item.name);
-                  openModal("rename");
-                }
-              : undefined
+  const rowActions = useMemo(() => {
+    const actions: CellAction<FileBrowserItem>[] = [];
+    const isLocked = () => disabledRef.current || actionLoadingRef.current;
+
+    if (onDownload) {
+      actions.push({
+        icon: <DownloadOutlined />,
+        title: labels.actions.download,
+        disabled: (_value, row) => row.kind === "directory" || isLocked(),
+        onClick: (_value, row) => {
+          if (row.kind === "directory" || isLocked()) {
+            return;
           }
-          onDelete={
-            onDelete && (canDelete?.(item) ?? true)
-              ? () => {
-                  if (disabled || actionLoading) {
-                    return;
-                  }
-                  setDeleteItem(item);
-                  openModal("delete");
-                }
-              : undefined
+          onDownloadRef.current?.(row);
+        },
+      });
+    }
+
+    if (onRename) {
+      actions.push({
+        icon: <EditOutlined />,
+        title: labels.actions.rename,
+        visible: (_value, row) => canRenameRef.current?.(row) ?? true,
+        disabled: () => isLocked(),
+        onClick: (_value, row) => {
+          if (isLocked() || !(canRenameRef.current?.(row) ?? true)) {
+            return;
           }
-          leadingActions={renderLeadingActions?.(item)}
-          trailingActions={renderTrailingActions?.(item)}
-        />
-      );
-    },
-    [
-      actionLoading,
-      disabled,
-      labels.actions.delete,
-      labels.actions.download,
-      labels.actions.rename,
-      onDelete,
-      canDelete,
-      canRename,
-      onDownload,
-      onRename,
-      openModal,
-      renderLeadingActions,
-      renderTrailingActions,
-    ]
-  );
+          setRenameItem(row);
+          setRenameName(row.name);
+          openModal("rename");
+        },
+      });
+    }
+
+    if (onDelete) {
+      actions.push({
+        icon: <DeleteOutlined />,
+        title: labels.actions.delete,
+        visible: (_value, row) => canDeleteRef.current?.(row) ?? true,
+        disabled: () => isLocked(),
+        buttonProps: { color: "danger" },
+        onClick: (_value, row) => {
+          if (isLocked() || !(canDeleteRef.current?.(row) ?? true)) {
+            return;
+          }
+          setDeleteItem(row);
+          openModal("delete");
+        },
+      });
+    }
+
+    return [...(leadingRowActions ?? []), ...actions, ...(trailingRowActions ?? [])];
+  }, [
+    labels.actions.delete,
+    labels.actions.download,
+    labels.actions.rename,
+    leadingRowActions,
+    onDelete,
+    onDownload,
+    onRename,
+    openModal,
+    trailingRowActions,
+  ]);
 
   const toolbarLocked = disabled || actionLoading;
 
@@ -349,7 +375,7 @@ export function FileBrowserActionsPanel({
 
   return (
     <>
-      {children({ toolbar, renderRowActions })}
+      {children({ toolbar, rowActions })}
 
       {onCreateFolder && (
         <FileBrowserNameModal

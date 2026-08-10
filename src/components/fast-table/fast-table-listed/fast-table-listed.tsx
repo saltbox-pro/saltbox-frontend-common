@@ -15,7 +15,16 @@ import {
 } from "@tanstack/react-table";
 import { Button, Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
-import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  type KeyboardEvent,
+  type MouseEvent,
+  type RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import type { LoadSource } from "../../../error-handling/create-loader";
 import { Dropdown } from "../../antd-wrappers/dropdown";
@@ -30,8 +39,8 @@ import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
+  FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   type FastTableVirtualScrollOptions,
-  isFastTableVirtualColumnsReady,
   useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
@@ -54,8 +63,8 @@ import {
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 import {
   FastTableVirtualBody,
-  renderFastTableSampleRow,
   renderFastTableTableCells,
+  renderFastTableVirtualSpacer,
 } from "../virtual-scroll/fast-table-virtual-body";
 import "../fast-table-tokens.css";
 import "../fast-table-column-resize.css";
@@ -70,7 +79,10 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   hideFooter?: boolean;
   forceExpandAll?: boolean;
   activeRowId?: string | null;
-  onRowClick?: (item: DataType, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => void;
+  onRowClick?: (
+    item: DataType,
+    event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
+  ) => void;
   isRowClickable?: (item: DataType) => boolean;
   renderSubComponent?: (props: { row: Row<DataType> }) => React.ReactElement;
   getRowCanExpand?: (row: Row<DataType>) => boolean;
@@ -84,11 +96,6 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
   enableColumnResize?: boolean;
-  /**
-   * Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика.
-   * `isLoading` всё равно передавайте отдельно (`loader.isLoading`) — сама таблица не observer
-   * и подписаться на состояние лоадера не может; реактивны только error-подкомпоненты.
-   */
   loader?: LoadSource;
 };
 
@@ -136,9 +143,10 @@ function FastTableListedContent<DataType>({
   tableId,
   enableColumnResize = true,
   useVirtualScroll = false,
-  overscan = 20,
+  overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
+  enableDynamicRowHeight = true,
   loader,
 }: FastTableListedProps<DataType>) {
   useLoaderBinding(loader);
@@ -245,22 +253,13 @@ function FastTableListedContent<DataType>({
       tableContainerRef,
       data,
       rows,
-      columnCount: leafColumns.length,
+      columnCount: visibleColumnCount,
       columnSizingKey,
       measureColumnWidthsEnabled,
       overscan,
       estimatedRowHeight,
       estimatedExpandedRowHeight,
     });
-
-  const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
-  const isVirtualColumnsReady = isFastTableVirtualColumnsReady({
-    columnCount,
-    columnWidths,
-    hasLockedColumnWidths,
-    enableColumnResize,
-    hasResizeColumnSizing,
-  });
 
   const shouldRenderVirtualRows = useVirtualScroll && !isEmpty && !isLoading && rows.length > 0;
 
@@ -351,6 +350,7 @@ function FastTableListedContent<DataType>({
           <tr
             key={row.id}
             role={isClickable ? "button" : undefined}
+            tabIndex={isClickable ? 0 : undefined}
             className={getRowClassNames(row)}
             onClick={(event) => {
               if (!onRowClick || !isClickable) return;
@@ -361,6 +361,16 @@ function FastTableListedContent<DataType>({
               }
               onRowClick(toJS(row.original), event);
             }}
+            onKeyDown={
+              isClickable
+                ? (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onRowClick!(toJS(row.original), event);
+                    }
+                  }
+                : undefined
+            }
           >
             {renderFastTableTableCells({ row, visibleColumnCount })}
           </tr>
@@ -449,9 +459,12 @@ function FastTableListedContent<DataType>({
             />
           </thead>
           <tbody ref={bodyRef}>
-            {shouldRenderVirtualRows
-              ? renderFastTableSampleRow({ row: rows[0], visibleColumnCount })
-              : renderTableRows()}
+            {shouldRenderVirtualRows &&
+              renderFastTableVirtualSpacer({
+                colSpan: Math.max(visibleColumnCount, 1),
+                height: rowVirtualizer.getTotalSize(),
+              })}
+            {!shouldRenderVirtualRows && renderTableRows()}
             {isEmpty &&
               (loader ? (
                 <FastTableBodyFallback
@@ -470,7 +483,6 @@ function FastTableListedContent<DataType>({
             rows={rows}
             rowVirtualizer={rowVirtualizer}
             headerHeight={headerHeight}
-            isVirtualColumnsReady={isVirtualColumnsReady}
             tableScrollWidthRef={tableScrollWidthRef}
             visibleColumnCount={visibleColumnCount}
             hasLockedColumnWidths={hasLockedColumnWidths}
@@ -481,6 +493,8 @@ function FastTableListedContent<DataType>({
             columnWidths={columnWidths}
             leafColumnIds={leafColumnIds}
             hasResizeColumnSizing={hasResizeColumnSizing}
+            estimatedRowHeight={estimatedRowHeight}
+            enableDynamicRowHeight={enableDynamicRowHeight}
             onRowClick={onRowClick}
             isRowClickable={isRowClickable}
             getRowClassName={getRowClassNames}

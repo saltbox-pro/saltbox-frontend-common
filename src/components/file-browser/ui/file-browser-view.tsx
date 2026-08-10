@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import type { CellAction } from "../../fast-table/types";
 import type {
   ShowFileBrowserErrorByCode,
   ShowFileBrowserSuccessByKey,
@@ -21,19 +22,18 @@ export interface FileBrowserViewProps {
   locale?: FileBrowserLocaleOverrides;
   pathStyle?: FileBrowserPathStyle;
   allowNavigateAboveRoot?: boolean;
-  showTypeColumn?: boolean;
-  showActionsColumn?: boolean;
   showCopyPath?: boolean;
+  showRowCopyPath?: boolean;
   pathCopyPrefix?: string;
   pathCopyTitle?: string;
   showSuccessByKey?: ShowFileBrowserSuccessByKey;
   showErrorByCode?: ShowFileBrowserErrorByCode;
   toolbar?: ReactNode;
+  rowActions?: CellAction<FileBrowserItem>[];
   isItemClickable?: (item: FileBrowserItem) => boolean;
   onNavigate?: (path: string) => void;
   onNavigateUp?: () => void;
   onItemClick?: (item: FileBrowserItem) => void;
-  renderRowActions?: (item: FileBrowserItem) => ReactNode;
 }
 
 export function FileBrowserView({
@@ -46,19 +46,18 @@ export function FileBrowserView({
   locale,
   pathStyle = "posix",
   allowNavigateAboveRoot = false,
-  showTypeColumn = false,
-  showActionsColumn,
   showCopyPath = true,
+  showRowCopyPath,
   pathCopyPrefix,
   pathCopyTitle,
   showSuccessByKey,
   showErrorByCode,
   toolbar,
+  rowActions,
   isItemClickable,
   onNavigate,
   onNavigateUp,
   onItemClick,
-  renderRowActions,
 }: FileBrowserViewProps) {
   const isNavigationDisabled = navigationDisabled ?? isLoading;
 
@@ -74,7 +73,7 @@ export function FileBrowserView({
         }
       : undefined);
 
-  const shouldShowActionsColumn = Boolean(renderRowActions) && (showActionsColumn ?? true);
+  const shouldShowRowCopyPath = showRowCopyPath ?? (rowActions?.length ?? 0) > 0;
 
   return (
     <div className={styles.view}>
@@ -103,11 +102,14 @@ export function FileBrowserView({
           items={items}
           isLoading={isLoading}
           locale={locale}
-          showTypeColumn={showTypeColumn}
-          showActionsColumn={shouldShowActionsColumn}
+          showCopyPath={shouldShowRowCopyPath}
+          pathCopyPrefix={pathCopyPrefix}
+          pathCopyTitle={pathCopyTitle}
+          showSuccessByKey={showSuccessByKey}
+          showErrorByCode={showErrorByCode}
+          rowActions={rowActions}
           isItemClickable={isItemClickable}
           onItemClick={isNavigationDisabled ? undefined : onItemClick}
-          renderRowActions={renderRowActions}
         />
       </div>
     </div>

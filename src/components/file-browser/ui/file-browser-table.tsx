@@ -1,30 +1,43 @@
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Spin } from "antd";
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatTimeByUserTZ } from "../../../utils/datetime";
 import { FastTableListed } from "../../fast-table/fast-table-listed/fast-table-listed";
+import type { CellAction } from "../../fast-table/types";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
+import type {
+  ShowFileBrowserErrorByCode,
+  ShowFileBrowserSuccessByKey,
+} from "../hooks/use-file-browser-notification-toasts";
+import { formatFileBrowserCopyPath } from "../model/path-utils";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
 import { formatFileBrowserSize } from "../utils/format-file-browser-size";
 import { getFileBrowserItemIcon } from "../utils/get-file-icon";
 
+import { FileBrowserCopyPathButton } from "./file-browser-copy-path-button";
 import styles from "./file-browser.module.css";
 
 const columnHelper = createColumnHelper<FileBrowserItem>();
+
+const FILE_BROWSER_VIRTUAL_ROW_HEIGHT = 49;
+const FILE_BROWSER_VIRTUAL_OVERSCAN = 18;
 
 interface FileBrowserTableProps {
   tableId: string;
   items: FileBrowserItem[];
   isLoading?: boolean;
   locale?: FileBrowserLocaleOverrides;
-  showTypeColumn?: boolean;
-  showActionsColumn?: boolean;
+  showCopyPath?: boolean;
+  pathCopyPrefix?: string;
+  pathCopyTitle?: string;
+  showSuccessByKey?: ShowFileBrowserSuccessByKey;
+  showErrorByCode?: ShowFileBrowserErrorByCode;
+  rowActions?: CellAction<FileBrowserItem>[];
   isItemClickable?: (item: FileBrowserItem) => boolean;
   onItemClick?: (item: FileBrowserItem) => void;
-  renderRowActions?: (item: FileBrowserItem) => ReactNode;
 }
 
 export function FileBrowserTable({
@@ -32,20 +45,55 @@ export function FileBrowserTable({
   items,
   isLoading = false,
   locale,
-  showTypeColumn = false,
-  showActionsColumn = false,
+  showCopyPath = false,
+  pathCopyPrefix,
+  pathCopyTitle,
+  showSuccessByKey,
+  showErrorByCode,
+  rowActions,
   isItemClickable,
   onItemClick,
-  renderRowActions,
 }: FileBrowserTableProps) {
   const { i18n } = useTranslation("common");
   const labels = useFileBrowserLocale(locale);
 
+  const formattedModifiedAtById = useMemo(() => {
+    const formatted = new Map<string, string>();
+    for (const item of items) {
+      if (item.modifiedAt != null) {
+        formatted.set(item.id, formatTimeByUserTZ(item.modifiedAt * 1000));
+      }
+    }
+    return formatted;
+  }, [items]);
+
   const columns = useMemo<ColumnDef<FileBrowserItem>[]>(() => {
-    const baseColumns: ColumnDef<FileBrowserItem>[] = [
+    const hasRowActions = (rowActions?.length ?? 0) > 0;
+    const copyTitle = pathCopyTitle ?? labels.actions.copyPath;
+
+    return [
       columnHelper.accessor("name", {
         header: labels.columns.name,
-        meta: { width: "60%", minWidth: 350 },
+        meta: {
+          width: hasRowActions || showCopyPath ? "75%" : "60%",
+          minWidth: 350,
+          copyValue: showCopyPath
+            ? (row) => formatFileBrowserCopyPath(row.path, pathCopyPrefix)
+            : undefined,
+          renderCopy: showCopyPath
+            ? (row) => (
+                <FileBrowserCopyPathButton
+                  path={row.path}
+                  pathCopyPrefix={pathCopyPrefix}
+                  title={copyTitle}
+                  locale={locale}
+                  showSuccessByKey={showSuccessByKey}
+                  showErrorByCode={showErrorByCode}
+                />
+              )
+            : undefined,
+          actions: hasRowActions ? rowActions : undefined,
+        },
         cell: ({ row }) => {
           const isDirectory = row.original.kind === "directory";
           return (
@@ -58,20 +106,6 @@ export function FileBrowserTable({
           );
         },
       }),
-    ];
-
-    if (showTypeColumn) {
-      baseColumns.push(
-        columnHelper.accessor("kind", {
-          header: labels.columns.type,
-          meta: { width: "10%", minWidth: 120 },
-          cell: ({ getValue }) =>
-            getValue() === "directory" ? labels.type.directory : labels.type.file,
-        })
-      );
-    }
-
-    baseColumns.push(
       columnHelper.accessor("sizeBytes", {
         header: labels.columns.size,
         meta: { width: "10%", minWidth: 100 },
@@ -83,26 +117,21 @@ export function FileBrowserTable({
       columnHelper.accessor("modifiedAt", {
         header: labels.columns.modified,
         meta: { width: "15%", minWidth: 170 },
-        cell: ({ getValue }) => {
-          const modifiedAt = getValue();
-          return modifiedAt != null ? formatTimeByUserTZ(modifiedAt * 1000) : "—";
-        },
-      })
-    );
-
-    if (showActionsColumn && renderRowActions) {
-      baseColumns.push(
-        columnHelper.display({
-          id: "actions",
-          header: labels.columns.actions,
-          meta: { width: "15%" },
-          cell: ({ row }) => renderRowActions(row.original),
-        })
-      );
-    }
-
-    return baseColumns;
-  }, [i18n.language, labels, renderRowActions, showActionsColumn, showTypeColumn]);
+        cell: ({ row }) => formattedModifiedAtById.get(row.original.id) ?? "—",
+      }),
+    ];
+  }, [
+    formattedModifiedAtById,
+    i18n.language,
+    labels,
+    locale,
+    pathCopyPrefix,
+    pathCopyTitle,
+    rowActions,
+    showCopyPath,
+    showErrorByCode,
+    showSuccessByKey,
+  ]);
 
   return (
     <Spin spinning={isLoading} className={styles.tableSpin} wrapperClassName={styles.tableSpin}>
@@ -110,13 +139,16 @@ export function FileBrowserTable({
         tableId={tableId}
         enableColumnResize={false}
         useVirtualScroll
+        enableDynamicRowHeight={false}
+        estimatedRowHeight={FILE_BROWSER_VIRTUAL_ROW_HEIGHT}
+        overscan={FILE_BROWSER_VIRTUAL_OVERSCAN}
         columns={columns}
         data={items}
         isLoading={false}
         isEmpty={!isLoading && items.length === 0}
         hideFooter
         getRowId={(row) => row.id}
-        onRowClick={onItemClick ? (item) => onItemClick(item) : undefined}
+        onRowClick={onItemClick}
         isRowClickable={isItemClickable}
         locale={{ empty: labels.empty }}
       />

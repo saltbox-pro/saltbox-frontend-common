@@ -16,7 +16,6 @@ export function useFileBrowserLocale(overrides?: FileBrowserLocaleOverrides) {
         type: overrides?.columns?.type ?? t("file-browser.columns.type"),
         size: overrides?.columns?.size ?? t("file-browser.columns.size"),
         modified: overrides?.columns?.modified ?? t("file-browser.columns.modified"),
-        actions: overrides?.columns?.actions ?? t("file-browser.columns.actions"),
       },
       type: {
         directory: overrides?.type?.directory ?? t("file-browser.type.directory"),

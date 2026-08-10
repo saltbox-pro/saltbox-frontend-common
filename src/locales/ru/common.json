@@ -167,8 +167,7 @@
       "name": "Имя",
       "type": "Тип",
       "size": "Размер",
-      "modified": "Изменён",
-      "actions": "Действия"
+      "modified": "Изменён"
     },
     "type": {
       "directory": "Директория",

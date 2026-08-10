@@ -40,8 +40,8 @@ import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
+  FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   type FastTableVirtualScrollOptions,
-  isFastTableVirtualColumnsReady,
   useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
@@ -68,8 +68,8 @@ import {
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 import {
   FastTableVirtualBody,
-  renderFastTableSampleRow,
   renderFastTableTableCells,
+  renderFastTableVirtualSpacer,
 } from "../virtual-scroll/fast-table-virtual-body";
 
 import "../fast-table-tokens.css";
@@ -88,7 +88,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   onRowClick?: (
     item: DataType,
     event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
-  ) => void; // TODO: rename or use separate event handlers
+  ) => void;
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
@@ -103,11 +103,6 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
   enableColumnResize?: boolean;
-  /**
-   * Лоадер загрузки данных: error-state вместо Empty, refresh-баннер, регистрация отрисовщика.
-   * `isLoading` всё равно передавайте отдельно (`loader.isLoading`) — сама таблица не observer
-   * и подписаться на состояние лоадера не может; реактивны только error-подкомпоненты.
-   */
   loader?: LoadSource;
 };
 
@@ -147,9 +142,10 @@ function FastTablePaginatedContent<DataType>({
   rowSelection,
   locale,
   useVirtualScroll = false,
-  overscan = 20,
+  overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
+  enableDynamicRowHeight = true,
   forceExpandAll,
   renderSubComponent,
   getRowCanExpand,
@@ -275,7 +271,7 @@ function FastTablePaginatedContent<DataType>({
       tableContainerRef,
       data: stableData,
       rows,
-      columnCount: columns.length,
+      columnCount: visibleColumnCount,
       columnSizingKey,
       measureColumnWidthsEnabled,
       overscan,
@@ -305,15 +301,6 @@ function FastTablePaginatedContent<DataType>({
     () => (getRowGroupKey ? buildGroupedRowClassNames(stableData, getRowGroupKey) : undefined),
     [getRowGroupKey, stableData]
   );
-
-  const columnCount = table.getHeaderGroups()[0]?.headers.length ?? 0;
-  const isVirtualColumnsReady = isFastTableVirtualColumnsReady({
-    columnCount,
-    columnWidths,
-    hasLockedColumnWidths,
-    enableColumnResize,
-    hasResizeColumnSizing,
-  });
 
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
@@ -361,6 +348,9 @@ function FastTablePaginatedContent<DataType>({
 
     return className || undefined;
   };
+
+  const shouldShowEmpty = !stableIsLoading && rows.length === 0;
+  const shouldRenderVirtualRows = useVirtualScroll && rows.length > 0;
 
   const renderColGroup = () => (
     <colgroup>
@@ -415,12 +405,15 @@ function FastTablePaginatedContent<DataType>({
   const renderTableRows = (rowCount?: number) => {
     const rowsToRender = rowCount === undefined ? rows : rows.slice(0, rowCount);
     return rowsToRender.map((row) => {
-      const isClickable = onRowClick && (!isRowClickable || isRowClickable(row.original));
+      const isClickable = Boolean(
+        onRowClick && (isRowClickable == null || isRowClickable(row.original))
+      );
       return (
         <Fragment key={`${row.id}-group-row`}>
           <tr
             key={row.id}
             role={isClickable ? "button" : undefined}
+            tabIndex={isClickable ? 0 : undefined}
             className={getRowClassNames(row)}
             onClick={(event) => {
               if (!onRowClick || !isClickable) return;
@@ -431,6 +424,16 @@ function FastTablePaginatedContent<DataType>({
               }
               onRowClick(toJS(row.original), event);
             }}
+            onKeyDown={
+              isClickable
+                ? (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onRowClick!(toJS(row.original), event);
+                    }
+                  }
+                : undefined
+            }
           >
             {renderFastTableTableCells({
               row,
@@ -478,8 +481,6 @@ function FastTablePaginatedContent<DataType>({
       </div>
     );
   };
-
-  const shouldShowEmpty = !stableIsLoading && rows.length === 0;
 
   return (
     <div
@@ -535,21 +536,19 @@ function FastTablePaginatedContent<DataType>({
                 ) : (
                   renderEmptyState()
                 ))}
-              {useVirtualScroll
-                ? renderFastTableSampleRow({
-                    row: rows[0],
-                    visibleColumnCount,
-                    actionLinkComponent,
-                  })
-                : renderTableRows()}
+              {shouldRenderVirtualRows &&
+                renderFastTableVirtualSpacer({
+                  colSpan: Math.max(visibleColumnCount, 1),
+                  height: rowVirtualizer.getTotalSize(),
+                })}
+              {!shouldRenderVirtualRows && !shouldShowEmpty && renderTableRows()}
             </tbody>
           </table>
-          {useVirtualScroll && (
+          {shouldRenderVirtualRows && (
             <FastTableVirtualBody
               rows={rows}
               rowVirtualizer={rowVirtualizer}
               headerHeight={headerHeight}
-              isVirtualColumnsReady={isVirtualColumnsReady}
               tableScrollWidthRef={tableScrollWidthRef}
               visibleColumnCount={visibleColumnCount}
               hasLockedColumnWidths={hasLockedColumnWidths}
@@ -560,6 +559,8 @@ function FastTablePaginatedContent<DataType>({
               columnWidths={columnWidths}
               leafColumnIds={leafColumnIds}
               hasResizeColumnSizing={hasResizeColumnSizing}
+              estimatedRowHeight={estimatedRowHeight}
+              enableDynamicRowHeight={enableDynamicRowHeight}
               onRowClick={onRowClick}
               isRowClickable={isRowClickable}
               getRowClassName={getRowClassNames}

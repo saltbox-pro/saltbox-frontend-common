@@ -24,7 +24,6 @@ export type FileBrowserLocaleOverrides = {
     type?: string;
     size?: string;
     modified?: string;
-    actions?: string;
   };
   type?: {
     directory?: string;
