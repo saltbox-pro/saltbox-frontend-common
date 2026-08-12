@@ -191,6 +191,7 @@ type FastTableVirtualRowProps<DataType> = {
   rowHeight?: number;
   className?: string;
   isClickable: boolean;
+  isExpanded: boolean;
   enableDynamicRowHeight: boolean;
   measureElement?: (node: HTMLElement | null) => void;
   cellContext: Omit<FastTableVirtualCellContext<DataType>, "row">;
@@ -205,6 +206,7 @@ function FastTableVirtualRowInner<DataType>({
   rowHeight,
   className,
   isClickable,
+  isExpanded,
   enableDynamicRowHeight,
   measureElement,
   cellContext,
@@ -249,7 +251,7 @@ function FastTableVirtualRowInner<DataType>({
       <div className="virtual-row-cells">
         {renderFastTableVirtualCells({ row, ...cellContext })}
       </div>
-      {row.getIsExpanded() && renderSubComponent && (
+      {isExpanded && renderSubComponent && (
         <div className="virtual-row-expanded">{renderSubComponent({ row })}</div>
       )}
     </div>
@@ -261,11 +263,11 @@ const FastTableVirtualRow = memo(FastTableVirtualRowInner, (prev, next) => {
     prev.row.id === next.row.id &&
     prev.virtualIndex === next.virtualIndex &&
     prev.row.original === next.row.original &&
-    prev.row.getIsExpanded() === next.row.getIsExpanded() &&
     prev.offsetInBody === next.offsetInBody &&
     prev.rowHeight === next.rowHeight &&
     prev.className === next.className &&
     prev.isClickable === next.isClickable &&
+    prev.isExpanded === next.isExpanded &&
     prev.enableDynamicRowHeight === next.enableDynamicRowHeight &&
     prev.cellContext === next.cellContext &&
     prev.onRowClick === next.onRowClick &&
@@ -383,6 +385,7 @@ export function FastTableVirtualBody<DataType>({
             rowHeight={enableDynamicRowHeight ? undefined : estimatedRowHeight}
             className={rowClassName || undefined}
             isClickable={isClickable}
+            isExpanded={row.getIsExpanded()}
             enableDynamicRowHeight={enableDynamicRowHeight}
             measureElement={rowVirtualizer.measureElement}
             cellContext={cellContext}
