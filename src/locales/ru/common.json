@@ -207,6 +207,7 @@
       "new-name-placeholder": "Новое имя"
     },
     "download": {
+      "title": "Скачивание файлов",
       "started": "Подготовка файла к скачиванию",
       "success": "Файл готов к скачиванию",
       "cancelled": "Скачивание отменено",
@@ -239,6 +240,13 @@
     "notifications": {
       "file-too-large": "Файл слишком большой для просмотра",
       "file-size-invalid": "Не удалось определить размер файла для просмотра",
+      "file-too-large-to-download": "Файл слишком большой для скачивания",
+      "file-size-invalid-for-download": "Не удалось определить размер файла для скачивания",
+      "download-unavailable": "Скачивание недоступно",
+      "download-already-in-progress": "Скачивание этого файла уже выполняется",
+      "upload-already-in-progress": "Загрузка этого файла уже выполняется",
+      "download-transfer-error": "Не удалось скачать файл",
+      "download-from-fileserver-error": "Не удалось получить файл из File Manager",
       "binary-not-supported": "Просмотр бинарных файлов не поддерживается",
       "file-read-error": "Не удалось прочитать файл",
       "file-too-large-to-save": "Файл слишком большой для сохранения",

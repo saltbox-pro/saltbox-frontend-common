@@ -15,6 +15,7 @@ export type TranslateFileBrowserSuccess = (
 ) => string | undefined;
 
 export interface FileBrowserDownloadLabels {
+  title: string;
   started: string;
   success: string;
   cancelled: string;
@@ -72,6 +73,7 @@ export function useFileBrowserMessages(): FileBrowserMessages {
 
   const downloadLabels = useMemo<FileBrowserDownloadLabels>(
     () => ({
+      title: t("file-browser.download.title"),
       started: t("file-browser.download.started"),
       success: t("file-browser.download.success"),
       cancelled: t("file-browser.download.cancelled"),

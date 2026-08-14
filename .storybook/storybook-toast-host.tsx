@@ -1,8 +1,8 @@
 import { message, notification } from "antd";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 
-import { useToastRenderer } from "../src/error-handling/toast-renderer";
 import { useUploadNoticeHost } from "../src/components/file-browser/hooks/use-upload-notice-host";
+import { useToastRenderer } from "../src/error-handling/toast-renderer";
 import { ToastEventDetail, UiEvent } from "../src/interfaces/ui-events";
 import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
 
@@ -13,7 +13,7 @@ import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
  */
 export const StorybookToastHost = () => {
   const [notificationApi, notificationHolder] = notification.useNotification({ maxCount: 5 });
-  const [uploadNotificationApi, uploadNotificationHolder] = notification.useNotification({
+  const [transferNoticeApi, transferNoticeHolder] = notification.useNotification({
     placement: "bottomRight",
     maxCount: 8,
     stack: false,
@@ -24,7 +24,7 @@ export const StorybookToastHost = () => {
     onNavigate: (href) => window.open(href, "_self"),
   });
 
-  useUploadNoticeHost(uploadNotificationApi);
+  useUploadNoticeHost(transferNoticeApi);
 
   useEffect(() => {
     const listener = (event: Event) => {
@@ -45,8 +45,8 @@ export const StorybookToastHost = () => {
 
   return (
     <>
-      {notificationHolder}
-      {uploadNotificationHolder}
+      <Fragment key="toast-notification-holder">{notificationHolder}</Fragment>
+      <Fragment key="transfer-notice-holder">{transferNoticeHolder}</Fragment>
       {messageHolder}
     </>
   );

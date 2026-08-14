@@ -9,7 +9,7 @@ import { setUploadNoticeHostReady } from "../../../error-handling/upload-notice"
 import { UiEvent, type UploadNoticeEventDetail } from "../../../interfaces/ui-events";
 import { subscribe, unsubscribe } from "../../../utils/custom-events";
 import { FileBrowserUploadNotificationBody } from "../ui/file-browser-upload-notification-body";
-import { getFileBrowserUploadsContentRevision } from "../utils/get-file-browser-uploads-content-revision";
+import { getUploadNoticeRenderRevision } from "../utils/get-file-browser-uploads-content-revision";
 
 function UploadNoticeDescription({ notice }: { notice: StoredUploadNotice }) {
   return (
@@ -19,12 +19,6 @@ function UploadNoticeDescription({ notice }: { notice: StoredUploadNotice }) {
       formatError={notice.formatError}
     />
   );
-}
-
-function getNoticeRenderRevision(notice: StoredUploadNotice): string {
-  return `${notice.title}\0${notice.canClose ? "1" : "0"}\0${getFileBrowserUploadsContentRevision(
-    new Map(notice.uploads)
-  )}`;
 }
 
 export function useUploadNoticeHost(notificationApi: NotificationInstance): void {
@@ -75,7 +69,7 @@ export function useUploadNoticeHost(notificationApi: NotificationInstance): void
         continue;
       }
 
-      const revision = getNoticeRenderRevision(notice);
+      const revision = getUploadNoticeRenderRevision(notice);
       if (openedRevisionRef.current.get(key) === revision) {
         continue;
       }

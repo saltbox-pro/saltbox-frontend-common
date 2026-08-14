@@ -1,13 +1,13 @@
-import type { FileBrowserUploadItem } from "../model/upload-types";
+import type { FileBrowserTransferItem } from "../model/upload-types";
 import { groupUploadsByTargetDirectory } from "../utils/group-uploads-by-target-directory";
 
 import { FileBrowserUploadList } from "./file-browser-upload-list";
 import styles from "./file-browser.module.css";
 
 export interface FileBrowserUploadNotificationBodyProps {
-  uploads: ReadonlyMap<string, FileBrowserUploadItem>;
+  uploads: ReadonlyMap<string, FileBrowserTransferItem>;
   onCancelUpload: (uploadId: string) => void;
-  formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  formatError?: (errorCode: string, item: FileBrowserTransferItem) => string | undefined;
 }
 
 export function FileBrowserUploadNotificationBody({

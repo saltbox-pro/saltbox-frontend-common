@@ -33,8 +33,8 @@ export { dismissFileBrowserToast } from "./utils/show-file-browser-toast";
 export { useFileBrowserNotificationToasts } from "./hooks/use-file-browser-notification-toasts";
 export { useFileBrowserMessages } from "./hooks/use-file-browser-messages";
 export type { TranslateFileBrowserError } from "./hooks/use-file-browser-messages";
-export { useFileBrowserUploadNotification } from "./hooks/use-file-browser-upload-notification";
-export type { UseFileBrowserUploadNotificationOptions } from "./hooks/use-file-browser-upload-notification";
+export { useFileBrowserTransferNotification } from "./hooks/use-file-browser-transfer-notification";
+export type { UseFileBrowserTransferNotificationOptions } from "./hooks/use-file-browser-transfer-notification";
 export { useUploadNoticeHost } from "./hooks/use-upload-notice-host";
 export type {
   FileBrowserNotificationToasts,
@@ -43,7 +43,20 @@ export type {
   ShowFileBrowserErrorByCode,
   ShowFileBrowserSuccessByKey,
 } from "./hooks/use-file-browser-notification-toasts";
-export { runWithFileBrowserDownloadNotification } from "./utils/run-with-file-browser-download-notification";
+export {
+  abortBrowserFileDownloadTarget,
+  assertDownloadComplete,
+  BLOB_DOWNLOAD_MAX_BYTES,
+  BrowserFileDownloadAbortError,
+  BrowserFileDownloadIncompleteError,
+  BrowserFileDownloadTooLargeError,
+  createBrowserFileDownloadTarget,
+  writeResponseToBrowserFile,
+} from "./utils/write-response-to-browser-file";
+export type {
+  BrowserFileDownloadProgress,
+  BrowserFileDownloadTarget,
+} from "./utils/write-response-to-browser-file";
 export { FileBrowserActionsPanel } from "./ui/file-browser-actions-panel";
 export type {
   FileBrowserActionsPanelProps,
@@ -60,8 +73,22 @@ export { FileBrowserUploadList } from "./ui/file-browser-upload-list";
 export type { FileBrowserUploadListProps } from "./ui/file-browser-upload-list";
 export { FileBrowserUploadNotificationBody } from "./ui/file-browser-upload-notification-body";
 export type { FileBrowserUploadNotificationBodyProps } from "./ui/file-browser-upload-notification-body";
-export type { FileBrowserUploadItem } from "./model/upload-types";
-export { hasActiveFileBrowserUpload } from "./utils/has-active-file-browser-upload";
+export type {
+  FileBrowserUploadItem,
+  FileBrowserDownloadItem,
+  FileBrowserTransferItem,
+} from "./model/upload-types";
+export type {
+  FileBrowserTransferStatus,
+  FileBrowserTransferActiveStatus,
+  FileBrowserUploadStatus,
+  FileBrowserDownloadStatus,
+} from "./model/upload-types";
+export {
+  isFileBrowserTransferInProgress,
+  isFileBrowserTransferCancellable,
+} from "./model/upload-types";
+export { hasActiveFileBrowserTransfer } from "./utils/has-active-file-browser-transfer";
 export { shouldEmitUploadProgress } from "./utils/should-emit-upload-progress";
 export { FileBrowserView } from "./ui/file-browser-view";
 export type { FileBrowserViewProps } from "./ui/file-browser-view";

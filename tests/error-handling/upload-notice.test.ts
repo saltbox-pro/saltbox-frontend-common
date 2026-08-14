@@ -13,7 +13,7 @@ vi.mock("../../src/utils/custom-events", () => ({
   unsubscribe: vi.fn(),
 }));
 
-import { resetUploadNoticeForTests, uploadNotice } from "../../src/error-handling/upload-notice";
+import { resetUploadNoticeForTests, transferNotice } from "../../src/error-handling/upload-notice";
 import { publish } from "../../src/utils/custom-events";
 
 vi.stubGlobal("document", {});
@@ -26,17 +26,17 @@ beforeEach(() => {
   vi.stubGlobal("window", {});
 });
 
-describe("uploadNotice", () => {
+describe("transferNotice", () => {
   it("host готов → публикует UiEvent.UploadNotice сразу", () => {
     (window as Window).__saltboxUploadNoticeHostReady = true;
 
-    uploadNotice.remove("k1");
+    transferNotice.remove("k1");
 
     expect(publish).toHaveBeenCalledWith(UiEvent.UploadNotice, { action: "remove", key: "k1" });
   });
 
   it("host не готов → буферизует и сливает по UploadNoticeHostReady", () => {
-    uploadNotice.patch({ key: "k1", title: "Загрузка", canClose: false });
+    transferNotice.patch({ key: "k1", title: "Загрузка", canClose: false });
     expect(publish).not.toHaveBeenCalledWith(UiEvent.UploadNotice, expect.anything());
 
     (window as Window).__saltboxUploadNoticeHostReady = true;

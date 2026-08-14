@@ -1,4 +1,4 @@
-import type { FileBrowserUploadItem } from "../components/file-browser/model/upload-types";
+import type { FileBrowserTransferItem } from "../components/file-browser/model/upload-types";
 import {
   UiEvent,
   type UploadNoticeEventDetail,
@@ -50,23 +50,23 @@ export function setUploadNoticeHostReady(ready: boolean): void {
   }
 }
 
-export function toUploadNoticeEntries(
-  uploads: ReadonlyMap<string, FileBrowserUploadItem>
-): Array<[string, FileBrowserUploadItem]> {
-  return Array.from(uploads.entries()).map(([id, upload]) => [
+export function toTransferNoticeEntries(
+  transfers: ReadonlyMap<string, FileBrowserTransferItem>
+): Array<[string, FileBrowserTransferItem]> {
+  return Array.from(transfers.entries()).map(([id, transfer]) => [
     id,
     {
-      fileName: upload.fileName,
-      loaded: upload.loaded,
-      total: upload.total,
-      status: upload.status,
-      error: upload.error,
-      targetDirectory: upload.targetDirectory,
+      fileName: transfer.fileName,
+      loaded: transfer.loaded,
+      total: transfer.total,
+      status: transfer.status,
+      error: transfer.error,
+      targetDirectory: transfer.targetDirectory,
     },
   ]);
 }
 
-export const uploadNotice = {
+export const transferNotice = {
   upsert: (detail: Omit<UploadNoticeUpsertDetail, "action">) =>
     send({ action: "upsert", ...detail }),
   patch: (detail: Omit<UploadNoticePatchDetail, "action">) => send({ action: "patch", ...detail }),

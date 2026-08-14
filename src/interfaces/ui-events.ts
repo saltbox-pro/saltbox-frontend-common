@@ -1,4 +1,4 @@
-import type { FileBrowserUploadItem } from "../components/file-browser/model/upload-types";
+import type { FileBrowserTransferItem } from "../components/file-browser/model/upload-types";
 import type { AppErrorKind } from "../error-handling/app-error";
 
 export enum UiEvent {
@@ -59,10 +59,10 @@ export type UploadNoticeUpsertDetail = {
   key: string;
   title: string;
   canClose: boolean;
-  uploads: Array<[string, FileBrowserUploadItem]>;
+  uploads: Array<[string, FileBrowserTransferItem]>;
   onCancelUpload: (uploadId: string) => void;
   onClose: () => void;
-  formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  formatError?: (errorCode: string, item: FileBrowserTransferItem) => string | undefined;
 };
 
 export type UploadNoticePatchDetail = {
@@ -70,7 +70,7 @@ export type UploadNoticePatchDetail = {
   key: string;
   title?: string;
   canClose?: boolean;
-  uploads?: Array<[string, FileBrowserUploadItem]>;
+  uploads?: Array<[string, FileBrowserTransferItem]>;
 };
 
 export type UploadNoticeRemoveDetail = {

@@ -10,7 +10,7 @@ export function formatFileBrowserSize(bytes: number, locale?: string): string {
   const units = ["B", "KB", "MB", "GB", "TB"];
   const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
   const size = bytes / Math.pow(1024, unitIndex);
-  const fractionDigits = unitIndex > 0 ? 1 : 0;
+  const fractionDigits = unitIndex > 0 ? 2 : 0;
   const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,

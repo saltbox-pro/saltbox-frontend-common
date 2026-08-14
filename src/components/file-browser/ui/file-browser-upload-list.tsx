@@ -1,21 +1,21 @@
 import { observer } from "mobx-react-lite";
 
-import type { FileBrowserUploadItem } from "../model/upload-types";
+import type { FileBrowserTransferItem } from "../model/upload-types";
 
 import { FileBrowserUploadListItem } from "./file-browser-upload-list-item";
 import styles from "./file-browser.module.css";
 
 export interface FileBrowserUploadListProps<
-  TItem extends FileBrowserUploadItem = FileBrowserUploadItem,
+  TItem extends FileBrowserTransferItem = FileBrowserTransferItem,
 > {
   uploads: ReadonlyMap<string, TItem>;
   onCancelUpload: (uploadId: string) => void;
-  formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  formatError?: (errorCode: string, item: FileBrowserTransferItem) => string | undefined;
   compact?: boolean;
 }
 
 export const FileBrowserUploadList = observer(function FileBrowserUploadList<
-  TItem extends FileBrowserUploadItem = FileBrowserUploadItem,
+  TItem extends FileBrowserTransferItem = FileBrowserTransferItem,
 >({ uploads, onCancelUpload, formatError, compact = false }: FileBrowserUploadListProps<TItem>) {
   if (uploads.size === 0) {
     return null;

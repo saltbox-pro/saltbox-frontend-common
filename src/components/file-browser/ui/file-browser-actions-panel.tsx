@@ -23,10 +23,12 @@ export interface FileBrowserActionsPanelRenderProps {
 
 export interface FileBrowserActionsPanelProps {
   disabled?: boolean;
+  downloadDisabled?: boolean;
   locale?: FileBrowserLocaleOverrides;
   isValidName?: (name: string) => boolean;
   isForbiddenName?: (name: string) => boolean;
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
+  isDownloadDisabled?: (item: FileBrowserItem) => boolean;
   onRename?: (item: FileBrowserItem, newName: string) => void | Promise<void>;
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
   canRename?: (item: FileBrowserItem) => boolean;
@@ -45,10 +47,12 @@ export interface FileBrowserActionsPanelProps {
 
 export function FileBrowserActionsPanel({
   disabled = false,
+  downloadDisabled = false,
   locale,
   isValidName = isFileBrowserSafePathSegment,
   isForbiddenName,
   onDownload,
+  isDownloadDisabled,
   onRename,
   onDelete,
   canRename,
@@ -83,6 +87,8 @@ export function FileBrowserActionsPanel({
 
   const onDownloadRef = useRef(onDownload);
   onDownloadRef.current = onDownload;
+  const isDownloadDisabledRef = useRef(isDownloadDisabled);
+  isDownloadDisabledRef.current = isDownloadDisabled;
   const onRenameRef = useRef(onRename);
   onRenameRef.current = onRename;
   const onDeleteRef = useRef(onDelete);
@@ -93,6 +99,8 @@ export function FileBrowserActionsPanel({
   canDeleteRef.current = canDelete;
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
+  const downloadDisabledRef = useRef(downloadDisabled);
+  downloadDisabledRef.current = downloadDisabled;
   const actionLoadingRef = useRef(actionLoading);
   actionLoadingRef.current = actionLoading;
 
@@ -241,9 +249,19 @@ export function FileBrowserActionsPanel({
       actions.push({
         icon: <DownloadOutlined />,
         title: labels.actions.download,
-        disabled: (_value, row) => row.kind === "directory" || isLocked(),
+        visible: (_value, row) => row.kind !== "directory",
+        disabled: (_value, row) =>
+          isLocked() ||
+          row.kind === "directory" ||
+          downloadDisabledRef.current ||
+          isDownloadDisabledRef.current?.(row) === true,
         onClick: (_value, row) => {
-          if (row.kind === "directory" || isLocked()) {
+          if (
+            isLocked() ||
+            row.kind === "directory" ||
+            downloadDisabledRef.current ||
+            isDownloadDisabledRef.current?.(row) === true
+          ) {
             return;
           }
           onDownloadRef.current?.(row);
@@ -293,6 +311,8 @@ export function FileBrowserActionsPanel({
     leadingRowActions,
     onDelete,
     onDownload,
+    isDownloadDisabled,
+    downloadDisabled,
     onRename,
     openModal,
     trailingRowActions,
