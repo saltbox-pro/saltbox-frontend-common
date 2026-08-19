@@ -24,6 +24,7 @@ type UseColumnResizeLayoutArgs<DataType> = {
   leafColumns: Array<Column<DataType, unknown>>;
   leafColumnIds: string[];
   leafColumnIdsKey: string;
+  allLeafColumnIds: string[];
   columnSizing: ColumnSizingState;
   hasPersistedSizing: boolean;
   isResizingColumn: boolean;
@@ -41,6 +42,7 @@ export function useColumnResizeLayout<DataType>({
   leafColumns,
   leafColumnIds,
   leafColumnIdsKey,
+  allLeafColumnIds,
   columnSizing,
   hasPersistedSizing,
   isResizingColumn,
@@ -134,12 +136,12 @@ export function useColumnResizeLayout<DataType>({
 
     const next = { ...columnSizing, ...missing };
     seedColumnSizingFromPixels(missing, false);
-    persistColumnSizing(next, leafColumnIds);
+    persistColumnSizing(next, allLeafColumnIds);
   }, [
+    allLeafColumnIds,
     columnSizing,
     enableColumnResize,
     hasPersistedSizing,
-    leafColumnIds,
     leafColumnIdsKey,
     leafColumns,
     persistColumnSizing,
@@ -182,13 +184,14 @@ export function useColumnResizeLayout<DataType>({
         const missing = getMissingColumnSizing(columnSizing, normalizedMeasured, leafColumns);
         if (Object.keys(missing).length === 0) return;
         seedColumnSizingFromPixels(missing, false);
-        persistColumnSizing({ ...columnSizing, ...missing }, leafColumnIds);
+        persistColumnSizing({ ...columnSizing, ...missing }, allLeafColumnIds);
         return;
       }
 
       replaceColumnSizingFromPixels(normalizedMeasured);
     });
   }, [
+    allLeafColumnIds,
     columnSizing,
     enableColumnResize,
     hasPersistedSizing,
@@ -220,17 +223,18 @@ export function useColumnResizeLayout<DataType>({
 
   useEffect(() => {
     if (!enableColumnResize) return;
-    syncColumnSizingToColumns(leafColumnIds);
-  }, [enableColumnResize, leafColumnIds, syncColumnSizingToColumns]);
+    syncColumnSizingToColumns(allLeafColumnIds);
+  }, [allLeafColumnIds, enableColumnResize, syncColumnSizingToColumns]);
 
   useLayoutEffect(() => {
     if (wasResizingRef.current && !isResizingColumn) {
       const clamped = clampSizingState(columnSizing, leafColumnIds);
       onColumnSizingChange(clamped);
-      persistColumnSizing(clamped, leafColumnIds);
+      persistColumnSizing(clamped, allLeafColumnIds);
     }
     wasResizingRef.current = isResizingColumn;
   }, [
+    allLeafColumnIds,
     clampSizingState,
     columnSizing,
     isResizingColumn,

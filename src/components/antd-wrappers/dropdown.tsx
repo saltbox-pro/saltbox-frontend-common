@@ -1,5 +1,5 @@
 import { Dropdown as AntdDropdown } from "antd";
-import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { ComponentProps, useCallback, useState } from "react";
 
 import { useUiCleanupEvent } from "saltbox-common/hooks/useUiCleanupEvent";
 import { UiEvent } from "saltbox-common/interfaces/ui-events";
@@ -13,24 +13,29 @@ type OnOpenChange = DropdownProps["onOpenChange"];
  * Use this instead of Antd Dropdown directly for consistent behavior across the application.
  */
 export const Dropdown = ({ open, onOpenChange = noop, ...props }: DropdownProps) => {
-  const [isOpen, setIsOpen] = useState(open || false);
-
-  useEffect(() => {
-    setIsOpen(open || false);
-  }, [open]);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
 
   const handleOpenChange = useCallback<OnOpenChange>(
     (open, info) => {
-      setIsOpen(open);
+      if (!isControlled) {
+        setInternalOpen(open);
+      }
       onOpenChange(open, info);
     },
-    [onOpenChange]
+    [isControlled, onOpenChange]
   );
 
   useUiCleanupEvent(() => {
-    setIsOpen(false);
+    setInternalOpen(false);
     onOpenChange(false, null);
   }, [UiEvent.CloseAllOverlays, UiEvent.CloseAllDropdowns]);
 
-  return <AntdDropdown open={isOpen} onOpenChange={handleOpenChange} {...props} />;
+  return (
+    <AntdDropdown
+      open={isControlled ? open : internalOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    />
+  );
 };

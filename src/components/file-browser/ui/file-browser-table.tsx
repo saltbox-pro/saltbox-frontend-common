@@ -137,7 +137,6 @@ export function FileBrowserTable({
     <Spin spinning={isLoading} className={styles.tableSpin} wrapperClassName={styles.tableSpin}>
       <FastTableListed
         tableId={tableId}
-        enableColumnResize={false}
         useVirtualScroll
         enableDynamicRowHeight={false}
         estimatedRowHeight={FILE_BROWSER_VIRTUAL_ROW_HEIGHT}

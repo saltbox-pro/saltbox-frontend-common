@@ -1,4 +1,3 @@
-import { MoreOutlined } from "@ant-design/icons";
 import {
   type ColumnDef,
   type ExpandedState,
@@ -11,7 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Button, Empty, Pagination, type PaginationProps, Spin } from "antd";
+import { Empty, Pagination, type PaginationProps, Spin } from "antd";
 import { toJS } from "mobx";
 import {
   type RefObject,
@@ -28,7 +27,6 @@ import {
 import { useStableLoading } from "saltbox-common/utils/table-utils";
 
 import type { LoadSource } from "../../../error-handling/create-loader";
-import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import {
@@ -36,6 +34,8 @@ import {
   FastTableRefreshAlert,
   useLoaderBinding,
 } from "../fast-table-load-error";
+import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
+import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
@@ -61,6 +61,11 @@ import {
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
+import {
+  type ColumnLayout,
+  buildColumnSettingsItems,
+  dropSortingForHiddenColumns,
+} from "../utils/column-layout";
 import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
@@ -102,7 +107,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowClassName?: (row: DataType, index: number) => string | undefined;
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
-  enableColumnResize?: boolean;
+  enableColumnSettings?: boolean;
   loader?: LoadSource;
 };
 
@@ -155,7 +160,7 @@ function FastTablePaginatedContent<DataType>({
   getRowClassName,
   getRowGroupKey,
   tableId,
-  enableColumnResize = true,
+  enableColumnSettings = true,
   loader,
 }: FastTablePaginatedProps<DataType>) {
   useLoaderBinding(loader);
@@ -173,12 +178,15 @@ function FastTablePaginatedContent<DataType>({
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
     replaceColumnSizingFromPixels,
-  } = usePersistedColumnSizing(enableColumnResize ? tableId : undefined);
+  } = usePersistedColumnSizing(enableColumnSettings ? tableId : undefined);
 
   const resizeColumns = useMemo(
     () =>
-      applyColumnResizeDefaults(columns as Array<ColumnDef<DataType, unknown>>, enableColumnResize),
-    [columns, enableColumnResize]
+      applyColumnResizeDefaults(
+        columns as Array<ColumnDef<DataType, unknown>>,
+        enableColumnSettings
+      ),
+    [columns, enableColumnSettings]
   );
 
   const resizeConstraintsById = useMemo(
@@ -188,14 +196,19 @@ function FastTablePaginatedContent<DataType>({
 
   const resizeColumnIds = useMemo(() => resolveResizeColumnIds(resizeColumns), [resizeColumns]);
 
+  const { columnOrder, columnVisibility, applyColumnLayout } = useColumnLayout({
+    tableId: enableColumnSettings ? tableId : undefined,
+    columns: resizeColumns,
+  });
+
   const handleColumnSizingChange = useMemo(
     () =>
-      enableColumnResize
+      enableColumnSettings
         ? createClampedColumnSizingChange(onColumnSizingChange, resizeColumnIds, (id) =>
             resizeConstraintsById.get(id)
           )
         : onColumnSizingChange,
-    [enableColumnResize, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
+    [enableColumnSettings, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
   );
 
   const table = useReactTable({
@@ -242,9 +255,11 @@ function FastTablePaginatedContent<DataType>({
       rowSelection,
       expanded,
       columnSizing,
+      columnOrder,
+      columnVisibility,
     },
     enableSorting: !!sorting,
-    enableColumnResizing: enableColumnResize,
+    enableColumnResizing: enableColumnSettings,
     columnResizeMode: "onChange",
     manualSorting: true,
     manualPagination: true,
@@ -253,7 +268,9 @@ function FastTablePaginatedContent<DataType>({
 
   const rows = table.getRowModel().rows;
   const leafColumns = table.getVisibleLeafColumns();
+  const allLeafColumns = table.getAllLeafColumns();
   const { leafColumnIds, leafColumnIdsKey } = useStableLeafColumnIds(leafColumns);
+  const { leafColumnIds: allLeafColumnIds } = useStableLeafColumnIds(allLeafColumns);
   const visibleColumnCount = leafColumnIds.length;
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
   const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
@@ -264,7 +281,7 @@ function FastTablePaginatedContent<DataType>({
     isResizingColumn,
   });
 
-  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnResize;
+  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnSettings;
   const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
     useFastTableVirtualization({
       enabled: useVirtualScroll,
@@ -273,6 +290,7 @@ function FastTablePaginatedContent<DataType>({
       rows,
       columnCount: visibleColumnCount,
       columnSizingKey,
+      columnLayoutKey: leafColumnIdsKey,
       measureColumnWidthsEnabled,
       overscan,
       estimatedRowHeight,
@@ -281,11 +299,12 @@ function FastTablePaginatedContent<DataType>({
 
   const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
     useColumnResizeLayout({
-      enableColumnResize,
+      enableColumnResize: enableColumnSettings,
       tableContainerRef,
       leafColumns,
       leafColumnIds,
       leafColumnIdsKey,
+      allLeafColumnIds,
       columnSizing,
       hasPersistedSizing,
       isResizingColumn,
@@ -304,19 +323,20 @@ function FastTablePaginatedContent<DataType>({
 
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
-  const showTableLayoutToolbar = enableColumnResize;
 
-  const tableViewMenuItems = useMemo(
-    () => [
-      {
-        key: "reset-column-widths",
-        label: tableLocale.resetColumnWidths,
-        disabled: !hasPersistedSizing,
-        onClick: resetColumnSizing,
-      },
-    ],
-    [hasPersistedSizing, resetColumnSizing, tableLocale.resetColumnWidths]
-  );
+  const handleApplyColumnLayout = (nextLayout: ColumnLayout) => {
+    applyColumnLayout(nextLayout);
+
+    const nextSorting = dropSortingForHiddenColumns(sorting, nextLayout.hidden);
+    if (nextSorting !== sorting) {
+      onLazyLoad(pagination, nextSorting ?? []);
+    }
+  };
+
+  const columnSettings = {
+    items: buildColumnSettingsItems(allLeafColumns),
+    onApply: handleApplyColumnLayout,
+  };
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
@@ -371,7 +391,7 @@ function FastTablePaginatedContent<DataType>({
           );
         }
 
-        if (enableColumnResize && hasResizeColumnSizing) {
+        if (enableColumnSettings && hasResizeColumnSizing) {
           return (
             <col
               key={column.id}
@@ -486,22 +506,18 @@ function FastTablePaginatedContent<DataType>({
     <div
       className={`fast-table ${shouldShowEmpty ? "empty" : ""} ${
         useVirtualScroll ? "virtual-scroll" : ""
-      } ${enableColumnResize ? "has-column-resize" : ""} ${
+      } ${enableColumnSettings ? "has-column-resize" : ""} ${
         isResizingColumn ? "is-column-resizing" : ""
       }`}
       style={fastTableTokenStyle}
     >
-      {showTableLayoutToolbar && (
-        <div className="fast-table-toolbar">
-          <Dropdown menu={{ items: tableViewMenuItems }} trigger={["click"]}>
-            <Button
-              type="text"
-              className="fast-table-toolbar-button"
-              icon={<MoreOutlined />}
-              aria-label={tableLocale.tableViewMenu}
-            />
-          </Dropdown>
-        </div>
+      {enableColumnSettings && (
+        <FastTableToolbar
+          locale={tableLocale}
+          canResetColumnWidths={hasPersistedSizing}
+          onResetColumnWidths={resetColumnSizing}
+          columnSettings={columnSettings}
+        />
       )}
       <FastTableRefreshAlert loader={loader} />
       <Spin
@@ -554,7 +570,7 @@ function FastTablePaginatedContent<DataType>({
               hasLockedColumnWidths={hasLockedColumnWidths}
               lockedColumnSizes={lockedColumnSizes}
               lockedColumnsTotalWidth={lockedColumnsTotalWidth}
-              enableColumnResize={enableColumnResize}
+              enableColumnResize={enableColumnSettings}
               columnSizing={columnSizing}
               columnWidths={columnWidths}
               leafColumnIds={leafColumnIds}
