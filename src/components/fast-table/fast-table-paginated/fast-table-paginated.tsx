@@ -289,7 +289,7 @@ function FastTablePaginatedContent<DataType>({
     isResizingColumn,
   });
 
-  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnSettings;
+  const measureColumnWidthsEnabled = useVirtualScroll && !hasResizeColumnSizing;
   const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
     useFastTableVirtualization({
       enabled: useVirtualScroll,
@@ -382,7 +382,7 @@ function FastTablePaginatedContent<DataType>({
 
   const renderColGroup = () => (
     <colgroup>
-      {leafColumns.map((column, index) => {
+      {leafColumns.map((column) => {
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
@@ -393,7 +393,7 @@ function FastTablePaginatedContent<DataType>({
               key={column.id}
               style={getColWidthStyle(size, {
                 minWidth: explicitMinSize,
-                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+                maxWidth: meta?.maxWidth,
               })}
             />
           );
@@ -405,7 +405,7 @@ function FastTablePaginatedContent<DataType>({
               key={column.id}
               style={getColWidthStyle(columnSizing[column.id] ?? column.getSize(), {
                 minWidth: resizeConstraintsById.get(column.id)?.minSize,
-                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+                maxWidth: meta?.maxWidth,
               })}
             />
           );
@@ -414,16 +414,10 @@ function FastTablePaginatedContent<DataType>({
         return (
           <col
             key={column.id}
-            style={getColWidthStyle(
-              resolveColumnWidth(
-                column,
-                useVirtualScroll ? columnWidths[`col-${index}`] : undefined
-              ),
-              {
-                minWidth: resolveColumnMinWidth(meta),
-                maxWidth: meta?.maxWidth,
-              }
-            )}
+            style={getColWidthStyle(resolveColumnWidth(column), {
+              minWidth: resolveColumnMinWidth(meta),
+              maxWidth: meta?.maxWidth,
+            })}
           />
         );
       })}

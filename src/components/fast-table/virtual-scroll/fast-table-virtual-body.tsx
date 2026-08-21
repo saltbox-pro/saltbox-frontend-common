@@ -37,6 +37,7 @@ type FastTableVirtualCellContext<DataType> = {
   hasLockedColumnWidths: boolean;
   lockedColumnSizes?: Record<string, number>;
   enableColumnResize: boolean;
+  hasResizeColumnSizing: boolean;
   columnSizing: Record<string, number>;
   columnWidths: Record<string, number>;
   actionLinkComponent?: CellActionLinkComponent;
@@ -49,6 +50,7 @@ function getVirtualCellWidthStyleFromContext<DataType>(
     hasLockedColumnWidths,
     lockedColumnSizes,
     enableColumnResize,
+    hasResizeColumnSizing,
     columnSizing,
     columnWidths,
   }: Omit<
@@ -60,15 +62,17 @@ function getVirtualCellWidthStyleFromContext<DataType>(
     return getVirtualCellWidthStyle(lockedColumnSizes?.[cell.column.id] ?? cell.column.getSize());
   }
 
-  if (enableColumnResize) {
+  if (enableColumnResize && hasResizeColumnSizing) {
     return getVirtualCellWidthStyle(columnSizing[cell.column.id] ?? cell.column.getSize());
   }
 
   const measuredWidth = columnWidths[`col-${index}`];
-  const resolvedWidth = resolveColumnWidth(cell.column, measuredWidth);
-  return getVirtualCellWidthStyle(
-    typeof resolvedWidth === "number" ? resolvedWidth : measuredWidth
-  );
+  if (measuredWidth !== undefined) {
+    return getVirtualCellWidthStyle(measuredWidth);
+  }
+
+  const declaredWidth = resolveColumnWidth(cell.column);
+  return getVirtualCellWidthStyle(typeof declaredWidth === "number" ? declaredWidth : undefined);
 }
 
 function renderFastTableCellContent<DataType>({
@@ -132,6 +136,7 @@ function renderFastTableVirtualCells<DataType>({
   hasLockedColumnWidths,
   lockedColumnSizes,
   enableColumnResize,
+  hasResizeColumnSizing,
   columnSizing,
   columnWidths,
   actionLinkComponent,
@@ -144,6 +149,7 @@ function renderFastTableVirtualCells<DataType>({
         hasLockedColumnWidths,
         lockedColumnSizes,
         enableColumnResize,
+        hasResizeColumnSizing,
         columnSizing,
         columnWidths,
       })}
@@ -340,6 +346,7 @@ export function FastTableVirtualBody<DataType>({
       hasLockedColumnWidths,
       lockedColumnSizes,
       enableColumnResize,
+      hasResizeColumnSizing,
       columnSizing,
       columnWidths,
       actionLinkComponent,
@@ -349,6 +356,7 @@ export function FastTableVirtualBody<DataType>({
       hasLockedColumnWidths,
       lockedColumnSizes,
       enableColumnResize,
+      hasResizeColumnSizing,
       columnSizing,
       columnWidths,
       actionLinkComponent,
