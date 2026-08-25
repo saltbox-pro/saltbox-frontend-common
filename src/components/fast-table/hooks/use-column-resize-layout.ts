@@ -32,7 +32,6 @@ type UseColumnResizeLayoutArgs<DataType> = {
   onColumnSizingChange: OnChangeFn<ColumnSizingState>;
   persistColumnSizing: (sizing: ColumnSizingState, columnIds?: string[]) => void;
   seedColumnSizingFromPixels: (pixelSizing: ColumnSizingState, replace?: boolean) => void;
-  replaceColumnSizingFromPixels: (pixelSizing: ColumnSizingState) => void;
   syncColumnSizingToColumns: (columnIds: string[]) => void;
 };
 
@@ -50,7 +49,6 @@ export function useColumnResizeLayout<DataType>({
   onColumnSizingChange,
   persistColumnSizing,
   seedColumnSizingFromPixels,
-  replaceColumnSizingFromPixels,
   syncColumnSizingToColumns,
 }: UseColumnResizeLayoutArgs<DataType>) {
   const [containerWidth, setContainerWidth] = useState(0);
@@ -188,7 +186,7 @@ export function useColumnResizeLayout<DataType>({
         return;
       }
 
-      replaceColumnSizingFromPixels(normalizedMeasured);
+      seedColumnSizingFromPixels(normalizedMeasured, true);
     });
   }, [
     allLeafColumnIds,
@@ -198,7 +196,6 @@ export function useColumnResizeLayout<DataType>({
     leafColumnIds,
     leafColumns,
     persistColumnSizing,
-    replaceColumnSizingFromPixels,
     resizeConstraintsById,
     seedColumnSizingFromPixels,
     tableContainerRef,

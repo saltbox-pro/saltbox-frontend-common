@@ -36,6 +36,7 @@ import {
 import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
 import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
+import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
@@ -169,7 +170,6 @@ function FastTableListedContent<DataType>({
     resetColumnSizing,
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
-    replaceColumnSizingFromPixels,
   } = usePersistedColumnSizing(enableColumnSettings ? tableId : undefined);
 
   const resizeColumns = useMemo(
@@ -262,7 +262,6 @@ function FastTableListedContent<DataType>({
       onColumnSizingChange: handleColumnSizingChange,
       persistColumnSizing,
       seedColumnSizingFromPixels,
-      replaceColumnSizingFromPixels,
       syncColumnSizingToColumns,
     });
 
@@ -317,6 +316,8 @@ function FastTableListedContent<DataType>({
     onApply: handleApplyColumnLayout,
   };
 
+  const declaredFillWidth = useDeclaredFillWidth(leafColumns);
+
   const renderColGroup = () => (
     <colgroup>
       {leafColumns.map((column) => {
@@ -348,10 +349,15 @@ function FastTableListedContent<DataType>({
           );
         }
 
+        const declaredWidth =
+          declaredFillWidth?.columnId === column.id
+            ? declaredFillWidth.width
+            : resolveColumnWidth(column);
+
         return (
           <col
             key={column.id}
-            style={getColWidthStyle(resolveColumnWidth(column), {
+            style={getColWidthStyle(declaredWidth, {
               minWidth: resolveColumnMinWidth(meta),
               maxWidth: meta?.maxWidth,
             })}

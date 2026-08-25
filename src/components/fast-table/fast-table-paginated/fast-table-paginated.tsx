@@ -37,6 +37,7 @@ import {
 import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
 import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
+import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
@@ -178,7 +179,6 @@ function FastTablePaginatedContent<DataType>({
     resetColumnSizing,
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
-    replaceColumnSizingFromPixels,
   } = usePersistedColumnSizing(enableColumnSettings ? tableId : undefined);
 
   const resizeColumns = useMemo(
@@ -320,7 +320,6 @@ function FastTablePaginatedContent<DataType>({
       onColumnSizingChange: handleColumnSizingChange,
       persistColumnSizing,
       seedColumnSizingFromPixels,
-      replaceColumnSizingFromPixels,
       syncColumnSizingToColumns,
     });
 
@@ -380,6 +379,8 @@ function FastTablePaginatedContent<DataType>({
   const shouldShowEmpty = !stableIsLoading && rows.length === 0;
   const shouldRenderVirtualRows = useVirtualScroll && rows.length > 0;
 
+  const declaredFillWidth = useDeclaredFillWidth(leafColumns);
+
   const renderColGroup = () => (
     <colgroup>
       {leafColumns.map((column) => {
@@ -411,10 +412,15 @@ function FastTablePaginatedContent<DataType>({
           );
         }
 
+        const declaredWidth =
+          declaredFillWidth?.columnId === column.id
+            ? declaredFillWidth.width
+            : resolveColumnWidth(column);
+
         return (
           <col
             key={column.id}
-            style={getColWidthStyle(resolveColumnWidth(column), {
+            style={getColWidthStyle(declaredWidth, {
               minWidth: resolveColumnMinWidth(meta),
               maxWidth: meta?.maxWidth,
             })}
