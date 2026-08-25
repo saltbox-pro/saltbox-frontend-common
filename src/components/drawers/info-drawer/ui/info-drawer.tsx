@@ -10,10 +10,14 @@ import {
 } from "react";
 
 import { Drawer, type DrawerProps } from "saltbox-common/components/antd-wrappers/drawer";
-import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
+import {
+  SwitchTransitionLayout,
+  TransitionLayout,
+} from "saltbox-common/components/transition-layout";
 
 import { InfoDrawerError } from "./info-drawer-error";
 import { InfoDrawerExtra } from "./info-drawer-extra";
+import { InfoDrawerLink } from "./info-drawer-link";
 import { InfoDrawerLoader } from "./info-drawer-loader";
 import { InfoDrawerTitle } from "./info-drawer-title";
 import styles from "./info-drawer.module.css";
@@ -26,6 +30,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   linkTo?: string;
   linkTitle?: string;
   linkComponent?: ComponentType<{ to: string; children: ReactNode }>;
+  linkPlacement?: "extra" | "title";
   errorMessage?: string | null;
   hasData?: boolean;
   transitionKey?: Key;
@@ -42,6 +47,7 @@ export function InfoDrawer({
   linkTo,
   linkTitle,
   linkComponent,
+  linkPlacement = "extra",
   errorMessage,
   loading,
   size = "large",
@@ -61,6 +67,12 @@ export function InfoDrawer({
   const layoutAnchorRef = useRef<HTMLDivElement>(null);
 
   const hasError = !loading && !!errorMessage;
+  const titleLink =
+    linkPlacement === "title" ? (
+      <TransitionLayout in={!loading} className={styles.headerActionsFade}>
+        <InfoDrawerLink to={linkTo} title={linkTitle} linkComponent={linkComponent} />
+      </TransitionLayout>
+    ) : null;
   const activeKey = useMemo(
     () => transitionKey ?? (hasError ? "error" : hasData ? "content" : "empty"),
     [hasData, hasError, transitionKey]
@@ -105,16 +117,18 @@ export function InfoDrawer({
           name={titleName}
           label={titleLabel}
           copyable={titleCopyable}
+          extra={titleLink}
         />
       }
       extra={
-        <InfoDrawerExtra
-          extra={extra}
-          to={linkTo}
-          title={linkTitle}
-          linkComponent={linkComponent}
-          loading={loading}
-        />
+        <TransitionLayout in={!loading} className={styles.headerActionsFade}>
+          <InfoDrawerExtra
+            extra={extra}
+            to={linkPlacement === "title" ? undefined : linkTo}
+            title={linkTitle}
+            linkComponent={linkComponent}
+          />
+        </TransitionLayout>
       }
       mask={mask}
       width={width}
