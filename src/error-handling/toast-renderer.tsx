@@ -27,6 +27,14 @@ export interface ToastRendererOptions {
   onNavigate?: (href: string) => void;
 }
 
+function renderToastDescription(detail: ToastEventDetail) {
+  return detail.description?.includes("\n") ? (
+    <span style={{ whiteSpace: "pre-line" }}>{detail.description}</span>
+  ) : (
+    detail.description
+  );
+}
+
 const ToastActionButtons = ({
   actions,
   onNavigate,
@@ -37,7 +45,7 @@ const ToastActionButtons = ({
   <Space>
     {actions.map((action) => (
       <Button
-        key={action.label}
+        key={`${action.label}:${action.href ?? ""}`}
         size="small"
         onClick={() => (action.href ? onNavigate?.(action.href) : action.onClick?.())}
       >
@@ -77,24 +85,25 @@ export function useToastRenderer(
         ? formatErrorCode(detail.errorCode.status, detail.errorCode.kind, t)
         : undefined;
       const hasRichContent = Boolean(codeLine || detail.debugText);
+      const description = hasRichContent ? (
+        <ToastContent
+          codeLine={codeLine}
+          description={detail.description}
+          debugText={detail.debugText}
+          expanded={expanded}
+          // разворачивая детали, закрепляем тост — иначе он исчезнет во время чтения
+          onExpand={() => render(detail, key, true)}
+          onCollapse={() => render(detail, key, false)}
+        />
+      ) : (
+        renderToastDescription(detail)
+      );
 
       api.open({
         type: detail.type,
         key,
         message: detail.title,
-        description: hasRichContent ? (
-          <ToastContent
-            codeLine={codeLine}
-            description={detail.description}
-            debugText={detail.debugText}
-            expanded={expanded}
-            // разворачивая детали, закрепляем тост — иначе он исчезнет во время чтения
-            onExpand={() => render(detail, key, true)}
-            onCollapse={() => render(detail, key, false)}
-          />
-        ) : (
-          detail.description
-        ),
+        description,
         duration: expanded ? 0 : (detail.durationSec ?? DURATION_SEC[detail.type]),
         btn: detail.actions?.length ? (
           <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />

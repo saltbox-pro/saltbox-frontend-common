@@ -1,0 +1,14 @@
+import type { StoredProcessNotice } from "./apply-process-notice-event";
+
+export function getProcessNoticeRenderRevision(notice: StoredProcessNotice): string {
+  return [
+    notice.title,
+    notice.tone,
+    notice.description ?? "",
+    notice.meta ?? "",
+    notice.canClose ? "1" : "0",
+    notice.busy ? "1" : "0",
+    notice.durationSec == null ? "" : String(notice.durationSec),
+    JSON.stringify(notice.chips ?? null),
+  ].join("\0");
+}
