@@ -1,7 +1,7 @@
-import { Button, Space } from "antd";
+import { Button, Flex, Space } from "antd";
 import type { MessageInstance } from "antd/es/message/interface";
 import type { NotificationInstance } from "antd/es/notification/interface";
-import { useCallback } from "react";
+import { useCallback, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ToastAction, ToastEventDetail, ToastType } from "../interfaces/ui-events";
@@ -16,6 +16,19 @@ const DURATION_SEC: Record<ToastType, number> = {
   success: 3,
   info: 3,
 };
+
+/** Message с кнопкой: даём время нажать действие. */
+const MESSAGE_WITH_ACTIONS_DURATION_SEC = 8;
+
+function resolveToastDurationSec(detail: ToastEventDetail): number {
+  if (detail.durationSec != null) {
+    return detail.durationSec;
+  }
+  if (detail.surface === "message" && detail.actions?.length) {
+    return Math.max(DURATION_SEC[detail.type], MESSAGE_WITH_ACTIONS_DURATION_SEC);
+  }
+  return DURATION_SEC[detail.type];
+}
 
 /** Ключ для тостов без своего key: нужен, чтобы разворачивание деталей нашло свой тост. */
 let autoKeySeq = 0;
@@ -47,6 +60,7 @@ const ToastActionButtons = ({
       <Button
         key={`${action.label}:${action.href ?? ""}`}
         size="small"
+        type="default"
         onClick={() => (action.href ? onNavigate?.(action.href) : action.onClick?.())}
       >
         {action.label}
@@ -54,6 +68,22 @@ const ToastActionButtons = ({
     ))}
   </Space>
 );
+
+function renderMessageContent(
+  detail: ToastEventDetail,
+  onNavigate?: (href: string) => void
+): ReactNode {
+  if (!detail.actions?.length) {
+    return detail.title;
+  }
+
+  return (
+    <Flex align="center" gap={8} wrap>
+      <span>{detail.title}</span>
+      <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />
+    </Flex>
+  );
+}
 
 /**
  * Отрисовка одного тоста поверх antd-инстансов. Живёт в общей библиотеке, чтобы
@@ -70,13 +100,12 @@ export function useToastRenderer(
 
   const render = useCallback(
     (detail: ToastEventDetail, key: string, expanded: boolean) => {
-      // лёгкая поверхность: короткая строка по центру сверху (подтверждения копирования)
       if (detail.surface === "message") {
         messageApi.open({
           type: detail.type,
           key,
-          content: detail.title,
-          duration: detail.durationSec ?? DURATION_SEC[detail.type],
+          content: renderMessageContent(detail, onNavigate),
+          duration: resolveToastDurationSec(detail),
         });
         return;
       }
@@ -104,7 +133,7 @@ export function useToastRenderer(
         key,
         message: detail.title,
         description,
-        duration: expanded ? 0 : (detail.durationSec ?? DURATION_SEC[detail.type]),
+        duration: expanded ? 0 : resolveToastDurationSec(detail),
         btn: detail.actions?.length ? (
           <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />
         ) : undefined,

@@ -31,8 +31,7 @@ export type ToastType = "success" | "error" | "info" | "warning";
 /**
  * Как показать сообщение:
  * - notification — угловой стек с описанием, действиями и деталями (ошибки);
- * - message — лёгкая строка по центру сверху для коротких подтверждений (копирование).
- *   В этом режиме используется только title.
+ * - message — строка по центру сверху (короткие подтверждения). Поддерживает title и actions.
  */
 export type ToastSurface = "notification" | "message";
 
