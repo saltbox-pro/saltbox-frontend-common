@@ -243,7 +243,8 @@ function FastTableListedContent<DataType>({
   usePersistedSorting({
     tableId: enableColumnSettings ? tableId : undefined,
     sorting,
-    columnIds: leafColumnIds,
+    allColumnIds: allLeafColumnIds,
+    isLoading,
     onRestoreSorting: (restoredSorting) => onSortingChange?.(restoredSorting),
   });
 

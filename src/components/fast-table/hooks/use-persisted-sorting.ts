@@ -12,17 +12,20 @@ import {
 export type UsePersistedSortingArgs = {
   tableId?: string;
   sorting?: SortingState;
-  columnIds: string[];
+  allColumnIds: string[];
+  isLoading?: boolean;
   onRestoreSorting: (sorting: SortingState) => void;
 };
 
 export function usePersistedSorting({
   tableId,
   sorting,
-  columnIds,
+  allColumnIds,
+  isLoading = false,
   onRestoreSorting,
 }: UsePersistedSortingArgs) {
   const hasRestoredRef = useRef(false);
+  const hasStartedLoadingRef = useRef(false);
   const lastSavedKeyRef = useRef<string | undefined>(undefined);
   const previousTableIdRef = useRef(tableId);
   const onRestoreSortingRef = useRef(onRestoreSorting);
@@ -31,12 +34,18 @@ export function usePersistedSorting({
   if (previousTableIdRef.current !== tableId) {
     previousTableIdRef.current = tableId;
     hasRestoredRef.current = false;
+    hasStartedLoadingRef.current = false;
     lastSavedKeyRef.current = undefined;
+  }
+
+  if (isLoading) {
+    hasStartedLoadingRef.current = true;
   }
 
   useEffect(() => {
     if (!tableId || !sorting || hasRestoredRef.current) return;
-    if (columnIds.length === 0) return;
+    if (allColumnIds.length === 0) return;
+    if (isLoading || !hasStartedLoadingRef.current) return;
 
     hasRestoredRef.current = true;
     lastSavedKeyRef.current = serializeColumnSorting(sorting);
@@ -44,11 +53,11 @@ export function usePersistedSorting({
     const saved = loadColumnSorting(tableId);
     if (!saved) return;
 
-    const restored = pruneColumnSorting(saved, columnIds);
+    const restored = pruneColumnSorting(saved, allColumnIds);
     if (restored.length === 0 || isSameColumnSorting(restored, sorting)) return;
 
     onRestoreSortingRef.current(restored);
-  }, [columnIds, sorting, tableId]);
+  }, [allColumnIds, isLoading, sorting, tableId]);
 
   useEffect(() => {
     if (!tableId || !sorting || !hasRestoredRef.current) return;

@@ -279,7 +279,8 @@ function FastTablePaginatedContent<DataType>({
   usePersistedSorting({
     tableId: enableColumnSettings ? tableId : undefined,
     sorting,
-    columnIds: leafColumnIds,
+    allColumnIds: allLeafColumnIds,
+    isLoading,
     onRestoreSorting: (restoredSorting) => onLazyLoad(pagination, restoredSorting),
   });
 
