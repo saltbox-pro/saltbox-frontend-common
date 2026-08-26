@@ -47,7 +47,6 @@ import {
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
 import { usePersistedColumnSizing } from "../hooks/use-persisted-column-sizing";
-import { usePersistedSorting } from "../hooks/use-persisted-sorting";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import type { CellActionLinkComponent, CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -275,14 +274,6 @@ function FastTablePaginatedContent<DataType>({
   const visibleColumnCount = leafColumnIds.length;
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
   const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
-
-  usePersistedSorting({
-    tableId: enableColumnSettings ? tableId : undefined,
-    sorting,
-    allColumnIds: allLeafColumnIds,
-    isLoading,
-    onRestoreSorting: (restoredSorting) => onLazyLoad(pagination, restoredSorting),
-  });
 
   const columnSizingKey = useFastTableVirtualColumnSizingKey({
     useVirtualScroll,
