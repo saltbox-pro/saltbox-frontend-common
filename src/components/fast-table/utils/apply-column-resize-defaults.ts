@@ -2,7 +2,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import type { CellMeta } from "../types";
 
-export const COLUMN_RESIZE_MAX_SIZE = 1200;
 export const COLUMN_RESIZE_MIN_SIZE = 80;
 
 function isColumnWidthLocked(meta: CellMeta | undefined): boolean {
@@ -29,7 +28,7 @@ export function applyColumnResizeDefaults<TData>(
       enableResizing: column.enableResizing ?? !locked,
       size: column.size ?? (typeof meta?.width === "number" ? meta.width : undefined),
       minSize,
-      maxSize: column.maxSize ?? meta?.maxWidth ?? COLUMN_RESIZE_MAX_SIZE,
+      maxSize: column.maxSize ?? meta?.maxWidth,
     };
   });
 }
