@@ -1,8 +1,16 @@
-import { Flex, Tag } from "antd";
+import { Button, Flex, Tag } from "antd";
 
 import type { StoredProcessNotice } from "./apply-process-notice-event";
 
-export function ProcessNoticeDescription({ notice }: { notice: StoredProcessNotice }) {
+type ProcessNoticeDescriptionProps = {
+  notice: StoredProcessNotice;
+  onNavigate?: (href: string) => void;
+};
+
+export function ProcessNoticeDescription({ notice, onNavigate }: ProcessNoticeDescriptionProps) {
+  const footerAction = notice.footer?.action;
+  const hasFooter = Boolean(notice.footer?.left || footerAction);
+
   return (
     <Flex vertical gap={8}>
       {!!notice.description && <span style={{ whiteSpace: "pre-line" }}>{notice.description}</span>}
@@ -16,6 +24,26 @@ export function ProcessNoticeDescription({ notice }: { notice: StoredProcessNoti
         </Flex>
       )}
       {!!notice.meta && <span style={{ marginTop: 12 }}>{notice.meta}</span>}
+      {hasFooter && (
+        <Flex
+          justify={notice.footer?.left ? "space-between" : "flex-end"}
+          align="center"
+          gap={12}
+          style={{ marginTop: 12 }}
+        >
+          {!!notice.footer?.left && <span>{notice.footer.left}</span>}
+          {footerAction && (
+            <Button
+              size="small"
+              onClick={() => {
+                onNavigate?.(footerAction.href);
+              }}
+            >
+              {footerAction.label}
+            </Button>
+          )}
+        </Flex>
+      )}
     </Flex>
   );
 }

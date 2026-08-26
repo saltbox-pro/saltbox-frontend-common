@@ -36,7 +36,11 @@ export class WebSocketService<T> {
   connect = (
     url: string,
     accessToken: string | null,
-    events: { onMessage?: (update: Array<WebSocketMessage<T>>) => void; onOpen?: () => void }
+    events: {
+      onMessage?: (update: Array<WebSocketMessage<T>>) => void;
+      onOpen?: () => void;
+      onClose?: () => void;
+    }
   ) => {
     try {
       this.ws = new WebSocket(url);
@@ -63,6 +67,7 @@ export class WebSocketService<T> {
 
       this.ws.onclose = () => {
         this.clearBuffer();
+        events?.onClose?.();
       };
 
       this.ws.onerror = (error) => {

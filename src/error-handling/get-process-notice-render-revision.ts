@@ -6,6 +6,7 @@ export function getProcessNoticeRenderRevision(notice: StoredProcessNotice): str
     notice.tone,
     notice.description ?? "",
     notice.meta ?? "",
+    JSON.stringify(notice.footer ?? null),
     notice.canClose ? "1" : "0",
     notice.busy ? "1" : "0",
     notice.durationSec == null ? "" : String(notice.durationSec),

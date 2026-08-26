@@ -19,6 +19,8 @@ export enum UiEvent {
   MinionDataRefreshed = "ui.minion_data_refreshed",
   /** Состояние пунктов `minion.detail.actions` изменилось (busy / disabled). */
   MinionDetailActionsChanged = "ui.minion_detail_actions_changed",
+  /** Состояние пунктов `minions.actions` изменилось (busy / disabled). */
+  MinionsActionsChanged = "ui.minions_actions_changed",
   LocaleChange = "saltbox:locale-change",
 }
 
@@ -106,12 +108,23 @@ export type ProcessNoticeChip = {
   color?: string;
 };
 
+export type ProcessNoticeFooterAction = {
+  label: string;
+  href: string;
+};
+
+export type ProcessNoticeFooter = {
+  left?: string;
+  action?: ProcessNoticeFooterAction;
+};
+
 export type ProcessNoticeUpsertDetail = {
   action: "upsert";
   key: string;
   title: string;
   description?: string;
   meta?: string;
+  footer?: ProcessNoticeFooter;
   tone?: ProcessNoticeTone;
   busy?: boolean;
   canClose: boolean;

@@ -1,6 +1,7 @@
 import type {
   ProcessNoticeChip,
   ProcessNoticeEventDetail,
+  ProcessNoticeFooter,
   ProcessNoticeTone,
 } from "../interfaces/ui-events";
 
@@ -8,6 +9,7 @@ export type StoredProcessNotice = {
   title: string;
   description?: string;
   meta?: string;
+  footer?: ProcessNoticeFooter;
   tone: ProcessNoticeTone;
   canClose: boolean;
   busy: boolean;
@@ -34,6 +36,7 @@ export function applyProcessNoticeEvent(
     title: detail.title,
     description: detail.description,
     meta: detail.meta,
+    footer: detail.footer,
     tone: detail.tone ?? "info",
     canClose: detail.canClose,
     busy: Boolean(detail.busy),
