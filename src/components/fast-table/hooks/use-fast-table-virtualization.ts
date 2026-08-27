@@ -63,6 +63,7 @@ export type UseFastTableVirtualizationOptions<DataType> = {
   rows: Array<Row<DataType>>;
   columnCount: number;
   columnSizingKey: string;
+  columnLayoutKey: string;
   measureColumnWidthsEnabled: boolean;
   overscan?: number;
   estimatedRowHeight?: number;
@@ -76,6 +77,7 @@ export function useFastTableVirtualization<DataType>({
   rows,
   columnCount,
   columnSizingKey,
+  columnLayoutKey,
   measureColumnWidthsEnabled,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
@@ -124,6 +126,7 @@ export function useFastTableVirtualization<DataType>({
     }
   }, [
     columnCount,
+    columnLayoutKey,
     columnSizingKey,
     data,
     enabled,

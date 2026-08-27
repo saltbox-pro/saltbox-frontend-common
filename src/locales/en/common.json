@@ -157,7 +157,9 @@
     "clear-sort": "Clear sort",
     "total": "Total:",
     "table-view-menu": "Table view",
-    "reset-column-widths": "Reset column widths"
+    "reset-column-widths": "Reset column widths",
+    "column-settings": "Change columns",
+    "column-settings-apply": "Apply"
   },
   "file-browser": {
     "empty": "Directory is empty",

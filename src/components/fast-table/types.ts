@@ -17,6 +17,7 @@ export type CellAction<T = any> = {
 };
 
 export type CellMeta<T = any> = {
+  columnTitle?: string;
   showCopy?: boolean;
   copyValue?: (row: T) => string;
   renderCopy?: (row: T) => ReactNode;

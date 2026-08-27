@@ -5,6 +5,7 @@ export function createSelectColumn<TData>(): ColumnDef<TData> {
   return {
     id: "select",
     enableResizing: false,
+    enableHiding: false,
     header: ({ table }) => (
       <Checkbox
         className="prevent-row-click"

@@ -61,11 +61,6 @@ export function usePersistedColumnSizing(tableId?: string) {
     []
   );
 
-  const replaceColumnSizingFromPixels = useCallback((pixelSizing: ColumnSizingState) => {
-    columnSizingRef.current = pixelSizing;
-    setColumnSizing(pixelSizing);
-  }, []);
-
   const syncColumnSizingToColumns = useCallback(
     (columnIds: string[]) => {
       const prunedSizing = pruneColumnSizing(columnSizingRef.current, columnIds);
@@ -125,6 +120,5 @@ export function usePersistedColumnSizing(tableId?: string) {
     resetColumnSizing,
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
-    replaceColumnSizingFromPixels,
   };
 }
