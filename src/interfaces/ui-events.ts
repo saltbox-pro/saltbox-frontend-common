@@ -96,15 +96,10 @@ export type UploadNoticeEventDetail =
 
 export type ProcessNoticeTone = "success" | "error" | "info" | "warning";
 
-/**
- * Чип фонового процесса. Настраивается вызывающей стороной:
- * label/count/color без привязки к конкретной доменной фиче.
- */
 export type ProcessNoticeChip = {
   id: string;
   label: string;
   count?: number;
-  /** Цвет antd Tag: green, red, orange, blue, default, ... */
   color?: string;
 };
 
@@ -118,21 +113,24 @@ export type ProcessNoticeFooter = {
   action?: ProcessNoticeFooterAction;
 };
 
+export type ProcessNoticeAlert = {
+  type: Extract<ProcessNoticeTone, "error" | "warning" | "info" | "success">;
+  message: string;
+};
+
 export type ProcessNoticeUpsertDetail = {
   action: "upsert";
   key: string;
   title: string;
   description?: string;
   meta?: string;
+  alert?: ProcessNoticeAlert;
   footer?: ProcessNoticeFooter;
   tone?: ProcessNoticeTone;
   busy?: boolean;
   canClose: boolean;
-  /** Сбросить ручное закрытие и снова показать карточку с этим key. */
   reopen?: boolean;
-  /** Секунды до автозакрытия; `null`/omit — без автозакрытия. */
   durationSec?: number | null;
-  /** Полный снимок: пропуск optional-поля сбрасывает его (в отличие от upload patch). */
   chips?: ProcessNoticeChip[];
   onClose?: () => void;
 };

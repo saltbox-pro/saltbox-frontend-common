@@ -1,4 +1,5 @@
 import type {
+  ProcessNoticeAlert,
   ProcessNoticeChip,
   ProcessNoticeEventDetail,
   ProcessNoticeFooter,
@@ -9,6 +10,7 @@ export type StoredProcessNotice = {
   title: string;
   description?: string;
   meta?: string;
+  alert?: ProcessNoticeAlert;
   footer?: ProcessNoticeFooter;
   tone: ProcessNoticeTone;
   canClose: boolean;
@@ -36,6 +38,7 @@ export function applyProcessNoticeEvent(
     title: detail.title,
     description: detail.description,
     meta: detail.meta,
+    alert: detail.alert,
     footer: detail.footer,
     tone: detail.tone ?? "info",
     canClose: detail.canClose,

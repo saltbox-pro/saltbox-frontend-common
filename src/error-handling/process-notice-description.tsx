@@ -1,6 +1,8 @@
-import { Button, Flex, Tag } from "antd";
+import { Alert, Button, Flex, Tag } from "antd";
 
 import type { StoredProcessNotice } from "./apply-process-notice-event";
+
+import styles from "./process-notice-description.module.css";
 
 type ProcessNoticeDescriptionProps = {
   notice: StoredProcessNotice;
@@ -14,6 +16,14 @@ export function ProcessNoticeDescription({ notice, onNavigate }: ProcessNoticeDe
   return (
     <Flex vertical gap={8}>
       {!!notice.description && <span style={{ whiteSpace: "pre-line" }}>{notice.description}</span>}
+      {!!notice.alert && (
+        <Alert
+          className={styles.alert}
+          type={notice.alert.type}
+          showIcon
+          message={notice.alert.message}
+        />
+      )}
       {!!notice.chips?.length && (
         <Flex gap={8} wrap="wrap">
           {notice.chips.map((chip) => (
