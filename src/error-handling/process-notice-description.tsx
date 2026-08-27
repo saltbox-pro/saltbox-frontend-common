@@ -29,7 +29,7 @@ export function ProcessNoticeDescription({ notice, onNavigate }: ProcessNoticeDe
           justify={notice.footer?.left ? "space-between" : "flex-end"}
           align="center"
           gap={12}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 5 }}
         >
           {!!notice.footer?.left && <span>{notice.footer.left}</span>}
           {footerAction && (
