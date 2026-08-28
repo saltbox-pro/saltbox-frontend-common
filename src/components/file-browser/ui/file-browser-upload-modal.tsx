@@ -5,7 +5,7 @@ import { Modal } from "../../antd-wrappers/modal";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserMessages } from "../hooks/use-file-browser-messages";
 import type { FileBrowserUploadFileHandler, FileBrowserUploadItem } from "../model/upload-types";
-import { hasActiveFileBrowserUpload } from "../utils/has-active-file-browser-upload";
+import { hasActiveFileBrowserTransfer } from "../utils/has-active-file-browser-transfer";
 
 import { FileBrowserUploadList } from "./file-browser-upload-list";
 import styles from "./file-browser.module.css";
@@ -40,7 +40,7 @@ export const FileBrowserUploadModal = observer(function FileBrowserUploadModal<
   const { actionLabels, uploadLabels } = useFileBrowserMessages();
 
   const handleClose = () => {
-    if (!hasActiveFileBrowserUpload(uploads)) {
+    if (!hasActiveFileBrowserTransfer(uploads)) {
       onClearFinished();
     }
     onClose();

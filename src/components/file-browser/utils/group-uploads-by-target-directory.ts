@@ -1,6 +1,6 @@
-import type { FileBrowserUploadItem } from "../model/upload-types";
+import type { FileBrowserTransferItem } from "../model/upload-types";
 
-export function groupUploadsByTargetDirectory<TItem extends FileBrowserUploadItem>(
+export function groupUploadsByTargetDirectory<TItem extends FileBrowserTransferItem>(
   uploads: ReadonlyMap<string, TItem>
 ): Array<{ path: string | null; items: Map<string, TItem> }> {
   const groups = new Map<string | null, Map<string, TItem>>();

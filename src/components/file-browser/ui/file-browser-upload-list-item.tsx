@@ -3,7 +3,11 @@ import { observer } from "mobx-react-lite";
 
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserMessages } from "../hooks/use-file-browser-messages";
-import type { FileBrowserUploadItem } from "../model/upload-types";
+import {
+  isFileBrowserTransferCancellable,
+  isFileBrowserTransferInProgress,
+  type FileBrowserTransferItem,
+} from "../model/upload-types";
 import { formatFileBrowserSize } from "../utils/format-file-browser-size";
 
 import { FileBrowserUploadStatusIcon } from "./file-browser-upload-status-icon";
@@ -11,9 +15,9 @@ import styles from "./file-browser.module.css";
 
 export interface FileBrowserUploadListItemProps {
   uploadId: string;
-  upload: FileBrowserUploadItem;
+  upload: FileBrowserTransferItem;
   onCancelUpload: (uploadId: string) => void;
-  formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  formatError?: (errorCode: string, upload: FileBrowserTransferItem) => string | undefined;
 }
 
 export const FileBrowserUploadListItem = observer(function FileBrowserUploadListItem({
@@ -24,12 +28,19 @@ export const FileBrowserUploadListItem = observer(function FileBrowserUploadList
 }: FileBrowserUploadListItemProps) {
   const { translateError } = useFileBrowserMessages();
 
-  const percent =
-    upload.status === "done"
-      ? 100
-      : upload.total > 0
-        ? Math.round((upload.loaded / upload.total) * 100)
-        : 0;
+  const isDone = upload.status === "done";
+  const percent = isDone
+    ? 100
+    : upload.total > 0
+      ? Math.round((upload.loaded / upload.total) * 100)
+      : 0;
+  const sizeLoaded = isDone && upload.total > 0 ? upload.total : upload.loaded;
+  const showProgress = upload.status !== "error";
+  const progressStatus = isDone
+    ? "success"
+    : isFileBrowserTransferInProgress(upload.status)
+      ? "active"
+      : "normal";
   const errorText =
     upload.status === "error" && upload.error != null && upload.error !== ""
       ? (formatError?.(upload.error, upload) ?? translateError(upload.error) ?? upload.error)
@@ -53,12 +64,12 @@ export const FileBrowserUploadListItem = observer(function FileBrowserUploadList
           {upload.fileName}
         </span>
         <span className={styles.uploadSize}>
-          {upload.status === "done" || upload.status === "queued"
+          {upload.status === "queued"
             ? formatFileBrowserSize(upload.total)
-            : `${formatFileBrowserSize(upload.loaded)} / ${formatFileBrowserSize(upload.total)}`}
+            : `${formatFileBrowserSize(sizeLoaded)} / ${formatFileBrowserSize(upload.total)}`}
         </span>
         <span className={styles.uploadCancelSlot}>
-          {upload.status === "uploading" || upload.status === "queued" ? (
+          {isFileBrowserTransferCancellable(upload.status) ? (
             <Button
               type="text"
               size="small"
@@ -69,12 +80,12 @@ export const FileBrowserUploadListItem = observer(function FileBrowserUploadList
           ) : null}
         </span>
       </div>
-      {upload.status === "uploading" && (
+      {showProgress && (
         <Progress
           percent={percent}
           size="small"
           showInfo={false}
-          status="active"
+          status={progressStatus}
           className={styles.uploadProgressBar}
         />
       )}

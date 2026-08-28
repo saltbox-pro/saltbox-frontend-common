@@ -214,6 +214,7 @@
       "new-name-placeholder": "New name"
     },
     "download": {
+      "title": "Downloading files",
       "started": "Preparing file for download",
       "success": "File is ready for download",
       "cancelled": "Download cancelled",
@@ -246,6 +247,13 @@
     "notifications": {
       "file-too-large": "File is too large to preview",
       "file-size-invalid": "Unable to determine the file size for preview",
+      "file-too-large-to-download": "File is too large to download",
+      "file-size-invalid-for-download": "Unable to determine the file size for download",
+      "download-unavailable": "Download is unavailable",
+      "download-already-in-progress": "This file is already being downloaded",
+      "upload-already-in-progress": "This file is already being uploaded",
+      "download-transfer-error": "Failed to download the file",
+      "download-from-fileserver-error": "Failed to fetch the file from File Manager",
       "binary-not-supported": "Previewing binary files is not supported",
       "file-read-error": "Failed to read the file",
       "file-too-large-to-save": "File is too large to save",

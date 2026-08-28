@@ -1,5 +1,5 @@
-import { ToastEventDetail, ToastSurface, ToastType, UiEvent } from "../interfaces/ui-events";
-import { publish, subscribe } from "../utils/custom-events";
+import { ToastEventDetail, ToastSurface, ToastType, UiEvent } from "../../interfaces/ui-events";
+import { publish, subscribe } from "../../utils/custom-events";
 
 declare global {
   interface Window {

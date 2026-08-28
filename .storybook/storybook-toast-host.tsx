@@ -1,9 +1,9 @@
 import { message, notification } from "antd";
 import { useEffect } from "react";
 
-import { useUploadNoticeHost } from "../src/components/file-browser/hooks/use-upload-notice-host";
-import { useProcessNoticeHost } from "../src/error-handling/use-process-notice-host";
-import { useToastRenderer } from "../src/error-handling/toast-renderer";
+import { useFileTransferNoticeHost } from "../src/components/file-browser/hooks/use-file-transfer-notice-host";
+import { useProcessNoticeHost } from "../src/notifications/ui/use-process-notice-host";
+import { useToastRenderer } from "../src/notifications/ui/toast-renderer";
 import { ToastEventDetail, UiEvent } from "../src/interfaces/ui-events";
 import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
 
@@ -14,7 +14,7 @@ import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
  */
 export const StorybookToastHost = () => {
   const [notificationApi, notificationHolder] = notification.useNotification({ maxCount: 5 });
-  const [uploadNotificationApi, uploadNotificationHolder] = notification.useNotification({
+  const [fileTransferNoticeApi, fileTransferNoticeHolder] = notification.useNotification({
     placement: "bottomRight",
     maxCount: 12,
     stack: false,
@@ -25,8 +25,8 @@ export const StorybookToastHost = () => {
     onNavigate: (href) => window.open(href, "_self"),
   });
 
-  useUploadNoticeHost(uploadNotificationApi);
-  useProcessNoticeHost(uploadNotificationApi);
+  useFileTransferNoticeHost(fileTransferNoticeApi);
+  useProcessNoticeHost(fileTransferNoticeApi);
 
   useEffect(() => {
     const listener = (event: Event) => {
@@ -48,7 +48,7 @@ export const StorybookToastHost = () => {
   return (
     <>
       {notificationHolder}
-      {uploadNotificationHolder}
+      {fileTransferNoticeHolder}
       {messageHolder}
     </>
   );

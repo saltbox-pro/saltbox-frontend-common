@@ -1,24 +1,7 @@
-import type {
-  ProcessNoticeAlert,
-  ProcessNoticeChip,
-  ProcessNoticeEventDetail,
-  ProcessNoticeFooter,
-  ProcessNoticeTone,
-} from "../interfaces/ui-events";
+import type { ProcessNoticeEventDetail } from "../../interfaces/ui-events";
+import type { StoredProcessNotice } from "../model/stored-process-notice";
 
-export type StoredProcessNotice = {
-  title: string;
-  description?: string;
-  meta?: string;
-  alert?: ProcessNoticeAlert;
-  footer?: ProcessNoticeFooter;
-  tone: ProcessNoticeTone;
-  canClose: boolean;
-  busy: boolean;
-  durationSec: number | null;
-  chips?: ProcessNoticeChip[];
-  onClose?: () => void;
-};
+export type { StoredProcessNotice } from "../model/stored-process-notice";
 
 export function applyProcessNoticeEvent(
   prev: Map<string, StoredProcessNotice>,
