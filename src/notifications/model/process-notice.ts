@@ -2,8 +2,8 @@ import {
   UiEvent,
   type ProcessNoticeEventDetail,
   type ProcessNoticeUpsertDetail,
-} from "../interfaces/ui-events";
-import { publish, subscribe } from "../utils/custom-events";
+} from "../../interfaces/ui-events";
+import { publish, subscribe } from "../../utils/custom-events";
 
 declare global {
   interface Window {

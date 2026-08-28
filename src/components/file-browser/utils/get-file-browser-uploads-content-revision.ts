@@ -1,7 +1,7 @@
-import type { FileBrowserUploadItem } from "../model/upload-types";
+import type { FileBrowserTransferItem } from "../model/upload-types";
 
 export function getFileBrowserUploadsContentRevision(
-  uploads: ReadonlyMap<string, FileBrowserUploadItem>
+  uploads: ReadonlyMap<string, FileBrowserTransferItem>
 ): string {
   return Array.from(uploads.entries())
     .map(
@@ -9,4 +9,14 @@ export function getFileBrowserUploadsContentRevision(
         `${id}:${upload.status}:${upload.loaded}:${upload.total}:${upload.error ?? ""}:${upload.targetDirectory ?? ""}`
     )
     .join("|");
+}
+
+export function getFileTransferNoticeRenderRevision(notice: {
+  title: string;
+  canClose: boolean;
+  transfers: Iterable<readonly [string, FileBrowserTransferItem]>;
+}): string {
+  return `${notice.title}\0${notice.canClose ? "1" : "0"}\0${getFileBrowserUploadsContentRevision(
+    new Map(notice.transfers)
+  )}`;
 }

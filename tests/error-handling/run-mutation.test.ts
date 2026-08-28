@@ -5,12 +5,12 @@ vi.mock("../../src/utils/custom-events", () => ({
   subscribe: vi.fn(),
   unsubscribe: vi.fn(),
 }));
-vi.mock("../../src/error-handling/notify", () => ({
+vi.mock("../../src/notifications/model/notify", () => ({
   notify: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
 
 import { applyValidationErrors } from "../../src/error-handling/apply-validation-errors";
-import { notify } from "../../src/error-handling/notify";
+import { notify } from "../../src/notifications/model/notify";
 import { runMutation } from "../../src/error-handling/run-mutation";
 
 function responseError(status: number, body?: unknown): Error {

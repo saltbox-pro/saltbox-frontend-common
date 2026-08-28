@@ -1,4 +1,4 @@
-import type { FileBrowserUploadItem } from "../components/file-browser/model/upload-types";
+import type { FileBrowserTransferItem } from "../components/file-browser/model/upload-types";
 import type { AppErrorKind } from "../error-handling/app-error";
 
 export enum UiEvent {
@@ -10,8 +10,8 @@ export enum UiEvent {
   UnhandledLoadError = "ui.unhandled_load_error",
   Toast = "ui.toast",
   ToastHostReady = "ui.toast_host_ready",
-  UploadNotice = "ui.upload_notice",
-  UploadNoticeHostReady = "ui.upload_notice_host_ready",
+  FileTransferNotice = "ui.file_transfer_notice",
+  FileTransferNoticeHostReady = "ui.file_transfer_notice_host_ready",
   ProcessNotice = "ui.process_notice",
   ProcessNoticeHostReady = "ui.process_notice_host_ready",
   AcceptedMastersChanged = "ui.accepted_masters_changed",
@@ -65,34 +65,34 @@ export interface ToastEventDetail {
   source?: string;
 }
 
-export type UploadNoticeUpsertDetail = {
+export type FileTransferNoticeUpsertDetail = {
   action: "upsert";
   key: string;
   title: string;
   canClose: boolean;
-  uploads: Array<[string, FileBrowserUploadItem]>;
-  onCancelUpload: (uploadId: string) => void;
+  transfers: Array<[string, FileBrowserTransferItem]>;
+  onCancelTransfer: (transferId: string) => void;
   onClose: () => void;
-  formatError?: (errorCode: string, upload: FileBrowserUploadItem) => string | undefined;
+  formatError?: (errorCode: string, item: FileBrowserTransferItem) => string | undefined;
 };
 
-export type UploadNoticePatchDetail = {
+export type FileTransferNoticePatchDetail = {
   action: "patch";
   key: string;
   title?: string;
   canClose?: boolean;
-  uploads?: Array<[string, FileBrowserUploadItem]>;
+  transfers?: Array<[string, FileBrowserTransferItem]>;
 };
 
-export type UploadNoticeRemoveDetail = {
+export type FileTransferNoticeRemoveDetail = {
   action: "remove";
   key: string;
 };
 
-export type UploadNoticeEventDetail =
-  | UploadNoticeUpsertDetail
-  | UploadNoticePatchDetail
-  | UploadNoticeRemoveDetail;
+export type FileTransferNoticeEventDetail =
+  | FileTransferNoticeUpsertDetail
+  | FileTransferNoticePatchDetail
+  | FileTransferNoticeRemoveDetail;
 
 export type ProcessNoticeTone = "success" | "error" | "info" | "warning";
 

@@ -1,6 +1,6 @@
 import { Alert, Button, Flex, Tag } from "antd";
 
-import type { StoredProcessNotice } from "./apply-process-notice-event";
+import type { StoredProcessNotice } from "../model/stored-process-notice";
 
 import styles from "./process-notice-description.module.css";
 

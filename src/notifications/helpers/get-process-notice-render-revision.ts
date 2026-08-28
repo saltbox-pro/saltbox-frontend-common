@@ -1,4 +1,4 @@
-import type { StoredProcessNotice } from "./apply-process-notice-event";
+import type { StoredProcessNotice } from "../model/stored-process-notice";
 
 export function getProcessNoticeRenderRevision(notice: StoredProcessNotice): string {
   return [

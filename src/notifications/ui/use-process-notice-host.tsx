@@ -2,14 +2,15 @@ import { LoadingOutlined } from "@ant-design/icons";
 import type { NotificationInstance } from "antd/es/notification/interface";
 import { useEffect, useRef, useState } from "react";
 
-import { UiEvent, type ProcessNoticeEventDetail } from "../interfaces/ui-events";
-import { subscribe, unsubscribe } from "../utils/custom-events";
+import { UiEvent, type ProcessNoticeEventDetail } from "../../interfaces/ui-events";
+import { subscribe, unsubscribe } from "../../utils/custom-events";
+import { applyProcessNoticeEvent } from "../helpers/apply-process-notice-event";
+import { getProcessNoticeRenderRevision } from "../helpers/get-process-notice-render-revision";
+import { shouldApplyProcessNoticeEvent } from "../helpers/should-apply-process-notice-event";
+import { setProcessNoticeHostReady } from "../model/process-notice";
+import type { StoredProcessNotice } from "../model/stored-process-notice";
 
-import { applyProcessNoticeEvent, type StoredProcessNotice } from "./apply-process-notice-event";
-import { getProcessNoticeRenderRevision } from "./get-process-notice-render-revision";
-import { setProcessNoticeHostReady } from "./process-notice";
 import { ProcessNoticeDescription } from "./process-notice-description";
-import { shouldApplyProcessNoticeEvent } from "./should-apply-process-notice-event";
 
 /** Keep same-key update guard long enough for antd's async onClose. */
 const UPDATE_GUARD_MS = 300;

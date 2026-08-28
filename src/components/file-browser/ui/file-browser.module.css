@@ -307,12 +307,20 @@
   margin-top: 16px;
   max-height: 400px;
   overflow-y: auto;
+  box-sizing: border-box;
+  width: calc(100% + 16px);
+  margin-right: -16px;
+  padding-right: 16px;
 }
 
 .uploadListCompact {
-  max-height: 280px;
+  max-height: 228px;
   overflow-y: auto;
   min-width: 280px;
+  box-sizing: border-box;
+  width: calc(100% + 16px);
+  margin-right: -16px;
+  padding-right: 16px;
 }
 
 .uploadItem {

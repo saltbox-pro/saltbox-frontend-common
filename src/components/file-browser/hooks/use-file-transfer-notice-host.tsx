@@ -1,41 +1,35 @@
 import type { NotificationInstance } from "antd/es/notification/interface";
 import { useEffect, useRef, useState } from "react";
 
+import { UiEvent, type FileTransferNoticeEventDetail } from "../../../interfaces/ui-events";
 import {
-  applyUploadNoticeEvent,
-  type StoredUploadNotice,
-} from "../../../error-handling/apply-upload-notice-event";
-import { setUploadNoticeHostReady } from "../../../error-handling/upload-notice";
-import { UiEvent, type UploadNoticeEventDetail } from "../../../interfaces/ui-events";
+  applyFileTransferNoticeEvent,
+  type StoredFileTransferNotice,
+} from "../../../notifications/helpers/apply-file-transfer-notice-event";
+import { setFileTransferNoticeHostReady } from "../../../notifications/model/file-transfer-notice";
 import { subscribe, unsubscribe } from "../../../utils/custom-events";
 import { FileBrowserUploadNotificationBody } from "../ui/file-browser-upload-notification-body";
-import { getFileBrowserUploadsContentRevision } from "../utils/get-file-browser-uploads-content-revision";
+import { getFileTransferNoticeRenderRevision } from "../utils/get-file-browser-uploads-content-revision";
 
-function UploadNoticeDescription({ notice }: { notice: StoredUploadNotice }) {
+function FileTransferNoticeDescription({ notice }: { notice: StoredFileTransferNotice }) {
   return (
     <FileBrowserUploadNotificationBody
-      uploads={new Map(notice.uploads)}
-      onCancelUpload={notice.onCancelUpload}
+      uploads={new Map(notice.transfers)}
+      onCancelUpload={notice.onCancelTransfer}
       formatError={notice.formatError}
     />
   );
 }
 
-function getNoticeRenderRevision(notice: StoredUploadNotice): string {
-  return `${notice.title}\0${notice.canClose ? "1" : "0"}\0${getFileBrowserUploadsContentRevision(
-    new Map(notice.uploads)
-  )}`;
-}
-
-export function useUploadNoticeHost(notificationApi: NotificationInstance): void {
-  const [notices, setNotices] = useState(() => new Map<string, StoredUploadNotice>());
+export function useFileTransferNoticeHost(notificationApi: NotificationInstance): void {
+  const [notices, setNotices] = useState(() => new Map<string, StoredFileTransferNotice>());
   const knownKeysRef = useRef(new Set<string>());
   const dismissedKeysRef = useRef(new Set<string>());
   const openedRevisionRef = useRef(new Map<string, string>());
 
   useEffect(() => {
     const listener = (event: Event) => {
-      const detail = (event as CustomEvent<UploadNoticeEventDetail>).detail;
+      const detail = (event as CustomEvent<FileTransferNoticeEventDetail>).detail;
       if (!detail) {
         return;
       }
@@ -46,15 +40,15 @@ export function useUploadNoticeHost(notificationApi: NotificationInstance): void
         return;
       }
 
-      setNotices((prev) => applyUploadNoticeEvent(prev, detail));
+      setNotices((prev) => applyFileTransferNoticeEvent(prev, detail));
     };
 
-    subscribe(UiEvent.UploadNotice, listener);
-    setUploadNoticeHostReady(true);
+    subscribe(UiEvent.FileTransferNotice, listener);
+    setFileTransferNoticeHostReady(true);
 
     return () => {
-      setUploadNoticeHostReady(false);
-      unsubscribe(UiEvent.UploadNotice, listener);
+      setFileTransferNoticeHostReady(false);
+      unsubscribe(UiEvent.FileTransferNotice, listener);
     };
   }, []);
 
@@ -75,7 +69,7 @@ export function useUploadNoticeHost(notificationApi: NotificationInstance): void
         continue;
       }
 
-      const revision = getNoticeRenderRevision(notice);
+      const revision = getFileTransferNoticeRenderRevision(notice);
       if (openedRevisionRef.current.get(key) === revision) {
         continue;
       }
@@ -83,7 +77,7 @@ export function useUploadNoticeHost(notificationApi: NotificationInstance): void
       notificationApi.open({
         key,
         message: notice.title,
-        description: <UploadNoticeDescription notice={notice} />,
+        description: <FileTransferNoticeDescription notice={notice} />,
         placement: "bottomRight",
         duration: null,
         closable: notice.canClose,

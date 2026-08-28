@@ -72,3 +72,4 @@ export { default as ruCommon } from "./locales/ru/common.json";
 export * from "./providers";
 
 export * from "./error-handling";
+export * from "./notifications";

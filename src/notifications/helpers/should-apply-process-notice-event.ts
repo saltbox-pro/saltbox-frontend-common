@@ -1,4 +1,4 @@
-import type { ProcessNoticeEventDetail } from "../interfaces/ui-events";
+import type { ProcessNoticeEventDetail } from "../../interfaces/ui-events";
 
 export function shouldApplyProcessNoticeEvent(
   dismissedKeys: ReadonlySet<string>,
