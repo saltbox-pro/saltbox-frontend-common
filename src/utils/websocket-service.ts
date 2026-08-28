@@ -8,15 +8,32 @@ export type WebSocketServiceOptions = {
 };
 
 export class WebSocketService<T> {
+  private static readonly activeInstances = new Set<WebSocketService<unknown>>();
+
   private ws: WebSocket | null;
   private accessToken: string | null;
+  private onCloseHandler: (() => void) | null;
   private messageBuffer: WebSocketMessage<T>[];
   private flushTimeout: number | null;
   private readonly bufferFlushIntervalMs: number;
 
+  static syncAccessToken(accessToken: string | null): void {
+    if (accessToken === null) {
+      for (const instance of [...WebSocketService.activeInstances]) {
+        instance.disconnect({ notify: false });
+      }
+      return;
+    }
+
+    for (const instance of WebSocketService.activeInstances) {
+      instance.sendAccessToken(accessToken);
+    }
+  }
+
   constructor(options: WebSocketServiceOptions = {}) {
     this.ws = null;
     this.accessToken = null;
+    this.onCloseHandler = null;
     this.messageBuffer = [];
     this.flushTimeout = null;
     this.bufferFlushIntervalMs = options.bufferFlushIntervalMs ?? 2000;
@@ -25,7 +42,7 @@ export class WebSocketService<T> {
   sendAccessToken = (accessToken: string | null) => {
     this.accessToken = accessToken;
     if (this.isConnected() && this.accessToken) {
-      this.ws.send(accessToken);
+      this.ws.send(this.accessToken);
     }
   };
 
@@ -43,11 +60,16 @@ export class WebSocketService<T> {
     }
   ) => {
     try {
+      this.accessToken = accessToken;
+      this.closeActiveSocket();
+      this.onCloseHandler = events?.onClose ?? null;
+      WebSocketService.activeInstances.add(this as WebSocketService<unknown>);
+
       this.ws = new WebSocket(url);
       this.clearBuffer();
 
       this.ws.onopen = () => {
-        this.sendAccessToken(accessToken);
+        this.sendAccessToken(this.accessToken);
         if (events?.onOpen) {
           events.onOpen();
         }
@@ -66,16 +88,35 @@ export class WebSocketService<T> {
       };
 
       this.ws.onclose = () => {
+        WebSocketService.activeInstances.delete(this as WebSocketService<unknown>);
+        this.ws = null;
         this.clearBuffer();
-        events?.onClose?.();
+        const onClose = this.onCloseHandler;
+        this.onCloseHandler = null;
+        onClose?.();
       };
 
       this.ws.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
     } catch (error) {
+      WebSocketService.activeInstances.delete(this as WebSocketService<unknown>);
       console.error("Failed to connect WebSocket:", error);
     }
+  };
+
+  private closeActiveSocket = () => {
+    if (!this.ws) {
+      return;
+    }
+
+    const socket = this.ws;
+    this.ws = null;
+    socket.onopen = null;
+    socket.onmessage = null;
+    socket.onerror = null;
+    socket.onclose = null;
+    socket.close();
   };
 
   private flushBuffer = (onMessage: (update: Array<WebSocketMessage<T>>) => void) => {
@@ -103,11 +144,14 @@ export class WebSocketService<T> {
     }
   };
 
-  disconnect = () => {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-      this.clearBuffer();
+  disconnect = (options?: { notify?: boolean }) => {
+    WebSocketService.activeInstances.delete(this as WebSocketService<unknown>);
+    const onClose = this.onCloseHandler;
+    this.onCloseHandler = null;
+    this.closeActiveSocket();
+    this.clearBuffer();
+    if (options?.notify !== false) {
+      onClose?.();
     }
   };
 }
