@@ -96,3 +96,27 @@
 .fast-table-resize-handle.is-resizing {
   border-right-color: var(--ant-color-primary, #1677ff);
 }
+
+.fast-table-header-menu {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  padding: 0;
+  color: var(--fast-table-header-color);
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.fast-table table > thead > tr > th:hover .fast-table-header-menu,
+.fast-table-header-menu:focus-visible,
+.fast-table-header-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}

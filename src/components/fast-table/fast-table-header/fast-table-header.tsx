@@ -1,8 +1,18 @@
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
+  MoreOutlined,
+  VerticalLeftOutlined,
+  VerticalRightOutlined,
+} from "@ant-design/icons";
 import { flexRender, Header, SortDirection, Table } from "@tanstack/react-table";
 import { Tooltip } from "antd";
-import type { MouseEvent, TouchEvent } from "react";
+import { type MouseEvent, type ReactNode, type TouchEvent, useState } from "react";
 
+import { Dropdown } from "../../antd-wrappers/dropdown";
+import type { ColumnMoveDirection } from "../utils/column-layout";
 import { getSortedColumnClassName } from "../utils/column-sort";
 
 import "./fast-table-header.css";
@@ -11,12 +21,19 @@ export type FastTableHeaderProps<DataType> = {
   table: Table<DataType>;
   locale: HeaderLocale;
   onPrepareColumnResize?: () => void;
+  canMoveColumn?: (columnId: string, direction: ColumnMoveDirection) => boolean;
+  onMoveColumn?: (columnId: string, direction: ColumnMoveDirection) => void;
 };
 
 export type HeaderLocale = {
   sortAscending?: string;
   sortDescending?: string;
   clearSort?: string;
+  columnMenu?: string;
+  moveColumnToStart?: string;
+  moveColumnLeft?: string;
+  moveColumnRight?: string;
+  moveColumnToEnd?: string;
 };
 
 type HeaderCellProps<DataType> = {
@@ -26,6 +43,8 @@ type HeaderCellProps<DataType> = {
   isLastLeafColumn: boolean;
   isResizingColumn: boolean;
   onPrepareColumnResize?: () => void;
+  canMoveColumn?: (columnId: string, direction: ColumnMoveDirection) => boolean;
+  onMoveColumn?: (columnId: string, direction: ColumnMoveDirection) => void;
 };
 
 function FastTableHeaderCell<DataType>({
@@ -35,7 +54,10 @@ function FastTableHeaderCell<DataType>({
   isLastLeafColumn,
   isResizingColumn,
   onPrepareColumnResize,
+  canMoveColumn,
+  onMoveColumn,
 }: HeaderCellProps<DataType>) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const canSort = header.column.getCanSort();
   const canResize = header.column.getCanResize() && !isLastLeafColumn;
   const headerContent = header.isPlaceholder
@@ -76,6 +98,37 @@ function FastTableHeaderCell<DataType>({
     return header.column.getIsSorted() === direction ? "active" : "";
   };
 
+  const buildMoveMenuItem = (
+    key: string,
+    direction: ColumnMoveDirection,
+    label: string | undefined,
+    icon: ReactNode
+  ) => ({
+    key,
+    icon,
+    label,
+    disabled: !canMoveColumn?.(header.column.id, direction),
+    onClick: () => onMoveColumn?.(header.column.id, direction),
+  });
+
+  const moveMenuItems = [
+    buildMoveMenuItem(
+      "move-to-start",
+      "start",
+      locale.moveColumnToStart,
+      <VerticalRightOutlined />
+    ),
+    buildMoveMenuItem("move-left", "left", locale.moveColumnLeft, <ArrowLeftOutlined />),
+    buildMoveMenuItem("move-right", "right", locale.moveColumnRight, <ArrowRightOutlined />),
+    buildMoveMenuItem("move-to-end", "end", locale.moveColumnToEnd, <VerticalLeftOutlined />),
+  ];
+
+  const canShowMenu =
+    Boolean(onMoveColumn) &&
+    !header.isPlaceholder &&
+    header.column.getCanHide() &&
+    moveMenuItems.some((item) => !item.disabled);
+
   const headerInner = header.isPlaceholder ? null : (
     <div
       className="fast-table-header"
@@ -94,6 +147,19 @@ function FastTableHeaderCell<DataType>({
       }
     >
       <span className="fast-table-header-title">{headerContent}</span>
+
+      {canShowMenu && (
+        <Dropdown trigger={["click"]} menu={{ items: moveMenuItems }} onOpenChange={setIsMenuOpen}>
+          <button
+            type="button"
+            aria-label={locale.columnMenu}
+            className={`fast-table-header-menu ${isMenuOpen ? "is-open" : ""}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <MoreOutlined />
+          </button>
+        </Dropdown>
+      )}
 
       {canSort && (
         <span className="fast-table-sorter">
@@ -138,6 +204,8 @@ export function FastTableHeader<DataType>({
   table,
   locale,
   onPrepareColumnResize,
+  canMoveColumn,
+  onMoveColumn,
 }: FastTableHeaderProps<DataType>) {
   const leafColumns = table.getVisibleLeafColumns();
   const visibleColumnCount = leafColumns.length;
@@ -155,6 +223,8 @@ export function FastTableHeader<DataType>({
           isLastLeafColumn={header.column.id === lastLeafColumnId}
           isResizingColumn={isResizingColumn}
           onPrepareColumnResize={onPrepareColumnResize}
+          canMoveColumn={canMoveColumn}
+          onMoveColumn={onMoveColumn}
         />
       ))}
     </tr>

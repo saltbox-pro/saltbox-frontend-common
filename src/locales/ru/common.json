@@ -159,7 +159,12 @@
     "table-view-menu": "Вид таблицы",
     "reset-column-widths": "Сбросить ширины колонок",
     "column-settings": "Изменить состав колонок",
-    "column-settings-apply": "Применить"
+    "column-settings-apply": "Применить",
+    "column-menu": "Меню колонки",
+    "move-column-to-start": "Переместить в начало",
+    "move-column-left": "Сдвинуть влево",
+    "move-column-right": "Сдвинуть вправо",
+    "move-column-to-end": "Переместить в конец"
   },
   "file-browser": {
     "empty": "Директория пуста",
