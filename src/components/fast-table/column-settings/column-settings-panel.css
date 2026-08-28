@@ -1,0 +1,70 @@
+.fast-table-column-settings.ant-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 4px;
+}
+
+.fast-table-column-settings-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.fast-table-column-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.fast-table-column-settings-row:hover {
+  background: var(--fast-table-row-hover-bg);
+}
+
+.fast-table-column-settings-row.is-dragging {
+  background: var(--fast-table-header-bg);
+  opacity: 0.6;
+}
+
+.fast-table-column-settings-row .ant-checkbox-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.fast-table-column-settings-row .ant-checkbox-wrapper > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fast-table-column-settings-handle {
+  margin-left: auto;
+  padding: 4px;
+  color: var(--fast-table-header-color);
+  opacity: 0.45;
+  cursor: grab;
+}
+
+.fast-table-column-settings-handle:hover {
+  opacity: 0.88;
+}
+
+.fast-table-column-settings-handle:active {
+  cursor: grabbing;
+}
+
+.fast-table-column-settings-footer {
+  padding: 6px 4px 2px;
+}
+
+.fast-table-column-settings-apply {
+  width: 100%;
+}

@@ -1,7 +1,7 @@
-import { Button, Space } from "antd";
+import { Button, Flex, Space } from "antd";
 import type { MessageInstance } from "antd/es/message/interface";
 import type { NotificationInstance } from "antd/es/notification/interface";
-import { useCallback } from "react";
+import { useCallback, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ToastAction, ToastEventDetail, ToastType } from "../interfaces/ui-events";
@@ -17,6 +17,19 @@ const DURATION_SEC: Record<ToastType, number> = {
   info: 3,
 };
 
+/** Message с кнопкой: даём время нажать действие. */
+const MESSAGE_WITH_ACTIONS_DURATION_SEC = 8;
+
+function resolveToastDurationSec(detail: ToastEventDetail): number {
+  if (detail.durationSec != null) {
+    return detail.durationSec;
+  }
+  if (detail.surface === "message" && detail.actions?.length) {
+    return Math.max(DURATION_SEC[detail.type], MESSAGE_WITH_ACTIONS_DURATION_SEC);
+  }
+  return DURATION_SEC[detail.type];
+}
+
 /** Ключ для тостов без своего key: нужен, чтобы разворачивание деталей нашло свой тост. */
 let autoKeySeq = 0;
 
@@ -25,6 +38,14 @@ export type ShowToast = (detail: ToastEventDetail) => void;
 export interface ToastRendererOptions {
   /** Переход по href из действия тоста; в продукте — single-spa navigateToUrl. */
   onNavigate?: (href: string) => void;
+}
+
+function renderToastDescription(detail: ToastEventDetail) {
+  return detail.description?.includes("\n") ? (
+    <span style={{ whiteSpace: "pre-line" }}>{detail.description}</span>
+  ) : (
+    detail.description
+  );
 }
 
 const ToastActionButtons = ({
@@ -37,8 +58,9 @@ const ToastActionButtons = ({
   <Space>
     {actions.map((action) => (
       <Button
-        key={action.label}
+        key={`${action.label}:${action.href ?? ""}`}
         size="small"
+        type="default"
         onClick={() => (action.href ? onNavigate?.(action.href) : action.onClick?.())}
       >
         {action.label}
@@ -46,6 +68,22 @@ const ToastActionButtons = ({
     ))}
   </Space>
 );
+
+function renderMessageContent(
+  detail: ToastEventDetail,
+  onNavigate?: (href: string) => void
+): ReactNode {
+  if (!detail.actions?.length) {
+    return detail.title;
+  }
+
+  return (
+    <Flex align="center" gap={8} wrap>
+      <span>{detail.title}</span>
+      <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />
+    </Flex>
+  );
+}
 
 /**
  * Отрисовка одного тоста поверх antd-инстансов. Живёт в общей библиотеке, чтобы
@@ -62,13 +100,12 @@ export function useToastRenderer(
 
   const render = useCallback(
     (detail: ToastEventDetail, key: string, expanded: boolean) => {
-      // лёгкая поверхность: короткая строка по центру сверху (подтверждения копирования)
       if (detail.surface === "message") {
         messageApi.open({
           type: detail.type,
           key,
-          content: detail.title,
-          duration: detail.durationSec ?? DURATION_SEC[detail.type],
+          content: renderMessageContent(detail, onNavigate),
+          duration: resolveToastDurationSec(detail),
         });
         return;
       }
@@ -77,25 +114,26 @@ export function useToastRenderer(
         ? formatErrorCode(detail.errorCode.status, detail.errorCode.kind, t)
         : undefined;
       const hasRichContent = Boolean(codeLine || detail.debugText);
+      const description = hasRichContent ? (
+        <ToastContent
+          codeLine={codeLine}
+          description={detail.description}
+          debugText={detail.debugText}
+          expanded={expanded}
+          // разворачивая детали, закрепляем тост — иначе он исчезнет во время чтения
+          onExpand={() => render(detail, key, true)}
+          onCollapse={() => render(detail, key, false)}
+        />
+      ) : (
+        renderToastDescription(detail)
+      );
 
       api.open({
         type: detail.type,
         key,
         message: detail.title,
-        description: hasRichContent ? (
-          <ToastContent
-            codeLine={codeLine}
-            description={detail.description}
-            debugText={detail.debugText}
-            expanded={expanded}
-            // разворачивая детали, закрепляем тост — иначе он исчезнет во время чтения
-            onExpand={() => render(detail, key, true)}
-            onCollapse={() => render(detail, key, false)}
-          />
-        ) : (
-          detail.description
-        ),
-        duration: expanded ? 0 : (detail.durationSec ?? DURATION_SEC[detail.type]),
+        description,
+        duration: expanded ? 0 : resolveToastDurationSec(detail),
         btn: detail.actions?.length ? (
           <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />
         ) : undefined,

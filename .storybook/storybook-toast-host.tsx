@@ -2,6 +2,7 @@ import { message, notification } from "antd";
 import { Fragment, useEffect } from "react";
 
 import { useUploadNoticeHost } from "../src/components/file-browser/hooks/use-upload-notice-host";
+import { useProcessNoticeHost } from "../src/error-handling/use-process-notice-host";
 import { useToastRenderer } from "../src/error-handling/toast-renderer";
 import { ToastEventDetail, UiEvent } from "../src/interfaces/ui-events";
 import { publish, subscribe, unsubscribe } from "../src/utils/custom-events";
@@ -15,7 +16,7 @@ export const StorybookToastHost = () => {
   const [notificationApi, notificationHolder] = notification.useNotification({ maxCount: 5 });
   const [transferNoticeApi, transferNoticeHolder] = notification.useNotification({
     placement: "bottomRight",
-    maxCount: 8,
+    maxCount: 12,
     stack: false,
   });
   const [messageApi, messageHolder] = message.useMessage();
@@ -24,7 +25,8 @@ export const StorybookToastHost = () => {
     onNavigate: (href) => window.open(href, "_self"),
   });
 
-  useUploadNoticeHost(transferNoticeApi);
+  useUploadNoticeHost(uploadNotificationApi);
+  useProcessNoticeHost(uploadNotificationApi);
 
   useEffect(() => {
     const listener = (event: Event) => {

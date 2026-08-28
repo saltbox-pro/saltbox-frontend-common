@@ -1,0 +1,15 @@
+.alert {
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.alert :global(.ant-alert-icon) {
+  font-size: 14px;
+  margin-inline-end: 6px;
+}
+
+.alert :global(.ant-alert-message) {
+  font-size: 12px;
+  line-height: 1.4;
+}

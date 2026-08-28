@@ -9,11 +9,11 @@ export function resolveColumnWidthLayoutMode(args: {
   if (!args.enableColumnResize) {
     return "idle";
   }
-  if (args.hasPersistedSizing) {
-    return "persisted";
-  }
   if (args.isResizingColumn && args.hasSizing) {
     return "dragging";
+  }
+  if (args.hasPersistedSizing || args.hasSizing) {
+    return "persisted";
   }
   return "idle";
 }

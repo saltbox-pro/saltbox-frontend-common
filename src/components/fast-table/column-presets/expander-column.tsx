@@ -6,6 +6,7 @@ export function createExpanderColumn<TData>(): ColumnDef<TData> {
   return {
     id: "expander",
     enableResizing: false,
+    enableHiding: false,
     cell: ({ row }) => {
       if (!row.getCanExpand()) return null;
 

@@ -12,8 +12,20 @@ export enum UiEvent {
   ToastHostReady = "ui.toast_host_ready",
   UploadNotice = "ui.upload_notice",
   UploadNoticeHostReady = "ui.upload_notice_host_ready",
+  ProcessNotice = "ui.process_notice",
+  ProcessNoticeHostReady = "ui.process_notice_host_ready",
   AcceptedMastersChanged = "ui.accepted_masters_changed",
+  /** Данные миниона обновились снаружи (например после фонового действия). */
+  MinionDataRefreshed = "ui.minion_data_refreshed",
+  /** Состояние пунктов `minion.detail.actions` изменилось (busy / disabled). */
+  MinionDetailActionsChanged = "ui.minion_detail_actions_changed",
+  /** Состояние пунктов `minions.actions` изменилось (busy / disabled). */
+  MinionsActionsChanged = "ui.minions_actions_changed",
   LocaleChange = "saltbox:locale-change",
+}
+
+export interface MinionDataRefreshedEventDetail {
+  minionId: string;
 }
 
 export type ToastType = "success" | "error" | "info" | "warning";
@@ -21,8 +33,7 @@ export type ToastType = "success" | "error" | "info" | "warning";
 /**
  * Как показать сообщение:
  * - notification — угловой стек с описанием, действиями и деталями (ошибки);
- * - message — лёгкая строка по центру сверху для коротких подтверждений (копирование).
- *   В этом режиме используется только title.
+ * - message — строка по центру сверху (короткие подтверждения). Поддерживает title и actions.
  */
 export type ToastSurface = "notification" | "message";
 
@@ -82,3 +93,51 @@ export type UploadNoticeEventDetail =
   | UploadNoticeUpsertDetail
   | UploadNoticePatchDetail
   | UploadNoticeRemoveDetail;
+
+export type ProcessNoticeTone = "success" | "error" | "info" | "warning";
+
+export type ProcessNoticeChip = {
+  id: string;
+  label: string;
+  count?: number;
+  color?: string;
+};
+
+export type ProcessNoticeFooterAction = {
+  label: string;
+  href: string;
+};
+
+export type ProcessNoticeFooter = {
+  left?: string;
+  action?: ProcessNoticeFooterAction;
+};
+
+export type ProcessNoticeAlert = {
+  type: Extract<ProcessNoticeTone, "error" | "warning" | "info" | "success">;
+  message: string;
+};
+
+export type ProcessNoticeUpsertDetail = {
+  action: "upsert";
+  key: string;
+  title: string;
+  description?: string;
+  meta?: string;
+  alert?: ProcessNoticeAlert;
+  footer?: ProcessNoticeFooter;
+  tone?: ProcessNoticeTone;
+  busy?: boolean;
+  canClose: boolean;
+  reopen?: boolean;
+  durationSec?: number | null;
+  chips?: ProcessNoticeChip[];
+  onClose?: () => void;
+};
+
+export type ProcessNoticeRemoveDetail = {
+  action: "remove";
+  key: string;
+};
+
+export type ProcessNoticeEventDetail = ProcessNoticeUpsertDetail | ProcessNoticeRemoveDetail;

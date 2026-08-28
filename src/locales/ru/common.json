@@ -157,7 +157,9 @@
     "clear-sort": "Сбросить сортировку",
     "total": "Всего:",
     "table-view-menu": "Вид таблицы",
-    "reset-column-widths": "Сбросить ширины колонок"
+    "reset-column-widths": "Сбросить ширины колонок",
+    "column-settings": "Изменить состав колонок",
+    "column-settings-apply": "Применить"
   },
   "file-browser": {
     "empty": "Директория пуста",

@@ -53,7 +53,7 @@ export const notify = {
   error: (input: ToastInput) => send("error", input),
   info: (input: ToastInput) => send("info", input),
   warning: (input: ToastInput) => send("warning", input),
-  /** Лёгкие подтверждения (копирование и т.п.): строка по центру сверху, без описания */
+  /** Лёгкие подтверждения по центру сверху. Title и опционально actions. */
   message: {
     success: (input: ToastInput) => send("success", input, "message"),
     error: (input: ToastInput) => send("error", input, "message"),

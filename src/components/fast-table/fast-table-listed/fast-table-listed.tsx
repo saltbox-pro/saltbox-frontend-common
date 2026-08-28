@@ -1,4 +1,3 @@
-import { MoreOutlined } from "@ant-design/icons";
 import {
   type ColumnDef,
   ColumnFiltersState,
@@ -13,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Button, Empty, Flex, Spin } from "antd";
+import { Empty, Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import {
   Fragment,
@@ -27,7 +26,6 @@ import {
 } from "react";
 
 import type { LoadSource } from "../../../error-handling/create-loader";
-import { Dropdown } from "../../antd-wrappers/dropdown";
 import { TableErrorBoundary } from "../../module-error-boundary/boundaries/table-error-boundary";
 import { FastTableHeader } from "../fast-table-header/fast-table-header";
 import {
@@ -35,7 +33,10 @@ import {
   FastTableRefreshAlert,
   useLoaderBinding,
 } from "../fast-table-load-error";
+import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
+import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
+import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
@@ -56,6 +57,11 @@ import {
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
+import {
+  type ColumnLayout,
+  buildColumnSettingsItems,
+  dropSortingForHiddenColumns,
+} from "../utils/column-layout";
 import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
@@ -95,7 +101,7 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   locale?: FastTableLocaleOverrides;
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
-  enableColumnResize?: boolean;
+  enableColumnSettings?: boolean;
   loader?: LoadSource;
 };
 
@@ -141,7 +147,7 @@ function FastTableListedContent<DataType>({
   onRowSelectionChange,
   rowSelection,
   tableId,
-  enableColumnResize = true,
+  enableColumnSettings = true,
   useVirtualScroll = false,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
@@ -163,13 +169,15 @@ function FastTableListedContent<DataType>({
     resetColumnSizing,
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
-    replaceColumnSizingFromPixels,
-  } = usePersistedColumnSizing(enableColumnResize ? tableId : undefined);
+  } = usePersistedColumnSizing(enableColumnSettings ? tableId : undefined);
 
   const resizeColumns = useMemo(
     () =>
-      applyColumnResizeDefaults(columns as Array<ColumnDef<DataType, unknown>>, enableColumnResize),
-    [columns, enableColumnResize]
+      applyColumnResizeDefaults(
+        columns as Array<ColumnDef<DataType, unknown>>,
+        enableColumnSettings
+      ),
+    [columns, enableColumnSettings]
   );
 
   const resizeConstraintsById = useMemo(
@@ -179,14 +187,19 @@ function FastTableListedContent<DataType>({
 
   const resizeColumnIds = useMemo(() => resolveResizeColumnIds(resizeColumns), [resizeColumns]);
 
+  const { columnOrder, columnVisibility, applyColumnLayout } = useColumnLayout({
+    tableId: enableColumnSettings ? tableId : undefined,
+    columns: resizeColumns,
+  });
+
   const handleColumnSizingChange = useMemo(
     () =>
-      enableColumnResize
+      enableColumnSettings
         ? createClampedColumnSizingChange(onColumnSizingChange, resizeColumnIds, (id) =>
             resizeConstraintsById.get(id)
           )
         : onColumnSizingChange,
-    [enableColumnResize, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
+    [enableColumnSettings, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
   );
 
   const table = useReactTable({
@@ -209,26 +222,31 @@ function FastTableListedContent<DataType>({
       expanded,
       rowSelection,
       columnSizing,
+      columnOrder,
+      columnVisibility,
     },
     enableSorting: !!sorting,
-    enableColumnResizing: enableColumnResize,
+    enableColumnResizing: enableColumnSettings,
     columnResizeMode: "onChange",
   });
 
   const rows = table.getRowModel().rows;
   const leafColumns = table.getVisibleLeafColumns();
+  const allLeafColumns = table.getAllLeafColumns();
   const { leafColumnIds, leafColumnIdsKey } = useStableLeafColumnIds(leafColumns);
+  const { leafColumnIds: allLeafColumnIds } = useStableLeafColumnIds(allLeafColumns);
   const visibleColumnCount = leafColumnIds.length;
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
   const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
 
   const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
     useColumnResizeLayout({
-      enableColumnResize,
+      enableColumnResize: enableColumnSettings,
       tableContainerRef,
       leafColumns,
       leafColumnIds,
       leafColumnIdsKey,
+      allLeafColumnIds,
       columnSizing,
       hasPersistedSizing,
       isResizingColumn,
@@ -236,7 +254,6 @@ function FastTableListedContent<DataType>({
       onColumnSizingChange: handleColumnSizingChange,
       persistColumnSizing,
       seedColumnSizingFromPixels,
-      replaceColumnSizingFromPixels,
       syncColumnSizingToColumns,
     });
 
@@ -246,7 +263,7 @@ function FastTableListedContent<DataType>({
     isResizingColumn,
   });
 
-  const measureColumnWidthsEnabled = useVirtualScroll && !enableColumnResize;
+  const measureColumnWidthsEnabled = useVirtualScroll && !hasResizeColumnSizing;
   const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
     useFastTableVirtualization({
       enabled: useVirtualScroll,
@@ -255,6 +272,7 @@ function FastTableListedContent<DataType>({
       rows,
       columnCount: visibleColumnCount,
       columnSizingKey,
+      columnLayoutKey: leafColumnIdsKey,
       measureColumnWidthsEnabled,
       overscan,
       estimatedRowHeight,
@@ -276,23 +294,25 @@ function FastTableListedContent<DataType>({
     return activeClassName;
   };
 
-  const showTableLayoutToolbar = enableColumnResize;
+  const handleApplyColumnLayout = (nextLayout: ColumnLayout) => {
+    applyColumnLayout(nextLayout);
 
-  const tableViewMenuItems = useMemo(
-    () => [
-      {
-        key: "reset-column-widths",
-        label: tableLocale.resetColumnWidths,
-        disabled: !hasPersistedSizing,
-        onClick: resetColumnSizing,
-      },
-    ],
-    [hasPersistedSizing, resetColumnSizing, tableLocale.resetColumnWidths]
-  );
+    const nextSorting = dropSortingForHiddenColumns(sorting, nextLayout.hidden);
+    if (nextSorting !== sorting) {
+      onSortingChange?.(nextSorting ?? []);
+    }
+  };
+
+  const columnSettings = {
+    items: buildColumnSettingsItems(allLeafColumns),
+    onApply: handleApplyColumnLayout,
+  };
+
+  const declaredFillWidth = useDeclaredFillWidth(leafColumns);
 
   const renderColGroup = () => (
     <colgroup>
-      {leafColumns.map((column, index) => {
+      {leafColumns.map((column) => {
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
@@ -303,37 +323,36 @@ function FastTableListedContent<DataType>({
               key={column.id}
               style={getColWidthStyle(size, {
                 minWidth: explicitMinSize,
-                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+                maxWidth: meta?.maxWidth,
               })}
             />
           );
         }
 
-        if (enableColumnResize && hasResizeColumnSizing) {
+        if (enableColumnSettings && hasResizeColumnSizing) {
           return (
             <col
               key={column.id}
               style={getColWidthStyle(columnSizing[column.id] ?? column.getSize(), {
                 minWidth: resizeConstraintsById.get(column.id)?.minSize,
-                maxWidth: column.columnDef.maxSize ?? meta?.maxWidth,
+                maxWidth: meta?.maxWidth,
               })}
             />
           );
         }
 
+        const declaredWidth =
+          declaredFillWidth?.columnId === column.id
+            ? declaredFillWidth.width
+            : resolveColumnWidth(column);
+
         return (
           <col
             key={column.id}
-            style={getColWidthStyle(
-              resolveColumnWidth(
-                column,
-                useVirtualScroll ? columnWidths[`col-${index}`] : undefined
-              ),
-              {
-                minWidth: resolveColumnMinWidth(meta),
-                maxWidth: meta?.maxWidth,
-              }
-            )}
+            style={getColWidthStyle(declaredWidth, {
+              minWidth: resolveColumnMinWidth(meta),
+              maxWidth: meta?.maxWidth,
+            })}
           />
         );
       })}
@@ -424,22 +443,18 @@ function FastTableListedContent<DataType>({
     <div
       className={`fast-table ${isEmpty ? "empty" : ""} ${isLoading ? "loading" : ""} ${
         useVirtualScroll ? "virtual-scroll" : ""
-      } ${enableColumnResize ? "has-column-resize" : ""} ${
+      } ${enableColumnSettings ? "has-column-resize" : ""} ${
         isResizingColumn ? "is-column-resizing" : ""
       }`}
       style={fastTableTokenStyle}
     >
-      {showTableLayoutToolbar && (
-        <div className="fast-table-toolbar">
-          <Dropdown menu={{ items: tableViewMenuItems }} trigger={["click"]}>
-            <Button
-              type="text"
-              className="fast-table-toolbar-button"
-              icon={<MoreOutlined />}
-              aria-label={tableLocale.tableViewMenu}
-            />
-          </Dropdown>
-        </div>
+      {enableColumnSettings && (
+        <FastTableToolbar
+          locale={tableLocale}
+          canResetColumnWidths={hasPersistedSizing}
+          onResetColumnWidths={resetColumnSizing}
+          columnSettings={columnSettings}
+        />
       )}
       <FastTableRefreshAlert loader={loader} />
       <div className="fast-table-wrapper" ref={tableContainerRef}>
@@ -488,7 +503,7 @@ function FastTableListedContent<DataType>({
             hasLockedColumnWidths={hasLockedColumnWidths}
             lockedColumnSizes={lockedColumnSizes}
             lockedColumnsTotalWidth={lockedColumnsTotalWidth}
-            enableColumnResize={enableColumnResize}
+            enableColumnResize={enableColumnSettings}
             columnSizing={columnSizing}
             columnWidths={columnWidths}
             leafColumnIds={leafColumnIds}

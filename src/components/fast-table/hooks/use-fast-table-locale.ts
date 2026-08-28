@@ -9,6 +9,8 @@ export type FastTableLocaleOverrides = {
   empty?: string;
   tableViewMenu?: string;
   resetColumnWidths?: string;
+  columnSettings?: string;
+  columnSettingsApply?: string;
 };
 
 export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
@@ -23,6 +25,8 @@ export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
       empty: overrides?.empty ?? t("fast-table.empty"),
       tableViewMenu: overrides?.tableViewMenu ?? t("fast-table.table-view-menu"),
       resetColumnWidths: overrides?.resetColumnWidths ?? t("fast-table.reset-column-widths"),
+      columnSettings: overrides?.columnSettings ?? t("fast-table.column-settings"),
+      columnSettingsApply: overrides?.columnSettingsApply ?? t("fast-table.column-settings-apply"),
     }),
     [
       overrides?.sortAscending,
@@ -32,6 +36,8 @@ export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
       overrides?.empty,
       overrides?.tableViewMenu,
       overrides?.resetColumnWidths,
+      overrides?.columnSettings,
+      overrides?.columnSettingsApply,
       t,
     ]
   );
