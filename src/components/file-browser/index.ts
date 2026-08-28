@@ -35,7 +35,7 @@ export { useFileBrowserMessages } from "./hooks/use-file-browser-messages";
 export type { TranslateFileBrowserError } from "./hooks/use-file-browser-messages";
 export { useFileBrowserTransferNotification } from "./hooks/use-file-browser-transfer-notification";
 export type { UseFileBrowserTransferNotificationOptions } from "./hooks/use-file-browser-transfer-notification";
-export { useUploadNoticeHost } from "./hooks/use-upload-notice-host";
+export { useFileTransferNoticeHost } from "./hooks/use-file-transfer-notice-host";
 export type {
   FileBrowserNotificationToasts,
   FileBrowserToastAction,

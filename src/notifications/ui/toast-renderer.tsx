@@ -4,10 +4,10 @@ import type { NotificationInstance } from "antd/es/notification/interface";
 import { useCallback, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ToastAction, ToastEventDetail, ToastType } from "../interfaces/ui-events";
+import { formatErrorCode } from "../../error-handling/ui/resolve-http-error-presentation";
+import type { ToastAction, ToastEventDetail, ToastType } from "../../interfaces/ui-events";
 
-import { formatErrorCode } from "./ui/resolve-http-error-presentation";
-import { ToastContent } from "./ui/toast-content";
+import { ToastContent } from "./toast-content";
 
 /** Политика длительностей — навязывается всем приложениям, в этом смысл единого host-а. */
 const DURATION_SEC: Record<ToastType, number> = {

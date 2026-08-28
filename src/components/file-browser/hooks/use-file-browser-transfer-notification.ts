@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 
-import { toTransferNoticeEntries, transferNotice } from "../../../error-handling/upload-notice";
+import { toFileTransferNoticeEntries } from "../../../notifications/helpers/to-file-transfer-notice-entries";
+import { fileTransferNotice } from "../../../notifications/model/file-transfer-notice";
 import type { FileBrowserTransferItem } from "../model/upload-types";
 import { getFileBrowserUploadsContentRevision } from "../utils/get-file-browser-uploads-content-revision";
 import { hasActiveFileBrowserTransfer } from "../utils/has-active-file-browser-transfer";
@@ -52,22 +53,22 @@ export function useFileBrowserTransferNotification<
     canClose,
     onClose: () => {
       onClearFinished();
-      transferNotice.remove(noticeKey);
+      fileTransferNotice.remove(noticeKey);
     },
   };
 
   useEffect(() => {
     if (!showNotice) {
-      transferNotice.remove(noticeKey);
+      fileTransferNotice.remove(noticeKey);
       return;
     }
 
-    transferNotice.upsert({
+    fileTransferNotice.upsert({
       key: noticeKey,
       title: stateRef.current.title,
       canClose: stateRef.current.canClose,
-      uploads: toTransferNoticeEntries(stateRef.current.transfers),
-      onCancelUpload: (transferId) => {
+      transfers: toFileTransferNoticeEntries(stateRef.current.transfers),
+      onCancelTransfer: (transferId) => {
         stateRef.current.onCancelTransfer(transferId);
       },
       formatError: (errorCode, item) => stateRef.current.formatError?.(errorCode, item),
@@ -77,7 +78,7 @@ export function useFileBrowserTransferNotification<
     });
 
     return () => {
-      transferNotice.remove(noticeKey);
+      fileTransferNotice.remove(noticeKey);
     };
   }, [noticeKey, showNotice]);
 
@@ -85,11 +86,11 @@ export function useFileBrowserTransferNotification<
     if (!showNotice) {
       return;
     }
-    transferNotice.patch({
+    fileTransferNotice.patch({
       key: noticeKey,
       title: stateRef.current.title,
       canClose: stateRef.current.canClose,
-      uploads: toTransferNoticeEntries(stateRef.current.transfers),
+      transfers: toFileTransferNoticeEntries(stateRef.current.transfers),
     });
   }, [canClose, contentRevision, noticeKey, noticeTitle, showNotice]);
 }

@@ -14,7 +14,7 @@ vi.mock("../../src/utils/custom-events", () => ({
   unsubscribe: vi.fn(),
 }));
 
-import { notify, resetNotifyForTests } from "../../src/error-handling/notify";
+import { notify, resetNotifyForTests } from "../../src/notifications/model/notify";
 import { publish } from "../../src/utils/custom-events";
 
 // notify проверяет document для подписки — подставим заглушку

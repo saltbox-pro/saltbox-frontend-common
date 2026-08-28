@@ -1,6 +1,7 @@
+import { notify } from "../notifications/model/notify";
+
 import { AppError, buildErrorDebugText, isAbortError, normalizeApiError } from "./app-error";
 import { applyValidationErrors, FormFieldsSetter } from "./apply-validation-errors";
-import { notify } from "./notify";
 
 export type MutationResult<T> = { ok: true; data: T } | { ok: false; error: AppError };
 

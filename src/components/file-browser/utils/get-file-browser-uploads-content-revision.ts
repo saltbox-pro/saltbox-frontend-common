@@ -11,12 +11,12 @@ export function getFileBrowserUploadsContentRevision(
     .join("|");
 }
 
-export function getUploadNoticeRenderRevision(notice: {
+export function getFileTransferNoticeRenderRevision(notice: {
   title: string;
   canClose: boolean;
-  uploads: Iterable<readonly [string, FileBrowserTransferItem]>;
+  transfers: Iterable<readonly [string, FileBrowserTransferItem]>;
 }): string {
   return `${notice.title}\0${notice.canClose ? "1" : "0"}\0${getFileBrowserUploadsContentRevision(
-    new Map(notice.uploads)
+    new Map(notice.transfers)
   )}`;
 }
