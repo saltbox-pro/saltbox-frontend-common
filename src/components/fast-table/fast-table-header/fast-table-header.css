@@ -97,6 +97,10 @@
   border-right-color: var(--ant-color-primary, #1677ff);
 }
 
+.fast-table-header-menu-anchor {
+  display: contents;
+}
+
 .fast-table-header-menu {
   flex: 0 0 auto;
   display: inline-flex;

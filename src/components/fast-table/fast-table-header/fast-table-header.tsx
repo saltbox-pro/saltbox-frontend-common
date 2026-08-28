@@ -149,16 +149,26 @@ function FastTableHeaderCell<DataType>({
       <span className="fast-table-header-title">{headerContent}</span>
 
       {canShowMenu && (
-        <Dropdown trigger={["click"]} menu={{ items: moveMenuItems }} onOpenChange={setIsMenuOpen}>
-          <button
-            type="button"
-            aria-label={locale.columnMenu}
-            className={`fast-table-header-menu ${isMenuOpen ? "is-open" : ""}`}
-            onClick={(event) => event.stopPropagation()}
+        <span
+          role="presentation"
+          className="fast-table-header-menu-anchor"
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <Dropdown
+            trigger={["click"]}
+            menu={{ items: moveMenuItems }}
+            onOpenChange={setIsMenuOpen}
           >
-            <MoreOutlined />
-          </button>
-        </Dropdown>
+            <button
+              type="button"
+              aria-label={locale.columnMenu}
+              className={`fast-table-header-menu ${isMenuOpen ? "is-open" : ""}`}
+            >
+              <MoreOutlined />
+            </button>
+          </Dropdown>
+        </span>
       )}
 
       {canSort && (
