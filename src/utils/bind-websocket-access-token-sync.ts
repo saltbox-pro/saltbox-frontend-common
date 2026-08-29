@@ -12,9 +12,9 @@ export function bindWebSocketAccessTokenSync(authStore: AuthStoreWithAccessToken
   let disposer: IReactionDisposer | undefined;
 
   disposer = reaction(
-    () => authStore.user,
-    (user) => {
-      WebSocketService.syncAccessToken(user?.access_token ?? null);
+    () => authStore.user?.access_token ?? null,
+    (accessToken) => {
+      WebSocketService.syncAccessToken(accessToken);
     },
     { fireImmediately: true }
   );
