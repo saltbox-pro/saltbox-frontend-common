@@ -1,15 +1,18 @@
 ---
+include:
+  - project: "saltbox/ci-lib"
+    file: "mirror-repo.yml"
 
 variables:
-  NODE_IMAGE: 'node:22.18.0'
-  YARN_CACHE_FOLDER: './yarn_cache/'
+  NODE_IMAGE: "node:22.18.0"
+  YARN_CACHE_FOLDER: "./yarn_cache/"
 
 cache:
   paths:
-    - '$YARN_CACHE_FOLDER'
+    - "$YARN_CACHE_FOLDER"
 
 Build package:
-  image: '$NODE_IMAGE'
+  image: "$NODE_IMAGE"
   stage: build
   before_script:
     - yarn install --frozen-lockfile
@@ -35,3 +38,7 @@ Upload package:
     - yarn publish
   rules:
     - if: $CI_COMMIT_TAG =~ $VERSION_TAG_PATTERN
+
+Mirror Repository:
+  extends: .mirror-repo
+  stage: build
