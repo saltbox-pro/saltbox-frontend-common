@@ -20,7 +20,7 @@ export function ProcessNoticeDescription({ notice, onNavigate }: ProcessNoticeDe
         <Alert
           className={styles.alert}
           type={notice.alert.type}
-          showIcon
+          showIcon={false}
           message={notice.alert.message}
         />
       )}

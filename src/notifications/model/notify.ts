@@ -59,6 +59,7 @@ export const notify = {
     error: (input: ToastInput) => send("error", input, "message"),
     info: (input: ToastInput) => send("info", input, "message"),
     warning: (input: ToastInput) => send("warning", input, "message"),
+    loading: (input: ToastInput) => send("loading", input, "message"),
   },
 };
 

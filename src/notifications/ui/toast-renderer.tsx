@@ -1,5 +1,5 @@
 import { Button, Flex, Space } from "antd";
-import type { MessageInstance } from "antd/es/message/interface";
+import type { MessageInstance, NoticeType } from "antd/es/message/interface";
 import type { NotificationInstance } from "antd/es/notification/interface";
 import { useCallback, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,21 @@ const DURATION_SEC: Record<ToastType, number> = {
   warning: 6,
   success: 3,
   info: 3,
+  loading: 0,
 };
 
 /** Message с кнопкой: даём время нажать действие. */
 const MESSAGE_WITH_ACTIONS_DURATION_SEC = 8;
+
+type NotificationIconType = Exclude<NoticeType, "loading">;
+
+/** loading допустим только для message; notification antd его не поддерживает. */
+function toNotificationIconType(type: ToastType): NotificationIconType {
+  if (type === "loading") {
+    return "info";
+  }
+  return type;
+}
 
 function resolveToastDurationSec(detail: ToastEventDetail): number {
   if (detail.durationSec != null) {
@@ -129,7 +140,7 @@ export function useToastRenderer(
       );
 
       api.open({
-        type: detail.type,
+        type: toNotificationIconType(detail.type),
         key,
         message: detail.title,
         description,

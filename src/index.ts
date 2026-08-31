@@ -44,6 +44,7 @@ export * from "./utils/custom-events";
 export * from "./utils/legacy-global-error";
 export * from "./utils/api";
 export * from "./utils/websocket-service";
+export * from "./utils/bind-websocket-access-token-sync";
 export * from "./utils/sort-utils";
 export * from "./utils/func-utils";
 export * from "./utils/merge-refs";
