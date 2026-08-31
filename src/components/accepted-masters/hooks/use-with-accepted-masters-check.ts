@@ -1,21 +1,10 @@
 import type { MessageInstance } from "antd/es/message/interface";
 import { useCallback } from "react";
-import { useTranslation } from "react-i18next";
 
+import type { WithAcceptedMastersCheckCallParams } from "../types";
+
+import { useAcceptedMastersErrorMessage } from "./use-accepted-masters-error-message";
 import { useAcceptedMastersWarningMessage } from "./use-accepted-masters-warning-message";
-
-export type WithAcceptedMastersCheckCallParams = {
-  checkHasAcceptedMasters: () => Promise<boolean>;
-  onSuccess: () => void | Promise<void>;
-  warningActionText: string;
-  navigate: (to: string) => void;
-  errorMessage?: string;
-};
-
-export function useAcceptedMastersErrorMessage(): string {
-  const { t } = useTranslation("common");
-  return t("accepted-masters.error-load-salt-masters");
-}
 
 export function useWithAcceptedMastersCheck(messageApi: MessageInstance) {
   const acceptedMastersErrorMessage = useAcceptedMastersErrorMessage();
@@ -27,7 +16,10 @@ export function useWithAcceptedMastersCheck(messageApi: MessageInstance) {
         const hasMasters = await params.checkHasAcceptedMasters();
         if (!hasMasters) {
           messageApi.warning(
-            renderWarningMessage({ action: params.warningActionText, navigate: params.navigate })
+            renderWarningMessage({
+              action: params.warningActionText,
+              navigate: params.navigate,
+            })
           );
           return;
         }

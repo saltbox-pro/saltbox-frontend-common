@@ -4,7 +4,7 @@ import { Trans, useTranslation } from "react-i18next";
 const MASTERS_PATH = "/core/masters";
 
 type RenderAcceptedMastersWarningParams = {
-  action: string;
+  action?: string;
   navigate: (to: string) => void;
 };
 
@@ -14,7 +14,11 @@ export function useAcceptedMastersWarningMessage() {
   return useCallback(
     ({ action, navigate }: RenderAcceptedMastersWarningParams) => (
       <Trans
-        i18nKey="accepted-masters.warning-template"
+        i18nKey={
+          action != null && action !== ""
+            ? "accepted-masters.warning-template"
+            : "accepted-masters.warning-template-default"
+        }
         ns="common"
         values={{ action }}
         components={{

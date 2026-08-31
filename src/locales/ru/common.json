@@ -115,6 +115,7 @@
   },
   "accepted-masters": {
     "warning-template": "Для {{action}} активируйте контроллер на странице <mastersLink>\"Контроллеры\"</mastersLink>",
+    "warning-template-default": "Для выполнения действия активируйте контроллер на странице <mastersLink>\"Контроллеры\"</mastersLink>",
     "error-load-salt-masters": "Не удалось загрузить контроллеры",
     "masters-link-aria-label": "Контроллеры"
   },

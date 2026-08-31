@@ -1,14 +1,13 @@
 import { Button, type ButtonProps } from "antd";
 import type { MessageInstance } from "antd/es/message/interface";
 import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
 
-import { useAcceptedMastersWarningMessage } from "./use-accepted-masters-warning-message";
+import { useWithAcceptedMastersCheck } from "../hooks/use-with-accepted-masters-check";
 
 export type AcceptedMastersActionButtonProps = Omit<ButtonProps, "onClick" | "loading"> & {
   onAction: () => void | Promise<void>;
   checkHasAcceptedMasters: () => Promise<boolean>;
-  warningActionText: string;
+  warningActionText?: string;
   errorMessage?: string;
   loading?: boolean;
   messageApi: MessageInstance;
@@ -26,40 +25,31 @@ export function AcceptedMastersActionButton({
   navigate,
   ...buttonProps
 }: AcceptedMastersActionButtonProps) {
-  const { t } = useTranslation("common");
-  const renderWarningMessage = useAcceptedMastersWarningMessage();
+  const withAcceptedMastersCheck = useWithAcceptedMastersCheck(messageApi);
   const [isChecking, setIsChecking] = useState(false);
-  const resolvedErrorMessage = errorMessage ?? t("accepted-masters.error-load-salt-masters");
 
   const handleClick = useCallback(() => {
     if (disabled || loading || isChecking) return;
 
     setIsChecking(true);
-    checkHasAcceptedMasters()
-      .then((hasMasters) => {
-        if (!hasMasters) {
-          messageApi.warning(renderWarningMessage({ action: warningActionText, navigate }));
-          return;
-        }
-        return Promise.resolve(onAction());
-      })
-      .catch((error) => {
-        console.error("Accepted masters check failed", error);
-        messageApi.error(resolvedErrorMessage);
-      })
-      .finally(() => {
-        setIsChecking(false);
-      });
+    withAcceptedMastersCheck({
+      checkHasAcceptedMasters,
+      navigate,
+      onSuccess: onAction,
+      errorMessage,
+      warningActionText,
+    }).finally(() => {
+      setIsChecking(false);
+    });
   }, [
     checkHasAcceptedMasters,
     disabled,
+    errorMessage,
     isChecking,
     loading,
-    messageApi,
     navigate,
     onAction,
-    renderWarningMessage,
-    resolvedErrorMessage,
+    withAcceptedMastersCheck,
     warningActionText,
   ]);
 
