@@ -20,7 +20,13 @@
   max-height: 320px;
 }
 
+/*
+ * Page-вариант замещает страницу целиком, включая PageHeader, а шелл рисует разделитель
+ * шапки на фиксированном отступе от верха области контента. Резервируем эту полосу, чтобы
+ * блок ошибки начинался под линией. margin, а не padding — чтобы не съедать min/max-height.
+ */
 .page {
+  margin-top: calc(var(--app-header-height, 57px) - var(--app-layout-gap, 0.6rem));
   min-height: 320px;
   max-height: 440px;
 }
