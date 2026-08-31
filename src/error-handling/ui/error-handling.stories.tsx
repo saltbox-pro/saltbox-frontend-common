@@ -45,6 +45,36 @@ const makeSource = (
   unbind: () => undefined,
 });
 
+/**
+ * Имитация области контента шелла: те же layout-переменные и разделитель шапки страницы
+ * на фиксированном отступе. По нему видно, что page-вариант начинается под линией.
+ */
+const ShellFrame = ({ height = 420, children }: { height?: number; children: React.ReactNode }) => (
+  <div
+    style={
+      {
+        "--app-header-height": "57px",
+        "--app-layout-gap": "0.6rem",
+        position: "relative",
+        height,
+        overflow: "hidden",
+        padding: "var(--app-layout-gap) calc(var(--app-layout-gap) * 2) 0",
+      } as React.CSSProperties
+    }
+  >
+    <div
+      style={{
+        position: "absolute",
+        top: "calc(var(--app-header-height) - 1px)",
+        left: 0,
+        right: 0,
+        borderBottom: "1px solid #f0f0f0",
+      }}
+    />
+    {children}
+  </div>
+);
+
 const meta: Meta = {
   title: "ErrorHandling/Ошибки",
   parameters: { layout: "fullscreen" },
@@ -58,9 +88,9 @@ export const PageAllKinds: Story = {
   render: () => (
     <Flex vertical>
       {ALL_KINDS.map(({ kind, status }) => (
-        <div key={kind} style={{ height: 360, overflow: "hidden", borderBottom: "1px solid #eee" }}>
+        <ShellFrame key={kind}>
           <HttpErrorPage error={makeError(kind, status)} homePath="/" onRetry={() => undefined} />
-        </div>
+        </ShellFrame>
       ))}
     </Flex>
   ),
@@ -101,7 +131,9 @@ export const PageVsBlock: Story = {
           <HttpErrorInline error={error} onRetry={() => undefined} />
         </Card>
         <Card title="level=page" style={{ width: 560 }} styles={{ body: { padding: 0 } }}>
-          <HttpErrorPage error={error} homePath="/" onRetry={() => undefined} />
+          <ShellFrame>
+            <HttpErrorPage error={error} homePath="/" onRetry={() => undefined} />
+          </ShellFrame>
         </Card>
       </Flex>
     );
