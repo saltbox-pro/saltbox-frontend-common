@@ -39,6 +39,8 @@ export * from "./components/transition-layout";
 export * from "./components/accepted-masters";
 export * from "./components/status-segments-progress";
 
+export * from "./plugins";
+
 export * from "./utils/datetime";
 export * from "./utils/custom-events";
 export * from "./utils/legacy-global-error";
