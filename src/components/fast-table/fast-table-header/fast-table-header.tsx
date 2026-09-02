@@ -129,6 +129,15 @@ function FastTableHeaderCell<DataType>({
     header.column.getCanHide() &&
     moveMenuItems.some((item) => !item.disabled);
 
+  const titleNode = <span className="fast-table-header-title">{headerContent}</span>;
+
+  const sorterNode = (
+    <span className="fast-table-sorter">
+      <CaretUpOutlined className={`sort-icon sort-icon-up ${getSortDirectionClass("asc")}`} />
+      <CaretDownOutlined className={`sort-icon sort-icon-down ${getSortDirectionClass("desc")}`} />
+    </span>
+  );
+
   const headerInner = header.isPlaceholder ? null : (
     <div
       className="fast-table-header"
@@ -146,7 +155,7 @@ function FastTableHeaderCell<DataType>({
           : undefined
       }
     >
-      <span className="fast-table-header-title">{headerContent}</span>
+      {canSort ? <Tooltip title={getSortTitle()}>{titleNode}</Tooltip> : titleNode}
 
       {canShowMenu && (
         <span
@@ -160,25 +169,20 @@ function FastTableHeaderCell<DataType>({
             menu={{ items: moveMenuItems }}
             onOpenChange={setIsMenuOpen}
           >
-            <button
-              type="button"
-              aria-label={locale.columnMenu}
-              className={`fast-table-header-menu ${isMenuOpen ? "is-open" : ""}`}
-            >
-              <MoreOutlined />
-            </button>
+            <Tooltip title={isMenuOpen ? "" : locale.columnMenu}>
+              <button
+                type="button"
+                aria-label={locale.columnMenu}
+                className={`fast-table-header-menu ${isMenuOpen ? "is-open" : ""}`}
+              >
+                <MoreOutlined />
+              </button>
+            </Tooltip>
           </Dropdown>
         </span>
       )}
 
-      {canSort && (
-        <span className="fast-table-sorter">
-          <CaretUpOutlined className={`sort-icon sort-icon-up ${getSortDirectionClass("asc")}`} />
-          <CaretDownOutlined
-            className={`sort-icon sort-icon-down ${getSortDirectionClass("desc")}`}
-          />
-        </span>
-      )}
+      {canSort && <Tooltip title={getSortTitle()}>{sorterNode}</Tooltip>}
     </div>
   );
 
@@ -193,7 +197,7 @@ function FastTableHeaderCell<DataType>({
       style={isResizingColumn ? { userSelect: "none" as const } : undefined}
     >
       <div className="fast-table-header-cell-inner">
-        {canSort ? <Tooltip title={getSortTitle()}>{headerInner}</Tooltip> : headerInner}
+        {headerInner}
 
         {canResize && (
           <button
