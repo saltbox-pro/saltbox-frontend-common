@@ -2,7 +2,12 @@ import { action, computed, observable, toJS } from "mobx";
 import { formatQuery, OptionList, RuleGroupType } from "react-querybuilder";
 import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
-import { emptyRuleGroup, formatToMongoDB, generateIdsForQuery } from "../utils/query-builder-utils";
+import {
+  emptyRuleGroup,
+  formatToMongoDB,
+  generateIdsForQuery,
+  parseCaseInsensitiveQuery,
+} from "../utils/query-builder-utils";
 
 export class FilterStore {
   @observable currentFilters: RuleGroupType = emptyRuleGroup;
@@ -68,7 +73,7 @@ export class FilterStore {
 
   @action
   initializeByQuery = (query: object) => {
-    this.currentFilters = generateIdsForQuery(parseMongoDB(query));
+    this.currentFilters = generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(query)));
     this.handleSearch();
   };
 
