@@ -15,7 +15,11 @@ import {
   isColumnWidthLocked,
   resolveColumnWidthLayoutMode,
 } from "../utils/column-width-layout-mode";
-import { applyExplicitFillColumnWidths, resolveFillColumnId } from "../utils/filled-column-widths";
+import {
+  applyExplicitFillColumnWidths,
+  fitColumnSizingToContainer,
+  resolveFillColumnId,
+} from "../utils/filled-column-widths";
 import { clampColumnSizingForIds } from "../utils/persisted-column-sizing";
 
 type UseColumnResizeLayoutArgs<DataType> = {
@@ -72,14 +76,29 @@ export function useColumnResizeLayout<DataType>({
     [resizeConstraintsById]
   );
 
-  const fillColumnId = hasLockedColumnWidths
-    ? resolveFillColumnId(
+  const resolveLeafFillColumnId = useCallback(
+    () =>
+      resolveFillColumnId(
         leafColumns.map((column) => ({
           id: column.id,
           canResize: column.getCanResize(),
         }))
-      )
-    : undefined;
+      ),
+    [leafColumns]
+  );
+
+  const resolveLeafMinWidth = useCallback(
+    (columnId: string) => {
+      const column = leafColumns.find((item) => item.id === columnId);
+      const meta = column?.columnDef.meta as CellMeta | undefined;
+      return (
+        meta?.minWidth ?? resizeConstraintsById.get(columnId)?.minSize ?? COLUMN_RESIZE_MIN_SIZE
+      );
+    },
+    [leafColumns, resizeConstraintsById]
+  );
+
+  const fillColumnId = hasLockedColumnWidths ? resolveLeafFillColumnId() : undefined;
 
   let lockedColumnSizes: ColumnSizingState | undefined;
   let lockedColumnsTotalWidth: number | undefined;
@@ -90,20 +109,12 @@ export function useColumnResizeLayout<DataType>({
       sizingFromGetSize[column.id] = column.getSize();
     }
 
-    const minWidthById = (columnId: string) => {
-      const column = leafColumns.find((item) => item.id === columnId);
-      const meta = column?.columnDef.meta as CellMeta | undefined;
-      return (
-        meta?.minWidth ?? resizeConstraintsById.get(columnId)?.minSize ?? COLUMN_RESIZE_MIN_SIZE
-      );
-    };
-
     const { sizes, totalWidth } = applyExplicitFillColumnWidths(
       sizingFromGetSize,
       leafColumnIds,
       fillColumnId,
       containerWidth,
-      minWidthById
+      resolveLeafMinWidth
     );
 
     if (totalWidth > 0) {
@@ -124,7 +135,7 @@ export function useColumnResizeLayout<DataType>({
 
   useLayoutEffect(() => {
     if (!enableColumnResize || !hasPersistedSizing || !tableContainerRef.current) return;
-    if (isResizingColumnRef.current) return;
+    if (isResizingColumnRef.current || containerWidth <= 0) return;
 
     const measured = measureLeafColumnWidthsFromHeader(tableContainerRef.current, leafColumns);
     if (!measured) return;
@@ -132,17 +143,29 @@ export function useColumnResizeLayout<DataType>({
     const missing = getMissingColumnSizing(columnSizing, measured, leafColumns);
     if (Object.keys(missing).length === 0) return;
 
-    const next = { ...columnSizing, ...missing };
-    seedColumnSizingFromPixels(missing, false);
+    const { sizes } = fitColumnSizingToContainer(
+      { ...columnSizing, ...missing },
+      leafColumnIds,
+      resolveLeafFillColumnId(),
+      containerWidth,
+      resolveLeafMinWidth
+    );
+
+    const next = { ...columnSizing, ...sizes };
+    seedColumnSizingFromPixels(sizes, false);
     persistColumnSizing(next, allLeafColumnIds);
   }, [
     allLeafColumnIds,
     columnSizing,
+    containerWidth,
     enableColumnResize,
     hasPersistedSizing,
+    leafColumnIds,
     leafColumnIdsKey,
     leafColumns,
     persistColumnSizing,
+    resolveLeafFillColumnId,
+    resolveLeafMinWidth,
     seedColumnSizingFromPixels,
     tableContainerRef,
   ]);
@@ -155,26 +178,13 @@ export function useColumnResizeLayout<DataType>({
     if (!measured) return;
 
     const measuredContainerWidth = readElementContentWidth(tableContainerRef.current);
-    const measuredFillColumnId = resolveFillColumnId(
-      leafColumns.map((column) => ({
-        id: column.id,
-        canResize: column.getCanResize(),
-      }))
-    );
-    const measuredMinWidthById = (columnId: string) => {
-      const column = leafColumns.find((item) => item.id === columnId);
-      const meta = column?.columnDef.meta as CellMeta | undefined;
-      return (
-        meta?.minWidth ?? resizeConstraintsById.get(columnId)?.minSize ?? COLUMN_RESIZE_MIN_SIZE
-      );
-    };
 
     const { sizes: normalizedMeasured } = applyExplicitFillColumnWidths(
       measured,
       leafColumnIds,
-      measuredFillColumnId,
+      resolveLeafFillColumnId(),
       measuredContainerWidth,
-      measuredMinWidthById
+      resolveLeafMinWidth
     );
 
     flushSync(() => {
@@ -196,7 +206,8 @@ export function useColumnResizeLayout<DataType>({
     leafColumnIds,
     leafColumns,
     persistColumnSizing,
-    resizeConstraintsById,
+    resolveLeafFillColumnId,
+    resolveLeafMinWidth,
     seedColumnSizingFromPixels,
     tableContainerRef,
   ]);

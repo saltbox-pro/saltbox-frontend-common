@@ -57,11 +57,7 @@ import {
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
-import {
-  type ColumnLayout,
-  buildColumnSettingsItems,
-  dropSortingForHiddenColumns,
-} from "../utils/column-layout";
+import { buildColumnSettingsItems } from "../utils/column-layout";
 import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
@@ -294,18 +290,9 @@ function FastTableListedContent<DataType>({
     return activeClassName;
   };
 
-  const handleApplyColumnLayout = (nextLayout: ColumnLayout) => {
-    applyColumnLayout(nextLayout);
-
-    const nextSorting = dropSortingForHiddenColumns(sorting, nextLayout.hidden);
-    if (nextSorting !== sorting) {
-      onSortingChange?.(nextSorting ?? []);
-    }
-  };
-
   const columnSettings = {
     items: buildColumnSettingsItems(allLeafColumns),
-    onApply: handleApplyColumnLayout,
+    onApply: applyColumnLayout,
   };
 
   const declaredFillWidth = useDeclaredFillWidth(leafColumns);
@@ -507,6 +494,7 @@ function FastTableListedContent<DataType>({
             columnSizing={columnSizing}
             columnWidths={columnWidths}
             leafColumnIds={leafColumnIds}
+            leafColumnIdsKey={leafColumnIdsKey}
             hasResizeColumnSizing={hasResizeColumnSizing}
             estimatedRowHeight={estimatedRowHeight}
             enableDynamicRowHeight={enableDynamicRowHeight}
