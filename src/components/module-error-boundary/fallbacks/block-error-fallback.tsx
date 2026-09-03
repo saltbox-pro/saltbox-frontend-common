@@ -18,6 +18,7 @@ type BlockErrorFallbackProps = {
   error?: unknown;
   actions?: ReactNode;
   onRetry?: () => void;
+  showErrorDetails?: boolean;
 };
 
 export function BlockErrorFallback({
@@ -27,6 +28,7 @@ export function BlockErrorFallback({
   error,
   actions,
   onRetry,
+  showErrorDetails,
 }: BlockErrorFallbackProps) {
   const lang = useCommonLocale();
   const resolvedTitle = title ?? tCommon("error-boundary.block.title-default", undefined, lang);
@@ -46,7 +48,7 @@ export function BlockErrorFallback({
           <span className={styles.compactRow}>
             <span className={styles.compactMessage}>{resolvedTitle}</span>
             <span className={styles.compactDetails}>
-              <ErrorDetailsToggle error={error} align="start" />
+              <ErrorDetailsToggle error={error} align="start" showErrorDetails={showErrorDetails} />
             </span>
           </span>
         }
@@ -88,7 +90,7 @@ export function BlockErrorFallback({
           {resolvedDescription ? (
             <span className={subtitleStyles.subtitle}>{resolvedDescription}</span>
           ) : null}
-          <ErrorDetailsToggle error={error} />
+          <ErrorDetailsToggle error={error} showErrorDetails={showErrorDetails} />
         </>
       }
       extra={extra.length > 0 ? extra : undefined}

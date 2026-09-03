@@ -291,5 +291,13 @@
       "rename-directory-success": "Directory \"{{name}}\" renamed successfully",
       "rename-error": "Failed to rename object"
     }
+  },
+  "template-schema-error": {
+    "title": "Failed to open template",
+    "description": "The template \"{{templateName}}\" contains a schema error",
+    "hint": "Contact the template administrator or choose another template",
+    "source": "Source: {{source}}",
+    "path": "Schema path: {{path}}",
+    "return": "Return to template selection"
   }
 }

@@ -1,11 +1,11 @@
 import RJSFJsonForm from "@rjsf/antd";
 import Form, { type FormProps } from "@rjsf/core";
 import type { FormContextType, RJSFSchema, StrictRJSFSchema } from "@rjsf/utils";
-import validator from "@rjsf/validator-ajv8";
 import { Flex } from "antd";
 import type { Ref } from "react";
 
 import { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS } from "../../constants/default-settings";
+import { rjsfValidator as validator } from "../../utils/rjsf-validator";
 import { CustomArrayFieldItemTemplate } from "../templates/array-field-item-template";
 import { CustomBaseInputTemplate } from "../templates/base-input-template";
 import { CustomWrapIfAdditionalTemplate } from "../templates/wrap-if-additional-template";

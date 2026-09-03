@@ -3,7 +3,7 @@ import { Tooltip } from "antd";
 
 import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
 
-import { getDevErrorDetails } from "../utils/get-error-message";
+import { getErrorDetails } from "../utils/get-error-message";
 import { tCommon, useCommonLocale } from "../utils/i18n";
 
 import styles from "./error-details-toggle.module.css";
@@ -13,6 +13,7 @@ type ErrorDetailsToggleProps = {
   label?: string;
   align?: "center" | "start";
   iconOnly?: boolean;
+  showErrorDetails?: boolean;
 };
 
 export function ErrorDetailsToggle({
@@ -20,9 +21,13 @@ export function ErrorDetailsToggle({
   label,
   align = "center",
   iconOnly = false,
+  showErrorDetails,
 }: ErrorDetailsToggleProps) {
   const lang = useCommonLocale();
-  const details = getDevErrorDetails(error);
+  const details =
+    showErrorDetails === false
+      ? undefined
+      : getErrorDetails(error, { showInProduction: showErrorDetails === true });
 
   if (!details) {
     return null;
