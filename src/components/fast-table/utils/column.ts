@@ -49,7 +49,10 @@ export function formatCssPx(width: number): string {
 }
 
 export function readElementContentWidth(element: HTMLElement): number {
-  return element.getBoundingClientRect().width;
+  const outerWidth = element.getBoundingClientRect().width;
+  const scrollbarWidth = element.offsetWidth - element.clientWidth;
+
+  return Math.max(0, outerWidth - scrollbarWidth);
 }
 
 export function measureLeafColumnWidthsFromHeader(

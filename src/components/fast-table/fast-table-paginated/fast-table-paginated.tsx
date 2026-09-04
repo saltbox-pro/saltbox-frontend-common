@@ -36,6 +36,7 @@ import {
 } from "../fast-table-load-error";
 import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
 import { useColumnLayout } from "../hooks/use-column-layout";
+import { useColumnMove } from "../hooks/use-column-move";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
@@ -62,11 +63,7 @@ import {
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
-import {
-  type ColumnLayout,
-  buildColumnSettingsItems,
-  dropSortingForHiddenColumns,
-} from "../utils/column-layout";
+import { buildColumnSettingsItems } from "../utils/column-layout";
 import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
@@ -323,19 +320,15 @@ function FastTablePaginatedContent<DataType>({
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
 
-  const handleApplyColumnLayout = (nextLayout: ColumnLayout) => {
-    applyColumnLayout(nextLayout);
-
-    const nextSorting = dropSortingForHiddenColumns(sorting, nextLayout.hidden);
-    if (nextSorting !== sorting) {
-      onLazyLoad(pagination, nextSorting ?? []);
-    }
-  };
-
   const columnSettings = {
     items: buildColumnSettingsItems(allLeafColumns),
-    onApply: handleApplyColumnLayout,
+    onApply: applyColumnLayout,
   };
+
+  const { canMoveColumn, moveColumn } = useColumnMove({
+    items: columnSettings.items,
+    onApply: applyColumnLayout,
+  });
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
@@ -539,6 +532,8 @@ function FastTablePaginatedContent<DataType>({
                 table={table}
                 locale={tableLocale}
                 onPrepareColumnResize={prepareColumnResize}
+                canMoveColumn={enableColumnSettings ? canMoveColumn : undefined}
+                onMoveColumn={enableColumnSettings ? moveColumn : undefined}
               />
             </thead>
             <tbody ref={bodyRef}>
@@ -574,6 +569,7 @@ function FastTablePaginatedContent<DataType>({
               columnSizing={columnSizing}
               columnWidths={columnWidths}
               leafColumnIds={leafColumnIds}
+              leafColumnIdsKey={leafColumnIdsKey}
               hasResizeColumnSizing={hasResizeColumnSizing}
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}

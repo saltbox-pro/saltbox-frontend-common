@@ -1,4 +1,4 @@
-import type { Column, ColumnDef, SortingState, VisibilityState } from "@tanstack/react-table";
+import type { Column, ColumnDef, VisibilityState } from "@tanstack/react-table";
 
 import type { CellMeta } from "../types";
 
@@ -154,14 +154,47 @@ export function buildColumnLayoutFromItems(items: ColumnSettingsItem[]): ColumnL
   };
 }
 
-export function dropSortingForHiddenColumns(
-  sorting: SortingState | undefined,
-  hiddenColumnIds: Iterable<string>
-): SortingState | undefined {
-  if (!sorting || sorting.length === 0) return sorting;
+export type ColumnMoveDirection = "start" | "left" | "right" | "end";
 
-  const hidden = new Set(hiddenColumnIds);
-  const next = sorting.filter((item) => !hidden.has(item.id));
+function findVisibleIndex(
+  items: ColumnSettingsItem[],
+  startIndex: number,
+  step: number
+): number | undefined {
+  for (let index = startIndex; index >= 0 && index < items.length; index += step) {
+    if (items[index].visible) return index;
+  }
 
-  return next.length === sorting.length ? sorting : next;
+  return undefined;
+}
+
+function resolveTargetIndex(
+  items: ColumnSettingsItem[],
+  fromIndex: number,
+  direction: ColumnMoveDirection
+): number | undefined {
+  switch (direction) {
+    case "start":
+      return findVisibleIndex(items, 0, 1);
+    case "end":
+      return findVisibleIndex(items, items.length - 1, -1);
+    case "left":
+      return findVisibleIndex(items, fromIndex - 1, -1);
+    case "right":
+      return findVisibleIndex(items, fromIndex + 1, 1);
+  }
+}
+
+export function resolveColumnMoveIndex(
+  items: ColumnSettingsItem[],
+  columnId: string,
+  direction: ColumnMoveDirection
+): number | undefined {
+  const fromIndex = items.findIndex((item) => item.id === columnId);
+  if (fromIndex === -1) return undefined;
+
+  const toIndex = resolveTargetIndex(items, fromIndex, direction);
+  if (toIndex === undefined || toIndex === fromIndex) return undefined;
+
+  return toIndex;
 }
