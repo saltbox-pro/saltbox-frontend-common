@@ -199,6 +199,7 @@ type FastTableVirtualRowProps<DataType> = {
   isClickable: boolean;
   isExpanded: boolean;
   enableDynamicRowHeight: boolean;
+  columnOrderKey: string;
   measureElement?: (node: HTMLElement | null) => void;
   cellContext: Omit<FastTableVirtualCellContext<DataType>, "row">;
   onRowClick?: FastTableRowClickHandler<DataType>;
@@ -275,6 +276,7 @@ const FastTableVirtualRow = memo(FastTableVirtualRowInner, (prev, next) => {
     prev.isClickable === next.isClickable &&
     prev.isExpanded === next.isExpanded &&
     prev.enableDynamicRowHeight === next.enableDynamicRowHeight &&
+    prev.columnOrderKey === next.columnOrderKey &&
     prev.cellContext === next.cellContext &&
     prev.onRowClick === next.onRowClick &&
     prev.renderSubComponent === next.renderSubComponent &&
@@ -295,6 +297,7 @@ export type FastTableVirtualBodyProps<DataType> = {
   columnSizing: Record<string, number>;
   columnWidths: Record<string, number>;
   leafColumnIds: string[];
+  leafColumnIdsKey: string;
   hasResizeColumnSizing: boolean;
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
@@ -318,6 +321,7 @@ export function FastTableVirtualBody<DataType>({
   columnSizing,
   columnWidths,
   leafColumnIds,
+  leafColumnIdsKey,
   hasResizeColumnSizing,
   estimatedRowHeight,
   enableDynamicRowHeight = true,
@@ -395,6 +399,7 @@ export function FastTableVirtualBody<DataType>({
             isClickable={isClickable}
             isExpanded={row.getIsExpanded()}
             enableDynamicRowHeight={enableDynamicRowHeight}
+            columnOrderKey={leafColumnIdsKey}
             measureElement={rowVirtualizer.measureElement}
             cellContext={cellContext}
             onRowClick={onRowClick}

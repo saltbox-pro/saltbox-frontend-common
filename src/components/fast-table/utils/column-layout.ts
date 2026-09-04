@@ -1,4 +1,4 @@
-import type { Column, ColumnDef, SortingState, VisibilityState } from "@tanstack/react-table";
+import type { Column, ColumnDef, VisibilityState } from "@tanstack/react-table";
 
 import type { CellMeta } from "../types";
 
@@ -197,16 +197,4 @@ export function resolveColumnMoveIndex(
   if (toIndex === undefined || toIndex === fromIndex) return undefined;
 
   return toIndex;
-}
-
-export function dropSortingForHiddenColumns(
-  sorting: SortingState | undefined,
-  hiddenColumnIds: Iterable<string>
-): SortingState | undefined {
-  if (!sorting || sorting.length === 0) return sorting;
-
-  const hidden = new Set(hiddenColumnIds);
-  const next = sorting.filter((item) => !hidden.has(item.id));
-
-  return next.length === sorting.length ? sorting : next;
 }

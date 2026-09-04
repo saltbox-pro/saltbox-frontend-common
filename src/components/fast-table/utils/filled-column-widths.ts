@@ -100,3 +100,48 @@ export function applyExplicitFillColumnWidths(
 
   return { sizes, totalWidth: sumOthers + filledWidth };
 }
+
+export function fitColumnSizingToContainer(
+  sizing: ColumnSizingState,
+  columnIds: string[],
+  fillColumnId: string | undefined,
+  containerWidth: number,
+  getMinWidth: (columnId: string) => number
+): { sizes: ColumnSizingState; totalWidth: number } {
+  const filled = applyExplicitFillColumnWidths(
+    sizing,
+    columnIds,
+    fillColumnId,
+    containerWidth,
+    getMinWidth
+  );
+
+  if (containerWidth <= 0 || filled.totalWidth <= containerWidth) {
+    return filled;
+  }
+
+  const shrinkableById = new Map<string, number>();
+  let totalShrinkable = 0;
+
+  for (const id of columnIds) {
+    const shrinkable = Math.max(0, (filled.sizes[id] ?? 0) - getMinWidth(id));
+    shrinkableById.set(id, shrinkable);
+    totalShrinkable += shrinkable;
+  }
+
+  if (totalShrinkable <= 0) {
+    return filled;
+  }
+
+  const shrinkRatio = Math.min(1, (filled.totalWidth - containerWidth) / totalShrinkable);
+  const sizes: ColumnSizingState = {};
+  let totalWidth = 0;
+
+  for (const id of columnIds) {
+    const width = (filled.sizes[id] ?? 0) - (shrinkableById.get(id) ?? 0) * shrinkRatio;
+    sizes[id] = width;
+    totalWidth += width;
+  }
+
+  return { sizes, totalWidth };
+}

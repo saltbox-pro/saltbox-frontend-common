@@ -63,11 +63,7 @@ import {
   resolveColumnMinWidth,
   resolveColumnWidth,
 } from "../utils/column";
-import {
-  type ColumnLayout,
-  buildColumnSettingsItems,
-  dropSortingForHiddenColumns,
-} from "../utils/column-layout";
+import { buildColumnSettingsItems } from "../utils/column-layout";
 import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
@@ -324,23 +320,14 @@ function FastTablePaginatedContent<DataType>({
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
 
-  const handleApplyColumnLayout = (nextLayout: ColumnLayout) => {
-    applyColumnLayout(nextLayout);
-
-    const nextSorting = dropSortingForHiddenColumns(sorting, nextLayout.hidden);
-    if (nextSorting !== sorting) {
-      onLazyLoad(pagination, nextSorting ?? []);
-    }
-  };
-
   const columnSettings = {
     items: buildColumnSettingsItems(allLeafColumns),
-    onApply: handleApplyColumnLayout,
+    onApply: applyColumnLayout,
   };
 
   const { canMoveColumn, moveColumn } = useColumnMove({
     items: columnSettings.items,
-    onApply: handleApplyColumnLayout,
+    onApply: applyColumnLayout,
   });
 
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
@@ -582,6 +569,7 @@ function FastTablePaginatedContent<DataType>({
               columnSizing={columnSizing}
               columnWidths={columnWidths}
               leafColumnIds={leafColumnIds}
+              leafColumnIdsKey={leafColumnIdsKey}
               hasResizeColumnSizing={hasResizeColumnSizing}
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}
