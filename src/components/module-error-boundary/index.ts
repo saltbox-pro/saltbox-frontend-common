@@ -1,4 +1,8 @@
 export { withParcelBoundary } from "./boundaries/with-parcel-boundary";
+export {
+  BlockErrorFallback,
+  type BlockErrorFallbackVariant,
+} from "./fallbacks/block-error-fallback";
 export { TableErrorBoundary } from "./boundaries/table-error-boundary";
 export { PageHeaderErrorBoundary } from "./boundaries/page-header-error-boundary";
 export { FiltersErrorBoundary } from "./boundaries/filters-error-boundary";

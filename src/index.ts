@@ -3,6 +3,7 @@ export * from "./components/file-browser";
 export * from "./components/page-header";
 export * from "./components/page-layout";
 export * from "./components/module-error-boundary";
+export * from "./components/template-schema-error";
 export * from "./components/antd-wrappers/drawer";
 export * from "./components/antd-wrappers/modal";
 export * from "./components/antd-wrappers/dropdown";
@@ -58,6 +59,7 @@ export * from "./utils/query-builder-utils";
 export * from "./constants/filter-operators";
 export * from "./utils/relative-time";
 export * from "./utils/deep-omit-undefined";
+export * from "./utils/template-schema-validation";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
