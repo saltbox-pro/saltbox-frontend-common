@@ -11,6 +11,11 @@ export type FastTableLocaleOverrides = {
   resetColumnWidths?: string;
   columnSettings?: string;
   columnSettingsApply?: string;
+  columnMenu?: string;
+  moveColumnToStart?: string;
+  moveColumnLeft?: string;
+  moveColumnRight?: string;
+  moveColumnToEnd?: string;
 };
 
 export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
@@ -27,6 +32,11 @@ export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
       resetColumnWidths: overrides?.resetColumnWidths ?? t("fast-table.reset-column-widths"),
       columnSettings: overrides?.columnSettings ?? t("fast-table.column-settings"),
       columnSettingsApply: overrides?.columnSettingsApply ?? t("fast-table.column-settings-apply"),
+      columnMenu: overrides?.columnMenu ?? t("fast-table.column-menu"),
+      moveColumnToStart: overrides?.moveColumnToStart ?? t("fast-table.move-column-to-start"),
+      moveColumnLeft: overrides?.moveColumnLeft ?? t("fast-table.move-column-left"),
+      moveColumnRight: overrides?.moveColumnRight ?? t("fast-table.move-column-right"),
+      moveColumnToEnd: overrides?.moveColumnToEnd ?? t("fast-table.move-column-to-end"),
     }),
     [
       overrides?.sortAscending,
@@ -38,6 +48,11 @@ export function useFastTableLocale(overrides?: FastTableLocaleOverrides) {
       overrides?.resetColumnWidths,
       overrides?.columnSettings,
       overrides?.columnSettingsApply,
+      overrides?.columnMenu,
+      overrides?.moveColumnToStart,
+      overrides?.moveColumnLeft,
+      overrides?.moveColumnRight,
+      overrides?.moveColumnToEnd,
       t,
     ]
   );

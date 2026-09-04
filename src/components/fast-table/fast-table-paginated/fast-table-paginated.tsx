@@ -36,6 +36,7 @@ import {
 } from "../fast-table-load-error";
 import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
 import { useColumnLayout } from "../hooks/use-column-layout";
+import { useColumnMove } from "../hooks/use-column-move";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
 import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
@@ -337,6 +338,11 @@ function FastTablePaginatedContent<DataType>({
     onApply: handleApplyColumnLayout,
   };
 
+  const { canMoveColumn, moveColumn } = useColumnMove({
+    items: columnSettings.items,
+    onApply: handleApplyColumnLayout,
+  });
+
   const showTotal: PaginationProps["showTotal"] = (total) => `${tableLocale.total} ${total}`;
 
   const handlePaginationChange = (page: number, pageSize: number) => {
@@ -539,6 +545,8 @@ function FastTablePaginatedContent<DataType>({
                 table={table}
                 locale={tableLocale}
                 onPrepareColumnResize={prepareColumnResize}
+                canMoveColumn={enableColumnSettings ? canMoveColumn : undefined}
+                onMoveColumn={enableColumnSettings ? moveColumn : undefined}
               />
             </thead>
             <tbody ref={bodyRef}>

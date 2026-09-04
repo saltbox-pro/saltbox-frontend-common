@@ -160,7 +160,12 @@
     "table-view-menu": "Table view",
     "reset-column-widths": "Reset column widths",
     "column-settings": "Change columns",
-    "column-settings-apply": "Apply"
+    "column-settings-apply": "Apply",
+    "column-menu": "Column menu",
+    "move-column-to-start": "Move to start",
+    "move-column-left": "Move left",
+    "move-column-right": "Move right",
+    "move-column-to-end": "Move to end"
   },
   "file-browser": {
     "empty": "Directory is empty",
