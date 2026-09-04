@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
 import { SwitchTransitionLayout } from "saltbox-common/components/transition-layout";
 
+import styles from "./info-drawer-title.module.css";
+
 interface InfoDrawerTitleProps {
   activeTransitionKey?: string;
   name?: string;
@@ -23,10 +25,10 @@ export function InfoDrawerTitle({
     <SwitchTransitionLayout activeKey={activeTransitionKey}>
       {() => (
         <Flex align="center" gap={4} wrap>
-          {label}
+          {!!label && <span>{label}</span>}
           {!!name && (
             <>
-              {name}
+              <span className={styles.name}>{name}</span>
               {copyable ? <CopyToClipboardButton text={name} /> : null}
               {extra}
             </>
