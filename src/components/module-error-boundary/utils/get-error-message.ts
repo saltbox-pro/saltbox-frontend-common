@@ -28,8 +28,11 @@ export const isDevelopmentEnvironment = (): boolean => {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
 };
 
-export const getDevErrorDetails = (error: unknown): string | undefined => {
-  if (!isDevelopmentEnvironment()) {
+export const getErrorDetails = (
+  error: unknown,
+  options?: { showInProduction?: boolean }
+): string | undefined => {
+  if (!options?.showInProduction && !isDevelopmentEnvironment()) {
     return undefined;
   }
 
