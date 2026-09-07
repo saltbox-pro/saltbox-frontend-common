@@ -9,12 +9,15 @@ import {
   parseCaseInsensitiveQuery,
 } from "../utils/query-builder-utils";
 
+type MongoQueryCache = { key: string; value: object };
+
 export class FilterStore {
   @observable currentFilters: RuleGroupType = emptyRuleGroup;
   @observable searchFilters: RuleGroupType = emptyRuleGroup;
   @observable isLoading: boolean = false;
   @observable filterSchema: OptionList = [];
-  private _queryCache = { key: "", value: {} };
+  private _searchQueryCache: MongoQueryCache = { key: "", value: {} };
+  private _currentQueryCache: MongoQueryCache = { key: "", value: {} };
 
   @computed
   get activeFiltersCount(): number {
@@ -57,18 +60,12 @@ export class FilterStore {
 
   @computed
   get searchMongoDBQuery(): object {
-    const currentQueryString = formatQuery(this.searchFilters, "json_without_ids");
-    const fields = toJS(this.filterSchema);
-    const schemaKey = fields.length > 0 ? JSON.stringify(fields) : "";
-    const cacheKey = `${currentQueryString}|${schemaKey}`;
+    return this.buildMongoDBQuery(this.searchFilters, this._searchQueryCache);
+  }
 
-    if (cacheKey !== this._queryCache.key) {
-      this._queryCache = {
-        key: cacheKey,
-        value: formatToMongoDB(this.searchFilters, fields),
-      };
-    }
-    return this._queryCache.value;
+  @computed
+  get currentMongoDBQuery(): object {
+    return this.buildMongoDBQuery(this.currentFilters, this._currentQueryCache);
   }
 
   @action
@@ -76,6 +73,19 @@ export class FilterStore {
     this.currentFilters = generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(query)));
     this.handleSearch();
   };
+
+  private buildMongoDBQuery(filters: RuleGroupType, cache: MongoQueryCache): object {
+    const currentQueryString = formatQuery(filters, "json_without_ids");
+    const fields = toJS(this.filterSchema);
+    const schemaKey = fields.length > 0 ? JSON.stringify(fields) : "";
+    const cacheKey = `${currentQueryString}|${schemaKey}`;
+
+    if (cacheKey !== cache.key) {
+      cache.key = cacheKey;
+      cache.value = formatToMongoDB(filters, fields);
+    }
+    return cache.value;
+  }
 
   private getRulesCount = (group: RuleGroupType): number => {
     if (!group?.rules || !Array.isArray(group.rules)) {

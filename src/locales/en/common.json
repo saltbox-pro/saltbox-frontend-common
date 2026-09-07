@@ -28,7 +28,8 @@
     "remove-rule-title": "Remove Filters Rule",
     "remove-group-title": "Remove Filters Group",
     "search": "Search",
-    "reset": "Reset"
+    "reset": "Reset",
+    "filter-copied": "Filter copied"
   },
   "filters": {
     "button-show-filters": "Filters"

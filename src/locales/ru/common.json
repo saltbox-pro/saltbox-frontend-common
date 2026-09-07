@@ -28,7 +28,8 @@
     "remove-rule-title": "Удалить фильтр",
     "remove-group-title": "Удалить группу фильтров",
     "search": "Поиск",
-    "reset": "Сбросить"
+    "reset": "Сбросить",
+    "filter-copied": "Фильтр скопирован"
   },
   "filters": {
     "button-show-filters": "Фильтры"

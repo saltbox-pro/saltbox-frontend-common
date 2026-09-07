@@ -1,5 +1,6 @@
 import { CopyOutlined } from "@ant-design/icons";
 import { type ButtonProps } from "antd";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { notify } from "../../../../notifications/model/notify";
@@ -7,6 +8,7 @@ import { BaseActionButton } from "../../base-action-button";
 
 interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
   text: string;
+  icon?: ReactNode;
   successMessage?: string;
   errorMessage?: string;
   onCopySuccess?: (text: string) => void;
@@ -20,6 +22,7 @@ interface CopyToClipboardButtonProps extends Omit<ButtonProps, "icon"> {
  */
 export function CopyToClipboardButton({
   text,
+  icon,
   successMessage,
   errorMessage,
   onCopySuccess,
@@ -55,7 +58,7 @@ export function CopyToClipboardButton({
 
   return (
     <BaseActionButton
-      icon={<CopyOutlined />}
+      icon={icon ?? <CopyOutlined />}
       title={title ?? t("copy-to-clipboard-button.copy")}
       onClick={handleCopy}
       {...restProps}

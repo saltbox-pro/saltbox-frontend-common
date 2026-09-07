@@ -13,6 +13,7 @@ import { FilterStore } from "../../store/filter-store";
 import { MatIcon } from "../mat-icon/mat-icon";
 import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filters-error-boundary";
 
+import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
 import { QueryBuilderSaltBox } from "./query-builder-salt-box/query-builder-salt-box";
 import styles from "./salt-box-query-builder-container.module.css";
 
@@ -20,6 +21,7 @@ type SaltBoxQueryBuilderContainerProps = {
   filterStore?: FilterStore;
   additionalButtons?: ReactElement;
   hideButtons?: boolean;
+  showCopyFilterButton?: boolean;
   controlElements?: {
     valueEditor?: FC<ValueEditorProps>;
     valueSelector?: FC<ValueSelectorProps>;
@@ -124,6 +126,9 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
             {t("query-builder.search")}
           </Button>
           <div className={styles.buttons}>
+            {props.showCopyFilterButton && (
+              <QueryBuilderCopyFilterButton filterStore={filterStore} />
+            )}
             <Button
               color="danger"
               variant="link"
