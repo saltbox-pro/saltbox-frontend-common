@@ -4,6 +4,14 @@
   gap: 8px;
 }
 
+.header {
+  min-height: 24px;
+}
+
+.title {
+  font-size: 14px;
+}
+
 .spinContainer {
   padding: 12px 0;
 }

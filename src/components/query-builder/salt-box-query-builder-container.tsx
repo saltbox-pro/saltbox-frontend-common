@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import { ClearOutlined, SearchOutlined } from "@ant-design/icons";
 import { QueryBuilderDnD } from "@react-querybuilder/dnd";
 import { Button, Flex, Spin } from "antd";
 import { toJS } from "mobx";
@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import QueryBuilder, { ValueEditorProps, ValueSelectorProps } from "react-querybuilder";
 
 import { FilterStore } from "../../store/filter-store";
-import { MatIcon } from "../mat-icon/mat-icon";
+import { BaseActionButton } from "../buttons/base-action-button";
 import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filters-error-boundary";
 
 import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
@@ -127,14 +127,14 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
           </Button>
           <div className={styles.buttons}>
             {props.showCopyFilterButton && (
-              <QueryBuilderCopyFilterButton filterStore={filterStore} />
+              <QueryBuilderCopyFilterButton filterStore={filterStore} size="middle" />
             )}
-            <Button
+            <BaseActionButton
               color="danger"
-              variant="link"
+              size="middle"
               disabled={filterStore.currentFilters.rules.length === 0}
               onClick={handleResetClick}
-              icon={<MatIcon icon="filter_alt_off" />}
+              icon={<ClearOutlined />}
               title={t("query-builder.reset")}
             />
             {props?.additionalButtons}
