@@ -1,6 +1,4 @@
-import "@material-symbols/font-300";
-// eslint-disable-next-line no-duplicate-imports
-import { MaterialSymbol } from "@material-symbols/font-300";
+import type { MaterialSymbol } from "@material-symbols/font-300";
 
 type IconSize = "small" | "normal" | "large";
 type MatIconProps = {
@@ -9,20 +7,28 @@ type MatIconProps = {
   size?: IconSize;
 };
 
+const SIZE_PX: Record<IconSize, string> = {
+  small: "20px",
+  normal: "24px",
+  large: "32px",
+};
+
 export function MatIcon({ className, icon, size }: MatIconProps) {
-  const defaultClass = "material-symbols-outlined";
-  const sizeClasses: { [key in IconSize]: string } = {
-    small: "20px",
-    normal: "24px",
-    large: "32px",
-  };
-  const fontSize = size ? sizeClasses[size] : sizeClasses.normal;
+  const fontSize = size ? SIZE_PX[size] : SIZE_PX.normal;
 
   return (
-    <>
-      <span style={{ fontSize }} className={className ? className : defaultClass}>
+    <span
+      style={{
+        display: "inline-block",
+        width: fontSize,
+        height: fontSize,
+        lineHeight: fontSize,
+        verticalAlign: "middle",
+      }}
+    >
+      <span style={{ fontSize }} className={className ? className : "material-symbols-outlined"}>
         {icon}
       </span>
-    </>
+    </span>
   );
 }

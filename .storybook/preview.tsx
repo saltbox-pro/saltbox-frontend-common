@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/react";
-import "@material-symbols/font-300";
+import "@material-symbols/font-300/outlined.css";
 
 import { AppLanguage } from "../src/interfaces/locales";
 import { SaltboxLocaleProvider } from "../src/providers";
