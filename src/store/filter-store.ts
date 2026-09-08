@@ -16,6 +16,7 @@ export class FilterStore {
   @observable searchFilters: RuleGroupType = emptyRuleGroup;
   @observable isLoading: boolean = false;
   @observable filterSchema: OptionList = [];
+  @observable filtersRevision: number = 0;
   private _searchQueryCache: MongoQueryCache = { key: "", value: {} };
   private _currentQueryCache: MongoQueryCache = { key: "", value: {} };
 
@@ -71,6 +72,7 @@ export class FilterStore {
   @action
   initializeByQuery = (query: object) => {
     this.currentFilters = generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(query)));
+    this.filtersRevision += 1;
     this.handleSearch();
   };
 

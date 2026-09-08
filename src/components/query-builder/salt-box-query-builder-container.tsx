@@ -53,7 +53,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
     }
 
     const isEmpty = !filterStore.currentFilters.rules.length;
-    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}`;
+    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}-${filterStore.filtersRevision}`;
   };
 
   const handleSearchClick = () => {
