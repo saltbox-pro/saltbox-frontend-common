@@ -3,8 +3,18 @@
   "description": "common components for saltbox frontends",
   "module": "dist/saltbox-frontend-common.es.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/saltbox-frontend-common.es.js",
+      "default": "./dist/saltbox-frontend-common.es.js"
+    },
+    "./material-symbols": "./material-symbols.js",
+    "./dist/saltbox-frontend-common.css": "./dist/saltbox-frontend-common.css"
+  },
   "files": [
-    "dist"
+    "dist",
+    "material-symbols.js"
   ],
   "repository": "https://dev.saltbox.pro/saltbox/saltbox-frontend-common.git",
   "license": "Apache-2.0",
