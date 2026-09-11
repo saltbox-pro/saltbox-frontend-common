@@ -1,15 +1,23 @@
 ---
+
 include:
+
   - project: "saltbox/ci-lib"
     file: "mirror-repo.yml"
+
+  - project: 'saltbox/ci-lib'
+    file: 'close-github-pr.yml'
+
 
 variables:
   NODE_IMAGE: "node:22.18.0"
   YARN_CACHE_FOLDER: "./yarn_cache/"
 
+
 cache:
   paths:
     - "$YARN_CACHE_FOLDER"
+
 
 Build package:
   image: "$NODE_IMAGE"
@@ -22,6 +30,7 @@ Build package:
     paths:
       - dist
     expire_in: 1 day
+
 
 Upload package:
   image: "$NODE_IMAGE"
@@ -39,6 +48,12 @@ Upload package:
   rules:
     - if: $CI_COMMIT_TAG =~ $VERSION_TAG_PATTERN
 
+
 Mirror Repository:
   extends: .mirror-repo
+  stage: build
+
+
+Check for GitHub PR to close:
+  extends: .close-github-pr
   stage: build
