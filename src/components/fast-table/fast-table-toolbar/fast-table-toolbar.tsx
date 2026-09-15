@@ -50,7 +50,7 @@ export function FastTableToolbar({
         icon={<MoreOutlined />}
         title={locale.tableViewMenu}
         size="middle"
-        aria-label={locale.tableViewMenu}
+        variant={container ? undefined : "text"}
       />
     </Dropdown>
   );

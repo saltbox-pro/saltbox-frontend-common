@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { FastTableToolbarSlotValue } from "./fast-table-toolbar-slot-context";
+import type { FastTableToolbarSlotContextValue } from "./fast-table-toolbar-slot-context";
 
 export function useFastTableToolbarSlotState(
   container?: HTMLElement | null
-): FastTableToolbarSlotValue {
+): FastTableToolbarSlotContextValue {
   const [ownNode, setNode] = useState<HTMLElement | null>(null);
   const ownerRef = useRef<string | null>(null);
   const node = container === undefined ? ownNode : container;
