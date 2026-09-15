@@ -1,13 +1,15 @@
 import { MoreOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { createPortal } from "react-dom";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
+import { BaseActionButton } from "../../buttons/base-action-button";
 import {
   ColumnSettingsPanel,
   type ColumnSettingsPanelProps,
 } from "../column-settings/column-settings-panel";
 
 import { type FastTableToolbarLocale, useFastTableToolbar } from "./use-fast-table-toolbar";
+import { useFastTableToolbarContainer } from "./use-fast-table-toolbar-container";
 
 export type FastTableToolbarProps = {
   locale: FastTableToolbarLocale & ColumnSettingsPanelProps["locale"];
@@ -28,29 +30,34 @@ export function FastTableToolbar({
     canResetColumnWidths,
     onResetColumnWidths,
   });
+  const container = useFastTableToolbarContainer();
 
   const showColumnSettings = isColumnSettingsMode && columnSettings !== undefined;
 
-  return (
-    <div className="fast-table-toolbar">
-      <Dropdown
-        trigger={["click"]}
-        open={isOpen}
-        onOpenChange={handleOpenChange}
-        menu={showColumnSettings ? undefined : { items }}
-        popupRender={
-          showColumnSettings
-            ? () => <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
-            : undefined
-        }
-      >
-        <Button
-          type="text"
-          className="fast-table-toolbar-button"
-          icon={<MoreOutlined />}
-          aria-label={locale.tableViewMenu}
-        />
-      </Dropdown>
-    </div>
+  const menu = (
+    <Dropdown
+      trigger={["click"]}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      menu={showColumnSettings ? undefined : { items }}
+      popupRender={
+        showColumnSettings
+          ? () => <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
+          : undefined
+      }
+    >
+      <BaseActionButton
+        icon={<MoreOutlined />}
+        title={locale.tableViewMenu}
+        size="middle"
+        aria-label={locale.tableViewMenu}
+      />
+    </Dropdown>
   );
+
+  if (container) {
+    return createPortal(menu, container);
+  }
+
+  return <div className="fast-table-toolbar">{menu}</div>;
 }

@@ -7,17 +7,6 @@
   margin-bottom: 4px;
 }
 
-.fast-table-toolbar-button.ant-btn {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-.fast-table-toolbar-button.ant-btn:hover {
-  color: rgba(0, 0, 0, 0.88);
-}
-
 .fast-table.has-column-resize table > thead > tr > th,
 .fast-table.has-column-resize table > tbody > tr > td {
   box-sizing: border-box;

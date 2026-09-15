@@ -1,0 +1,9 @@
+.fast-table-toolbar-slot {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.fast-table-toolbar-slot:empty {
+  display: none;
+}
