@@ -31,7 +31,8 @@ export function CellActions<T>({
     return action.visible(value, row);
   });
 
-  const hasCopy = Boolean(showCopy || renderCopy);
+  const resolvedCopyValue = copyValue ?? String(value ?? "");
+  const hasCopy = Boolean(renderCopy || (showCopy && resolvedCopyValue));
 
   if (!hasCopy && visibleActions.length === 0) {
     return null;
@@ -39,10 +40,13 @@ export function CellActions<T>({
 
   return (
     <span className={`${styles.actions} cell-actions`}>
-      {hasCopy && (renderCopy ?? <CopyToClipboardButton text={copyValue ?? String(value ?? "")} />)}
+      {hasCopy && (renderCopy ?? <CopyToClipboardButton text={resolvedCopyValue} />)}
       {visibleActions.map((action, index) => {
         const isDisabled = action.disabled?.(value, row) ?? false;
         const href = action.getHref?.(value, row);
+        const presentation = action.getPresentation?.(value, row);
+        const title = presentation?.title ?? action.title;
+        const buttonProps = presentation?.buttonProps ?? action.buttonProps;
 
         if (href) {
           return (
@@ -50,8 +54,8 @@ export function CellActions<T>({
               key={index}
               href={href}
               icon={action.icon}
-              title={action.title}
-              {...action.buttonProps}
+              title={title}
+              {...buttonProps}
               target={action.target ?? "_self"}
               disabled={isDisabled}
               onClick={(event) => {
@@ -66,8 +70,8 @@ export function CellActions<T>({
           <BaseActionButton
             key={index}
             icon={action.icon}
-            title={action.title}
-            {...action.buttonProps}
+            title={title}
+            {...buttonProps}
             disabled={isDisabled}
             onClick={(e) => {
               e?.stopPropagation?.();
