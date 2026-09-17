@@ -15,6 +15,7 @@
 }
 
 .queryBuilderContainer {
+  --rqb-border-color: #cccdda;
   border-color: var(--rqb-border-color);
   border-style: var(--rqb-border-style);
   border-radius: var(--rqb-border-radius);

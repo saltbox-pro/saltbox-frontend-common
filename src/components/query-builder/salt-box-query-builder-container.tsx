@@ -19,6 +19,7 @@ import styles from "./salt-box-query-builder-container.module.css";
 
 type SaltBoxQueryBuilderContainerProps = {
   filterStore?: FilterStore;
+  className?: string;
   additionalButtons?: ReactElement;
   hideButtons?: boolean;
   showCopyFilterButton?: boolean;
@@ -80,7 +81,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
   }
 
   return (
-    <div className={styles.queryBuilderContainer}>
+    <div className={`${styles.queryBuilderContainer} ${props.className ? props.className : ""}`}>
       <Spin spinning={filterStore.isLoading}>
         <QueryBuilderDnD dnd={{ ...ReactDnD, ...ReactDndHtml5Backend }}>
           <QueryBuilderSaltBox>
