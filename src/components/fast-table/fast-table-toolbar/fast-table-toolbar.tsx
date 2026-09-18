@@ -25,7 +25,8 @@ export function FastTableToolbar({
   onResetColumnWidths,
   columnSettings,
 }: FastTableToolbarProps) {
-  const { isOpen, handleOpenChange, close } = useFastTableToolbar();
+  const { isOpen, isTooltipOpen, handleOpenChange, handleTooltipOpenChange, close } =
+    useFastTableToolbar();
   const container = useFastTableToolbarContainer();
 
   if (!container) {
@@ -43,7 +44,11 @@ export function FastTableToolbar({
             <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
           )}
         >
-          <Tooltip title={isOpen ? "" : locale.columnSettings}>
+          <Tooltip
+            title={locale.columnSettings}
+            open={isTooltipOpen}
+            onOpenChange={handleTooltipOpenChange}
+          >
             <BaseActionButton icon={<UnorderedListOutlined />} title={undefined} size="middle" />
           </Tooltip>
         </Dropdown>

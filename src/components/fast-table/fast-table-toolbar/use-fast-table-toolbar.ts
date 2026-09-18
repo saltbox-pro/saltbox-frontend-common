@@ -7,10 +7,20 @@ export type FastTableToolbarLocale = {
 
 export function useFastTableToolbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
 
-  const handleOpenChange = useCallback((open: boolean) => setIsOpen(open), []);
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+    setIsTooltipOpen(false);
+  }, []);
 
-  const close = useCallback(() => setIsOpen(false), []);
+  const close = useCallback(() => handleOpenChange(false), [handleOpenChange]);
 
-  return { isOpen, handleOpenChange, close };
+  return {
+    isOpen,
+    isTooltipOpen: isTooltipOpen && !isOpen,
+    handleOpenChange,
+    handleTooltipOpenChange: setIsTooltipOpen,
+    close,
+  };
 }
