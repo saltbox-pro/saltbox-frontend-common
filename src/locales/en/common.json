@@ -241,7 +241,7 @@
       "refresh-file": "Refresh file",
       "refresh-take-disk": "Reload from file",
       "refresh-keep-mine": "Keep current changes",
-      "refresh-keep-mine-hint": "Your changes stay in the editor. Saving overwrites the file on the client without merging versions",
+      "refresh-keep-mine-hint": "Your changes stay in the editor. Saving overwrites the file on the minion without merging versions",
       "empty-file": "File is empty",
       "copy-content": "Copy content"
     },

@@ -5,6 +5,15 @@ import type { BaseActionButtonProps } from "saltbox-common/components/buttons/ba
 
 export type CellActionLinkComponent = ActionLinkLinkComponent;
 
+export type CellActionButtonProps = Partial<
+  Omit<BaseActionButtonProps, "icon" | "title" | "disabled" | "onClick">
+>;
+
+export type CellActionPresentation = {
+  title?: string;
+  buttonProps?: CellActionButtonProps;
+};
+
 export type CellAction<T = any> = {
   icon: ReactNode;
   title?: string;
@@ -13,7 +22,8 @@ export type CellAction<T = any> = {
   onClick?: (value: any, row: T, event: MouseEvent) => void;
   getHref?: (value: any, row: T) => string;
   target?: "_blank" | "_self";
-  buttonProps?: Partial<Omit<BaseActionButtonProps, "icon" | "title" | "disabled" | "onClick">>;
+  buttonProps?: CellActionButtonProps;
+  getPresentation?: (value: any, row: T) => CellActionPresentation | undefined;
 };
 
 export type CellMeta<T = any> = {

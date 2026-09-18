@@ -58,11 +58,17 @@ function FastTableHeaderCell<DataType>({
   onMoveColumn,
 }: HeaderCellProps<DataType>) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuTooltipOpen, setIsMenuTooltipOpen] = useState(false);
   const canSort = header.column.getCanSort();
   const canResize = header.column.getCanResize() && !isLastLeafColumn;
   const headerContent = header.isPlaceholder
     ? null
     : flexRender(header.column.columnDef.header, header.getContext());
+
+  const handleMenuOpenChange = (open: boolean) => {
+    setIsMenuOpen(open);
+    setIsMenuTooltipOpen(false);
+  };
 
   const getSortTitle = () => {
     if (!canSort) return undefined;
@@ -167,9 +173,13 @@ function FastTableHeaderCell<DataType>({
           <Dropdown
             trigger={["click"]}
             menu={{ items: moveMenuItems }}
-            onOpenChange={setIsMenuOpen}
+            onOpenChange={handleMenuOpenChange}
           >
-            <Tooltip title={isMenuOpen ? "" : locale.columnMenu}>
+            <Tooltip
+              title={locale.columnMenu}
+              open={isMenuTooltipOpen && !isMenuOpen}
+              onOpenChange={setIsMenuTooltipOpen}
+            >
               <button
                 type="button"
                 aria-label={locale.columnMenu}

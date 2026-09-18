@@ -35,6 +35,10 @@ export class FilterStore {
 
   @action
   handleFiltersChange = (filters: RuleGroupType) => {
+    if (this.isSameQuery(filters, this.currentFilters)) {
+      return;
+    }
+
     this.currentFilters = filters;
   };
 
@@ -75,6 +79,10 @@ export class FilterStore {
     this.filtersRevision += 1;
     this.handleSearch();
   };
+
+  private isSameQuery(left: RuleGroupType, right: RuleGroupType): boolean {
+    return formatQuery(left, "json_without_ids") === formatQuery(right, "json_without_ids");
+  }
 
   private buildMongoDBQuery(filters: RuleGroupType, cache: MongoQueryCache): object {
     const currentQueryString = formatQuery(filters, "json_without_ids");
