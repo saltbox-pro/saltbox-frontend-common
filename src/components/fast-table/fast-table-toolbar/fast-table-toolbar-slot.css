@@ -1,9 +1,18 @@
 .fast-table-toolbar-slot {
   display: flex;
   align-items: center;
+  gap: calc(var(--app-layout-gap, 16px) / 2);
   margin-left: auto;
 }
 
 .fast-table-toolbar-slot:empty {
   display: none;
+}
+
+.fast-table-toolbar-slot button {
+  margin-right: 0;
+}
+
+.fast-table-toolbar-tooltip-anchor {
+  display: inline-flex;
 }

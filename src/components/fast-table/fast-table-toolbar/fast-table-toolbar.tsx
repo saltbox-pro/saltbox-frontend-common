@@ -1,4 +1,5 @@
-import { MoreOutlined } from "@ant-design/icons";
+import { ColumnWidthOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
 import { createPortal } from "react-dom";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
@@ -24,40 +25,43 @@ export function FastTableToolbar({
   onResetColumnWidths,
   columnSettings,
 }: FastTableToolbarProps) {
-  const { isOpen, isColumnSettingsMode, items, handleOpenChange, close } = useFastTableToolbar({
-    locale,
-    hasColumnSettings: Boolean(columnSettings),
-    canResetColumnWidths,
-    onResetColumnWidths,
-  });
+  const { isOpen, handleOpenChange, close } = useFastTableToolbar();
   const container = useFastTableToolbarContainer();
 
-  const showColumnSettings = isColumnSettingsMode && columnSettings !== undefined;
-
-  const menu = (
-    <Dropdown
-      trigger={["click"]}
-      open={isOpen}
-      onOpenChange={handleOpenChange}
-      menu={showColumnSettings ? undefined : { items }}
-      popupRender={
-        showColumnSettings
-          ? () => <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
-          : undefined
-      }
-    >
-      <BaseActionButton
-        icon={<MoreOutlined />}
-        title={locale.tableViewMenu}
-        size="middle"
-        variant={container ? undefined : "text"}
-      />
-    </Dropdown>
-  );
-
-  if (container) {
-    return createPortal(menu, container);
+  if (!container) {
+    return null;
   }
 
-  return <div className="fast-table-toolbar">{menu}</div>;
+  const buttons = (
+    <>
+      {columnSettings && (
+        <Dropdown
+          trigger={["click"]}
+          open={isOpen}
+          onOpenChange={handleOpenChange}
+          popupRender={() => (
+            <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
+          )}
+        >
+          <Tooltip title={isOpen ? "" : locale.columnSettings}>
+            <BaseActionButton icon={<UnorderedListOutlined />} title={undefined} size="middle" />
+          </Tooltip>
+        </Dropdown>
+      )}
+
+      <Tooltip title={locale.resetColumnWidths}>
+        <span className="fast-table-toolbar-tooltip-anchor">
+          <BaseActionButton
+            icon={<ColumnWidthOutlined />}
+            title={undefined}
+            size="middle"
+            disabled={!canResetColumnWidths}
+            onClick={onResetColumnWidths}
+          />
+        </span>
+      </Tooltip>
+    </>
+  );
+
+  return createPortal(buttons, container);
 }

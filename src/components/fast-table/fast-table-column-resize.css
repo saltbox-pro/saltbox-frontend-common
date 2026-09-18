@@ -1,12 +1,3 @@
-.fast-table-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 2px;
-  flex: 0 0 auto;
-  margin-bottom: 4px;
-}
-
 .fast-table.has-column-resize table > thead > tr > th,
 .fast-table.has-column-resize table > tbody > tr > td {
   box-sizing: border-box;

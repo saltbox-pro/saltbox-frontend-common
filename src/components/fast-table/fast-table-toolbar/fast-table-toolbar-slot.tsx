@@ -5,15 +5,10 @@ import { useFastTableToolbarSlotState } from "./use-fast-table-toolbar-slot-stat
 
 import "./fast-table-toolbar-slot.css";
 
-export type FastTableToolbarSlotProviderProps = PropsWithChildren<{
-  container?: HTMLElement | null;
-}>;
+export type FastTableToolbarSlotProviderProps = PropsWithChildren;
 
-export function FastTableToolbarSlotProvider({
-  container,
-  children,
-}: FastTableToolbarSlotProviderProps) {
-  const value = useFastTableToolbarSlotState(container);
+export function FastTableToolbarSlotProvider({ children }: FastTableToolbarSlotProviderProps) {
+  const value = useFastTableToolbarSlotState();
 
   return (
     <FastTableToolbarSlotContext.Provider value={value}>
