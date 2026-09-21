@@ -14,6 +14,7 @@ import {
   SwitchTransitionLayout,
   TransitionLayout,
 } from "saltbox-common/components/transition-layout";
+import { ErrorZone, type LoadSource } from "saltbox-common/error-handling";
 
 import { InfoDrawerError } from "./info-drawer-error";
 import { InfoDrawerExtra } from "./info-drawer-extra";
@@ -33,6 +34,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   linkPlacement?: "extra" | "title";
   errorMessage?: string | null;
   hasData?: boolean;
+  loaders?: readonly LoadSource[];
   transitionKey?: Key;
   onClose: () => void;
 }
@@ -56,6 +58,7 @@ export function InfoDrawer({
   rootClassName,
   extra,
   hasData = true,
+  loaders,
   destroyOnHidden = true,
   width = 770,
   onClose,
@@ -146,7 +149,15 @@ export function InfoDrawer({
         >
           {() => (
             <div className={styles.content}>
-              {hasError ? <InfoDrawerError message={errorMessage} /> : hasData ? children : null}
+              {hasError ? (
+                <InfoDrawerError message={errorMessage} />
+              ) : loaders ? (
+                <ErrorZone level="block" loaders={loaders}>
+                  {hasData ? children : null}
+                </ErrorZone>
+              ) : hasData ? (
+                children
+              ) : null}
             </div>
           )}
         </SwitchTransitionLayout>

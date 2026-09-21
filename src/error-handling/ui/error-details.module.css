@@ -8,4 +8,9 @@
 .slot {
   height: 150px;
   margin-top: 4px;
+  overflow: hidden;
+}
+
+.slot > * {
+  max-height: 100%;
 }

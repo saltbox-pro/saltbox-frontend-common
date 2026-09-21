@@ -118,6 +118,7 @@
     "warning-template": "To {{action}}, activate a master on the <mastersLink>\"Masters\"</mastersLink> page",
     "warning-template-default": "To perform this action, activate a master on the <mastersLink>\"Masters\"</mastersLink> page",
     "error-load-salt-masters": "Failed to load masters",
+    "error-check-failed": "Failed to check available masters",
     "masters-link-aria-label": "Masters"
   },
   "sls-editor": {

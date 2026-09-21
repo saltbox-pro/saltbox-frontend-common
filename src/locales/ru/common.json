@@ -118,6 +118,7 @@
     "warning-template": "Для {{action}} активируйте контроллер на странице <mastersLink>\"Контроллеры\"</mastersLink>",
     "warning-template-default": "Для выполнения действия активируйте контроллер на странице <mastersLink>\"Контроллеры\"</mastersLink>",
     "error-load-salt-masters": "Не удалось загрузить контроллеры",
+    "error-check-failed": "Не удалось проверить доступные контроллеры",
     "masters-link-aria-label": "Контроллеры"
   },
   "sls-editor": {
