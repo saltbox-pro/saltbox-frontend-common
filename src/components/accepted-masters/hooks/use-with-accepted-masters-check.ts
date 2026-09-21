@@ -1,35 +1,41 @@
 import type { MessageInstance } from "antd/es/message/interface";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
+import { notifyApiError } from "../../../error-handling";
 import type { WithAcceptedMastersCheckCallParams } from "../types";
 
-import { useAcceptedMastersErrorMessage } from "./use-accepted-masters-error-message";
 import { useAcceptedMastersWarningMessage } from "./use-accepted-masters-warning-message";
 
 export function useWithAcceptedMastersCheck(messageApi: MessageInstance) {
-  const acceptedMastersErrorMessage = useAcceptedMastersErrorMessage();
+  const { t } = useTranslation("common");
   const renderWarningMessage = useAcceptedMastersWarningMessage();
 
   return useCallback(
     async (params: WithAcceptedMastersCheckCallParams): Promise<void> => {
+      let hasMasters: boolean;
       try {
-        const hasMasters = await params.checkHasAcceptedMasters();
-        if (!hasMasters) {
-          messageApi.warning(
-            renderWarningMessage({
-              action: params.warningActionText,
-              navigate: params.navigate,
-            })
-          );
-          return;
-        }
-
-        await params.onSuccess();
+        hasMasters = await params.checkHasAcceptedMasters();
       } catch (error) {
-        console.error("Accepted masters check failed", error);
-        messageApi.error(params.errorMessage ?? acceptedMastersErrorMessage);
+        await notifyApiError(
+          error,
+          params.errorMessage ?? t("accepted-masters.error-check-failed")
+        );
+        return;
       }
+
+      if (!hasMasters) {
+        messageApi.warning(
+          renderWarningMessage({
+            action: params.warningActionText,
+            navigate: params.navigate,
+          })
+        );
+        return;
+      }
+
+      await params.onSuccess();
     },
-    [acceptedMastersErrorMessage, messageApi, renderWarningMessage]
+    [messageApi, renderWarningMessage, t]
   );
 }
