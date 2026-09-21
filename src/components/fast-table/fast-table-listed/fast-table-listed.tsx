@@ -33,7 +33,8 @@ import {
   FastTableRefreshAlert,
   useLoaderBinding,
 } from "../fast-table-load-error";
-import { FastTableToolbar } from "../fast-table-toolbar/fast-table-toolbar";
+import { FastTableInlineToolbar } from "../fast-table-toolbar/fast-table-inline-toolbar";
+import { usePublishFastTableToolbar } from "../fast-table-toolbar/use-publish-fast-table-toolbar";
 import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnMove } from "../hooks/use-column-move";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
@@ -291,10 +292,25 @@ function FastTableListedContent<DataType>({
     return activeClassName;
   };
 
-  const columnSettings = {
-    items: buildColumnSettingsItems(allLeafColumns),
-    onApply: applyColumnLayout,
-  };
+  const columnSettings = useMemo(
+    () => ({
+      items: buildColumnSettingsItems(allLeafColumns),
+      onApply: applyColumnLayout,
+    }),
+    [allLeafColumns, applyColumnLayout]
+  );
+
+  const toolbarModel = useMemo(
+    () => ({
+      locale: tableLocale,
+      canResetColumnWidths: hasPersistedSizing,
+      onResetColumnWidths: resetColumnSizing,
+      columnSettings,
+    }),
+    [tableLocale, hasPersistedSizing, resetColumnSizing, columnSettings]
+  );
+
+  const shouldRenderInlineToolbar = usePublishFastTableToolbar(enableColumnSettings, toolbarModel);
 
   const { canMoveColumn, moveColumn } = useColumnMove({
     items: columnSettings.items,
@@ -441,14 +457,7 @@ function FastTableListedContent<DataType>({
       }`}
       style={fastTableTokenStyle}
     >
-      {enableColumnSettings && (
-        <FastTableToolbar
-          locale={tableLocale}
-          canResetColumnWidths={hasPersistedSizing}
-          onResetColumnWidths={resetColumnSizing}
-          columnSettings={columnSettings}
-        />
-      )}
+      {shouldRenderInlineToolbar && <FastTableInlineToolbar model={toolbarModel} />}
       <FastTableRefreshAlert loader={loader} />
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table

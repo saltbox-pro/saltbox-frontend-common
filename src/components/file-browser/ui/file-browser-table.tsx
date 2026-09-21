@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatTimeByUserTZ } from "../../../utils/datetime";
-import { FastTableListed } from "../../fast-table/fast-table-listed/fast-table-listed";
+import { FastTable } from "../../fast-table/fast-table";
 import type { CellAction } from "../../fast-table/types";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
@@ -135,7 +135,7 @@ export function FileBrowserTable({
 
   return (
     <Spin spinning={isLoading} className={styles.tableSpin} wrapperClassName={styles.tableSpin}>
-      <FastTableListed
+      <FastTable.Listed
         tableId={tableId}
         enableColumnSettings={false}
         useVirtualScroll

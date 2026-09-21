@@ -1,0 +1,22 @@
+.fast-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--app-layout-gap, 16px) / 2);
+  margin-left: auto;
+}
+
+.fast-table-toolbar button {
+  margin-right: 0;
+}
+
+.fast-table-toolbar-inline {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(var(--app-layout-gap, 16px) / 2);
+  margin-bottom: 4px;
+}
+
+.fast-table-toolbar-tooltip-anchor {
+  display: inline-flex;
+}
