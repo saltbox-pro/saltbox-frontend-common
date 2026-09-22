@@ -1,7 +1,7 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { useFastTableToolbarStore, useHasExternalToolbar } from "./fast-table-toolbar-context";
-import type { FastTableToolbarModel } from "./fast-table-toolbar-store";
+import type { FastTableToolbarModel, FastTableToolbarOwner } from "./fast-table-toolbar-store";
 
 export function usePublishFastTableToolbar(
   enabled: boolean,
@@ -9,20 +9,22 @@ export function usePublishFastTableToolbar(
 ): boolean {
   const store = useFastTableToolbarStore();
   const hasExternalToolbar = useHasExternalToolbar();
+  const ownerRef = useRef<FastTableToolbarOwner>(Symbol("fast-table-toolbar"));
+  const owner = ownerRef.current;
 
   useLayoutEffect(() => {
-    if (!store) {
+    if (!store || !enabled) {
       return;
     }
-    store.setModel(enabled ? model : null);
-  });
+    store.publishModel(owner, model);
+  }, [store, enabled, model, owner]);
 
   useLayoutEffect(() => {
-    if (!store) {
+    if (!store || !enabled) {
       return;
     }
-    return () => store.setModel(null);
-  }, [store]);
+    return () => store.clearModel(owner);
+  }, [store, enabled, owner]);
 
   return enabled && !hasExternalToolbar;
 }

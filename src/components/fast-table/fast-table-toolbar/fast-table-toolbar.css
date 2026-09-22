@@ -1,8 +1,13 @@
 .fast-table-toolbar {
-  display: flex;
+  --fast-table-toolbar-gap: calc(var(--app-layout-gap, 16px) / 2);
+
+  display: inline-flex;
   align-items: center;
-  gap: calc(var(--app-layout-gap, 16px) / 2);
+  align-self: center;
+  gap: var(--fast-table-toolbar-gap);
   margin-left: auto;
+  padding-left: var(--fast-table-toolbar-gap);
+  line-height: 1;
 }
 
 .fast-table-toolbar button {
@@ -10,13 +15,19 @@
 }
 
 .fast-table-toolbar-inline {
+  --fast-table-toolbar-gap: calc(var(--app-layout-gap, 16px) / 2);
+
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: calc(var(--app-layout-gap, 16px) / 2);
+  gap: var(--fast-table-toolbar-gap);
   margin-bottom: 4px;
+  line-height: 1;
 }
 
 .fast-table-toolbar-tooltip-anchor {
   display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  vertical-align: middle;
 }

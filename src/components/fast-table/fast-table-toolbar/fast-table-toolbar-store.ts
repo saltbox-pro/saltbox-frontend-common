@@ -12,10 +12,14 @@ export type FastTableToolbarModel = {
   columnSettings?: Omit<ColumnSettingsPanelProps, "locale" | "onClose">;
 };
 
+export type FastTableToolbarOwner = symbol;
+
 export type FastTableToolbarStore = {
-  setModel: (model: FastTableToolbarModel | null) => void;
+  publishModel: (owner: FastTableToolbarOwner, model: FastTableToolbarModel) => void;
+  clearModel: (owner: FastTableToolbarOwner) => void;
   getModel: () => FastTableToolbarModel | null;
-  setHasExternalToolbar: (hasExternalToolbar: boolean) => void;
+  claimExternalToolbar: () => void;
+  releaseExternalToolbar: () => void;
   getHasExternalToolbar: () => boolean;
   subscribe: (listener: () => void) => () => void;
 };
@@ -29,33 +33,55 @@ function isSameModel(a: FastTableToolbarModel, b: FastTableToolbarModel): boolea
   );
 }
 
+type ToolbarEntry = {
+  owner: FastTableToolbarOwner;
+  model: FastTableToolbarModel;
+};
+
 export function createFastTableToolbarStore(): FastTableToolbarStore {
-  let model: FastTableToolbarModel | null = null;
-  let hasExternalToolbar = false;
+  let entries: ToolbarEntry[] = [];
+  let externalToolbarCount = 0;
   const listeners = new Set<() => void>();
 
   const notify = () => listeners.forEach((listener) => listener());
+  const topModel = () => entries[entries.length - 1]?.model ?? null;
 
   return {
-    setModel(next) {
-      if (next === model) {
-        return;
+    publishModel(owner, model) {
+      const index = entries.findIndex((entry) => entry.owner === owner);
+      if (index >= 0) {
+        if (isSameModel(entries[index].model, model)) {
+          return;
+        }
+        entries = entries.map((entry, entryIndex) =>
+          entryIndex === index ? { owner, model } : entry
+        );
+      } else {
+        entries = [...entries, { owner, model }];
       }
-      if (model && next && isSameModel(model, next)) {
-        return;
-      }
-      model = next;
       notify();
     },
-    getModel: () => model,
-    setHasExternalToolbar(next) {
-      if (hasExternalToolbar === next) {
+    clearModel(owner) {
+      const next = entries.filter((entry) => entry.owner !== owner);
+      if (next.length === entries.length) {
         return;
       }
-      hasExternalToolbar = next;
+      entries = next;
       notify();
     },
-    getHasExternalToolbar: () => hasExternalToolbar,
+    getModel: () => topModel(),
+    claimExternalToolbar() {
+      externalToolbarCount += 1;
+      notify();
+    },
+    releaseExternalToolbar() {
+      if (externalToolbarCount === 0) {
+        return;
+      }
+      externalToolbarCount -= 1;
+      notify();
+    },
+    getHasExternalToolbar: () => externalToolbarCount > 0,
     subscribe(listener) {
       listeners.add(listener);
       return () => {

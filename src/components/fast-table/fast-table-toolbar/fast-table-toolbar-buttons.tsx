@@ -1,6 +1,6 @@
 import { ColumnWidthOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { BaseActionButton } from "../../buttons/base-action-button";
@@ -30,6 +30,10 @@ function useToolbarDropdown() {
   };
 }
 
+function ToolbarIconAnchor({ children }: { children: ReactNode }) {
+  return <span className="fast-table-toolbar-tooltip-anchor">{children}</span>;
+}
+
 export function FastTableToolbarButtons({
   locale,
   canResetColumnWidths,
@@ -42,31 +46,33 @@ export function FastTableToolbarButtons({
   return (
     <>
       {columnSettings && (
-        <Dropdown
-          trigger={["click"]}
-          open={isOpen}
-          onOpenChange={handleOpenChange}
-          popupRender={() => (
-            <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
-          )}
+        <Tooltip
+          title={locale.columnSettings}
+          open={isTooltipOpen}
+          onOpenChange={handleTooltipOpenChange}
         >
-          <Tooltip
-            title={locale.columnSettings}
-            open={isTooltipOpen}
-            onOpenChange={handleTooltipOpenChange}
-          >
-            <BaseActionButton
-              icon={<UnorderedListOutlined />}
-              title={undefined}
-              size="middle"
-              aria-label={locale.columnSettings}
-            />
-          </Tooltip>
-        </Dropdown>
+          <ToolbarIconAnchor>
+            <Dropdown
+              trigger={["click"]}
+              open={isOpen}
+              onOpenChange={handleOpenChange}
+              popupRender={() => (
+                <ColumnSettingsPanel {...columnSettings} locale={locale} onClose={close} />
+              )}
+            >
+              <BaseActionButton
+                icon={<UnorderedListOutlined />}
+                title={undefined}
+                size="middle"
+                aria-label={locale.columnSettings}
+              />
+            </Dropdown>
+          </ToolbarIconAnchor>
+        </Tooltip>
       )}
 
       <Tooltip title={locale.resetColumnWidths}>
-        <span className="fast-table-toolbar-tooltip-anchor">
+        <ToolbarIconAnchor>
           <BaseActionButton
             icon={<ColumnWidthOutlined />}
             title={undefined}
@@ -75,7 +81,7 @@ export function FastTableToolbarButtons({
             aria-label={locale.resetColumnWidths}
             onClick={onResetColumnWidths}
           />
-        </span>
+        </ToolbarIconAnchor>
       </Tooltip>
     </>
   );

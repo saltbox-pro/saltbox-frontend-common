@@ -13,8 +13,8 @@ export function FastTableToolbar() {
     if (!store) {
       return;
     }
-    store.setHasExternalToolbar(true);
-    return () => store.setHasExternalToolbar(false);
+    store.claimExternalToolbar();
+    return () => store.releaseExternalToolbar();
   }, [store]);
 
   if (!store || !model) {
