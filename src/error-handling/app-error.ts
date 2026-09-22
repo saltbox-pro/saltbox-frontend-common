@@ -84,6 +84,19 @@ export function isAbortError(error: unknown): boolean {
   );
 }
 
+export function isNetworkTypeError(error: unknown): boolean {
+  if (!(error instanceof TypeError)) {
+    return false;
+  }
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("networkerror") ||
+    message.includes("load failed") ||
+    message.includes("network request failed")
+  );
+}
+
 /**
  * Единственная точка нормализации ошибок API: статус, тело ответа, диагностика.
  * Асинхронна, потому что тело ResponseError — непрочитанный стрим (typescript-fetch).
@@ -113,6 +126,10 @@ export async function normalizeApiError(error: unknown): Promise<AppError> {
   }
 
   if (name === "FetchError") {
+    return { status: 0, kind: "network", raw: error };
+  }
+
+  if (isNetworkTypeError(error)) {
     return { status: 0, kind: "network", raw: error };
   }
 

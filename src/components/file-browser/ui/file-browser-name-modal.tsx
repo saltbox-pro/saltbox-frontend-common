@@ -1,6 +1,8 @@
 import { Form, Input } from "antd";
 import { useEffect, useRef } from "react";
 
+import type { AppError } from "../../../error-handling/app-error";
+import { MutationErrorAlert } from "../../../error-handling/ui/mutation-error-alert";
 import { Modal } from "../../antd-wrappers/modal";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import { isFileBrowserSafePathSegment } from "../model/path-utils";
@@ -15,12 +17,15 @@ export interface FileBrowserNameModalProps {
   requiredMessage?: string;
   invalidNameMessage?: string;
   submitError?: string | null;
+  mutationError?: AppError | null;
+  mutationErrorFallback?: string;
   confirmDisabled?: boolean;
   okLoading?: boolean;
   isValidName?: (name: string) => boolean;
   getInvalidNameMessage?: (name: string) => string;
   onChange: (value: string) => void;
   onClearSubmitError?: () => void;
+  onClearMutationError?: () => void;
   onConfirm: (name: string) => void | Promise<void>;
   onCancel: () => void;
   afterClose?: () => void;
@@ -36,12 +41,15 @@ export function FileBrowserNameModal({
   requiredMessage,
   invalidNameMessage,
   submitError = null,
+  mutationError = null,
+  mutationErrorFallback = "",
   confirmDisabled = false,
   okLoading = false,
   isValidName = isFileBrowserSafePathSegment,
   getInvalidNameMessage,
   onChange,
   onClearSubmitError,
+  onClearMutationError,
   onConfirm,
   onCancel,
   afterClose,
@@ -94,6 +102,11 @@ export function FileBrowserNameModal({
       closable
       keyboard
     >
+      <MutationErrorAlert
+        error={mutationError}
+        fallback={mutationErrorFallback}
+        onClose={onClearMutationError}
+      />
       <Form
         form={form}
         onValuesChange={(_, values) => {
@@ -103,6 +116,9 @@ export function FileBrowserNameModal({
           onChange(values.name ?? "");
           if (submitError) {
             onClearSubmitError?.();
+          }
+          if (mutationError) {
+            onClearMutationError?.();
           }
         }}
       >

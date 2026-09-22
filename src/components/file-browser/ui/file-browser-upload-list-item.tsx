@@ -1,6 +1,7 @@
 import { Button, Progress } from "antd";
 import { observer } from "mobx-react-lite";
 
+import { MutationErrorAlert } from "../../../error-handling/ui/mutation-error-alert";
 import { MatIcon } from "../../mat-icon/mat-icon";
 import { useFileBrowserMessages } from "../hooks/use-file-browser-messages";
 import {
@@ -41,7 +42,7 @@ export const FileBrowserUploadListItem = observer(function FileBrowserUploadList
     : isFileBrowserTransferInProgress(upload.status)
       ? "active"
       : "normal";
-  const errorText =
+  const errorFallback =
     upload.status === "error" && upload.error != null && upload.error !== ""
       ? (formatError?.(upload.error, upload) ?? translateError(upload.error) ?? upload.error)
       : undefined;
@@ -89,7 +90,11 @@ export const FileBrowserUploadListItem = observer(function FileBrowserUploadList
           className={styles.uploadProgressBar}
         />
       )}
-      {errorText != null && <div className={styles.uploadError}>{errorText}</div>}
+      {upload.status === "error" && upload.appError != null ? (
+        <MutationErrorAlert error={upload.appError} fallback={errorFallback ?? upload.fileName} />
+      ) : errorFallback != null ? (
+        <div className={styles.uploadError}>{errorFallback}</div>
+      ) : null}
     </div>
   );
 });

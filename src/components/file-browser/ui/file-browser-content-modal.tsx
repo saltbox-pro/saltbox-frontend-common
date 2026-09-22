@@ -5,6 +5,7 @@ import type { editor } from "monaco-editor";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ErrorZone, type LoadSource } from "../../../error-handling";
 import { Modal } from "../../antd-wrappers/modal";
 import { CopyToClipboardButton } from "../../buttons/copy-to-clipboard-button";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
@@ -48,6 +49,7 @@ export interface FileBrowserContentModalProps {
   loading?: boolean;
   empty?: boolean;
   error?: ReactNode;
+  loaders?: readonly LoadSource[];
   editorError?: ReactNode;
   isRefreshing?: boolean;
   conflictActions?: FileBrowserContentModalConflictActions;
@@ -78,6 +80,7 @@ export function FileBrowserContentModal({
   loading = false,
   empty = false,
   error,
+  loaders,
   editorError,
   isRefreshing = false,
   conflictActions,
@@ -99,7 +102,10 @@ export function FileBrowserContentModal({
   const [unsavedConfirmOpen, setUnsavedConfirmOpen] = useState(false);
   const [savingConfirmOpen, setSavingConfirmOpen] = useState(false);
   const resolvedLanguage = language ?? getMonacoLanguage(fileName);
-  const showContentCopy = !loading && error == null && !empty && content.length > 0;
+  const hasBlockingLoadError =
+    error != null ||
+    (loaders?.some((loader) => loader.error != null && loader.isInitialLoad) ?? false);
+  const showContentCopy = !loading && !hasBlockingLoadError && !empty && content.length > 0;
 
   const saveShortcutRef = useRef({
     readOnly,
@@ -107,7 +113,7 @@ export function FileBrowserContentModal({
     isSaving,
     saveDisabled,
     loading,
-    hasError: error != null,
+    hasError: hasBlockingLoadError,
     onSave,
   });
   saveShortcutRef.current = {
@@ -116,7 +122,7 @@ export function FileBrowserContentModal({
     isSaving,
     saveDisabled,
     loading,
-    hasError: error != null,
+    hasError: hasBlockingLoadError,
     onSave,
   };
 
@@ -219,7 +225,7 @@ export function FileBrowserContentModal({
     </Flex>
   );
 
-  const showEdit = onEdit != null && error == null;
+  const showEdit = onEdit != null && !hasBlockingLoadError;
   const showPathRow = (filePath != null && filePath.length > 0) || showEdit || showContentCopy;
 
   const pathRow = showPathRow ? (
@@ -263,7 +269,7 @@ export function FileBrowserContentModal({
   ) : null;
 
   const editorErrorMessage =
-    editorError == null ? undefined : conflictActions == null ? (
+    editorError == null || conflictActions == null ? (
       editorError
     ) : (
       <Flex align="center" justify="space-between" gap="middle">
@@ -301,7 +307,12 @@ export function FileBrowserContentModal({
 
   const bottomActions = (
     <Flex vertical gap="small" className={styles.bottomActions}>
-      {editorErrorMessage != null && <Alert type="error" showIcon message={editorErrorMessage} />}
+      {editorErrorMessage != null &&
+        (typeof editorErrorMessage === "string" || conflictActions != null ? (
+          <Alert type="error" showIcon message={editorErrorMessage} />
+        ) : (
+          editorErrorMessage
+        ))}
       <Flex justify="end" gap="small">
         <Button onClick={handleClose}>{t("file-browser.content-modal.close")}</Button>
         {!readOnly && (
@@ -314,7 +325,7 @@ export function FileBrowserContentModal({
               onClick={() => {
                 Promise.resolve(onSave?.()).catch(() => undefined);
               }}
-              disabled={!isDirty || isSaving || saveDisabled || loading || error != null}
+              disabled={!isDirty || isSaving || saveDisabled || loading || hasBlockingLoadError}
               loading={isSaving}
             >
               {t("file-browser.content-modal.save")}
@@ -325,21 +336,21 @@ export function FileBrowserContentModal({
     </Flex>
   );
 
-  let bodyContent: ReactNode;
+  let bodyInner: ReactNode;
   if (loading) {
-    bodyContent = (
+    bodyInner = (
       <Flex className={`${styles.fillContainer} ${styles.editorSkeleton}`}>
         <Skeleton active />
       </Flex>
     );
-  } else if (error != null) {
-    bodyContent = (
+  } else if (error != null && (loaders == null || loaders.length === 0)) {
+    bodyInner = (
       <Flex vertical className={styles.fillContainer}>
         <Alert type="error" showIcon message={error} />
       </Flex>
     );
   } else if (empty && readOnly) {
-    bodyContent = (
+    bodyInner = (
       <Flex align="center" justify="center" className={styles.fillContainer}>
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -348,7 +359,7 @@ export function FileBrowserContentModal({
       </Flex>
     );
   } else {
-    bodyContent = (
+    bodyInner = (
       <div
         className={`${styles.editorContainer}${readOnly ? ` ${styles.editorContainer_readOnly}` : ""}`}
       >
@@ -363,6 +374,17 @@ export function FileBrowserContentModal({
       </div>
     );
   }
+
+  const bodyContent: ReactNode =
+    loaders != null && loaders.length > 0 ? (
+      <div className={styles.fillContainer}>
+        <ErrorZone level="block" loaders={loaders}>
+          {bodyInner}
+        </ErrorZone>
+      </div>
+    ) : (
+      bodyInner
+    );
 
   return (
     <>

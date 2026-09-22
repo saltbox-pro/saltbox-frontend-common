@@ -97,6 +97,32 @@ describe("createLoader: базовый цикл", () => {
     expect(run).toHaveBeenNthCalledWith(2, "first");
   });
 
+  it("resetInitial: инвалидирует in-flight и снова isInitialLoad", async () => {
+    const first = deferred<string>();
+    const onSuccess = vi.fn();
+    const loader = createLoader({
+      run: () => first.promise,
+      onSuccess,
+    });
+
+    const pending = loader.run("a");
+    expect(loader.isLoading).toBe(true);
+
+    loader.resetInitial();
+    expect(loader.status).toBe("idle");
+    expect(loader.isInitialLoad).toBe(true);
+    expect(loader.error).toBeNull();
+
+    first.resolve("stale");
+    await pending;
+
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(loader.status).toBe("idle");
+
+    await loader.run("b");
+    expect(loader.isInitialLoad).toBe(false);
+  });
+
   it("AbortError: не ошибка; возврат к success после успеха, к idle до него", async () => {
     const abort = new Error("aborted");
     abort.name = "AbortError";

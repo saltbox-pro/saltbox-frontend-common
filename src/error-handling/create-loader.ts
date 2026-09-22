@@ -115,6 +115,16 @@ export class Loader<Args extends unknown[], T> implements LoadSource {
     }
   };
 
+  resetInitial = (): void => {
+    runInAction(() => {
+      this.seq += 1;
+      this.hasSucceeded = false;
+      this.error = null;
+      this.status = "idle";
+      this.lastArgs = null;
+    });
+  };
+
   bind = (): void => {
     this.bindings += 1;
   };

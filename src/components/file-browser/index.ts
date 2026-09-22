@@ -29,6 +29,7 @@ export {
   FileBrowserSubmitError,
   FileBrowserKeepModalOpenError,
 } from "./utils/get-submit-error-message";
+export type { SubmitAppErrorPayload } from "./utils/get-submit-error-message";
 export { dismissFileBrowserToast } from "./utils/show-file-browser-toast";
 export { useFileBrowserNotificationToasts } from "./hooks/use-file-browser-notification-toasts";
 export { useFileBrowserMessages } from "./hooks/use-file-browser-messages";

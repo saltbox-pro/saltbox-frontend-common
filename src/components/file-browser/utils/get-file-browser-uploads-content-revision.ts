@@ -6,7 +6,7 @@ export function getFileBrowserUploadsContentRevision(
   return Array.from(uploads.entries())
     .map(
       ([id, upload]) =>
-        `${id}:${upload.status}:${upload.loaded}:${upload.total}:${upload.error ?? ""}:${upload.targetDirectory ?? ""}`
+        `${id}:${upload.status}:${upload.loaded}:${upload.total}:${upload.error ?? ""}:${upload.appError?.status ?? ""}:${upload.appError?.kind ?? ""}:${upload.appError?.serverMessage ?? ""}:${upload.targetDirectory ?? ""}`
     )
     .join("|");
 }

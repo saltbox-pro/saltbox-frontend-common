@@ -1,7 +1,8 @@
 import { notify } from "../notifications/model/notify";
 
-import { AppError, buildErrorDebugText, isAbortError, normalizeApiError } from "./app-error";
+import { AppError, isAbortError, normalizeApiError } from "./app-error";
 import { applyValidationErrors, FormFieldsSetter } from "./apply-validation-errors";
+import { notifyAppError } from "./notify-app-error";
 
 export type MutationResult<T> = { ok: true; data: T } | { ok: false; error: AppError };
 
@@ -60,13 +61,7 @@ export async function runMutation<T>(options: RunMutationOptions<T>): Promise<Mu
       options.onError(error);
       return { ok: false, error };
     }
-    notify.error({
-      title: options.errorMessage,
-      description: error.serverMessage,
-      // код + расшифровку и раскрывашку деталей рисует ToastHost
-      errorCode: { status: error.status, kind: error.kind },
-      debugText: error.diagnostics ? buildErrorDebugText(error) : undefined,
-    });
+    notifyAppError(error, options.errorMessage);
     return { ok: false, error };
   }
 }

@@ -18,7 +18,7 @@ export type CellActionsProps<T> = {
   linkComponent?: CellActionLinkComponent;
 };
 
-export function CellActions<T>({
+function CellActionsInner<T>({
   value,
   row,
   showCopy,
@@ -54,6 +54,8 @@ export function CellActions<T>({
     </span>
   );
 }
+
+export const CellActions = observer(CellActionsInner) as typeof CellActionsInner;
 
 const CellActionButton = observer(function CellActionButton<T>({
   action,

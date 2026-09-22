@@ -11,6 +11,7 @@ export function toFileTransferNoticeEntries(
       total: transfer.total,
       status: transfer.status,
       error: transfer.error,
+      appError: transfer.appError,
       targetDirectory: transfer.targetDirectory,
     },
   ]);

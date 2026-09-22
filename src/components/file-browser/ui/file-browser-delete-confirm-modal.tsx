@@ -1,5 +1,8 @@
+import { Alert } from "antd";
 import { useTranslation } from "react-i18next";
 
+import type { AppError } from "../../../error-handling/app-error";
+import { MutationErrorAlert } from "../../../error-handling/ui/mutation-error-alert";
 import { Modal } from "../../antd-wrappers/modal";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type { FileBrowserItemKind, FileBrowserLocaleOverrides } from "../model/types";
@@ -14,6 +17,11 @@ export interface FileBrowserDeleteConfirmModalProps {
   itemKind?: FileBrowserItemKind;
   locale?: FileBrowserLocaleOverrides;
   okLoading?: boolean;
+  submitError?: string | null;
+  mutationError?: AppError | null;
+  mutationErrorFallback?: string;
+  onClearSubmitError?: () => void;
+  onClearMutationError?: () => void;
   onConfirm: () => void;
   onCancel: () => void;
   afterClose?: () => void;
@@ -26,6 +34,11 @@ export function FileBrowserDeleteConfirmModal({
   itemKind = "file",
   locale,
   okLoading,
+  submitError = null,
+  mutationError = null,
+  mutationErrorFallback = "",
+  onClearSubmitError,
+  onClearMutationError,
   onConfirm,
   onCancel,
   afterClose,
@@ -54,6 +67,21 @@ export function FileBrowserDeleteConfirmModal({
       closable
       keyboard
     >
+      <MutationErrorAlert
+        error={mutationError}
+        fallback={mutationErrorFallback}
+        onClose={onClearMutationError}
+      />
+      {submitError != null && submitError.length > 0 ? (
+        <Alert
+          type="error"
+          showIcon
+          closable
+          message={submitError}
+          onClose={onClearSubmitError}
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
       <p>{question}</p>
       {path.length > 0 && <code className={styles.deleteConfirmPath}>{path}</code>}
       <p>{warning}</p>

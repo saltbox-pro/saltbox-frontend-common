@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildErrorDebugText,
   isAbortError,
+  isNetworkTypeError,
   mapStatusToKind,
   normalizeApiError,
 } from "../../src/error-handling/app-error";
@@ -98,6 +99,21 @@ describe("normalizeApiError: не-HTTP ошибки", () => {
     expect(await normalizeApiError(error)).toMatchObject({ status: 0, kind: "network" });
   });
 
+  it("TypeError Failed to fetch → network, status 0", async () => {
+    expect(await normalizeApiError(new TypeError("Failed to fetch"))).toMatchObject({
+      status: 0,
+      kind: "network",
+    });
+  });
+
+  it("прочий TypeError → generic", async () => {
+    expect(await normalizeApiError(new TypeError("x is not a function"))).toMatchObject({
+      status: 0,
+      kind: "generic",
+      serverMessage: "x is not a function",
+    });
+  });
+
   it("обычный Error → generic с message", async () => {
     const appError = await normalizeApiError(new Error("boom"));
     expect(appError).toMatchObject({ status: 0, kind: "generic", serverMessage: "boom" });
@@ -117,6 +133,23 @@ describe("isAbortError", () => {
     expect(isAbortError(abort)).toBe(true);
     expect(isAbortError(new Error("x"))).toBe(false);
     expect(isAbortError(undefined)).toBe(false);
+  });
+});
+
+describe("isNetworkTypeError", () => {
+  it("распознаёт браузерные network TypeError", () => {
+    expect(isNetworkTypeError(new TypeError("Failed to fetch"))).toBe(true);
+    expect(
+      isNetworkTypeError(new TypeError("NetworkError when attempting to fetch resource."))
+    ).toBe(true);
+    expect(isNetworkTypeError(new TypeError("Load failed"))).toBe(true);
+    expect(isNetworkTypeError(new TypeError("Network request failed"))).toBe(true);
+  });
+
+  it("не трогает прочие TypeError и не-TypeError", () => {
+    expect(isNetworkTypeError(new TypeError("x is not a function"))).toBe(false);
+    expect(isNetworkTypeError(new Error("Failed to fetch"))).toBe(false);
+    expect(isNetworkTypeError(undefined)).toBe(false);
   });
 });
 

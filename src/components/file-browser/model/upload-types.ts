@@ -1,3 +1,5 @@
+import type { AppError } from "../../../error-handling/app-error";
+
 export type FileBrowserTransferActiveStatus = "queued" | "uploading" | "downloading" | "cancelling";
 
 export type FileBrowserTransferStatus = FileBrowserTransferActiveStatus | "done" | "error";
@@ -8,6 +10,7 @@ export interface FileBrowserTransferItem {
   total: number;
   status: FileBrowserTransferStatus;
   error?: string;
+  appError?: AppError | null;
   targetDirectory?: string;
 }
 

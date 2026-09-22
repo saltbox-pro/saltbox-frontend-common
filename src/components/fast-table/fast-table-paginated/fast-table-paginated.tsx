@@ -582,6 +582,7 @@ function FastTablePaginatedContent<DataType>({
               hasResizeColumnSizing={hasResizeColumnSizing}
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}
+              columnsRevision={resizeColumns}
               onRowClick={onRowClick}
               isRowClickable={isRowClickable}
               getRowClassName={getRowClassNames}
