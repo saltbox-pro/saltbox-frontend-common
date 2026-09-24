@@ -56,15 +56,17 @@ export function FastTableToolbarButtons({
   return (
     <>
       {refresh && (
-        <ToolbarIconAnchor>
-          <RefreshButton
-            title={locale.refresh}
-            loading={refresh.isLoading}
-            disabled={refresh.isLoading}
-            onClick={refresh.onRefresh}
-            aria-label={locale.refresh}
-          />
-        </ToolbarIconAnchor>
+        <Tooltip title={locale.refresh}>
+          <ToolbarIconAnchor>
+            <RefreshButton
+              title={false}
+              loading={refresh.isLoading}
+              disabled={refresh.isLoading}
+              onClick={refresh.onRefresh}
+              aria-label={locale.refresh}
+            />
+          </ToolbarIconAnchor>
+        </Tooltip>
       )}
 
       {showColumnControls && columnSettings && (

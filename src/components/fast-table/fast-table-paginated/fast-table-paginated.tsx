@@ -332,7 +332,7 @@ function FastTablePaginatedContent<DataType>({
   );
 
   const refresh = useMemo(
-    () => (onRefresh ? { onRefresh, isLoading } : undefined),
+    () => (onRefresh ? { onRefresh, isLoading: !!isLoading } : undefined),
     [onRefresh, isLoading]
   );
 
