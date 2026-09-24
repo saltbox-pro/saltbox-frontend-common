@@ -4,6 +4,7 @@ import { useCallback, useState, type ReactNode } from "react";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { BaseActionButton } from "../../buttons/base-action-button";
+import { RefreshButton } from "../../buttons/refresh-button";
 import { ColumnSettingsPanel } from "../column-settings/column-settings-panel";
 
 import type { FastTableToolbarModel } from "./fast-table-toolbar-store";
@@ -36,16 +37,30 @@ function ToolbarIconAnchor({ children }: { children: ReactNode }) {
 
 export function FastTableToolbarButtons({
   locale,
+  showColumnControls,
   canResetColumnWidths,
   onResetColumnWidths,
   columnSettings,
+  refresh,
 }: FastTableToolbarModel) {
   const { isOpen, isTooltipOpen, handleOpenChange, handleTooltipOpenChange, close } =
     useToolbarDropdown();
 
   return (
     <>
-      {columnSettings && (
+      {refresh && (
+        <ToolbarIconAnchor>
+          <RefreshButton
+            title={locale.refresh}
+            loading={refresh.isLoading}
+            disabled={refresh.isLoading}
+            onClick={refresh.onRefresh}
+            aria-label={locale.refresh}
+          />
+        </ToolbarIconAnchor>
+      )}
+
+      {showColumnControls && columnSettings && (
         <Tooltip
           title={locale.columnSettings}
           open={isTooltipOpen}
@@ -71,18 +86,20 @@ export function FastTableToolbarButtons({
         </Tooltip>
       )}
 
-      <Tooltip title={locale.resetColumnWidths}>
-        <ToolbarIconAnchor>
-          <BaseActionButton
-            icon={<ColumnWidthOutlined />}
-            title={undefined}
-            size="middle"
-            disabled={!canResetColumnWidths}
-            aria-label={locale.resetColumnWidths}
-            onClick={onResetColumnWidths}
-          />
-        </ToolbarIconAnchor>
-      </Tooltip>
+      {showColumnControls && (
+        <Tooltip title={locale.resetColumnWidths}>
+          <ToolbarIconAnchor>
+            <BaseActionButton
+              icon={<ColumnWidthOutlined />}
+              title={undefined}
+              size="middle"
+              disabled={!canResetColumnWidths}
+              aria-label={locale.resetColumnWidths}
+              onClick={onResetColumnWidths}
+            />
+          </ToolbarIconAnchor>
+        </Tooltip>
+      )}
     </>
   );
 }

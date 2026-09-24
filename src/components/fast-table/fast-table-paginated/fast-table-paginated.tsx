@@ -107,6 +107,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
   enableColumnSettings?: boolean;
+  onRefresh?: () => void;
   loader?: LoadSource;
 };
 
@@ -160,6 +161,7 @@ function FastTablePaginatedContent<DataType>({
   getRowGroupKey,
   tableId,
   enableColumnSettings = true,
+  onRefresh,
   loader,
 }: FastTablePaginatedProps<DataType>) {
   useLoaderBinding(loader);
@@ -329,17 +331,34 @@ function FastTablePaginatedContent<DataType>({
     [allLeafColumns, applyColumnLayout]
   );
 
+  const refresh = useMemo(
+    () => (onRefresh ? { onRefresh, isLoading } : undefined),
+    [onRefresh, isLoading]
+  );
+
   const toolbarModel = useMemo(
     () => ({
       locale: tableLocale,
+      showColumnControls: enableColumnSettings,
       canResetColumnWidths: hasPersistedSizing,
       onResetColumnWidths: resetColumnSizing,
       columnSettings,
+      refresh,
     }),
-    [tableLocale, hasPersistedSizing, resetColumnSizing, columnSettings]
+    [
+      tableLocale,
+      enableColumnSettings,
+      hasPersistedSizing,
+      resetColumnSizing,
+      columnSettings,
+      refresh,
+    ]
   );
 
-  const shouldRenderInlineToolbar = usePublishFastTableToolbar(enableColumnSettings, toolbarModel);
+  const shouldRenderInlineToolbar = usePublishFastTableToolbar(
+    enableColumnSettings || !!onRefresh,
+    toolbarModel
+  );
 
   const { canMoveColumn, moveColumn } = useColumnMove({
     items: columnSettings.items,

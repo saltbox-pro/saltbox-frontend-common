@@ -3,13 +3,21 @@ import type { ColumnSettingsPanelProps } from "../column-settings/column-setting
 export type FastTableToolbarLocale = {
   columnSettings: string;
   resetColumnWidths: string;
+  refresh: string;
+};
+
+export type FastTableToolbarRefresh = {
+  onRefresh: () => void;
+  isLoading: boolean;
 };
 
 export type FastTableToolbarModel = {
   locale: FastTableToolbarLocale & ColumnSettingsPanelProps["locale"];
+  showColumnControls: boolean;
   canResetColumnWidths: boolean;
   onResetColumnWidths: () => void;
   columnSettings?: Omit<ColumnSettingsPanelProps, "locale" | "onClose">;
+  refresh?: FastTableToolbarRefresh;
 };
 
 export type FastTableToolbarOwner = symbol;
@@ -24,12 +32,21 @@ export type FastTableToolbarStore = {
   subscribe: (listener: () => void) => () => void;
 };
 
+function isSameRefresh(a?: FastTableToolbarRefresh, b?: FastTableToolbarRefresh): boolean {
+  if (!a || !b) {
+    return a === b;
+  }
+  return a.onRefresh === b.onRefresh && a.isLoading === b.isLoading;
+}
+
 function isSameModel(a: FastTableToolbarModel, b: FastTableToolbarModel): boolean {
   return (
     a.locale === b.locale &&
+    a.showColumnControls === b.showColumnControls &&
     a.canResetColumnWidths === b.canResetColumnWidths &&
     a.onResetColumnWidths === b.onResetColumnWidths &&
-    a.columnSettings === b.columnSettings
+    a.columnSettings === b.columnSettings &&
+    isSameRefresh(a.refresh, b.refresh)
   );
 }
 

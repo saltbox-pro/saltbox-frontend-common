@@ -100,6 +100,7 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
   enableColumnSettings?: boolean;
+  onRefresh?: () => void;
   loader?: LoadSource;
 };
 
@@ -146,6 +147,7 @@ function FastTableListedContent<DataType>({
   rowSelection,
   tableId,
   enableColumnSettings = true,
+  onRefresh,
   useVirtualScroll = false,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
@@ -300,17 +302,34 @@ function FastTableListedContent<DataType>({
     [allLeafColumns, applyColumnLayout]
   );
 
+  const refresh = useMemo(
+    () => (onRefresh ? { onRefresh, isLoading: !!isLoading } : undefined),
+    [onRefresh, isLoading]
+  );
+
   const toolbarModel = useMemo(
     () => ({
       locale: tableLocale,
+      showColumnControls: enableColumnSettings,
       canResetColumnWidths: hasPersistedSizing,
       onResetColumnWidths: resetColumnSizing,
       columnSettings,
+      refresh,
     }),
-    [tableLocale, hasPersistedSizing, resetColumnSizing, columnSettings]
+    [
+      tableLocale,
+      enableColumnSettings,
+      hasPersistedSizing,
+      resetColumnSizing,
+      columnSettings,
+      refresh,
+    ]
   );
 
-  const shouldRenderInlineToolbar = usePublishFastTableToolbar(enableColumnSettings, toolbarModel);
+  const shouldRenderInlineToolbar = usePublishFastTableToolbar(
+    enableColumnSettings || !!onRefresh,
+    toolbarModel
+  );
 
   const { canMoveColumn, moveColumn } = useColumnMove({
     items: columnSettings.items,
