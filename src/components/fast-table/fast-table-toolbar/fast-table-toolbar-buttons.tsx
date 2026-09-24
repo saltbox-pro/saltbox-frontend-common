@@ -1,6 +1,6 @@
 import { ColumnWidthOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useState, type ComponentPropsWithRef } from "react";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
 import { BaseActionButton } from "../../buttons/base-action-button";
@@ -31,8 +31,15 @@ function useToolbarDropdown() {
   };
 }
 
-function ToolbarIconAnchor({ children }: { children: ReactNode }) {
-  return <span className="fast-table-toolbar-tooltip-anchor">{children}</span>;
+function ToolbarIconAnchor({ children, className, ...restProps }: ComponentPropsWithRef<"span">) {
+  return (
+    <span
+      {...restProps}
+      className={["fast-table-toolbar-tooltip-anchor", className].filter(Boolean).join(" ")}
+    >
+      {children}
+    </span>
+  );
 }
 
 export function FastTableToolbarButtons({
