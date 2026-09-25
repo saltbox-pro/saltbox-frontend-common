@@ -1,4 +1,3 @@
-import { Flex } from "antd";
 import type { ReactNode } from "react";
 
 import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
@@ -24,16 +23,25 @@ export function InfoDrawerTitle({
   return (
     <SwitchTransitionLayout activeKey={activeTransitionKey}>
       {() => (
-        <Flex align="center" gap={4} wrap>
-          {!!label && <span>{label}</span>}
+        <div className={styles.titleRow}>
+          {!!label && (
+            <span className={styles.label}>
+              {label}
+              {"\u00A0"}
+            </span>
+          )}
           {!!name && (
             <>
               <span className={styles.name}>{name}</span>
-              {copyable ? <CopyToClipboardButton text={name} /> : null}
-              {extra}
+              {!!copyable && (
+                <span className={styles.action}>
+                  <CopyToClipboardButton text={name} />
+                </span>
+              )}
+              {!!extra && <span className={styles.action}>{extra}</span>}
             </>
           )}
-        </Flex>
+        </div>
       )}
     </SwitchTransitionLayout>
   );

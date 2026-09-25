@@ -112,7 +112,7 @@ export function InfoDrawer({
       rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${rootClassName ?? ""}`}
       classNames={{
         ...classNames,
-        header: `${styles.header} ${classNames?.header ?? ""}`,
+        header: classNames?.header,
         body: `${styles.body} ${fillHeight ? styles.bodyFill : ""} ${classNames?.body ?? ""}`,
       }}
       open={open}

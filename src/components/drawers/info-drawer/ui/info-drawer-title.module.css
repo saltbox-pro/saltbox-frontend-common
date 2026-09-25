@@ -1,4 +1,18 @@
-.name {
+.titleRow {
   min-width: 0;
+  width: 100%;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.name {
   overflow-wrap: anywhere;
+}
+
+.action {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-inline-start: 4px;
 }

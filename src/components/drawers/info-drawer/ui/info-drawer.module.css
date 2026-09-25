@@ -2,12 +2,26 @@
   outline: none;
 }
 
-.header {
+.drawer :global(.ant-drawer-header) {
+  flex: none;
+  height: auto;
   min-height: 58px;
 }
 
+.drawer :global(.ant-drawer-header-title) {
+  margin-right: 10px;
+  min-width: 0;
+  min-height: auto !important;
+}
+
+.drawer :global(.ant-drawer-title) {
+  min-width: 0;
+  height: auto;
+}
+
 .headerActionsFade {
-  width: auto;
+  width: auto !important;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
 }
