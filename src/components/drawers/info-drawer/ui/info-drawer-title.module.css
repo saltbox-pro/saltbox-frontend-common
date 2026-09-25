@@ -3,11 +3,9 @@
   width: 100%;
 }
 
-.label {
-  white-space: nowrap;
-}
-
+.label,
 .name {
+  vertical-align: middle;
   overflow-wrap: anywhere;
 }
 
