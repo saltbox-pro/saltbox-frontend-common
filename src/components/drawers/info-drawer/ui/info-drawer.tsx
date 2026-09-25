@@ -36,6 +36,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   hasData?: boolean;
   loaders?: readonly LoadSource[];
   transitionKey?: Key;
+  fillHeight?: boolean;
   onClose: () => void;
 }
 
@@ -61,6 +62,7 @@ export function InfoDrawer({
   loaders,
   destroyOnHidden = true,
   width = 770,
+  fillHeight = false,
   onClose,
   children,
   classNames,
@@ -102,14 +104,16 @@ export function InfoDrawer({
     };
   }, []);
 
+  const fillClass = fillHeight ? styles.fillChild : "";
+
   return (
     <Drawer
       id={`sbx-drawer-${drawerId}`}
-      rootClassName={`${styles.drawer} ${rootClassName ?? ""}`}
+      rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${rootClassName ?? ""}`}
       classNames={{
         ...classNames,
         header: `${styles.header} ${classNames?.header ?? ""}`,
-        body: `${styles.body} ${classNames?.body ?? ""}`,
+        body: `${styles.body} ${fillHeight ? styles.bodyFill : ""} ${classNames?.body ?? ""}`,
       }}
       open={open}
       size={size}
@@ -141,14 +145,14 @@ export function InfoDrawer({
     >
       <InfoDrawerLoader loading={loading} />
 
-      <div ref={layoutAnchorRef} className={styles.layoutAnchor}>
+      <div ref={layoutAnchorRef} className={`${styles.layoutAnchor} ${fillClass}`}>
         <SwitchTransitionLayout
-          className={styles.layout}
+          className={`${styles.layout} ${fillClass}`}
           activeKey={activeKey}
           onEnter={resetDrawerBodyScroll}
         >
           {() => (
-            <div className={styles.content}>
+            <div className={`${styles.content} ${fillClass}`}>
               {hasError ? (
                 <InfoDrawerError message={errorMessage} />
               ) : loaders ? (

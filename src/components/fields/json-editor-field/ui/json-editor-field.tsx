@@ -6,7 +6,7 @@ import { JsonEditor, type JsonEditorProps } from "../../../json-editor/ui/json-e
 import styles from "./json-editor-field.module.css";
 
 interface JsonEditorFieldProps extends JsonEditorProps {
-  form: FormInstance;
+  form?: FormInstance;
   fieldName?: Parameters<FormInstance["getFieldError"]>[0];
 }
 
@@ -17,7 +17,7 @@ export function JsonEditorField({
   editorOptions,
   ...editorProps
 }: JsonEditorFieldProps) {
-  const errors = form.getFieldError(fieldName);
+  const errors = form?.getFieldError(fieldName);
   const hasError = Array.isArray(errors) && errors.length > 0;
 
   const mergedEditorOptions = useMemo<JsonEditorProps["editorOptions"]>(
@@ -34,7 +34,9 @@ export function JsonEditorField({
 
   return (
     <div
-      className={`${styles.jsonEditorWrapper} ${hasError ? styles.jsonEditorWrapper_error : ""}`}
+      className={`${styles.jsonEditorWrapper} ${hasError ? styles.jsonEditorWrapper_error : ""} ${
+        disabled ? styles.jsonEditorWrapper_disabled : ""
+      }`}
     >
       <JsonEditor disabled={disabled} editorOptions={mergedEditorOptions} {...editorProps} />
     </div>

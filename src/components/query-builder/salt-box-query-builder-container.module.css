@@ -24,6 +24,23 @@
   margin-bottom: var(--app-layout-gap);
 }
 
+.actionsRow {
+  padding: 8px;
+}
+
+.modeSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.freeTextEditor {
+  padding: 8px;
+}
+
 .buttons {
   display: flex;
   justify-content: flex-start;

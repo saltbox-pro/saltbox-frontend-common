@@ -29,7 +29,10 @@
     "remove-group-title": "Удалить группу фильтров",
     "search": "Поиск",
     "reset": "Сбросить",
-    "filter-copied": "Фильтр скопирован"
+    "filter-copied": "Фильтр скопирован",
+    "mode-free-text": "Свободный ввод",
+    "invalid-free-text-json": "Запрос фильтра — некорректный JSON",
+    "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров"
   },
   "filters": {
     "button-show-filters": "Фильтры"

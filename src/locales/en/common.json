@@ -29,7 +29,10 @@
     "remove-group-title": "Remove Filters Group",
     "search": "Search",
     "reset": "Reset",
-    "filter-copied": "Filter copied"
+    "filter-copied": "Filter copied",
+    "mode-free-text": "Free text",
+    "invalid-free-text-json": "Filter query is not valid JSON",
+    "invalid-free-text-for-builder": "Could not parse query for the filter builder"
   },
   "filters": {
     "button-show-filters": "Filters"

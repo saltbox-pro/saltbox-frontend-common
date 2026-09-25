@@ -13,6 +13,7 @@ export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
   outsideClickIgnoreSelectors?: string[];
   onOpen?: (arg: TArg) => void | Promise<void>;
   onClose?: () => void;
+  onBeforeClose?: () => boolean | Promise<boolean>;
 }
 
 export function useInfoDrawer<
@@ -24,11 +25,14 @@ export function useInfoDrawer<
   drawerId,
   onOpen,
   onClose,
+  onBeforeClose,
   initialOpenedId,
   initialOpenedArg,
   outsideClickIgnoreSelectors,
 }: UseInfoDrawerOptions<TArg, TId>) {
   const mainContentRef = useRef<TRef | null>(null);
+  const onBeforeCloseRef = useRef(onBeforeClose);
+  onBeforeCloseRef.current = onBeforeClose;
 
   const [openedId, setOpenedId] = useState<TId | null>(initialOpenedId ?? null);
   const [openedArg, setOpenedArg] = useState<TArg | null>(initialOpenedArg ?? null);
@@ -47,7 +51,12 @@ export function useInfoDrawer<
     [getId, onOpen]
   );
 
-  const close = useCallback(() => {
+  const close = useCallback(async () => {
+    const allow = (await onBeforeCloseRef.current?.()) ?? true;
+    if (!allow) {
+      return;
+    }
+
     setIsOpened(false);
     setOpenedId(null);
     setOpenedArg(null);
@@ -58,9 +67,17 @@ export function useInfoDrawer<
     async (arg: TArg) => {
       const id = getId(arg);
       if (isOpened && openedId === id) {
-        close();
+        await close();
         return;
       }
+
+      if (isOpened && openedId !== id) {
+        const allow = (await onBeforeCloseRef.current?.()) ?? true;
+        if (!allow) {
+          return;
+        }
+      }
+
       await open(arg);
     },
     [close, getId, isOpened, open, openedId]

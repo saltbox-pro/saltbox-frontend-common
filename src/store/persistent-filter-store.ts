@@ -35,6 +35,8 @@ export class PersistentFilterStore extends FilterStore {
     }
     this.currentFilters = emptyRuleGroup;
     this.searchFilters = emptyRuleGroup;
+    this.freeTextQuery = "{}";
+    this.filtersRevision += 1;
   };
 
   @override
@@ -47,6 +49,8 @@ export class PersistentFilterStore extends FilterStore {
 
     this.currentFilters = emptyRuleGroup;
     this.searchFilters = emptyRuleGroup;
+    this.freeTextQuery = "{}";
+    this.filtersRevision += 1;
   };
 
   @action

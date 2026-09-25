@@ -43,3 +43,31 @@
 .layout {
   display: flex;
 }
+
+.fillHeight :global(.ant-drawer-content) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.fillHeight :global(.ant-drawer-header) {
+  flex-shrink: 0;
+}
+
+.bodyFill {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.fillChild {
+  flex: 1 1 0;
+  min-height: 0 !important;
+  height: auto;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
