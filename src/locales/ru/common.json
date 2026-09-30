@@ -32,7 +32,21 @@
     "filter-copied": "Фильтр скопирован",
     "mode-free-text": "Свободный ввод",
     "invalid-free-text-json": "Запрос фильтра — некорректный JSON",
-    "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров"
+    "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров",
+    "operators": {
+      "contains": "содержит",
+      "beginsWith": "начинается с",
+      "endsWith": "заканчивается на",
+      "doesNotContain": "не содержит",
+      "doesNotBeginWith": "не начинается с",
+      "doesNotEndWith": "не заканчивается на",
+      "in": "в списке",
+      "notIn": "не в списке",
+      "null": "пусто",
+      "notNull": "не пусто",
+      "between": "между",
+      "notBetween": "не между"
+    }
   },
   "filters": {
     "button-show-filters": "Фильтры"

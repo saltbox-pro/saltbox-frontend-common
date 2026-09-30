@@ -1,13 +1,15 @@
 import { Flex, Spin } from "antd";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import QueryBuilder from "react-querybuilder";
+import { useTranslation } from "react-i18next";
+import QueryBuilder, { defaultOperators } from "react-querybuilder";
 
 import { FilterStore } from "../../store/filter-store";
 
 import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
 import { QueryBuilderSaltBox } from "./query-builder-salt-box/query-builder-salt-box";
 import styles from "./salt-box-readonly-query-builder.module.css";
+import { localizeFieldOperators, localizeOperators } from "./utils/localize-filter-operators";
 import { SaltBoxReadonlyValueEditor } from "./value-editors/salt-box-readonly-value-editor";
 import { SaltBoxReadonlyValueSelector } from "./value-selectors/salt-box-readonly-value-selector";
 
@@ -20,6 +22,7 @@ type SaltBoxReadonlyQueryBuilderProps = {
 const EmptyActionElement = () => null;
 
 export const SaltBoxReadonlyQueryBuilder = observer((props: SaltBoxReadonlyQueryBuilderProps) => {
+  const { t } = useTranslation("common");
   const showHeader = Boolean(props.title) || props.showCopyFilterButton;
 
   return (
@@ -41,7 +44,8 @@ export const SaltBoxReadonlyQueryBuilder = observer((props: SaltBoxReadonlyQuery
         <QueryBuilderSaltBox>
           <QueryBuilderSaltBox>
             <QueryBuilder
-              fields={toJS(props.filterStore.filterSchema)}
+              fields={localizeFieldOperators(toJS(props.filterStore.filterSchema), t)}
+              operators={localizeOperators(defaultOperators, t)}
               query={toJS(props.filterStore.currentFilters)}
               controlClassnames={{
                 queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,

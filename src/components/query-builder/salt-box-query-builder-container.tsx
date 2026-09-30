@@ -7,7 +7,11 @@ import { FC, ReactElement, useEffect, useState } from "react";
 import * as ReactDnD from "react-dnd";
 import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
 import { useTranslation } from "react-i18next";
-import QueryBuilder, { ValueEditorProps, ValueSelectorProps } from "react-querybuilder";
+import QueryBuilder, {
+  defaultOperators,
+  ValueEditorProps,
+  ValueSelectorProps,
+} from "react-querybuilder";
 
 import { notify } from "../../notifications";
 import { FilterStore, type QueryBuilderInputMode } from "../../store/filter-store";
@@ -18,6 +22,7 @@ import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filter
 import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
 import { QueryBuilderSaltBox } from "./query-builder-salt-box/query-builder-salt-box";
 import styles from "./salt-box-query-builder-container.module.css";
+import { localizeFieldOperators, localizeOperators } from "./utils/localize-filter-operators";
 
 export type { QueryBuilderInputMode };
 
@@ -127,7 +132,8 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
             <QueryBuilderSaltBox>
               <QueryBuilder
                 key={getQueryBuilderKey()}
-                fields={toJS(filterStore.filterSchema)}
+                fields={localizeFieldOperators(toJS(filterStore.filterSchema), t)}
+                operators={localizeOperators(defaultOperators, t)}
                 defaultQuery={toJS(filterStore.currentFilters)}
                 onQueryChange={filterStore.handleFiltersChange}
                 controlClassnames={{

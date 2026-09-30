@@ -32,7 +32,21 @@
     "filter-copied": "Filter copied",
     "mode-free-text": "Free text",
     "invalid-free-text-json": "Filter query is not valid JSON",
-    "invalid-free-text-for-builder": "Could not parse query for the filter builder"
+    "invalid-free-text-for-builder": "Could not parse query for the filter builder",
+    "operators": {
+      "contains": "contains",
+      "beginsWith": "begins with",
+      "endsWith": "ends with",
+      "doesNotContain": "does not contain",
+      "doesNotBeginWith": "does not begin with",
+      "doesNotEndWith": "does not end with",
+      "in": "in",
+      "notIn": "not in",
+      "null": "is null",
+      "notNull": "is not null",
+      "between": "between",
+      "notBetween": "not between"
+    }
   },
   "filters": {
     "button-show-filters": "Filters"
