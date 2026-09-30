@@ -40,6 +40,7 @@ export * from "./components/fields";
 export * from "./components/transition-layout";
 export * from "./components/accepted-masters";
 export * from "./components/status-segments-progress";
+export * from "./components/status-badge";
 
 export * from "./plugins";
 
