@@ -15,6 +15,9 @@
   "action-dropdown-button": {
     "actions": "Действия"
   },
+  "settings-dropdown-button": {
+    "label": "Настройки"
+  },
   "selected-items-counter": {
     "selected": "Выбрано"
   },

@@ -1,0 +1,4 @@
+.wide:global(.ant-btn.ant-btn-icon-only) {
+  width: auto;
+  padding-inline: 15px;
+}
