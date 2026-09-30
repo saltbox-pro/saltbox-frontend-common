@@ -1,4 +1,4 @@
-export const STATUS_TONES = [
+const STATUS_TONES = [
   "success",
   "active",
   "pending",
