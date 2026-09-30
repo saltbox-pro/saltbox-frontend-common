@@ -5,7 +5,9 @@
 .drawer :global(.ant-drawer-header) {
   flex: none;
   height: auto;
-  min-height: 58px;
+  min-height: 57px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .drawer :global(.ant-drawer-header-title) {

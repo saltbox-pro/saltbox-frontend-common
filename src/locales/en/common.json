@@ -15,6 +15,9 @@
   "action-dropdown-button": {
     "actions": "Actions"
   },
+  "settings-dropdown-button": {
+    "label": "Settings"
+  },
   "selected-items-counter": {
     "selected": "Selected"
   },
