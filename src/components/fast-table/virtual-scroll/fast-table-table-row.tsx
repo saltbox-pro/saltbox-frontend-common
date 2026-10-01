@@ -17,6 +17,7 @@ type FastTableTableRowProps<DataType> = {
   isExpanded: boolean;
   visibleColumnCount: number;
   columnOrderKey: string;
+  cellsRevisionKey?: string;
   actionLinkComponent?: CellActionLinkComponent;
   onRowClick?: FastTableRowClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
@@ -24,7 +25,10 @@ type FastTableTableRowProps<DataType> = {
 
 type FastTableTableRowCellsProps<DataType> = {
   row: Row<DataType>;
+  isSelected: boolean;
+  isExpanded: boolean;
   visibleColumnCount: number;
+  cellsRevisionKey?: string;
   actionLinkComponent?: CellActionLinkComponent;
 };
 
@@ -47,7 +51,10 @@ function canSkipRowCellsRender<DataType>(
   return (
     prev.row.id === next.row.id &&
     prev.row.original === next.row.original &&
+    prev.isSelected === next.isSelected &&
+    prev.isExpanded === next.isExpanded &&
     prev.visibleColumnCount === next.visibleColumnCount &&
+    prev.cellsRevisionKey === next.cellsRevisionKey &&
     prev.actionLinkComponent === next.actionLinkComponent
   );
 }
@@ -64,6 +71,7 @@ export function FastTableTableRow<DataType>({
   isExpanded,
   visibleColumnCount,
   columnOrderKey,
+  cellsRevisionKey,
   actionLinkComponent,
   onRowClick,
   renderSubComponent,
@@ -97,7 +105,10 @@ export function FastTableTableRow<DataType>({
         <FastTableTableRowCells
           key={columnOrderKey}
           row={row}
+          isSelected={row.getIsSelected()}
+          isExpanded={isExpanded}
           visibleColumnCount={visibleColumnCount}
+          cellsRevisionKey={cellsRevisionKey}
           actionLinkComponent={actionLinkComponent}
         />
       </tr>
