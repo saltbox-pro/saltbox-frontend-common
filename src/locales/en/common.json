@@ -7,6 +7,14 @@
   "refresh-button": {
     "refresh": "Refresh"
   },
+  "export-to-csv": {
+    "title": "Export to CSV",
+    "export": "Export",
+    "cancel": "Cancel",
+    "warning": "The CSV file will include {{scope}}.",
+    "warning-note": "It is generated on the server at export time and may differ from what is currently shown in the table",
+    "error": "Failed to export {{subject}} to CSV"
+  },
   "copy-to-clipboard-button": {
     "copied": "Copied to clipboard",
     "copy": "Copy to clipboard",

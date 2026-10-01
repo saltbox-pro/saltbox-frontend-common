@@ -11,6 +11,7 @@ export * from "./components/antd-wrappers/popover";
 export * from "./components/boolean-display";
 export * from "./components/text";
 export * from "./components/buttons";
+export * from "./components/export-to-csv";
 export * from "./components/dropdowns";
 export * from "./components/selected-items-counter";
 export * from "./components/info-cards-grid";
