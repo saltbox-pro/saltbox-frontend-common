@@ -26,7 +26,7 @@ import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
 import "./fast-table-virtual-scroll.css";
 
-type FastTableRowClickHandler<DataType> = (
+export type FastTableRowClickHandler<DataType> = (
   item: DataType,
   event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
 ) => void;
@@ -190,6 +190,36 @@ export function renderFastTableVirtualSpacer({
   );
 }
 
+type FastTableVirtualRowCellsProps<DataType> = {
+  row: Row<DataType>;
+  cellContext: Omit<FastTableVirtualCellContext<DataType>, "row">;
+};
+
+function FastTableVirtualRowCellsInner<DataType>({
+  row,
+  cellContext,
+}: FastTableVirtualRowCellsProps<DataType>) {
+  return (
+    <div className="virtual-row-cells">{renderFastTableVirtualCells({ row, ...cellContext })}</div>
+  );
+}
+
+function canSkipVirtualRowCellsRender<DataType>(
+  prev: FastTableVirtualRowCellsProps<DataType>,
+  next: FastTableVirtualRowCellsProps<DataType>
+) {
+  return (
+    prev.row.id === next.row.id &&
+    prev.row.original === next.row.original &&
+    prev.cellContext === next.cellContext
+  );
+}
+
+const FastTableVirtualRowCells = memo(
+  FastTableVirtualRowCellsInner,
+  canSkipVirtualRowCellsRender
+) as typeof FastTableVirtualRowCellsInner;
+
 type FastTableVirtualRowProps<DataType> = {
   row: Row<DataType>;
   virtualIndex: number;
@@ -200,14 +230,13 @@ type FastTableVirtualRowProps<DataType> = {
   isExpanded: boolean;
   enableDynamicRowHeight: boolean;
   columnOrderKey: string;
-  columnsRevision: unknown;
   measureElement?: (node: HTMLElement | null) => void;
   cellContext: Omit<FastTableVirtualCellContext<DataType>, "row">;
   onRowClick?: FastTableRowClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
 };
 
-function FastTableVirtualRowInner<DataType>({
+function FastTableVirtualRow<DataType>({
   row,
   virtualIndex,
   offsetInBody,
@@ -216,6 +245,7 @@ function FastTableVirtualRowInner<DataType>({
   isClickable,
   isExpanded,
   enableDynamicRowHeight,
+  columnOrderKey,
   measureElement,
   cellContext,
   onRowClick,
@@ -256,35 +286,13 @@ function FastTableVirtualRowInner<DataType>({
           : undefined
       }
     >
-      <div className="virtual-row-cells">
-        {renderFastTableVirtualCells({ row, ...cellContext })}
-      </div>
+      <FastTableVirtualRowCells key={columnOrderKey} row={row} cellContext={cellContext} />
       {isExpanded && renderSubComponent && (
         <div className="virtual-row-expanded">{renderSubComponent({ row })}</div>
       )}
     </div>
   );
 }
-
-const FastTableVirtualRow = memo(FastTableVirtualRowInner, (prev, next) => {
-  return (
-    prev.row.id === next.row.id &&
-    prev.virtualIndex === next.virtualIndex &&
-    prev.row.original === next.row.original &&
-    prev.offsetInBody === next.offsetInBody &&
-    prev.rowHeight === next.rowHeight &&
-    prev.className === next.className &&
-    prev.isClickable === next.isClickable &&
-    prev.isExpanded === next.isExpanded &&
-    prev.enableDynamicRowHeight === next.enableDynamicRowHeight &&
-    prev.columnOrderKey === next.columnOrderKey &&
-    prev.columnsRevision === next.columnsRevision &&
-    prev.cellContext === next.cellContext &&
-    prev.onRowClick === next.onRowClick &&
-    prev.renderSubComponent === next.renderSubComponent &&
-    prev.measureElement === next.measureElement
-  );
-}) as typeof FastTableVirtualRowInner;
 
 export type FastTableVirtualBodyProps<DataType> = {
   rows: Array<Row<DataType>>;
@@ -303,7 +311,6 @@ export type FastTableVirtualBodyProps<DataType> = {
   hasResizeColumnSizing: boolean;
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
-  columnsRevision: unknown;
   onRowClick?: FastTableRowClickHandler<DataType>;
   isRowClickable?: (item: DataType) => boolean;
   getRowClassName?: (row: Row<DataType>, isVirtualRow: boolean) => string | undefined;
@@ -328,7 +335,6 @@ export function FastTableVirtualBody<DataType>({
   hasResizeColumnSizing,
   estimatedRowHeight,
   enableDynamicRowHeight = true,
-  columnsRevision,
   onRowClick,
   isRowClickable,
   getRowClassName,
@@ -404,7 +410,6 @@ export function FastTableVirtualBody<DataType>({
             isExpanded={row.getIsExpanded()}
             enableDynamicRowHeight={enableDynamicRowHeight}
             columnOrderKey={leafColumnIdsKey}
-            columnsRevision={columnsRevision}
             measureElement={rowVirtualizer.measureElement}
             cellContext={cellContext}
             onRowClick={onRowClick}

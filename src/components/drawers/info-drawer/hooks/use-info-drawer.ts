@@ -34,22 +34,31 @@ export function useInfoDrawer<
   const onBeforeCloseRef = useRef(onBeforeClose);
   onBeforeCloseRef.current = onBeforeClose;
 
+  const getIdRef = useRef(getId);
+  getIdRef.current = getId;
+  const onOpenRef = useRef(onOpen);
+  onOpenRef.current = onOpen;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   const [openedId, setOpenedId] = useState<TId | null>(initialOpenedId ?? null);
   const [openedArg, setOpenedArg] = useState<TArg | null>(initialOpenedArg ?? null);
   const [isOpened, setIsOpened] = useState(false);
 
-  const activeRowId = useMemo(() => (isOpened ? openedId : null), [isOpened, openedId]);
+  const isOpenedRef = useRef(isOpened);
+  isOpenedRef.current = isOpened;
+  const openedIdRef = useRef(openedId);
+  openedIdRef.current = openedId;
 
-  const open = useCallback(
-    async (arg: TArg) => {
-      const id = getId(arg);
-      setOpenedId(id);
-      setOpenedArg(arg);
-      setIsOpened(true);
-      await onOpen?.(arg);
-    },
-    [getId, onOpen]
-  );
+  const activeRowId = isOpened ? openedId : null;
+
+  const open = useCallback(async (arg: TArg) => {
+    const id = getIdRef.current(arg);
+    setOpenedId(id);
+    setOpenedArg(arg);
+    setIsOpened(true);
+    await onOpenRef.current?.(arg);
+  }, []);
 
   const close = useCallback(async () => {
     const allow = (await onBeforeCloseRef.current?.()) ?? true;
@@ -60,18 +69,18 @@ export function useInfoDrawer<
     setIsOpened(false);
     setOpenedId(null);
     setOpenedArg(null);
-    onClose?.();
-  }, [onClose]);
+    onCloseRef.current?.();
+  }, []);
 
   const toggle = useCallback(
     async (arg: TArg) => {
-      const id = getId(arg);
-      if (isOpened && openedId === id) {
+      const id = getIdRef.current(arg);
+      if (isOpenedRef.current && openedIdRef.current === id) {
         await close();
         return;
       }
 
-      if (isOpened && openedId !== id) {
+      if (isOpenedRef.current && openedIdRef.current !== id) {
         const allow = (await onBeforeCloseRef.current?.()) ?? true;
         if (!allow) {
           return;
@@ -80,7 +89,7 @@ export function useInfoDrawer<
 
       await open(arg);
     },
-    [close, getId, isOpened, open, openedId]
+    [close, open]
   );
 
   useEffect(() => {
