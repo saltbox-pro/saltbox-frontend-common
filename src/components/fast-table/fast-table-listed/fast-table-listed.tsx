@@ -62,7 +62,6 @@ import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
-import { resolveCellsRevisionKey } from "../utils/column-sort";
 import { FastTableTableRow } from "../virtual-scroll/fast-table-table-row";
 import {
   FastTableVirtualBody,
@@ -100,7 +99,6 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   enableColumnSettings?: boolean;
   onRefresh?: () => void;
   loader?: LoadSource;
-  cellsRevisionKey?: string | number;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTableListedProps<unknown>, "forceExpandAll">) {
@@ -153,17 +151,12 @@ function FastTableListedContent<DataType>({
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
   enableDynamicRowHeight = true,
   loader,
-  cellsRevisionKey,
 }: FastTableListedProps<DataType>) {
   useLoaderBinding(loader);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableLocale = useFastTableLocale(locale);
   const fastTableTokenStyle = useFastTableTokenStyle();
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
-  const resolvedCellsRevisionKey = useMemo(
-    () => resolveCellsRevisionKey(cellsRevisionKey, sorting),
-    [cellsRevisionKey, sorting]
-  );
 
   const {
     columnSizing,
@@ -404,8 +397,6 @@ function FastTableListedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
-          columnOrderKey={leafColumnIdsKey}
-          cellsRevisionKey={resolvedCellsRevisionKey}
           onRowClick={onRowClick}
           renderSubComponent={renderSubComponent}
         />
@@ -516,7 +507,6 @@ function FastTableListedContent<DataType>({
             hasResizeColumnSizing={hasResizeColumnSizing}
             estimatedRowHeight={estimatedRowHeight}
             enableDynamicRowHeight={enableDynamicRowHeight}
-            cellsRevisionKey={resolvedCellsRevisionKey}
             onRowClick={onRowClick}
             isRowClickable={isRowClickable}
             getRowClassName={getRowClassNames}

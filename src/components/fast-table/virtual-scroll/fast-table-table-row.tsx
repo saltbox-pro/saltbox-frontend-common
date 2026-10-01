@@ -1,6 +1,6 @@
 import type { Row } from "@tanstack/react-table";
 import { toJS } from "mobx";
-import { Fragment, memo, type ReactElement, type ReactNode } from "react";
+import { Fragment, type ReactElement } from "react";
 
 import type { CellActionLinkComponent } from "../types";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
@@ -16,53 +16,10 @@ type FastTableTableRowProps<DataType> = {
   isClickable: boolean;
   isExpanded: boolean;
   visibleColumnCount: number;
-  columnOrderKey: string;
-  cellsRevisionKey?: string;
   actionLinkComponent?: CellActionLinkComponent;
   onRowClick?: FastTableRowClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
 };
-
-type FastTableTableRowCellsProps<DataType> = {
-  row: Row<DataType>;
-  isSelected: boolean;
-  isExpanded: boolean;
-  visibleColumnCount: number;
-  cellsRevisionKey?: string;
-  actionLinkComponent?: CellActionLinkComponent;
-};
-
-function FastTableTableRowCellsInner<DataType>({
-  row,
-  visibleColumnCount,
-  actionLinkComponent,
-}: FastTableTableRowCellsProps<DataType>): ReactNode {
-  return renderFastTableTableCells({
-    row,
-    visibleColumnCount,
-    actionLinkComponent,
-  });
-}
-
-function canSkipRowCellsRender<DataType>(
-  prev: FastTableTableRowCellsProps<DataType>,
-  next: FastTableTableRowCellsProps<DataType>
-) {
-  return (
-    prev.row.id === next.row.id &&
-    prev.row.original === next.row.original &&
-    prev.isSelected === next.isSelected &&
-    prev.isExpanded === next.isExpanded &&
-    prev.visibleColumnCount === next.visibleColumnCount &&
-    prev.cellsRevisionKey === next.cellsRevisionKey &&
-    prev.actionLinkComponent === next.actionLinkComponent
-  );
-}
-
-const FastTableTableRowCells = memo(
-  FastTableTableRowCellsInner,
-  canSkipRowCellsRender
-) as typeof FastTableTableRowCellsInner;
 
 export function FastTableTableRow<DataType>({
   row,
@@ -70,8 +27,6 @@ export function FastTableTableRow<DataType>({
   isClickable,
   isExpanded,
   visibleColumnCount,
-  columnOrderKey,
-  cellsRevisionKey,
   actionLinkComponent,
   onRowClick,
   renderSubComponent,
@@ -102,15 +57,11 @@ export function FastTableTableRow<DataType>({
             : undefined
         }
       >
-        <FastTableTableRowCells
-          key={columnOrderKey}
-          row={row}
-          isSelected={row.getIsSelected()}
-          isExpanded={isExpanded}
-          visibleColumnCount={visibleColumnCount}
-          cellsRevisionKey={cellsRevisionKey}
-          actionLinkComponent={actionLinkComponent}
-        />
+        {renderFastTableTableCells({
+          row,
+          visibleColumnCount,
+          actionLinkComponent,
+        })}
       </tr>
       {isExpanded && (
         <tr>

@@ -67,7 +67,6 @@ import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
-import { resolveCellsRevisionKey } from "../utils/column-sort";
 import { FastTableTableRow } from "../virtual-scroll/fast-table-table-row";
 import {
   FastTableVirtualBody,
@@ -107,7 +106,6 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   enableColumnSettings?: boolean;
   onRefresh?: () => void;
   loader?: LoadSource;
-  cellsRevisionKey?: string | number;
 };
 
 function useExpanded({ forceExpandAll }: Pick<FastTablePaginatedProps<unknown>, "forceExpandAll">) {
@@ -162,7 +160,6 @@ function FastTablePaginatedContent<DataType>({
   enableColumnSettings = true,
   onRefresh,
   loader,
-  cellsRevisionKey,
 }: FastTablePaginatedProps<DataType>) {
   useLoaderBinding(loader);
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -170,10 +167,6 @@ function FastTablePaginatedContent<DataType>({
     delay: 0,
   });
   const { onExpandedChange, expanded } = useExpanded({ forceExpandAll });
-  const resolvedCellsRevisionKey = useMemo(
-    () => resolveCellsRevisionKey(cellsRevisionKey, sorting),
-    [cellsRevisionKey, sorting]
-  );
   const {
     columnSizing,
     hasPersistedSizing,
@@ -468,8 +461,6 @@ function FastTablePaginatedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
-          columnOrderKey={leafColumnIdsKey}
-          cellsRevisionKey={resolvedCellsRevisionKey}
           actionLinkComponent={actionLinkComponent}
           onRowClick={onRowClick}
           renderSubComponent={renderSubComponent}
@@ -580,7 +571,6 @@ function FastTablePaginatedContent<DataType>({
               hasResizeColumnSizing={hasResizeColumnSizing}
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}
-              cellsRevisionKey={resolvedCellsRevisionKey}
               onRowClick={onRowClick}
               isRowClickable={isRowClickable}
               getRowClassName={getRowClassNames}
