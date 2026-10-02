@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useExportToCsv } from "./use-export-to-csv";
 import { ExportToCsvConfirmContent } from "../ui/export-to-csv-confirm-content";
+
+import { useExportToCsv } from "./use-export-to-csv";
 
 export type UseExportToCsvConfirmOptions = {
   scope: string;

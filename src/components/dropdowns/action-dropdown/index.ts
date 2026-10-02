@@ -1,1 +1,5 @@
-export { ActionDropdown, type ActionDropdownItem } from "./ui/action-dropdown";
+export {
+  ActionDropdown,
+  type ActionDropdownItem,
+  type ActionDropdownProps,
+} from "./ui/action-dropdown";

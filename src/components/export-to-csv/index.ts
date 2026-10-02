@@ -3,3 +3,4 @@ export {
   useExportToCsvConfirm,
   type UseExportToCsvConfirmOptions,
 } from "./hooks/use-export-to-csv-confirm";
+export { buildCsvExportFilename } from "./helpers/build-csv-export-filename";
