@@ -31,6 +31,7 @@ export type CellMeta<T = any> = {
   showCopy?: boolean;
   copyValue?: (row: T) => string;
   renderCopy?: (row: T) => ReactNode;
+  getTitle?: (value: unknown, row: T) => string | undefined;
   actions?: CellAction<T>[];
   tdClassName?: string;
   width?: number | string;

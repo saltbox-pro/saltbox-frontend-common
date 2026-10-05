@@ -6,7 +6,7 @@ import i18next, { type Resource } from "i18next";
 import React, { useEffect, useMemo } from "react";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 
-import { notifyLocaleChange } from "../components/module-error-boundary/utils/i18n";
+import { notifyLocaleChange } from "../i18n/common";
 import { AppLanguage } from "../interfaces/locales";
 import enCommon from "../locales/en/common.json";
 import ruCommon from "../locales/ru/common.json";

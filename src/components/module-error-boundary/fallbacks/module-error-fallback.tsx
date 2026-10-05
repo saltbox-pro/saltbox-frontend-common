@@ -1,6 +1,6 @@
 import { Button, Flex, Result } from "antd";
 
-import { tCommon, useCommonLocale } from "../utils/i18n";
+import { tCommon, useCommonLocale } from "../../../i18n/common";
 
 import { ErrorDetailsToggle } from "./error-details-toggle";
 import styles from "./fallback-subtitle.module.css";

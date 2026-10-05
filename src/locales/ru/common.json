@@ -181,6 +181,10 @@
   "actions": {
     "search": "Поиск"
   },
+  "boolean-display": {
+    "true": "Да",
+    "false": "Нет"
+  },
   "fast-table": {
     "empty": "Нет данных",
     "sort-ascending": "Сортировать по возрастанию",

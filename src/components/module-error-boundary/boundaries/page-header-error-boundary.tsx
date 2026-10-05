@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
+import { tCommon, useCommonLocale } from "../../../i18n/common";
 import { BlockErrorBoundary } from "../boundaries/block-error-boundary";
-import { tCommon, useCommonLocale } from "../utils/i18n";
 
 type PageHeaderErrorBoundaryProps = {
   children: ReactNode;

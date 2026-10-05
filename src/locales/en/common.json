@@ -181,6 +181,10 @@
   "actions": {
     "search": "Search"
   },
+  "boolean-display": {
+    "true": "Yes",
+    "false": "No"
+  },
   "fast-table": {
     "empty": "No data",
     "sort-ascending": "Sort ascending",

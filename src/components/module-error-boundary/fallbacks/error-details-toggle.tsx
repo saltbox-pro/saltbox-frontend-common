@@ -3,8 +3,8 @@ import { Tooltip } from "antd";
 
 import { CopyToClipboardButton } from "saltbox-common/components/buttons/copy-to-clipboard-button";
 
+import { tCommon, useCommonLocale } from "../../../i18n/common";
 import { getErrorDetails } from "../utils/get-error-message";
-import { tCommon, useCommonLocale } from "../utils/i18n";
 
 import styles from "./error-details-toggle.module.css";
 

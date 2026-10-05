@@ -1,3 +1,13 @@
-.booleanDisplay {
-  pointer-events: none;
+.icon {
+  font-size: 16px;
+}
+
+.true {
+  composes: icon;
+  color: #1677ff;
+}
+
+.false {
+  composes: icon;
+  color: #00000040;
 }

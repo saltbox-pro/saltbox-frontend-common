@@ -85,9 +85,9 @@ function renderFastTableCellContent<DataType>({
 }) {
   const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
   const isEllipsis = meta?.ellipsis ?? true;
-  const cellTitle = isEllipsis
-    ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue())
-    : undefined;
+  const cellTitle =
+    meta?.getTitle?.(cell.getValue(), row.original) ??
+    (isEllipsis ? resolveCellTitle(meta?.copyValue?.(row.original) ?? cell.getValue()) : undefined);
 
   return (
     <span className="cell-content">
