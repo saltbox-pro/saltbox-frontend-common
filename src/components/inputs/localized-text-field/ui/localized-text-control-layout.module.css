@@ -1,0 +1,25 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.control {
+  width: 100%;
+  min-width: 0;
+}
+
+.controlWithAddon {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.addonAfter {
+  flex: none;
+}

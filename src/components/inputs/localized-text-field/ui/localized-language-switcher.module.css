@@ -1,0 +1,6 @@
+.switcher {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}

@@ -64,6 +64,7 @@ export * from "./constants/job-timeout";
 export * from "./utils/relative-time";
 export * from "./utils/deep-omit-undefined";
 export * from "./utils/template-schema-validation";
+export * from "./utils/localized-text";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
