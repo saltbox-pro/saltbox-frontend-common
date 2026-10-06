@@ -18,7 +18,7 @@ export * from "./components/info-cards-grid";
 export * from "./components/filters-counter/filters-counter";
 export * from "./components/inputs";
 export * from "./components/json-editor";
-export * from "./components/mat-icon/mat-icon";
+export * from "./components/mat-icon";
 export * from "./components/horizontal-drag-scroll";
 export * from "./components/query-builder/salt-box-query-builder-container";
 export * from "./components/query-builder/query-builder-copy-filter-button";

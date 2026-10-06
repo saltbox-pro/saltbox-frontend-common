@@ -2,7 +2,7 @@ import { Breadcrumb, Button } from "antd";
 import type { ItemType } from "antd/es/breadcrumb/Breadcrumb";
 import { useMemo, type ReactNode } from "react";
 
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import {
   buildPathFromSegments,
   getRootPath,

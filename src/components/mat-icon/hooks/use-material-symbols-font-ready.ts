@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 const FONT_SPEC = '24px "Material Symbols Outlined"';
+const FONT_READY_TIMEOUT_MS = 3000;
 
 let isReady = false;
 let loadStarted = false;
@@ -36,17 +37,25 @@ function ensureLoad(): void {
   }
 
   if (document.fonts.check(FONT_SPEC)) {
-    markReady();
+    queueMicrotask(markReady);
     return;
   }
+
+  let timeoutId = 0;
 
   const tryMarkReady = (): void => {
     if (!document.fonts.check(FONT_SPEC)) {
       return;
     }
+    window.clearTimeout(timeoutId);
     document.fonts.removeEventListener("loadingdone", tryMarkReady);
     markReady();
   };
+
+  timeoutId = window.setTimeout(() => {
+    document.fonts.removeEventListener("loadingdone", tryMarkReady);
+    markReady();
+  }, FONT_READY_TIMEOUT_MS);
 
   document.fonts.addEventListener("loadingdone", tryMarkReady);
 
@@ -55,7 +64,11 @@ function ensureLoad(): void {
     .then(() => {
       tryMarkReady();
     })
-    .catch(() => {});
+    .catch(() => {
+      window.clearTimeout(timeoutId);
+      document.fonts.removeEventListener("loadingdone", tryMarkReady);
+      markReady();
+    });
 }
 
 function subscribe(onStoreChange: () => void): () => void {

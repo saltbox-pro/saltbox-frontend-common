@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { formatTimeByUserTZ } from "../../../utils/datetime";
 import { FastTable } from "../../fast-table/fast-table";
 import type { CellAction } from "../../fast-table/types";
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import type {
   ShowFileBrowserErrorByCode,

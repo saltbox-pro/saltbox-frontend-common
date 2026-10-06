@@ -883,10 +883,15 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@material-symbols/font-300@^0.38.0":
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/@material-symbols/font-300/-/font-300-0.38.0.tgz#5557e990ed47a2bdb80c50dd9fd48e3c9b3b7d48"
-  integrity sha512-/3+SwFB5sAjKQNXsjAUIZJu8Y/AveMgj8UiicjsXkegQKeEL5A2eSrqimPNO6ouDBY+Apa2yaqDbxoIaAsAJyg==
+"@material-symbols-svg/metadata@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@material-symbols-svg/metadata/-/metadata-0.14.0.tgz#87f500b83be235059fa2ebafe1acc541a5921cb0"
+  integrity sha512-tWKCKGu16hAh/oNfvLnOepf54zIgGiM9/i6THFOOPwMMGWtC1N4L/8UfC7USYtK/KflJf5Juts4YYBsMMamONQ==
+
+"@material-symbols/font-300@^0.47.6":
+  version "0.47.6"
+  resolved "https://registry.yarnpkg.com/@material-symbols/font-300/-/font-300-0.47.6.tgz#9ecbb34f9038f64a90eb81ad042772c7ba8f6820"
+  integrity sha512-LcLNOIeO7gNWQMxnL3U645lSxQDKRSG94jqedzC90345xNJpVF/EncIyqb+uskARA3jodMBpbLa+zx9LFnzZFg==
 
 "@mdx-js/react@^3.0.0":
   version "3.1.1"

@@ -337,5 +337,33 @@
     "source": "Source: {{source}}",
     "path": "Schema path: {{path}}",
     "return": "Return to template selection"
+  },
+  "material-icon-picker": {
+    "title": "Select icon",
+    "empty": "No icons found",
+    "clear": "Clear icon",
+    "load-error": "Failed to load icons",
+    "retry": "Retry",
+    "categories": {
+      "action": "Action",
+      "alert": "Alert",
+      "av": "Audio & video",
+      "communication": "Communication",
+      "content": "Content",
+      "device": "Device",
+      "editor": "Editor",
+      "file": "File",
+      "hardware": "Hardware",
+      "home": "Home",
+      "image": "Image",
+      "maps": "Maps",
+      "navigation": "Navigation",
+      "notification": "Notification",
+      "places": "Places",
+      "search": "Search",
+      "social": "Social",
+      "symbols": "Symbols",
+      "toggle": "Toggle"
+    }
   }
 }

@@ -1,9 +1,11 @@
 import type { MaterialSymbol } from "@material-symbols/font-300";
+import clsx from "clsx";
 
-import { useMaterialSymbolsFontReady } from "./use-material-symbols-font-ready";
+import { useMaterialSymbolsFontReady } from "../hooks/use-material-symbols-font-ready";
 
 type IconSize = "small" | "normal" | "large";
-type MatIconProps = {
+
+export type MatIconProps = {
   className?: string;
   icon: MaterialSymbol;
   size?: IconSize;
@@ -30,7 +32,7 @@ export function MatIcon({ className, icon, size }: MatIconProps) {
       }}
     >
       {isFontReady && (
-        <span style={{ fontSize }} className={className ? className : "material-symbols-outlined"}>
+        <span style={{ fontSize }} className={clsx("material-symbols-outlined", className)}>
           {icon}
         </span>
       )}

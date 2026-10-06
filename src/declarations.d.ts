@@ -43,6 +43,16 @@ declare module "*.module.css" {
   export default classes;
 }
 
+declare module "@material-symbols-svg/metadata/icon-index.json" {
+  type MaterialIconIndexEntry = {
+    name: string;
+    categories?: string[];
+  };
+
+  const iconIndex: Record<string, MaterialIconIndexEntry>;
+  export default iconIndex;
+}
+
 // process.env.NODE_ENV подменяется бандлером приложения-потребителя (webpack DefinePlugin);
 // объявление нужно только для tsc, @types/node не подключаем сознательно.
 declare const process: { env: { NODE_ENV?: string } };

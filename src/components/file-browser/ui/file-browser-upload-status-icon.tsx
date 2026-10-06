@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import type { FileBrowserTransferStatus } from "../model/upload-types";
 
 import styles from "./file-browser.module.css";
