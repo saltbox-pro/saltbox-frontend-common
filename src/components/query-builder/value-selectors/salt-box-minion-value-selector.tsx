@@ -1,6 +1,7 @@
 import { Flex, Input, Select } from "antd";
 import type { ComponentPropsWithoutRef } from "react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { joinWith, useValueSelector, VersatileSelectorProps } from "react-querybuilder";
 
 export type AntDValueSelectorProps = VersatileSelectorProps &
@@ -29,6 +30,7 @@ export const SaltBoxMinionValueSelector = ({
   schema: _schema,
   ...extraProps
 }: AntDValueSelectorProps): React.JSX.Element => {
+  const { t } = useTranslation("common");
   const [isCustomValue, setIsCustomValue] = React.useState(false);
   const [customValue, setCustomValue] = React.useState("");
 
@@ -112,7 +114,10 @@ export const SaltBoxMinionValueSelector = ({
             }
           }}
           optionFilterProp="label"
-          options={[...(options || []), { label: "Custom grain", value: "custom" }]}
+          options={[
+            ...(options || []),
+            { label: t("query-builder.custom-grain"), value: "custom" },
+          ]}
           {...extraProps}
         />
         {isCustomValue && (
@@ -124,7 +129,7 @@ export const SaltBoxMinionValueSelector = ({
               onChange(`grains.${newValue}`);
             }}
             disabled={disabled}
-            placeholder="Grain name"
+            placeholder={t("query-builder.grain-name")}
           />
         )}
       </Flex>

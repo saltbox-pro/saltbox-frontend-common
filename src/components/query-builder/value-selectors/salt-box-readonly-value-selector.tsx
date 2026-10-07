@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { ValueSelectorProps } from "react-querybuilder";
 
 export const SaltBoxReadonlyValueSelector = (props: ValueSelectorProps) => {
+  const { t } = useTranslation("common");
   // @ts-ignore
   const selected = props.options?.find((opt) => opt.value === props.value);
 
@@ -8,7 +10,7 @@ export const SaltBoxReadonlyValueSelector = (props: ValueSelectorProps) => {
     const grainName = props.value.replace("grains.", "");
     return (
       <span>
-        Custom grains: <span style={{ fontWeight: 700 }}>{grainName}</span>
+        {t("query-builder.custom-grain")}: <span style={{ fontWeight: 700 }}>{grainName}</span>
       </span>
     );
   }

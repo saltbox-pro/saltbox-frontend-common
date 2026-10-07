@@ -44,6 +44,8 @@
     "mode-free-text": "Свободный ввод",
     "invalid-free-text-json": "Запрос фильтра — некорректный JSON",
     "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров",
+    "custom-grain": "Произвольный grain",
+    "grain-name": "Имя grain",
     "operators": {
       "contains": "содержит",
       "beginsWith": "начинается с",
