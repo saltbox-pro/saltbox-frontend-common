@@ -11,13 +11,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Empty, Pagination, type PaginationProps, Spin } from "antd";
-import { toJS } from "mobx";
 import {
   type RefObject,
   type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
-  Fragment,
   useEffect,
   useMemo,
   useRef,
@@ -69,10 +67,9 @@ import {
   createClampedColumnSizingChange,
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
-import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
+import { FastTableTableRow } from "../virtual-scroll/fast-table-table-row";
 import {
   FastTableVirtualBody,
-  renderFastTableTableCells,
   renderFastTableVirtualSpacer,
 } from "../virtual-scroll/fast-table-virtual-body";
 
@@ -252,7 +249,7 @@ function FastTablePaginatedContent<DataType>({
     state: {
       pagination,
       sorting,
-      rowSelection,
+      rowSelection: rowSelection ?? {},
       expanded,
       columnSizing,
       columnOrder,
@@ -457,44 +454,17 @@ function FastTablePaginatedContent<DataType>({
         onRowClick && (isRowClickable == null || isRowClickable(row.original))
       );
       return (
-        <Fragment key={`${row.id}-group-row`}>
-          <tr
-            key={row.id}
-            role={isClickable ? "button" : undefined}
-            tabIndex={isClickable ? 0 : undefined}
-            className={getRowClassNames(row)}
-            onClick={(event) => {
-              if (!onRowClick || !isClickable) return;
-
-              const target = event.target as HTMLElement;
-              if (shouldPreventRowClick(target, event.currentTarget)) {
-                return;
-              }
-              onRowClick(toJS(row.original), event);
-            }}
-            onKeyDown={
-              isClickable
-                ? (event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      onRowClick!(toJS(row.original), event);
-                    }
-                  }
-                : undefined
-            }
-          >
-            {renderFastTableTableCells({
-              row,
-              visibleColumnCount,
-              actionLinkComponent,
-            })}
-          </tr>
-          {row.getIsExpanded() && (
-            <tr key={`${row.id}-sub-row`}>
-              <td colSpan={row.getVisibleCells().length}>{renderSubComponent?.({ row })}</td>
-            </tr>
-          )}
-        </Fragment>
+        <FastTableTableRow
+          key={`${row.id}-group-row`}
+          row={row}
+          className={getRowClassNames(row)}
+          isClickable={isClickable}
+          isExpanded={row.getIsExpanded()}
+          visibleColumnCount={visibleColumnCount}
+          actionLinkComponent={actionLinkComponent}
+          onRowClick={onRowClick}
+          renderSubComponent={renderSubComponent}
+        />
       );
     });
   };
@@ -601,7 +571,6 @@ function FastTablePaginatedContent<DataType>({
               hasResizeColumnSizing={hasResizeColumnSizing}
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}
-              columnsRevision={resizeColumns}
               onRowClick={onRowClick}
               isRowClickable={isRowClickable}
               getRowClassName={getRowClassNames}

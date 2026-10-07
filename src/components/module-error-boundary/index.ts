@@ -11,4 +11,4 @@ export {
   type CreateModuleErrorBoundaryKitOptions,
 } from "./factories/create-module-error-boundary-kit";
 export { createSingleSpaErrorBoundary } from "./factories/create-single-spa-error-boundary";
-export { LOCALE_CHANGE_EVENT } from "./utils/i18n";
+export { LOCALE_CHANGE_EVENT } from "../../i18n/common";

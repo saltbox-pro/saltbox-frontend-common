@@ -1,12 +1,12 @@
 import { Button } from "antd";
 import { useMemo } from "react";
 
+import { tCommon, useCommonLocale } from "../../i18n/common";
 import {
   formatTemplateSchemaErrorDetails,
   type TemplateSchemaError,
 } from "../../utils/template-schema-validation";
 import { BlockErrorFallback } from "../module-error-boundary";
-import { tCommon, useCommonLocale } from "../module-error-boundary/utils/i18n";
 
 export type TemplateSchemaErrorViewProps = {
   templateTitle: string;

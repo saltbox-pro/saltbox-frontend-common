@@ -2,7 +2,7 @@ import { Button, Upload } from "antd";
 import { observer } from "mobx-react-lite";
 
 import { Modal } from "../../antd-wrappers/modal";
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import { useFileBrowserMessages } from "../hooks/use-file-browser-messages";
 import type { FileBrowserUploadFileHandler, FileBrowserUploadItem } from "../model/upload-types";
 import { hasActiveFileBrowserTransfer } from "../utils/has-active-file-browser-transfer";

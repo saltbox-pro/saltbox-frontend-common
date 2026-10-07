@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import type { ReactNode } from "react";
 
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import type {
   ShowFileBrowserErrorByCode,
   ShowFileBrowserSuccessByKey,

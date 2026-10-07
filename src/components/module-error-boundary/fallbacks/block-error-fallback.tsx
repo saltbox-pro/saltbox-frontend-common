@@ -2,8 +2,8 @@ import { CloseCircleOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Alert, Button, Popover, Result } from "antd";
 import type { ReactNode } from "react";
 
+import { tCommon, useCommonLocale } from "../../../i18n/common";
 import { BaseActionButton } from "../../buttons/base-action-button";
-import { tCommon, useCommonLocale } from "../utils/i18n";
 
 import styles from "./block-error-fallback.module.css";
 import { ErrorDetailsToggle } from "./error-details-toggle";

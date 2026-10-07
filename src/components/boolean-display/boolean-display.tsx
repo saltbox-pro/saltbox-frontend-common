@@ -1,4 +1,5 @@
-import { Checkbox } from "antd";
+import { CheckCircleFilled, CloseCircleOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 import styles from "./boolean-display.module.css";
 
@@ -7,5 +8,13 @@ export interface BooleanDisplayProps {
 }
 
 export function BooleanDisplay({ value = false }: BooleanDisplayProps) {
-  return <Checkbox className={styles.booleanDisplay} checked={Boolean(value)} tabIndex={-1} />;
+  const { t } = useTranslation("common");
+  const isTruthy = Boolean(value);
+  const label = isTruthy ? t("boolean-display.true") : t("boolean-display.false");
+
+  if (isTruthy) {
+    return <CheckCircleFilled className={styles.true} aria-label={label} />;
+  }
+
+  return <CloseCircleOutlined className={styles.false} aria-label={label} />;
 }

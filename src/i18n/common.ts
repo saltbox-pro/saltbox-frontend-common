@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import { AppLanguage } from "../../../interfaces/locales";
-import { UiEvent } from "../../../interfaces/ui-events";
-import enCommon from "../../../locales/en/common.json";
-import ruCommon from "../../../locales/ru/common.json";
+import { AppLanguage } from "../interfaces/locales";
+import { UiEvent } from "../interfaces/ui-events";
+import enCommon from "../locales/en/common.json";
+import ruCommon from "../locales/ru/common.json";
 
 export const APP_LANG_STORAGE_KEY = "currentLocale";
 export const I18NEXT_LANG_STORAGE_KEY = "i18nextLng";

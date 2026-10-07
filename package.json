@@ -42,7 +42,8 @@
     "react-i18next": "^15.7.4"
   },
   "dependencies": {
-    "@material-symbols/font-300": "^0.38.0",
+    "@material-symbols-svg/metadata": "^0.14.0",
+    "@material-symbols/font-300": "^0.47.6",
     "@monaco-editor/react": "^4.7.0",
     "@react-querybuilder/antd": "^8.11.1",
     "@react-querybuilder/dnd": "^8.11.1",
@@ -54,6 +55,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "clsx": "^2.1.1",
     "i18next": "^25.2.1",
     "monaco-editor": "^0.55.1",
     "react-dnd": "^16.0.1",

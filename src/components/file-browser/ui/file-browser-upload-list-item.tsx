@@ -2,7 +2,7 @@ import { Button, Progress } from "antd";
 import { observer } from "mobx-react-lite";
 
 import { MutationErrorAlert } from "../../../error-handling/ui/mutation-error-alert";
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import { useFileBrowserMessages } from "../hooks/use-file-browser-messages";
 import {
   isFileBrowserTransferCancellable,

@@ -1,1 +1,1 @@
-export { SelectedItemsCounter } from "./ui/selected-items-counter";
+export { SelectedItemsCounter, type SelectedItemsCounterProps } from "./ui/selected-items-counter";

@@ -4,7 +4,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { RefreshButton } from "../../buttons/refresh-button";
 import type { CellAction } from "../../fast-table/types";
-import { MatIcon } from "../../mat-icon/mat-icon";
+import { MatIcon } from "../../mat-icon";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
 import { isFileBrowserSafePathSegment } from "../model/path-utils";
 import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
