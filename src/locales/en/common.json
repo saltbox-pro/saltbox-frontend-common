@@ -44,6 +44,8 @@
     "mode-free-text": "Free text",
     "invalid-free-text-json": "Filter query is not valid JSON",
     "invalid-free-text-for-builder": "Could not parse query for the filter builder",
+    "custom-grain": "Custom grain",
+    "grain-name": "Grain name",
     "operators": {
       "contains": "contains",
       "beginsWith": "begins with",
