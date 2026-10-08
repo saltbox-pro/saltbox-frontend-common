@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+import { getI18n, useTranslation } from "react-i18next";
 
 import { MatIcon } from "../../../mat-icon";
 import { BaseActionButton, type BaseActionButtonProps } from "../../base-action-button";
@@ -13,10 +13,18 @@ function getIcon(active = false): ReactNode {
   return <MatIcon icon={active ? "filter_alt_off" : "filter_alt"} size="small" />;
 }
 
-function getPresentation(active: boolean, title: string) {
+function getTitleKey(active: boolean): "action-button.remove-filter" | "action-button.add-filter" {
+  return active ? "action-button.remove-filter" : "action-button.add-filter";
+}
+
+function getDefaultTitle(active: boolean): string {
+  return getI18n().t(getTitleKey(active), { ns: "common" });
+}
+
+function getPresentation(active: boolean, title?: string) {
   return {
     icon: getIcon(active),
-    title,
+    title: title ?? getDefaultTitle(active),
   };
 }
 
@@ -26,8 +34,7 @@ function FilterActionButtonComponent({
   ...restProps
 }: FilterActionButtonProps) {
   const { t } = useTranslation("common");
-  const resolvedTitle =
-    title ?? (active ? t("action-button.remove-filter") : t("action-button.add-filter"));
+  const resolvedTitle = title ?? t(getTitleKey(active));
 
   return <BaseActionButton icon={getIcon(active)} title={resolvedTitle} {...restProps} />;
 }
