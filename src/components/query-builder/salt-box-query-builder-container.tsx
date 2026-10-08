@@ -82,6 +82,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
     }
 
     filterStore.handleSearch();
+    filterStore.resetInputMode();
     props.onSearchButtonClick?.();
   };
 

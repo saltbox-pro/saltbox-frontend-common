@@ -11,7 +11,12 @@ import {
   isRuleGroupType,
 } from "react-querybuilder";
 
-import { DATETIME_TIMESTAMP, formatTimeByUserTZ } from "saltbox-common/utils/datetime";
+import {
+  DATETIME_TIMESTAMP,
+  formatTimeByUserTZ,
+  normalizeDatetimeFilterValue,
+  toApiDatetime,
+} from "saltbox-common/utils/datetime";
 import { normalizeListInputValue } from "saltbox-common/utils/normalize-list-input-value";
 
 export const MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING = "booleanFromString" as const;
@@ -215,6 +220,19 @@ export function createRuleProcessorMongoDB(
       rule.value !== ""
     ) {
       return buildEqualityFragment(rule.field, rule.value, operator === "!=");
+    }
+
+    if (dayjs.isDayjs(rule.value)) {
+      return defaultRuleProcessorMongoDB({ ...rule, value: toApiDatetime(rule.value) }, options);
+    }
+
+    const isDatetimeField =
+      fieldData?.inputType === "datetime-local" || fieldData?.valueEditorType === "datetime-local";
+    if (isDatetimeField && typeof rule.value === "string" && rule.value !== "") {
+      const normalized = normalizeDatetimeFilterValue(rule.value);
+      if (normalized !== rule.value) {
+        return defaultRuleProcessorMongoDB({ ...rule, value: normalized }, options);
+      }
     }
 
     return defaultRuleProcessorMongoDB(rule, options);

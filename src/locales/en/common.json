@@ -1,6 +1,8 @@
 {
   "action-button": {
     "apply-filter": "Apply value to filters",
+    "add-filter": "Add this value to filters",
+    "remove-filter": "Remove this value from filters",
     "open-link": "Open link",
     "close": "Close"
   },

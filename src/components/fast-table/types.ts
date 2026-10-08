@@ -11,6 +11,7 @@ export type CellActionButtonProps = Partial<
 
 export type CellActionPresentation = {
   title?: string;
+  icon?: ReactNode;
   buttonProps?: CellActionButtonProps;
 };
 

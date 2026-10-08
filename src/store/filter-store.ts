@@ -34,21 +34,15 @@ export class FilterStore {
   get isSearchEnabled() {
     if (this.inputMode === "free-text") {
       try {
-        const parsed = JSON.parse(this.freeTextQuery) as object;
-        const applied = this.searchMongoDBQuery;
-        if (isMongoQueryEmpty(parsed) && isMongoQueryEmpty(applied)) {
-          return false;
-        }
-        return JSON.stringify(parsed) !== JSON.stringify(applied);
+        return this.isMongoQueryChanged(JSON.parse(this.freeTextQuery) as object);
       } catch {
         return true;
       }
     }
 
-    return (
-      formatQuery(this.currentFilters, "json_without_ids") !==
-      formatQuery(this.searchFilters, "json_without_ids")
-    );
+    // Compare mongo form, not raw rules: free-text roundtrip (datetime ISO, checkbox
+    // booleans, etc.) can rewrite rule values without changing the applied query.
+    return this.isMongoQueryChanged(this.currentMongoDBQuery);
   }
 
   @action
@@ -156,6 +150,14 @@ export class FilterStore {
 
   private isSameQuery(left: RuleGroupType, right: RuleGroupType): boolean {
     return formatQuery(left, "json_without_ids") === formatQuery(right, "json_without_ids");
+  }
+
+  private isMongoQueryChanged(candidate: object): boolean {
+    const applied = this.searchMongoDBQuery;
+    if (isMongoQueryEmpty(candidate) && isMongoQueryEmpty(applied)) {
+      return false;
+    }
+    return JSON.stringify(candidate) !== JSON.stringify(applied);
   }
 
   private buildMongoDBQuery(filters: RuleGroupType, cache: MongoQueryCache): object {

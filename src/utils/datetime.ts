@@ -16,6 +16,31 @@ dayjs.extend(updateLocale);
 export const DATETIME_FORMAT_FULL = "DD.MM.YYYY HH:mm:ss";
 export const DATETIME_TIMESTAMP = "YYYY-MM-DD HH:mm:ss";
 
+const ISO_TIMEZONE_PATTERN = /(?:Z|[+-]\d{2}:?\d{2})$/;
+
+export function parseApiDatetime(value: ConfigType): dayjs.Dayjs {
+  if (typeof value === "string" && value !== "" && !ISO_TIMEZONE_PATTERN.test(value)) {
+    // Backend often returns UTC without a timezone suffix. Parse as UTC, then switch
+    // to local mode so DatePicker shows the user's timezone wall-clock time.
+    return dayjs.utc(value).local();
+  }
+
+  return dayjs(value);
+}
+
+export function toApiDatetime(value: dayjs.Dayjs): string {
+  return value.toISOString();
+}
+
+export function normalizeDatetimeFilterValue(value: string | number | boolean): string {
+  if (typeof value !== "string" || value === "") {
+    return String(value);
+  }
+
+  const parsed = parseApiDatetime(value);
+  return parsed.isValid() ? toApiDatetime(parsed) : value;
+}
+
 export function pastTimeByUserTZ(compared: ConfigType): string {
   return dayjs(dayjs.utc(compared))
     .tz(Intl.DateTimeFormat().resolvedOptions().timeZone)

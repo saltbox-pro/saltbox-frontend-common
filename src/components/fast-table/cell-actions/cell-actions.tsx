@@ -72,13 +72,14 @@ const CellActionButton = observer(function CellActionButton<T>({
   const href = action.getHref?.(value, row);
   const presentation = action.getPresentation?.(value, row);
   const title = presentation?.title ?? action.title;
+  const icon = presentation?.icon ?? action.icon;
   const buttonProps = presentation?.buttonProps ?? action.buttonProps;
 
   if (href) {
     return (
       <ActionLinkButton
         href={href}
-        icon={action.icon}
+        icon={icon}
         title={title}
         {...buttonProps}
         target={action.target ?? "_self"}
@@ -93,7 +94,7 @@ const CellActionButton = observer(function CellActionButton<T>({
 
   return (
     <BaseActionButton
-      icon={action.icon}
+      icon={icon}
       title={title}
       {...buttonProps}
       disabled={isDisabled}

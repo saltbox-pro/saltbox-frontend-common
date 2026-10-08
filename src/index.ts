@@ -46,6 +46,7 @@ export * from "./components/status-badge";
 export * from "./plugins";
 
 export * from "./utils/datetime";
+export * from "./utils/filter-schema-field";
 export * from "./utils/custom-events";
 export * from "./utils/legacy-global-error";
 export * from "./utils/api";
