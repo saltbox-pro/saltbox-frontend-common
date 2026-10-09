@@ -2,28 +2,28 @@ import type { ColumnSizingState, OnChangeFn } from "@tanstack/react-table";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
-  loadColumnSizing,
-  pruneColumnSizing,
-  saveColumnSizing,
-} from "../utils/persisted-column-sizing";
+  ensureUserSettingsLoaded,
+  subscribeUserSettings,
+} from "saltbox-common/store/user-settings-store";
 
-function readInitialState(tableId?: string): {
+import { getTableSettings, updateTableSettings } from "../model/table-settings";
+
+import { pruneColumnSizing } from "../utils/persisted-column-sizing";
+
+function readStoredState(tableId?: string): {
   columnSizing: ColumnSizingState;
   hasPersistedSizing: boolean;
 } {
-  if (!tableId) {
-    return { columnSizing: {}, hasPersistedSizing: false };
-  }
+  const stored = getTableSettings(tableId).columnSizing ?? {};
 
-  const loaded = loadColumnSizing(tableId) ?? {};
   return {
-    columnSizing: loaded,
-    hasPersistedSizing: Object.keys(loaded).length > 0,
+    columnSizing: stored,
+    hasPersistedSizing: Object.keys(stored).length > 0,
   };
 }
 
 export function usePersistedColumnSizing(tableId?: string) {
-  const [initial] = useState(() => readInitialState(tableId));
+  const [initial] = useState(() => readStoredState(tableId));
   const [columnSizing, setColumnSizing] = useState(initial.columnSizing);
   const [hasPersistedSizing, setHasPersistedSizing] = useState(initial.hasPersistedSizing);
 
@@ -32,17 +32,48 @@ export function usePersistedColumnSizing(tableId?: string) {
   const hasPersistedSizingRef = useRef(hasPersistedSizing);
   hasPersistedSizingRef.current = hasPersistedSizing;
   const previousTableIdRef = useRef(tableId);
+  const hasLocalSizingRef = useRef(false);
+
+  const applyStoredState = useCallback((tableIdToRead?: string) => {
+    const stored = readStoredState(tableIdToRead);
+    columnSizingRef.current = stored.columnSizing;
+    hasPersistedSizingRef.current = stored.hasPersistedSizing;
+    setColumnSizing(stored.columnSizing);
+    setHasPersistedSizing(stored.hasPersistedSizing);
+  }, []);
+
+  const persistSizing = useCallback(
+    (sizing: ColumnSizingState) => {
+      if (!tableId) return;
+
+      hasLocalSizingRef.current = true;
+      updateTableSettings(tableId, { columnSizing: sizing });
+    },
+    [tableId]
+  );
 
   useEffect(() => {
     if (previousTableIdRef.current === tableId) return;
     previousTableIdRef.current = tableId;
+    hasLocalSizingRef.current = false;
 
-    const initial = readInitialState(tableId);
-    columnSizingRef.current = initial.columnSizing;
-    hasPersistedSizingRef.current = initial.hasPersistedSizing;
-    setColumnSizing(initial.columnSizing);
-    setHasPersistedSizing(initial.hasPersistedSizing);
-  }, [tableId]);
+    applyStoredState(tableId);
+  }, [applyStoredState, tableId]);
+
+  useEffect(() => {
+    if (!tableId) return;
+
+    const syncFromStore = () => {
+      if (hasLocalSizingRef.current) return;
+      applyStoredState(tableId);
+    };
+
+    const unsubscribe = subscribeUserSettings(syncFromStore);
+    ensureUserSettingsLoaded();
+    syncFromStore();
+
+    return unsubscribe;
+  }, [applyStoredState, tableId]);
 
   const onColumnSizingChange: OnChangeFn<ColumnSizingState> = useCallback((updaterOrValue) => {
     setColumnSizing((prev) => {
@@ -72,17 +103,15 @@ export function usePersistedColumnSizing(tableId?: string) {
       if (Object.keys(prunedSizing).length === 0 && hasPersistedSizingRef.current) {
         hasPersistedSizingRef.current = false;
         setHasPersistedSizing(false);
-        if (tableId) {
-          saveColumnSizing(tableId, {});
-        }
+        persistSizing({});
         return;
       }
 
-      if (tableId && hasPersistedSizingRef.current) {
-        saveColumnSizing(tableId, prunedSizing);
+      if (hasPersistedSizingRef.current) {
+        persistSizing(prunedSizing);
       }
     },
-    [tableId]
+    [persistSizing]
   );
 
   const persistColumnSizing = useCallback(
@@ -96,9 +125,9 @@ export function usePersistedColumnSizing(tableId?: string) {
       setColumnSizing(sizing);
       hasPersistedSizingRef.current = hasSizing;
       setHasPersistedSizing(hasSizing);
-      saveColumnSizing(tableId, sizing);
+      persistSizing(sizing);
     },
-    [tableId]
+    [persistSizing, tableId]
   );
 
   const resetColumnSizing = useCallback(() => {
@@ -107,10 +136,8 @@ export function usePersistedColumnSizing(tableId?: string) {
     setHasPersistedSizing(false);
     hasPersistedSizingRef.current = false;
 
-    if (tableId) {
-      saveColumnSizing(tableId, {});
-    }
-  }, [tableId]);
+    persistSizing({});
+  }, [persistSizing]);
 
   return {
     columnSizing,

@@ -2,6 +2,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  ensureUserSettingsLoaded,
+  subscribeUserSettings,
+} from "saltbox-common/store/user-settings-store";
+
+import { getTableSettings, updateTableSettings } from "../model/table-settings";
+
+import {
   type ColumnLayout,
   EMPTY_COLUMN_LAYOUT,
   collectColumnLayoutIds,
@@ -9,11 +16,9 @@ import {
   pruneColumnLayout,
   toColumnVisibility,
 } from "../utils/column-layout";
-import { loadColumnLayout, saveColumnLayout } from "../utils/persisted-column-layout";
 
-function readInitialLayout(tableId?: string): ColumnLayout {
-  if (!tableId) return EMPTY_COLUMN_LAYOUT;
-  return loadColumnLayout(tableId) ?? EMPTY_COLUMN_LAYOUT;
+function readStoredLayout(tableId?: string): ColumnLayout {
+  return getTableSettings(tableId).columnLayout ?? EMPTY_COLUMN_LAYOUT;
 }
 
 export type UseColumnLayoutArgs<DataType> = {
@@ -22,14 +27,31 @@ export type UseColumnLayoutArgs<DataType> = {
 };
 
 export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutArgs<DataType>) {
-  const [layout, setLayout] = useState(() => readInitialLayout(tableId));
+  const [layout, setLayout] = useState(() => readStoredLayout(tableId));
   const previousTableIdRef = useRef(tableId);
+  const hasLocalLayoutRef = useRef(false);
 
   useEffect(() => {
     if (previousTableIdRef.current === tableId) return;
     previousTableIdRef.current = tableId;
+    hasLocalLayoutRef.current = false;
 
-    setLayout(readInitialLayout(tableId));
+    setLayout(readStoredLayout(tableId));
+  }, [tableId]);
+
+  useEffect(() => {
+    if (!tableId) return;
+
+    const syncFromStore = () => {
+      if (hasLocalLayoutRef.current) return;
+      setLayout(readStoredLayout(tableId));
+    };
+
+    const unsubscribe = subscribeUserSettings(syncFromStore);
+    ensureUserSettingsLoaded();
+    syncFromStore();
+
+    return unsubscribe;
   }, [tableId]);
 
   const { allColumnIds, fixedColumnIds } = useMemo(
@@ -54,10 +76,11 @@ export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutA
 
   const applyColumnLayout = useCallback(
     (nextLayout: ColumnLayout) => {
+      hasLocalLayoutRef.current = true;
       setLayout(nextLayout);
 
       if (tableId) {
-        saveColumnLayout(tableId, nextLayout);
+        updateTableSettings(tableId, { columnLayout: nextLayout });
       }
     },
     [tableId]

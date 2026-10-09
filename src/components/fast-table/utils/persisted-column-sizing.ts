@@ -1,11 +1,5 @@
 import type { ColumnSizingState } from "@tanstack/react-table";
 
-const STORAGE_KEY_PREFIX = "fastTable.columnSizing:";
-
-export function getColumnSizingStorageKey(tableId: string): string {
-  return `${STORAGE_KEY_PREFIX}${tableId}`;
-}
-
 export function pruneColumnSizing<T extends Record<string, number>>(
   sizing: T,
   columnIds: Iterable<string>
@@ -23,42 +17,6 @@ export function pruneColumnSizing<T extends Record<string, number>>(
   }
 
   return (changed ? next : sizing) as T;
-}
-
-function isPlausiblePixelSize(value: number): boolean {
-  return Number.isFinite(value) && value > 0 && value <= 10_000;
-}
-
-export function loadColumnSizing(tableId: string): ColumnSizingState | undefined {
-  try {
-    const saved = localStorage.getItem(getColumnSizingStorageKey(tableId));
-    if (!saved) return undefined;
-
-    const parsed: unknown = JSON.parse(saved);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
-
-    const result: ColumnSizingState = {};
-    for (const [key, value] of Object.entries(parsed)) {
-      if (typeof value !== "number" || !isPlausiblePixelSize(value)) {
-        return undefined;
-      }
-      result[key] = value;
-    }
-
-    return Object.keys(result).length > 0 ? result : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-export function saveColumnSizing(tableId: string, sizing: ColumnSizingState): void {
-  try {
-    if (Object.keys(sizing).length === 0) {
-      localStorage.removeItem(getColumnSizingStorageKey(tableId));
-      return;
-    }
-    localStorage.setItem(getColumnSizingStorageKey(tableId), JSON.stringify(sizing));
-  } catch {}
 }
 
 export function clampColumnSizing(

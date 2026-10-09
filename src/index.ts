@@ -76,6 +76,7 @@ export * from "./hooks/useDocumentEvent";
 export * from "./store/filter-store";
 export * from "./store/persistent-filter-store";
 export * from "./store/masters-store";
+export * from "./store/user-settings-store";
 
 export { default as enCommon } from "./locales/en/common.json";
 export { default as ruCommon } from "./locales/ru/common.json";

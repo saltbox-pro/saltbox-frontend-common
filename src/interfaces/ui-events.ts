@@ -15,6 +15,7 @@ export enum UiEvent {
   ProcessNotice = "ui.process_notice",
   ProcessNoticeHostReady = "ui.process_notice_host_ready",
   AcceptedMastersChanged = "ui.accepted_masters_changed",
+  UserSettingsChanged = "ui.user_settings_changed",
   /** Данные миниона обновились снаружи (например после фонового действия). */
   MinionDataRefreshed = "ui.minion_data_refreshed",
   /** Состояние пунктов `minion.detail.actions` изменилось (busy / disabled). */
@@ -26,6 +27,10 @@ export enum UiEvent {
 
 export interface MinionDataRefreshedEventDetail {
   minionId: string;
+}
+
+export interface UserSettingsChangedEventDetail {
+  settings: Record<string, unknown>;
 }
 
 export type ToastType = "success" | "error" | "info" | "warning" | "loading";
