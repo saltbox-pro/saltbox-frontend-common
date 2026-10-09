@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "kwargs": {
+      "type": "object",
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "default": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

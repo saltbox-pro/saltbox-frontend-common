@@ -228,6 +228,8 @@ const allowExtraFormDataInSubsetSchema = (schema: JsonSchemaRecord): JsonSchemaR
   };
 };
 
+const SCHEMA_COMBINATOR_KEYS = ["oneOf", "anyOf", "allOf"] as const;
+
 const getValidationPathSegments = (propertyPath: string): string[] => {
   const trimmed = propertyPath.trim();
   if (!trimmed) {
@@ -240,37 +242,97 @@ const getValidationPathSegments = (propertyPath: string): string[] => {
     .filter((segment) => segment !== "");
 };
 
-const isValidationPathHidden = (schema: JsonSchemaRecord, segments: string[]): boolean => {
-  let current = schema;
+const getCombinatorBranches = (schema: JsonSchemaRecord): JsonSchemaRecord[] =>
+  SCHEMA_COMBINATOR_KEYS.flatMap((key) => {
+    const value = schema[key];
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value.filter(isJsonSchemaRecord);
+  });
 
-  for (const segment of segments) {
-    if (/^\d+$/.test(segment)) {
-      const items = current.items;
-      if (!isJsonSchemaRecord(items)) {
-        return false;
+const getConditionalBranches = (schema: JsonSchemaRecord): JsonSchemaRecord[] => {
+  const branches: JsonSchemaRecord[] = [];
+
+  const dependencies = schema.dependencies;
+  if (isJsonSchemaRecord(dependencies)) {
+    for (const dependencySchema of Object.values(dependencies)) {
+      if (isJsonSchemaRecord(dependencySchema)) {
+        branches.push(dependencySchema);
       }
-      current = items;
-      continue;
     }
-
-    const properties = getNamedProperties(current);
-    const child = properties?.[segment];
-
-    if (isJsonSchemaRecord(child)) {
-      current = child;
-      continue;
-    }
-
-    const additionalProperties = current.additionalProperties;
-    if (isJsonSchemaRecord(additionalProperties)) {
-      current = additionalProperties;
-      continue;
-    }
-
-    return properties !== null && additionalProperties !== true;
   }
 
-  return false;
+  const dependentSchemas = schema.dependentSchemas;
+  if (isJsonSchemaRecord(dependentSchemas)) {
+    for (const dependentSchema of Object.values(dependentSchemas)) {
+      if (isJsonSchemaRecord(dependentSchema)) {
+        branches.push(dependentSchema);
+      }
+    }
+  }
+
+  for (const key of ["then", "else"] as const) {
+    const branch = schema[key];
+    if (isJsonSchemaRecord(branch)) {
+      branches.push(branch);
+    }
+  }
+
+  return branches;
+};
+
+const getAlternativeSchemaBranches = (schema: JsonSchemaRecord): JsonSchemaRecord[] => [
+  ...getCombinatorBranches(schema),
+  ...getConditionalBranches(schema),
+];
+
+const isValidationPathHiddenInSchema = (schema: JsonSchemaRecord, segments: string[]): boolean => {
+  if (segments.length === 0) {
+    return false;
+  }
+
+  const [segment, ...rest] = segments;
+
+  if (/^\d+$/.test(segment)) {
+    const items = schema.items;
+    if (isJsonSchemaRecord(items)) {
+      return isValidationPathHiddenInSchema(items, rest);
+    }
+    if (Array.isArray(items)) {
+      const itemSchema = items[Number(segment)];
+      if (isJsonSchemaRecord(itemSchema)) {
+        return isValidationPathHiddenInSchema(itemSchema, rest);
+      }
+    }
+
+    const alternativeBranches = getAlternativeSchemaBranches(schema);
+    if (alternativeBranches.length > 0) {
+      return alternativeBranches.every((branch) =>
+        isValidationPathHiddenInSchema(branch, segments)
+      );
+    }
+
+    return false;
+  }
+
+  const properties = getNamedProperties(schema);
+  const child = properties?.[segment];
+  if (isJsonSchemaRecord(child)) {
+    return isValidationPathHiddenInSchema(child, rest);
+  }
+
+  const additionalProperties = schema.additionalProperties;
+  if (isJsonSchemaRecord(additionalProperties)) {
+    return isValidationPathHiddenInSchema(additionalProperties, rest);
+  }
+
+  const alternativeBranches = getAlternativeSchemaBranches(schema);
+  if (alternativeBranches.length > 0) {
+    return alternativeBranches.every((branch) => isValidationPathHiddenInSchema(branch, segments));
+  }
+
+  return properties !== null && additionalProperties !== true;
 };
 
 const hasHiddenValidationErrors = (
@@ -282,7 +344,7 @@ const hasHiddenValidationErrors = (
   }
   return errors.some((error) => {
     const segments = getValidationPathSegments(error.property ?? "");
-    return segments.length > 0 && isValidationPathHidden(displaySchema, segments);
+    return segments.length > 0 && isValidationPathHiddenInSchema(displaySchema, segments);
   });
 };
 
