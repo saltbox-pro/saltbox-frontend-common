@@ -190,6 +190,9 @@
     "true": "Yes",
     "false": "No"
   },
+  "json-preview": {
+    "no-data": "No data"
+  },
   "fast-table": {
     "empty": "No data",
     "sort-ascending": "Sort ascending",
