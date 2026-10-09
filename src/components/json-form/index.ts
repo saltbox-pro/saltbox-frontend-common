@@ -13,4 +13,8 @@ export {
   type TemplateSchemaI18n,
 } from "./utils/template-schema-i18n";
 export { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS } from "./constants/default-settings";
-export { rjsfValidator } from "./utils/rjsf-validator";
+export {
+  createRjsfValidator,
+  rjsfValidator,
+  type RjsfLanguageSource,
+} from "./utils/rjsf-validator";

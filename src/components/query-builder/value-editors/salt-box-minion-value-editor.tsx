@@ -9,12 +9,18 @@ import { useInNotInPasteHandler } from "./utils/use-in-not-in-paste-handler";
 
 type AutoCompleteProps = ComponentProps<typeof SaltBoxAutocompleteValueEditor>;
 
+const NON_TEXT_EDITOR_TYPES = new Set(["checkbox", "select", "multiselect", "radio", "switch"]);
+
 export const SaltBoxMinionValueEditor: FC<
   ValueEditorProps & { onValueChange: AutoCompleteProps["onValueChange"] }
 > = ({ onValueChange, ...props }) => {
   const isDateTime = props?.inputType === "datetime-local";
-  const isCheckbox = props.type === "checkbox";
-  const isAutocomplete = props.fieldData.inputType === undefined;
+  const isCheckbox = props.type === "checkbox" || props.fieldData?.valueEditorType === "checkbox";
+  // API client maps null inputType → undefined; checkbox fields must not use autocomplete
+  const isAutocomplete =
+    props.fieldData?.inputType === undefined &&
+    !isCheckbox &&
+    !NON_TEXT_EDITOR_TYPES.has(props.type);
   const onPaste = useInNotInPasteHandler(props.operator, props.handleOnChange);
   const antdExtraProps =
     props.operator === "in" || props.operator === "notIn" ? { onPaste } : undefined;

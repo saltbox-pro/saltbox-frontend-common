@@ -1,6 +1,8 @@
 {
   "action-button": {
     "apply-filter": "Применить значение к фильтрам",
+    "add-filter": "Добавить это значение в фильтр",
+    "remove-filter": "Убрать это значение из фильтра",
     "open-link": "Открыть ссылку",
     "close": "Закрыть"
   },
@@ -42,7 +44,8 @@
     "reset": "Сбросить",
     "filter-copied": "Фильтр скопирован",
     "mode-free-text": "Свободный ввод",
-    "invalid-free-text-json": "Запрос фильтра — некорректный JSON",
+    "invalid-free-text": "Исправьте ошибки в запросе фильтра",
+    "invalid-free-text-json": "Исправьте JSON в запросе фильтра",
     "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров",
     "custom-grain": "Произвольный grain",
     "grain-name": "Имя grain",
@@ -186,6 +189,9 @@
   "boolean-display": {
     "true": "Да",
     "false": "Нет"
+  },
+  "json-preview": {
+    "no-data": "Нет данных"
   },
   "fast-table": {
     "empty": "Нет данных",

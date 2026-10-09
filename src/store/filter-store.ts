@@ -4,15 +4,35 @@ import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
 import {
   emptyRuleGroup,
+  filtersFromMongoQuery,
   formatToMongoDB,
+  freeTextFilterQueryHasTypeErrors,
   generateIdsForQuery,
   isMongoQueryEmpty,
   parseCaseInsensitiveQuery,
 } from "../utils/query-builder-utils";
 
 type MongoQueryCache = { key: string; value: object };
+type FreeTextParseCache = { key: string; parsed: object | null };
 
 export type QueryBuilderInputMode = "builder" | "free-text";
+
+export type FreeTextCommitFailureReason = "invalid-json" | "schema-validation" | "unparseable";
+
+export type CommitPendingInputResult =
+  | { ok: true }
+  | { ok: false; reason: FreeTextCommitFailureReason };
+
+export function freeTextErrorI18nKey(reason: FreeTextCommitFailureReason): string {
+  switch (reason) {
+    case "invalid-json":
+      return "query-builder.invalid-free-text-json";
+    case "schema-validation":
+      return "query-builder.invalid-free-text";
+    case "unparseable":
+      return "query-builder.invalid-free-text-for-builder";
+  }
+}
 
 export class FilterStore {
   @observable currentFilters: RuleGroupType = emptyRuleGroup;
@@ -22,8 +42,10 @@ export class FilterStore {
   @observable filtersRevision: number = 0;
   @observable inputMode: QueryBuilderInputMode = "builder";
   @observable freeTextQuery: string = "{}";
+  @observable freeTextHasValidationErrors: boolean = false;
   private _searchQueryCache: MongoQueryCache = { key: "", value: {} };
   private _currentQueryCache: MongoQueryCache = { key: "", value: {} };
+  private _freeTextParseCache: FreeTextParseCache = { key: "", parsed: null };
 
   @computed
   get activeFiltersCount(): number {
@@ -31,24 +53,52 @@ export class FilterStore {
   }
 
   @computed
-  get isSearchEnabled() {
-    if (this.inputMode === "free-text") {
-      try {
-        const parsed = JSON.parse(this.freeTextQuery) as object;
-        const applied = this.searchMongoDBQuery;
-        if (isMongoQueryEmpty(parsed) && isMongoQueryEmpty(applied)) {
-          return false;
-        }
-        return JSON.stringify(parsed) !== JSON.stringify(applied);
-      } catch {
-        return true;
-      }
+  get freeTextBlockingErrorReason(): FreeTextCommitFailureReason | null {
+    if (this.inputMode !== "free-text") {
+      return null;
     }
 
-    return (
-      formatQuery(this.currentFilters, "json_without_ids") !==
-      formatQuery(this.searchFilters, "json_without_ids")
-    );
+    const parsed = this.getParsedFreeTextQuery();
+    if (parsed == null) {
+      return "invalid-json";
+    }
+
+    if (isMongoQueryEmpty(parsed)) {
+      return null;
+    }
+
+    if (
+      this.freeTextHasValidationErrors ||
+      freeTextFilterQueryHasTypeErrors(parsed, toJS(this.filterSchema))
+    ) {
+      return "schema-validation";
+    }
+
+    if (filtersFromMongoQuery(parsed) == null) {
+      return "unparseable";
+    }
+
+    return null;
+  }
+
+  @computed
+  get isSearchEnabled() {
+    if (this.inputMode === "free-text") {
+      if (this.freeTextBlockingErrorReason != null) {
+        return false;
+      }
+
+      const parsed = this.getParsedFreeTextQuery();
+      if (parsed == null) {
+        return false;
+      }
+
+      return this.isMongoQueryChanged(parsed);
+    }
+
+    // Compare mongo form, not raw rules: free-text roundtrip (datetime ISO, checkbox
+    // booleans, etc.) can rewrite rule values without changing the applied query.
+    return this.isMongoQueryChanged(this.currentMongoDBQuery);
   }
 
   @action
@@ -61,10 +111,16 @@ export class FilterStore {
   };
 
   @action
+  bumpFiltersRevision = () => {
+    this.filtersRevision += 1;
+  };
+
+  @action
   handleResetFilters = () => {
     this.currentFilters = emptyRuleGroup;
     this.freeTextQuery = "{}";
-    this.filtersRevision += 1;
+    this.freeTextHasValidationErrors = false;
+    this.bumpFiltersRevision();
     this.handleSearch();
   };
 
@@ -72,7 +128,8 @@ export class FilterStore {
   handleResetFiltersSilent = () => {
     this.currentFilters = emptyRuleGroup;
     this.freeTextQuery = "{}";
-    this.filtersRevision += 1;
+    this.freeTextHasValidationErrors = false;
+    this.bumpFiltersRevision();
   };
 
   @action
@@ -98,64 +155,126 @@ export class FilterStore {
   @action
   setFreeTextQuery = (value: string) => {
     this.freeTextQuery = value;
+
+    try {
+      if (isMongoQueryEmpty(JSON.parse(value) as object)) {
+        this.freeTextHasValidationErrors = false;
+      }
+    } catch {
+      // keep current validation flag until Monaco onValidate / sync check
+    }
+  };
+
+  @action
+  setFreeTextHasValidationErrors = (hasErrors: boolean) => {
+    this.freeTextHasValidationErrors = hasErrors;
   };
 
   @action
   resetInputMode = () => {
     this.inputMode = "builder";
+    this.freeTextHasValidationErrors = false;
   };
 
   @action
-  commitPendingInput = (): boolean => {
+  commitPendingInput = (): CommitPendingInputResult => {
     if (this.inputMode !== "free-text") {
-      return true;
+      return { ok: true };
     }
 
-    try {
-      const parsed = JSON.parse(this.freeTextQuery) as object;
-      this.currentFilters = isMongoQueryEmpty(parsed)
-        ? emptyRuleGroup
-        : generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(parsed)));
-      this.filtersRevision += 1;
-      return true;
-    } catch {
-      return false;
+    const parsed = this.getParsedFreeTextQuery();
+    if (parsed == null) {
+      return { ok: false, reason: "invalid-json" };
     }
+
+    if (isMongoQueryEmpty(parsed)) {
+      this.freeTextHasValidationErrors = false;
+      this.currentFilters = emptyRuleGroup;
+      this.bumpFiltersRevision();
+      return { ok: true };
+    }
+
+    if (
+      this.freeTextHasValidationErrors ||
+      freeTextFilterQueryHasTypeErrors(parsed, toJS(this.filterSchema))
+    ) {
+      this.freeTextHasValidationErrors = true;
+      return { ok: false, reason: "schema-validation" };
+    }
+
+    const filters = filtersFromMongoQuery(parsed);
+    if (!filters) {
+      return { ok: false, reason: "unparseable" };
+    }
+
+    this.freeTextHasValidationErrors = false;
+    this.currentFilters = filters;
+    this.bumpFiltersRevision();
+    return { ok: true };
   };
 
   @action
-  switchInputMode = (mode: QueryBuilderInputMode): boolean => {
+  switchInputMode = (mode: QueryBuilderInputMode): CommitPendingInputResult => {
     if (mode === this.inputMode) {
-      return true;
+      return { ok: true };
     }
 
     if (mode === "free-text") {
-      const query = this.currentMongoDBQuery ?? {};
+      const query = this.isMongoQueryChanged(this.currentMongoDBQuery)
+        ? (this.currentMongoDBQuery ?? {})
+        : (this.searchMongoDBQuery ?? {});
       this.freeTextQuery = JSON.stringify(isMongoQueryEmpty(query) ? {} : query, null, 2);
+      this.freeTextHasValidationErrors = false;
       this.inputMode = "free-text";
-      return true;
+      return { ok: true };
     }
 
-    if (!this.commitPendingInput()) {
-      return false;
+    const committed = this.commitPendingInput();
+    if (!committed.ok) {
+      return committed;
     }
 
+    this.freeTextHasValidationErrors = false;
     this.inputMode = "builder";
-    return true;
+    return { ok: true };
   };
 
   @action
   initializeByQuery = (query: object) => {
-    this.currentFilters = isMongoQueryEmpty(query)
+    const isEmpty = isMongoQueryEmpty(query);
+    this.currentFilters = isEmpty
       ? emptyRuleGroup
       : generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(query)));
-    this.freeTextQuery = JSON.stringify(isMongoQueryEmpty(query) ? {} : (query ?? {}), null, 2);
-    this.filtersRevision += 1;
+    this.freeTextQuery = JSON.stringify(isEmpty ? {} : (query ?? {}), null, 2);
+    this.freeTextHasValidationErrors = false;
+    this.bumpFiltersRevision();
     this.handleSearch();
   };
 
+  private getParsedFreeTextQuery(): object | null {
+    const key = this.freeTextQuery;
+    if (this._freeTextParseCache.key !== key) {
+      this._freeTextParseCache.key = key;
+      try {
+        this._freeTextParseCache.parsed = JSON.parse(key) as object;
+      } catch {
+        this._freeTextParseCache.parsed = null;
+      }
+    }
+
+    return this._freeTextParseCache.parsed;
+  }
+
   private isSameQuery(left: RuleGroupType, right: RuleGroupType): boolean {
     return formatQuery(left, "json_without_ids") === formatQuery(right, "json_without_ids");
+  }
+
+  private isMongoQueryChanged(candidate: object): boolean {
+    const applied = this.searchMongoDBQuery;
+    if (isMongoQueryEmpty(candidate) && isMongoQueryEmpty(applied)) {
+      return false;
+    }
+    return JSON.stringify(candidate) !== JSON.stringify(applied);
   }
 
   private buildMongoDBQuery(filters: RuleGroupType, cache: MongoQueryCache): object {

@@ -1,6 +1,8 @@
 {
   "action-button": {
     "apply-filter": "Apply value to filters",
+    "add-filter": "Add this value to filters",
+    "remove-filter": "Remove this value from filters",
     "open-link": "Open link",
     "close": "Close"
   },
@@ -42,7 +44,8 @@
     "reset": "Reset",
     "filter-copied": "Filter copied",
     "mode-free-text": "Free text",
-    "invalid-free-text-json": "Filter query is not valid JSON",
+    "invalid-free-text": "Fix errors in the filter query",
+    "invalid-free-text-json": "Fix the JSON in the filter query",
     "invalid-free-text-for-builder": "Could not parse query for the filter builder",
     "custom-grain": "Custom grain",
     "grain-name": "Grain name",
@@ -186,6 +189,9 @@
   "boolean-display": {
     "true": "Yes",
     "false": "No"
+  },
+  "json-preview": {
+    "no-data": "No data"
   },
   "fast-table": {
     "empty": "No data",
