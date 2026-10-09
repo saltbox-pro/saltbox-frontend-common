@@ -1,1 +1,1 @@
-export { JsonEditor, type JsonEditorProps } from "./ui/json-editor";
+export { JsonEditor, type JsonEditorProps, type JsonEditorSchema } from "./ui/json-editor";

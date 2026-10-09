@@ -10,6 +10,7 @@ import {
   generateID,
   isRuleGroupType,
 } from "react-querybuilder";
+import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
 import {
   DATETIME_TIMESTAMP,
@@ -19,7 +20,8 @@ import {
 } from "saltbox-common/utils/datetime";
 import { normalizeListInputValue } from "saltbox-common/utils/normalize-list-input-value";
 
-export const MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING = "booleanFromString" as const;
+import { MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING } from "./filter-field-constants";
+import { flattenFilterSchemaFields, type FilterSchemaField } from "./filter-schema-field";
 
 export const CASE_INSENSITIVE_PREFIX = "(?i)";
 
@@ -479,4 +481,221 @@ export function formatToMongoDB(
     console.error("Failed to parse MongoDB query:", error);
     return {};
   }
+}
+
+type FilterJsonSchemaType = "number" | "boolean" | "string";
+
+const MONGO_COMPARISON_OPS = new Set(["$eq", "$ne", "$gt", "$gte", "$lt", "$lte"]);
+const MONGO_LIST_OPS = new Set(["$in", "$nin"]);
+
+function getFilterFieldJsonSchemaType(fieldData: FilterSchemaField): FilterJsonSchemaType {
+  if (fieldData.inputType === "number" || isNumericArrayField(fieldData.name)) {
+    return "number";
+  }
+  if (
+    fieldData.mongoValueCoercion === MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING ||
+    fieldData.valueEditorType === "checkbox"
+  ) {
+    return "boolean";
+  }
+  return "string";
+}
+
+function buildFilterFieldOperatorSchema(jsonType: FilterJsonSchemaType): Record<string, unknown> {
+  const scalar = { type: jsonType };
+  const properties: Record<string, unknown> = {
+    $eq: scalar,
+    $ne: scalar,
+    $gt: scalar,
+    $gte: scalar,
+    $lt: scalar,
+    $lte: scalar,
+    $in: { type: "array", items: scalar, minItems: 1 },
+    $nin: { type: "array", items: scalar, minItems: 1 },
+    $not: { type: "object", minProperties: 1 },
+  };
+
+  if (jsonType === "string") {
+    properties.$regex = { type: "string" };
+  }
+
+  return {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties,
+  };
+}
+
+function buildFilterFieldValueSchema(jsonType: FilterJsonSchemaType): Record<string, unknown> {
+  return {
+    anyOf: [{ type: jsonType }, { type: "null" }, buildFilterFieldOperatorSchema(jsonType)],
+  };
+}
+
+export function filtersFromMongoQuery(parsed: object): RuleGroupType | null {
+  try {
+    if (isMongoQueryEmpty(parsed)) {
+      return emptyRuleGroup;
+    }
+
+    const filters = generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(parsed)));
+    if (!filters.rules.length) {
+      return null;
+    }
+
+    return filters;
+  } catch {
+    return null;
+  }
+}
+
+export function buildFreeTextFilterJsonSchema(fields: OptionList): Record<string, unknown> {
+  const properties: Record<string, Record<string, unknown>> = {};
+
+  for (const field of flattenFilterSchemaFields(fields)) {
+    properties[field.name] = buildFilterFieldValueSchema(getFilterFieldJsonSchemaType(field));
+  }
+
+  const filterClause = {
+    type: "object",
+    properties: {
+      ...properties,
+      $and: { type: "array", items: { $ref: "#/definitions/filterClause" }, minItems: 1 },
+      $or: { type: "array", items: { $ref: "#/definitions/filterClause" }, minItems: 1 },
+      $nor: false,
+    },
+    additionalProperties: true,
+  };
+
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    definitions: {
+      filterClause,
+    },
+    $ref: "#/definitions/filterClause",
+  };
+}
+
+function isValidOperatorObject(
+  value: Record<string, unknown>,
+  jsonType: FilterJsonSchemaType
+): boolean {
+  const keys = Object.keys(value);
+  if (keys.length === 0) {
+    return false;
+  }
+
+  for (const [op, operand] of Object.entries(value)) {
+    if (MONGO_COMPARISON_OPS.has(op)) {
+      if (typeof operand !== jsonType) {
+        return false;
+      }
+      continue;
+    }
+
+    if (MONGO_LIST_OPS.has(op)) {
+      if (!Array.isArray(operand) || operand.length === 0) {
+        return false;
+      }
+      if (!operand.every((item) => typeof item === jsonType)) {
+        return false;
+      }
+      continue;
+    }
+
+    if (op === "$regex") {
+      if (jsonType !== "string" || typeof operand !== "string") {
+        return false;
+      }
+      continue;
+    }
+
+    if (op === "$not") {
+      if (!isPlainObject(operand) || !isValidOperatorObject(operand, jsonType)) {
+        return false;
+      }
+      continue;
+    }
+
+    return false;
+  }
+
+  return true;
+}
+
+function isValidFreeTextFieldValue(value: unknown, expectedType: FilterJsonSchemaType): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (isPlainObject(value)) {
+    return isValidOperatorObject(value, expectedType);
+  }
+  return typeof value === expectedType;
+}
+
+function isParseableMongoFieldPredicate(field: string, value: unknown): boolean {
+  try {
+    const parsed = parseMongoDB({ [field]: value });
+    return Array.isArray(parsed.rules) && parsed.rules.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function freeTextFilterClauseHasTypeErrors(
+  node: unknown,
+  typeByField: Map<string, FilterJsonSchemaType>
+): boolean {
+  if (!isPlainObject(node)) {
+    return true;
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    if (key === "$and" || key === "$or") {
+      if (!Array.isArray(value) || value.length === 0) {
+        return true;
+      }
+      if (value.some((item) => freeTextFilterClauseHasTypeErrors(item, typeByField))) {
+        return true;
+      }
+      continue;
+    }
+
+    if (key === "$nor") {
+      return true;
+    }
+
+    const expectedType = typeByField.get(key);
+    if (expectedType) {
+      if (!isValidFreeTextFieldValue(value, expectedType)) {
+        return true;
+      }
+    } else if (Array.isArray(value)) {
+      return true;
+    } else if (isPlainObject(value) && Object.keys(value).length === 0) {
+      return true;
+    }
+
+    if (!isParseableMongoFieldPredicate(key, value)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function freeTextFilterQueryHasTypeErrors(parsed: object, fields: OptionList): boolean {
+  if (isMongoQueryEmpty(parsed)) {
+    return false;
+  }
+
+  const typeByField = new Map(
+    flattenFilterSchemaFields(fields).map((field) => [
+      field.name,
+      getFilterFieldJsonSchemaType(field),
+    ])
+  );
+
+  return freeTextFilterClauseHasTypeErrors(parsed, typeByField);
 }

@@ -3,7 +3,7 @@ import { QueryBuilderDnD } from "@react-querybuilder/dnd";
 import { Button, Flex, Spin, Switch } from "antd";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { FC, ReactElement, useEffect, useState } from "react";
+import { FC, ReactElement, useEffect, useId, useMemo, useState } from "react";
 import * as ReactDnD from "react-dnd";
 import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,12 @@ import QueryBuilder, {
 } from "react-querybuilder";
 
 import { notify } from "../../notifications";
-import { FilterStore, type QueryBuilderInputMode } from "../../store/filter-store";
+import {
+  FilterStore,
+  freeTextErrorI18nKey,
+  type QueryBuilderInputMode,
+} from "../../store/filter-store";
+import { buildFreeTextFilterJsonSchema } from "../../utils/query-builder-utils";
 import { BaseActionButton } from "../buttons/base-action-button";
 import { JsonEditorField } from "../fields/json-editor-field";
 import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filters-error-boundary";
@@ -22,7 +27,13 @@ import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filter
 import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
 import { QueryBuilderSaltBox } from "./query-builder-salt-box/query-builder-salt-box";
 import styles from "./salt-box-query-builder-container.module.css";
+import {
+  getFreeTextFilterJsonSchemaRegistration,
+  getFreeTextFilterModelPath,
+} from "./utils/free-text-filter-json-schema";
 import { localizeFieldOperators, localizeOperators } from "./utils/localize-filter-operators";
+
+const MONACO_MARKER_SEVERITY_ERROR = 8;
 
 export type { QueryBuilderInputMode };
 
@@ -51,11 +62,30 @@ export const SaltBoxQueryBuilderContainer = (props: SaltBoxQueryBuilderContainer
 
 const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilderContainerProps) => {
   const { t } = useTranslation("common");
+  const editorInstanceId = useId();
   const [queryBuilderId, setQueryBuilderId] = useState(0);
   const filterStore = props.filterStore;
   const enableFreeTextMode = props.enableFreeTextMode ?? false;
   const freeTextEditorHeight = props.freeTextEditorHeight ?? 240;
   const showActions = !props.hideButtons || enableFreeTextMode;
+
+  const freeTextModelPath = getFreeTextFilterModelPath(
+    editorInstanceId,
+    filterStore?.filtersRevision ?? 0,
+    queryBuilderId
+  );
+  const filterSchema = filterStore?.filterSchema;
+  const freeTextSchemaBody = useMemo(
+    () => (filterStore ? buildFreeTextFilterJsonSchema(toJS(filterSchema)) : undefined),
+    [filterStore, filterSchema]
+  );
+  const freeTextJsonSchema = useMemo(
+    () =>
+      freeTextSchemaBody
+        ? getFreeTextFilterJsonSchemaRegistration(freeTextSchemaBody, freeTextModelPath)
+        : undefined,
+    [freeTextSchemaBody, freeTextModelPath]
+  );
 
   const getQueryBuilderKey = () => {
     if (!filterStore) {
@@ -76,8 +106,9 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
       return;
     }
 
-    if (!filterStore.commitPendingInput()) {
-      notify.error(t("query-builder.invalid-free-text-json"));
+    const committed = filterStore.commitPendingInput();
+    if (committed.ok === false) {
+      notify.error(t(freeTextErrorI18nKey(committed.reason)));
       return;
     }
 
@@ -97,8 +128,9 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
       return;
     }
 
-    if (!filterStore.switchInputMode(mode)) {
-      notify.error(t("query-builder.invalid-free-text-for-builder"));
+    const switched = filterStore.switchInputMode(mode);
+    if (switched.ok === false) {
+      notify.error(t(freeTextErrorI18nKey(switched.reason)));
     }
   };
 
@@ -122,9 +154,16 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
         {isFreeTextMode ? (
           <div className={styles.freeTextEditor}>
             <JsonEditorField
-              key={`free-text-${queryBuilderId}-${filterStore.filtersRevision}`}
+              key={freeTextModelPath}
+              path={freeTextModelPath}
+              jsonSchema={freeTextJsonSchema}
               value={filterStore.freeTextQuery}
               onChange={filterStore.setFreeTextQuery}
+              onValidate={(markers) => {
+                filterStore.setFreeTextHasValidationErrors(
+                  markers.some((marker) => marker.severity >= MONACO_MARKER_SEVERITY_ERROR)
+                );
+              }}
               height={freeTextEditorHeight}
             />
           </div>
