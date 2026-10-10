@@ -5,6 +5,7 @@ import { detectLang } from "../../../i18n/detect-lang";
 import type { RjsfLanguageSource } from "../types/rjsf-language-source";
 
 import { createAjvErrorLocalizer } from "./ajv-error-localizer";
+import { wrapValidatorPreserveDistinctFieldErrors } from "./preserve-distinct-field-errors";
 
 export type { RjsfLanguageSource };
 
@@ -13,7 +14,8 @@ export function createRjsfValidator<
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = FormContextType,
 >(language: RjsfLanguageSource = detectLang) {
-  return customizeValidator<T, S, F>({}, createAjvErrorLocalizer(language));
+  const validator = customizeValidator<T, S, F>({}, createAjvErrorLocalizer(language));
+  return wrapValidatorPreserveDistinctFieldErrors(validator);
 }
 
 export const rjsfValidator = createRjsfValidator();

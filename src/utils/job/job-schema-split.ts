@@ -1,4 +1,4 @@
-import type { ErrorSchema, RJSFSchema } from "@rjsf/utils";
+import type { RJSFSchema } from "@rjsf/utils";
 
 import { rjsfValidator } from "saltbox-common/components/json-form/utils/rjsf-validator";
 
@@ -364,8 +364,7 @@ const validateFormDataWithSchema = (
 export type JobJsonFormValidationResult =
   | { ok: true }
   | { ok: false; openAdvanced: true }
-  | { ok: false; useFormRef: true }
-  | { ok: false; errorSchema: ErrorSchema };
+  | { ok: false; useFormRef: true };
 
 export const validateJobJsonFormData = (
   formData: Record<string, unknown>,
@@ -394,10 +393,10 @@ export const validateJobJsonFormData = (
     ) {
       return { ok: false, openAdvanced: true };
     }
-  }
 
-  if (isAdvancedSettingsEnabled) {
-    return { ok: false, useFormRef: true };
+    if (isAdvancedSettingsEnabled) {
+      return fullErrors.length > 0 ? { ok: false, useFormRef: true } : { ok: true };
+    }
   }
 
   const validationSchema = displaySchema ? allowExtraFormDataInSubsetSchema(displaySchema) : null;
@@ -405,14 +404,12 @@ export const validateJobJsonFormData = (
     return { ok: true };
   }
 
-  const { errors, errorSchema } = validateFormDataWithSchema(
-    formData,
-    validationSchema,
-    displayUiSchema
-  );
+  const { errors } = validateFormDataWithSchema(formData, validationSchema, displayUiSchema);
 
+  // Visible-field errors: let the mounted JsonForm validateForm() so RJSF
+  // focusOnFirstError runs.
   if (errors.length > 0) {
-    return { ok: false, errorSchema };
+    return { ok: false, useFormRef: true };
   }
 
   return { ok: true };

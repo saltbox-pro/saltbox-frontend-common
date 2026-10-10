@@ -114,6 +114,18 @@ const validateBasicLayout = (schema: JsonSchemaRecord, formData: Record<string, 
   );
 };
 
+const validateAdvancedLayout = (schema: JsonSchemaRecord, formData: Record<string, unknown>) => {
+  const layout = getJobParamsSchemaLayout(schema, undefined, true);
+  return validateJobJsonFormData(
+    formData,
+    schema,
+    undefined,
+    true,
+    layout.displaySchema,
+    layout.displayUiSchema
+  );
+};
+
 describe("validateJobJsonFormData openAdvanced", () => {
   it("does not treat visible oneOf field errors as hidden advanced-only errors", () => {
     const result = validateBasicLayout(policySchema, {
@@ -195,6 +207,39 @@ describe("validateJobJsonFormData openAdvanced", () => {
         args: ["os"],
       })
     ).toEqual({ ok: true });
+  });
+
+  it("returns ok when advanced is open and full schema validates", () => {
+    expect(
+      validateAdvancedLayout(loadSchema("salt-func-schemas/grains-item.schema.json"), {
+        args: ["os"],
+      })
+    ).toEqual({ ok: true });
+  });
+
+  it("asks for form ref validation when advanced is open and data is invalid", () => {
+    expect(
+      validateAdvancedLayout(loadSchema("salt-func-schemas/grains-item.schema.json"), {
+        args: ["os"],
+        sanitize: "nope",
+      })
+    ).toEqual({ ok: false, useFormRef: true });
+  });
+
+  it("validates display schema when advanced is open without a full json schema", () => {
+    const displaySchema = {
+      type: "object",
+      required: ["name"],
+      properties: { name: { type: "string" } },
+    } as JsonSchemaRecord;
+
+    expect(
+      validateJobJsonFormData({ name: "ok" }, undefined, undefined, true, displaySchema, undefined)
+    ).toEqual({ ok: true });
+
+    expect(
+      validateJobJsonFormData({}, undefined, undefined, true, displaySchema, undefined)
+    ).toEqual({ ok: false, useFormRef: true });
   });
 
   it("does not open advanced for invalid allow_hardware_ids with a space", () => {
