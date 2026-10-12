@@ -1,0 +1,91 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kwargs"],
+  "properties": {
+    "kwargs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pillar"],
+      "properties": {
+        "pillar": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "dependencies": {
+            "enabled": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "enabled": {
+                      "enum": [true]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": ["block", "allow"],
+                      "default": "block"
+                    },
+                    "methods": {
+                      "type": "array",
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "deny_disk_class",
+                          "deny_removable_storage_access",
+                          "device_install",
+                          "deny_write_unencrypted",
+                          "usbstor_start"
+                        ]
+                      },
+                      "default": ["deny_disk_class", "device_install"]
+                    }
+                  },
+                  "dependencies": {
+                    "mode": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "mode": {
+                              "enum": ["block"]
+                            },
+                            "allow_hardware_ids": {
+                              "type": "array",
+                              "default": [],
+                              "items": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9\\\\&_.\\-]{1,200}$"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "properties": {
+                            "mode": {
+                              "enum": ["allow"]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "enabled": {
+                      "enum": [false]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

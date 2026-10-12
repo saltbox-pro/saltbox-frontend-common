@@ -1,0 +1,226 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kwargs"],
+  "properties": {
+    "kwargs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pillar"],
+      "properties": {
+        "pillar": {
+          "type": "object",
+          "required": ["action"],
+          "properties": {
+            "action": {
+              "type": "string",
+              "default": "report",
+              "enum": ["report", "present", "absent"]
+            }
+          },
+          "dependencies": {
+            "action": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "action": {
+                      "enum": ["report"]
+                    },
+                    "entries": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": ["key", "vname"],
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "pattern": "^(HKLM|HKU\\\\S-1-[0-9]+(-[0-9]+)+)(\\\\[^\\\\'\"\\r\\n]+)+$",
+                            "examples": [
+                              "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+                              "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+                              "HKU\\S-1-5-21-1004336348-1177238915-682003330-1001\\Software\\Example"
+                            ]
+                          },
+                          "vname": {
+                            "type": "string",
+                            "pattern": "^[^\\s'\"][^'\"\\r\\n]*$",
+                            "examples": [
+                              "EnableSmartScreen",
+                              "NoDriveTypeAutoRun",
+                              "legalnoticecaption"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": ["entries"]
+                },
+                {
+                  "properties": {
+                    "action": {
+                      "enum": ["present"]
+                    },
+                    "entries": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": ["key", "vname", "vtype"],
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "pattern": "^(HKLM|HKU\\\\S-1-[0-9]+(-[0-9]+)+)(\\\\[^\\\\'\"\\r\\n]+)+$",
+                            "examples": [
+                              "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+                              "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+                              "HKU\\S-1-5-21-1004336348-1177238915-682003330-1001\\Software\\Example"
+                            ]
+                          },
+                          "vname": {
+                            "type": "string",
+                            "pattern": "^[^\\s'\"][^'\"\\r\\n]*$",
+                            "examples": [
+                              "EnableSmartScreen",
+                              "NoDriveTypeAutoRun",
+                              "legalnoticecaption"
+                            ]
+                          },
+                          "vtype": {
+                            "type": "string",
+                            "default": "REG_DWORD",
+                            "enum": [
+                              "REG_DWORD",
+                              "REG_SZ",
+                              "REG_EXPAND_SZ",
+                              "REG_MULTI_SZ",
+                              "REG_QWORD",
+                              "REG_BINARY"
+                            ]
+                          }
+                        },
+                        "dependencies": {
+                          "vtype": {
+                            "oneOf": [
+                              {
+                                "properties": {
+                                  "vtype": {
+                                    "enum": ["REG_DWORD"]
+                                  },
+                                  "vdata": {
+                                    "type": "string",
+                                    "pattern": "^([0-9]{1,10}|0[xX][0-9a-fA-F]{1,8})$",
+                                    "examples": ["1", "0", "0x91"]
+                                  }
+                                },
+                                "required": ["vdata"]
+                              },
+                              {
+                                "properties": {
+                                  "vtype": {
+                                    "enum": ["REG_SZ", "REG_EXPAND_SZ"]
+                                  },
+                                  "vdata": {
+                                    "type": "string",
+                                    "default": "",
+                                    "pattern": "^[^\\r\\n]*$",
+                                    "examples": ["Внимание", "%SystemRoot%\\System32"]
+                                  }
+                                },
+                                "required": ["vdata"]
+                              },
+                              {
+                                "properties": {
+                                  "vtype": {
+                                    "enum": ["REG_MULTI_SZ"]
+                                  },
+                                  "vdata_list": {
+                                    "type": "array",
+                                    "default": [],
+                                    "items": {
+                                      "type": "string",
+                                      "pattern": "^[^\\r\\n]*$"
+                                    }
+                                  }
+                                },
+                                "required": ["vdata_list"]
+                              },
+                              {
+                                "properties": {
+                                  "vtype": {
+                                    "enum": ["REG_QWORD"]
+                                  },
+                                  "vdata": {
+                                    "type": "string",
+                                    "pattern": "^([0-9]{1,20}|0[xX][0-9a-fA-F]{1,16})$",
+                                    "examples": ["1", "0x100000000"]
+                                  }
+                                },
+                                "required": ["vdata"]
+                              },
+                              {
+                                "properties": {
+                                  "vtype": {
+                                    "enum": ["REG_BINARY"]
+                                  },
+                                  "vdata": {
+                                    "type": "string",
+                                    "pattern": "^([0-9a-fA-F]{2})*$",
+                                    "examples": ["0100ff", "deadbeef"]
+                                  }
+                                },
+                                "required": ["vdata"]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": ["entries"]
+                },
+                {
+                  "properties": {
+                    "action": {
+                      "enum": ["absent"]
+                    },
+                    "entries": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": ["key", "vname"],
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "pattern": "^(HKLM|HKU\\\\S-1-[0-9]+(-[0-9]+)+)(\\\\[^\\\\'\"\\r\\n]+)+$",
+                            "examples": [
+                              "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+                              "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+                              "HKU\\S-1-5-21-1004336348-1177238915-682003330-1001\\Software\\Example"
+                            ]
+                          },
+                          "vname": {
+                            "type": "string",
+                            "pattern": "^[^\\s'\"][^'\"\\r\\n]*$",
+                            "examples": [
+                              "EnableSmartScreen",
+                              "NoDriveTypeAutoRun",
+                              "legalnoticecaption"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": ["entries"]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

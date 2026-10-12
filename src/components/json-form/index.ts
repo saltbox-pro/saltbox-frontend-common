@@ -18,3 +18,4 @@ export {
   rjsfValidator,
   type RjsfLanguageSource,
 } from "./utils/rjsf-validator";
+export { revalidateJsonFormAfterAdvancedOpen } from "./utils/revalidate-json-form-after-advanced-open";

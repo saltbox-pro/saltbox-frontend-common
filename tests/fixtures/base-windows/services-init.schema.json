@@ -1,0 +1,227 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kwargs"],
+  "properties": {
+    "kwargs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pillar"],
+      "properties": {
+        "pillar": {
+          "type": "object",
+          "required": ["name", "action"],
+          "properties": {
+            "action": {
+              "type": "string",
+              "default": "manage",
+              "enum": ["manage", "modify", "create", "delete"]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_\\- ]{1,256}$",
+              "examples": ["TermService", "Spooler", "wuauserv"]
+            }
+          },
+          "dependencies": {
+            "action": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "action": {
+                      "const": "delete"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "action": {
+                      "const": "manage"
+                    },
+                    "state": {
+                      "$ref": "#/$defs/service_state"
+                    },
+                    "start_type": {
+                      "$ref": "#/$defs/service_start_type"
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "action": {
+                      "enum": ["create", "modify"]
+                    },
+                    "state": {
+                      "$ref": "#/$defs/service_state"
+                    },
+                    "start_type": {
+                      "$ref": "#/$defs/service_start_type"
+                    },
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "bin_path": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z]:\\\\(?:[^\\\\/:*?\"<>|\\r\\n]+\\\\)*[^\\\\/:*?\"<>|\\r\\n]+\\.exe$",
+                      "examples": ["C:\\Program Files\\MyApp\\service.exe"]
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "enum": ["own", "share", "kernel", "filesys", "rec"]
+                    },
+                    "error_control": {
+                      "type": "string",
+                      "enum": ["ignore", "normal", "severe", "critical"]
+                    },
+                    "account_type": {
+                      "type": "string",
+                      "enum": [
+                        "LocalSystem",
+                        "NT AUTHORITY\\LocalService",
+                        "NT AUTHORITY\\NetworkService",
+                        "custom"
+                      ]
+                    },
+                    "dependencies": {
+                      "type": "array",
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[a-zA-Z0-9_\\- ]{1,256}$",
+                        "examples": ["RpcSs", "Tcpip"]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "account_type": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "account_type": {
+                      "enum": [
+                        "LocalSystem",
+                        "NT AUTHORITY\\LocalService",
+                        "NT AUTHORITY\\NetworkService"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "required": ["account_name", "account_password"],
+                  "properties": {
+                    "account_type": {
+                      "const": "custom"
+                    },
+                    "account_name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^(?:\\.|[a-zA-Z0-9а-яА-ЯёЁ_\\-. ]{1,15})\\\\[a-zA-Z0-9а-яА-ЯёЁ_\\-. ]{1,20}$|^[a-zA-Z0-9а-яА-ЯёЁ_\\-. ]{1,64}@[a-zA-Z0-9а-яА-ЯёЁ_\\-. ]{2,64}$",
+                      "examples": [
+                        ".\\svc_account",
+                        "DOMAIN\\service_account",
+                        "Administrator@domain.com"
+                      ]
+                    },
+                    "account_password": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "start_type": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "start_type": {
+                      "enum": ["manual", "disabled"]
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "start_type": {
+                      "const": "auto"
+                    },
+                    "start_delayed": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ]
+            },
+            "bin_path": {
+              "properties": {
+                "exe_args": {
+                  "type": "string",
+                  "examples": ["--port 8080", "-config C:\\config.yaml"]
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": ["start_type"],
+                "properties": {
+                  "start_type": {
+                    "const": "disabled"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "state": {
+                    "pattern": "^stop$"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "action": {
+                    "const": "manage"
+                  }
+                }
+              },
+              "then": {
+                "required": ["state"]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "action": {
+                    "const": "create"
+                  }
+                }
+              },
+              "then": {
+                "required": ["bin_path"]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "service_state": {
+      "type": "string",
+      "enum": ["start", "stop"]
+    },
+    "service_start_type": {
+      "type": "string",
+      "enum": ["auto", "manual", "disabled"]
+    }
+  }
+}
