@@ -26,7 +26,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseColumnIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return value.every((item) => typeof item === "string") ? [...(value as string[])] : [];
+  return value.filter((item): item is string => typeof item === "string");
 }
 
 function parseColumnLayout(value: unknown): ColumnLayout | undefined {
@@ -49,7 +49,7 @@ function parseColumnSizing(value: unknown): ColumnSizingState | undefined {
 
   const sizing: ColumnSizingState = {};
   for (const [columnId, width] of Object.entries(value)) {
-    if (!isPlausiblePixelSize(width)) return undefined;
+    if (!isPlausiblePixelSize(width)) continue;
     sizing[columnId] = width;
   }
 

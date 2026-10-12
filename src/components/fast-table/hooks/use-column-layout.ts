@@ -7,7 +7,6 @@ import {
 } from "saltbox-common/store/user-settings-store";
 
 import { getTableSettings, updateTableSettings } from "../model/table-settings";
-
 import {
   type ColumnLayout,
   EMPTY_COLUMN_LAYOUT,
@@ -29,12 +28,10 @@ export type UseColumnLayoutArgs<DataType> = {
 export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutArgs<DataType>) {
   const [layout, setLayout] = useState(() => readStoredLayout(tableId));
   const previousTableIdRef = useRef(tableId);
-  const hasLocalLayoutRef = useRef(false);
 
   useEffect(() => {
     if (previousTableIdRef.current === tableId) return;
     previousTableIdRef.current = tableId;
-    hasLocalLayoutRef.current = false;
 
     setLayout(readStoredLayout(tableId));
   }, [tableId]);
@@ -43,7 +40,6 @@ export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutA
     if (!tableId) return;
 
     const syncFromStore = () => {
-      if (hasLocalLayoutRef.current) return;
       setLayout(readStoredLayout(tableId));
     };
 
@@ -76,7 +72,6 @@ export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutA
 
   const applyColumnLayout = useCallback(
     (nextLayout: ColumnLayout) => {
-      hasLocalLayoutRef.current = true;
       setLayout(nextLayout);
 
       if (tableId) {

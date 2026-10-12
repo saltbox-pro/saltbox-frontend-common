@@ -1,7 +1,7 @@
 import type { ColumnDef, ColumnSizingState, OnChangeFn } from "@tanstack/react-table";
 
 import type { ColumnResizeConstraints } from "./column";
-import { clampColumnSizingForIds } from "./persisted-column-sizing";
+import { clampColumnSizingForIds } from "./column-sizing";
 
 export function resolveResizeColumnIds<TData>(columns: Array<ColumnDef<TData, unknown>>): string[] {
   const ids: string[] = [];

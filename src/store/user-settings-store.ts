@@ -1,7 +1,9 @@
 import { type UserSettingsChangedEventDetail, UiEvent } from "saltbox-common/interfaces/ui-events";
+import { notify } from "saltbox-common/notifications";
 import { publish, subscribe } from "saltbox-common/utils/custom-events";
 
 const SAVE_DELAY_MS = 400;
+const SAVE_RETRY_MAX_DELAY_MS = 10_000;
 const PATH_SEPARATOR = "/";
 
 export type UserSettingsTransport = {
@@ -41,10 +43,11 @@ let dirtyPaths = new Set<string>();
 let loadPromise: Promise<void> | null = null;
 let saveChain: Promise<void> = Promise.resolve();
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+let saveRetryDelayMs = SAVE_DELAY_MS;
 let isSubscribedToChanges = false;
 let isPublishingOwnChange = false;
 
-function notify(): void {
+function notifyListeners(): void {
   listeners.forEach((listener) => listener());
 }
 
@@ -53,7 +56,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isSameValue(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  if (Object.is(a, b)) return true;
+  if (a == null || b == null) return false;
+  if (typeof a !== "object" || typeof b !== "object") return false;
+
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function readPath(source: Record<string, unknown>, path: string[]): unknown {
@@ -112,7 +119,7 @@ function applyDirtyPaths(
 
 function adoptSettings(next: Record<string, unknown>): void {
   settings = applyDirtyPaths(next, dirtyPaths);
-  notify();
+  notifyListeners();
 }
 
 function publishOwnChange(next: Record<string, unknown>): void {
@@ -133,6 +140,36 @@ function handleForeignChange(event: CustomEvent): void {
   adoptSettings(detail.settings);
 }
 
+function restoreDirtyPaths(paths: Iterable<string>): void {
+  for (const path of paths) {
+    dirtyPaths.add(path);
+  }
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (!isRecord(error)) return undefined;
+
+  if (typeof error.status === "number") return error.status;
+
+  const response = error.response;
+  if (isRecord(response) && typeof response.status === "number") {
+    return response.status;
+  }
+
+  return undefined;
+}
+
+function isNonRetryableError(error: unknown): boolean {
+  const status = getErrorStatus(error);
+  if (status === undefined) return false;
+
+  return status >= 400 && status < 500 && status !== 408 && status !== 429;
+}
+
+function resetSaveRetryDelay(): void {
+  saveRetryDelayMs = SAVE_DELAY_MS;
+}
+
 async function writeSettings(pendingPaths: string[]): Promise<void> {
   const activeTransport = transport;
   if (!activeTransport) return;
@@ -146,10 +183,27 @@ async function writeSettings(pendingPaths: string[]): Promise<void> {
     if (transport !== activeTransport) return;
 
     const result = isRecord(saved) ? saved : next;
+    resetSaveRetryDelay();
     adoptSettings(result);
     publishOwnChange(result);
   } catch (error) {
     console.error("Failed to save user settings", error);
+    if (transport !== activeTransport) return;
+
+    restoreDirtyPaths(pendingPaths);
+
+    if (isNonRetryableError(error)) {
+      resetSaveRetryDelay();
+      notify.error({
+        title: "Failed to save table settings",
+        description: "Your latest table layout changes were not saved.",
+      });
+      return;
+    }
+
+    const delayMs = saveRetryDelayMs;
+    saveRetryDelayMs = Math.min(saveRetryDelayMs * 2, SAVE_RETRY_MAX_DELAY_MS);
+    scheduleSave(delayMs);
   }
 }
 
@@ -161,14 +215,14 @@ function runSave(): void {
   saveChain = saveChain.then(() => writeSettings(pendingPaths));
 }
 
-function scheduleSave(): void {
+function scheduleSave(delayMs = SAVE_DELAY_MS): void {
   if (!transport) return;
 
   if (saveTimeout !== null) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     saveTimeout = null;
     runSave();
-  }, SAVE_DELAY_MS);
+  }, delayMs);
 }
 
 export function initUserSettings(nextTransport: UserSettingsTransport): void {
@@ -182,14 +236,17 @@ export function initUserSettings(nextTransport: UserSettingsTransport): void {
   dirtyPaths = new Set();
   loadPromise = null;
   saveChain = Promise.resolve();
+  resetSaveRetryDelay();
 
   if (!isSubscribedToChanges) {
     subscribe(UiEvent.UserSettingsChanged, handleForeignChange);
     isSubscribedToChanges = true;
   }
 
-  notify();
-  ensureUserSettingsLoaded();
+  notifyListeners();
+  ensureUserSettingsLoaded().catch(() => {
+    // load errors are logged inside ensureUserSettingsLoaded
+  });
 }
 
 export function ensureUserSettingsLoaded(): Promise<void> {
@@ -206,6 +263,7 @@ export function ensureUserSettingsLoaded(): Promise<void> {
       .catch((error: unknown) => {
         loadPromise = null;
         console.error("Failed to load user settings", error);
+        throw error;
       });
   }
 
@@ -222,7 +280,8 @@ export function setUserSettingsValue(path: string[], value: unknown): void {
 
   settings = writePath(settings, path, value);
   dirtyPaths.add(path.join(PATH_SEPARATOR));
-  notify();
+  notifyListeners();
+  resetSaveRetryDelay();
   scheduleSave();
 }
 

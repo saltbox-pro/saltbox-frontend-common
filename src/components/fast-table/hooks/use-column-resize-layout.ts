@@ -11,6 +11,7 @@ import {
   measureLeafColumnWidthsFromHeader,
   readElementContentWidth,
 } from "../utils/column";
+import { clampColumnSizingForIds } from "../utils/column-sizing";
 import {
   isColumnWidthLocked,
   resolveColumnWidthLayoutMode,
@@ -20,7 +21,6 @@ import {
   fitColumnSizingToContainer,
   resolveFillColumnId,
 } from "../utils/filled-column-widths";
-import { clampColumnSizingForIds } from "../utils/persisted-column-sizing";
 
 type UseColumnResizeLayoutArgs<DataType> = {
   enableColumnResize: boolean;

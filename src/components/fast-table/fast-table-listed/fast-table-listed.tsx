@@ -36,6 +36,7 @@ import { usePublishFastTableToolbar } from "../fast-table-toolbar/use-publish-fa
 import { useColumnLayout } from "../hooks/use-column-layout";
 import { useColumnMove } from "../hooks/use-column-move";
 import { useColumnResizeLayout } from "../hooks/use-column-resize-layout";
+import { useColumnSizing } from "../hooks/use-column-sizing";
 import { useDeclaredFillWidth } from "../hooks/use-declared-fill-width";
 import { type FastTableLocaleOverrides, useFastTableLocale } from "../hooks/use-fast-table-locale";
 import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
@@ -45,7 +46,6 @@ import {
   useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
-import { usePersistedColumnSizing } from "../hooks/use-persisted-column-sizing";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -166,7 +166,7 @@ function FastTableListedContent<DataType>({
     resetColumnSizing,
     syncColumnSizingToColumns,
     seedColumnSizingFromPixels,
-  } = usePersistedColumnSizing(enableColumnSettings ? tableId : undefined);
+  } = useColumnSizing(enableColumnSettings ? tableId : undefined);
 
   const resizeColumns = useMemo(
     () =>

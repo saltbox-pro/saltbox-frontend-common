@@ -7,8 +7,7 @@ import {
 } from "saltbox-common/store/user-settings-store";
 
 import { getTableSettings, updateTableSettings } from "../model/table-settings";
-
-import { pruneColumnSizing } from "../utils/persisted-column-sizing";
+import { pruneColumnSizing } from "../utils/column-sizing";
 
 function readStoredState(tableId?: string): {
   columnSizing: ColumnSizingState;
@@ -22,7 +21,7 @@ function readStoredState(tableId?: string): {
   };
 }
 
-export function usePersistedColumnSizing(tableId?: string) {
+export function useColumnSizing(tableId?: string) {
   const [initial] = useState(() => readStoredState(tableId));
   const [columnSizing, setColumnSizing] = useState(initial.columnSizing);
   const [hasPersistedSizing, setHasPersistedSizing] = useState(initial.hasPersistedSizing);
@@ -32,7 +31,7 @@ export function usePersistedColumnSizing(tableId?: string) {
   const hasPersistedSizingRef = useRef(hasPersistedSizing);
   hasPersistedSizingRef.current = hasPersistedSizing;
   const previousTableIdRef = useRef(tableId);
-  const hasLocalSizingRef = useRef(false);
+  const hasUnflushedLocalSizingRef = useRef(false);
 
   const applyStoredState = useCallback((tableIdToRead?: string) => {
     const stored = readStoredState(tableIdToRead);
@@ -46,7 +45,7 @@ export function usePersistedColumnSizing(tableId?: string) {
     (sizing: ColumnSizingState) => {
       if (!tableId) return;
 
-      hasLocalSizingRef.current = true;
+      hasUnflushedLocalSizingRef.current = false;
       updateTableSettings(tableId, { columnSizing: sizing });
     },
     [tableId]
@@ -55,7 +54,7 @@ export function usePersistedColumnSizing(tableId?: string) {
   useEffect(() => {
     if (previousTableIdRef.current === tableId) return;
     previousTableIdRef.current = tableId;
-    hasLocalSizingRef.current = false;
+    hasUnflushedLocalSizingRef.current = false;
 
     applyStoredState(tableId);
   }, [applyStoredState, tableId]);
@@ -64,7 +63,7 @@ export function usePersistedColumnSizing(tableId?: string) {
     if (!tableId) return;
 
     const syncFromStore = () => {
-      if (hasLocalSizingRef.current) return;
+      if (hasUnflushedLocalSizingRef.current) return;
       applyStoredState(tableId);
     };
 
@@ -79,6 +78,7 @@ export function usePersistedColumnSizing(tableId?: string) {
     setColumnSizing((prev) => {
       const next = typeof updaterOrValue === "function" ? updaterOrValue(prev) : updaterOrValue;
       columnSizingRef.current = next;
+      hasUnflushedLocalSizingRef.current = true;
       return next;
     });
   }, []);
@@ -87,6 +87,7 @@ export function usePersistedColumnSizing(tableId?: string) {
     (pixelSizing: ColumnSizingState, replace = false) => {
       const nextSizing = replace ? pixelSizing : { ...columnSizingRef.current, ...pixelSizing };
       columnSizingRef.current = nextSizing;
+      hasUnflushedLocalSizingRef.current = true;
       setColumnSizing(nextSizing);
     },
     []
