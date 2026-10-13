@@ -1,0 +1,17 @@
+import { APP_LANGUAGES, type AppLanguage } from "saltbox-common/interfaces/locales";
+import {
+  getUserSettingsValue,
+  setUserSettingsValue,
+} from "saltbox-common/store/user-settings-store";
+
+const LANGUAGE_KEY = "language";
+
+export function getLanguageSetting(): AppLanguage | undefined {
+  const value = getUserSettingsValue([LANGUAGE_KEY]);
+
+  return APP_LANGUAGES.includes(value as AppLanguage) ? (value as AppLanguage) : undefined;
+}
+
+export function setLanguageSetting(language: AppLanguage): void {
+  setUserSettingsValue([LANGUAGE_KEY], language);
+}

@@ -285,6 +285,16 @@ export function setUserSettingsValue(path: string[], value: unknown): void {
   scheduleSave();
 }
 
+export async function flushUserSettings(): Promise<void> {
+  if (saveTimeout !== null) {
+    clearTimeout(saveTimeout);
+    saveTimeout = null;
+    runSave();
+  }
+
+  await saveChain;
+}
+
 export function subscribeUserSettings(listener: () => void): () => void {
   listeners.add(listener);
 
