@@ -9,6 +9,7 @@ import { rjsfValidator as validator } from "../../utils/rjsf-validator";
 import { CustomArrayFieldItemTemplate } from "../templates/array-field-item-template";
 import { CustomBaseInputTemplate } from "../templates/base-input-template";
 import { CustomWrapIfAdditionalTemplate } from "../templates/wrap-if-additional-template";
+import { CustomSelectWidget } from "../widgets/select-widget";
 
 import styles from "./form.module.css";
 
@@ -42,6 +43,7 @@ export const JsonForm = <
   experimental_defaultFormStateBehavior,
   ref,
   templates,
+  widgets,
   ...rest
 }: JsonFormProps<T, S, F>) => {
   const resolvedFocusOnFirstError =
@@ -63,6 +65,10 @@ export const JsonForm = <
           BaseInputTemplate: CustomBaseInputTemplate,
           WrapIfAdditionalTemplate: CustomWrapIfAdditionalTemplate,
           ...templates,
+        }}
+        widgets={{
+          SelectWidget: CustomSelectWidget,
+          ...widgets,
         }}
         experimental_defaultFormStateBehavior={{
           ...JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS,
