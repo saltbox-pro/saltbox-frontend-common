@@ -286,6 +286,8 @@ export function setUserSettingsValue(path: string[], value: unknown): void {
 }
 
 export async function flushUserSettings(): Promise<void> {
+  const flushedPaths = [...dirtyPaths];
+
   if (saveTimeout !== null) {
     clearTimeout(saveTimeout);
     saveTimeout = null;
@@ -293,6 +295,10 @@ export async function flushUserSettings(): Promise<void> {
   }
 
   await saveChain;
+
+  if (flushedPaths.some((path) => dirtyPaths.has(path))) {
+    throw new Error("User settings were not saved");
+  }
 }
 
 export function subscribeUserSettings(listener: () => void): () => void {

@@ -373,5 +373,9 @@
       "symbols": "Symbols",
       "toggle": "Toggle"
     }
+  },
+  "user-settings": {
+    "language-save-failed-title": "Failed to save the language",
+    "language-save-failed-description": "The interface language was not saved, the previous one is restored"
   }
 }

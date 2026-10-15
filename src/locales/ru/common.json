@@ -373,5 +373,9 @@
       "symbols": "Символы",
       "toggle": "Переключатели"
     }
+  },
+  "user-settings": {
+    "language-save-failed-title": "Не удалось сохранить язык",
+    "language-save-failed-description": "Язык интерфейса не сохранён, возвращён прежний"
   }
 }
