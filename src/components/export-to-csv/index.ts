@@ -1,4 +1,5 @@
 export { ExportToCsv, type ExportToCsvProps } from "./ui/export-to-csv";
+export { ExportToCsvConfirmContent } from "./ui/export-to-csv-confirm-content";
 export {
   useExportToCsvConfirm,
   type UseExportToCsvConfirmOptions,

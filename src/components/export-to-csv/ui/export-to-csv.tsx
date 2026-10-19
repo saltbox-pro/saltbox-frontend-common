@@ -1,16 +1,30 @@
+import type { ReactNode } from "react";
+
 import { useExportToCsvConfirm } from "../hooks/use-export-to-csv-confirm";
 
 import { ExportToCsvButton } from "./export-to-csv-button";
 
-export type ExportToCsvProps = {
-  scope: string;
+type ExportToCsvBaseProps = {
   onExport: () => Promise<boolean>;
 };
 
-export function ExportToCsv({ scope, onExport }: ExportToCsvProps) {
+export type ExportToCsvProps = ExportToCsvBaseProps &
+  (
+    | {
+        scope: string;
+        confirmContent?: undefined;
+      }
+    | {
+        confirmContent: ReactNode;
+        scope?: undefined;
+      }
+  );
+
+export function ExportToCsv({ scope, onExport, confirmContent }: ExportToCsvProps) {
   const { isExporting, openConfirm, modalContextHolder } = useExportToCsvConfirm({
     scope,
     onExport,
+    confirmContent,
   });
 
   return (

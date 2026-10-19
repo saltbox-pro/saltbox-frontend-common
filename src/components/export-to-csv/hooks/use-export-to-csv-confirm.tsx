@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ExportToCsvConfirmContent } from "../ui/export-to-csv-confirm-content";
@@ -6,14 +6,22 @@ import { ExportToCsvConfirmContent } from "../ui/export-to-csv-confirm-content";
 import { useExportToCsv } from "./use-export-to-csv";
 
 export type UseExportToCsvConfirmOptions = {
-  scope: string;
   onExport: () => Promise<boolean>;
+  scope?: string;
+  confirmContent?: ReactNode;
 };
 
-export function useExportToCsvConfirm({ scope, onExport }: UseExportToCsvConfirmOptions) {
+export function useExportToCsvConfirm({
+  scope = "",
+  onExport,
+  confirmContent,
+}: UseExportToCsvConfirmOptions) {
   const { t } = useTranslation("common");
 
-  const content = useMemo(() => <ExportToCsvConfirmContent scope={scope} />, [scope]);
+  const content = useMemo(
+    () => confirmContent ?? <ExportToCsvConfirmContent scope={scope} />,
+    [confirmContent, scope]
+  );
 
   return useExportToCsv({
     onExport,
