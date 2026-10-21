@@ -79,6 +79,11 @@ function FastTableHeaderCell<DataType>({
     return locale.clearSort;
   };
 
+  const sortTooltipProps = {
+    title: getSortTitle(),
+    classNames: { root: "fast-table-sort-tooltip" },
+  };
+
   const getThClasses = () => {
     const metaClassName =
       (header.column.columnDef.meta as { thClassName?: string })?.thClassName ?? "";
@@ -161,7 +166,7 @@ function FastTableHeaderCell<DataType>({
           : undefined
       }
     >
-      {canSort ? <Tooltip title={getSortTitle()}>{titleNode}</Tooltip> : titleNode}
+      {canSort ? <Tooltip {...sortTooltipProps}>{titleNode}</Tooltip> : titleNode}
 
       {canShowMenu && (
         <span
@@ -192,7 +197,7 @@ function FastTableHeaderCell<DataType>({
         </span>
       )}
 
-      {canSort && <Tooltip title={getSortTitle()}>{sorterNode}</Tooltip>}
+      {canSort && <Tooltip {...sortTooltipProps}>{sorterNode}</Tooltip>}
     </div>
   );
 

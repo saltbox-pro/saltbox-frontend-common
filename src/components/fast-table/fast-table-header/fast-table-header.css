@@ -78,6 +78,10 @@
   color: var(--ant-color-primary, #1677ff);
 }
 
+.fast-table-sort-tooltip {
+  pointer-events: none;
+}
+
 .fast-table-resize-handle {
   flex: 0 0 auto;
   width: 7px;
