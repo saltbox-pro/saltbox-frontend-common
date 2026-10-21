@@ -27,8 +27,11 @@ function resolveBooleanTitle<TData extends RowData>(
     return options.getTitle(value, row);
   }
 
-  const isTruthy = Boolean(value);
-  if (isTruthy) {
+  if (typeof value !== "boolean") {
+    return undefined;
+  }
+
+  if (value) {
     return options.labels?.true ?? tCommon("boolean-display.true");
   }
 

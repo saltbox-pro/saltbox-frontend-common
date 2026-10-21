@@ -4,17 +4,19 @@ import { useTranslation } from "react-i18next";
 import styles from "./boolean-display.module.css";
 
 export interface BooleanDisplayProps {
-  value: boolean | undefined | null;
+  value: unknown;
 }
 
-export function BooleanDisplay({ value = false }: BooleanDisplayProps) {
+export function BooleanDisplay({ value }: BooleanDisplayProps) {
   const { t } = useTranslation("common");
-  const isTruthy = Boolean(value);
-  const label = isTruthy ? t("boolean-display.true") : t("boolean-display.false");
 
-  if (isTruthy) {
-    return <CheckCircleFilled className={styles.true} aria-label={label} />;
+  if (typeof value !== "boolean") {
+    return null;
   }
 
-  return <CloseCircleOutlined className={styles.false} aria-label={label} />;
+  if (value) {
+    return <CheckCircleFilled className={styles.true} aria-label={t("boolean-display.true")} />;
+  }
+
+  return <CloseCircleOutlined className={styles.false} aria-label={t("boolean-display.false")} />;
 }
