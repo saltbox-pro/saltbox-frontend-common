@@ -1,4 +1,4 @@
-import { DownloadOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import { Button, Tooltip, type ButtonProps } from "antd";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +20,7 @@ export function ExportToCsvButton({
     <Tooltip title={title}>
       <Button
         type={type}
-        icon={<DownloadOutlined />}
+        icon={<UploadOutlined />}
         loading={loading}
         onClick={onClick}
         aria-label={title}
