@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 import { useMaterialSymbolsFontReady } from "../hooks/use-material-symbols-font-ready";
 
-type IconSize = "small" | "normal" | "large";
+type IconSize = "small" | "normal" | "large" | "inherit";
 
 export type MatIconProps = {
   className?: string;
@@ -11,14 +11,15 @@ export type MatIconProps = {
   size?: IconSize;
 };
 
-const SIZE_PX: Record<IconSize, string> = {
+const SIZE: Record<IconSize, string> = {
   small: "20px",
   normal: "24px",
   large: "32px",
+  inherit: "1em",
 };
 
 export function MatIcon({ className, icon, size }: MatIconProps) {
-  const fontSize = size ? SIZE_PX[size] : SIZE_PX.normal;
+  const fontSize = size ? SIZE[size] : SIZE.normal;
   const isFontReady = useMaterialSymbolsFontReady();
 
   return (
