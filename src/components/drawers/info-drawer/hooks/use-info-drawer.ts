@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ANTD_OVERLAY_ROOT_SELECTORS,
   FAST_TABLE_VIRTUAL_BODY_SELECTOR,
+  NESTED_DRAWER_CLASS_NAME,
 } from "../../../../constants/dom-selectors";
 
 export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
@@ -104,6 +105,10 @@ export function useInfoDrawer<
       }
 
       if (outsideClickIgnoreSelectors?.some((selector) => target.closest(selector) != null)) {
+        return;
+      }
+
+      if (target.closest(`.${NESTED_DRAWER_CLASS_NAME}`) != null) {
         return;
       }
 

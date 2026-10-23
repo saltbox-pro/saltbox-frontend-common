@@ -14,6 +14,7 @@ import {
   SwitchTransitionLayout,
   TransitionLayout,
 } from "saltbox-common/components/transition-layout";
+import { NESTED_DRAWER_CLASS_NAME } from "saltbox-common/constants/dom-selectors";
 import { ErrorZone, type LoadSource } from "saltbox-common/error-handling";
 
 import { InfoDrawerError } from "./info-drawer-error";
@@ -37,6 +38,7 @@ export interface InfoDrawerProps extends PropsWithChildren, Omit<DrawerProps, "t
   loaders?: readonly LoadSource[];
   transitionKey?: Key;
   fillHeight?: boolean;
+  nested?: boolean;
   onClose: () => void;
 }
 
@@ -63,6 +65,7 @@ export function InfoDrawer({
   destroyOnHidden = true,
   width = 770,
   fillHeight = false,
+  nested = false,
   onClose,
   children,
   classNames,
@@ -109,7 +112,7 @@ export function InfoDrawer({
   return (
     <Drawer
       id={`sbx-drawer-${drawerId}`}
-      rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${rootClassName ?? ""}`}
+      rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${nested ? NESTED_DRAWER_CLASS_NAME : ""} ${rootClassName ?? ""}`}
       classNames={{
         ...classNames,
         header: classNames?.header,

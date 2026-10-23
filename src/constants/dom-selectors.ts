@@ -15,6 +15,8 @@ export const ANTD_OVERLAY_ROOT_SELECTORS: ReadonlyArray<string> = Object.freeze(
 
 export const FAST_TABLE_VIRTUAL_BODY_SELECTOR = ".virtual-tbody-container";
 
+export const NESTED_DRAWER_CLASS_NAME = "sbx-nested-drawer";
+
 export const ROW_INTERACTIVE_SELECTORS: string = [
   "button",
   "a",
