@@ -1,14 +1,18 @@
+import zIndexContext from "antd/es/_util/zindexContext";
 import DrawerContext from "rc-drawer/es/context";
-import { type PropsWithChildren, useContext } from "react";
+import { type PropsWithChildren, useContext, useMemo } from "react";
 
 export type ParentDrawerBridge = {
   pushDistance?: number | string;
   push: () => void;
   pull: () => void;
+  zIndex?: number;
 };
 
 export function useParentDrawerBridge(): ParentDrawerBridge | null {
-  return useContext(DrawerContext) ?? null;
+  const drawer = useContext(DrawerContext);
+  const zIndex = useContext(zIndexContext);
+  return useMemo(() => (drawer == null ? null : { ...drawer, zIndex }), [drawer, zIndex]);
 }
 
 export function ParentDrawerBridgeProvider({
@@ -18,5 +22,9 @@ export function ParentDrawerBridgeProvider({
   if (value == null) {
     return children;
   }
-  return <DrawerContext.Provider value={value}>{children}</DrawerContext.Provider>;
+  return (
+    <zIndexContext.Provider value={value.zIndex}>
+      <DrawerContext.Provider value={value}>{children}</DrawerContext.Provider>
+    </zIndexContext.Provider>
+  );
 }

@@ -20,6 +20,7 @@ export default defineConfig({
         "react-dom",
         "react-dom/client",
         "antd",
+        "antd/es/_util/zindexContext",
         "mobx",
         "mobx-react",
         "react-i18next",

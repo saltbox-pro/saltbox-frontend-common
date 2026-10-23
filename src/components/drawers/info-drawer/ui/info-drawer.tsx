@@ -4,6 +4,7 @@ import {
   type PropsWithChildren,
   type ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -17,10 +18,13 @@ import {
 import { NESTED_DRAWER_CLASS_NAME } from "saltbox-common/constants/dom-selectors";
 import { ErrorZone, type LoadSource } from "saltbox-common/error-handling";
 
+import { getInfoDrawerDomId, INFO_DRAWER_PATH_ATTR } from "../utils/info-drawer-dom";
+
 import { InfoDrawerError } from "./info-drawer-error";
 import { InfoDrawerExtra } from "./info-drawer-extra";
 import { InfoDrawerLink } from "./info-drawer-link";
 import { InfoDrawerLoader } from "./info-drawer-loader";
+import { InfoDrawerPathContext } from "./info-drawer-path-context";
 import { InfoDrawerTitle } from "./info-drawer-title";
 import styles from "./info-drawer.module.css";
 
@@ -74,6 +78,10 @@ export function InfoDrawer({
   const onCloseRef = useRef(onClose);
   const layoutAnchorRef = useRef<HTMLDivElement>(null);
 
+  const parentDrawerPath = useContext(InfoDrawerPathContext);
+  const drawerPath = useMemo(() => [...parentDrawerPath, drawerId], [parentDrawerPath, drawerId]);
+  const drawerPathAttr = { [INFO_DRAWER_PATH_ATTR]: drawerPath.join(" ") };
+
   const hasError = !loading && !!errorMessage;
   const titleLink =
     linkPlacement === "title" ? (
@@ -110,65 +118,68 @@ export function InfoDrawer({
   const fillClass = fillHeight ? styles.fillChild : "";
 
   return (
-    <Drawer
-      id={`sbx-drawer-${drawerId}`}
-      rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${nested ? NESTED_DRAWER_CLASS_NAME : ""} ${rootClassName ?? ""}`}
-      classNames={{
-        ...classNames,
-        header: classNames?.header,
-        body: `${styles.body} ${fillHeight ? styles.bodyFill : ""} ${classNames?.body ?? ""}`,
-      }}
-      open={open}
-      size={size}
-      placement={placement}
-      title={
-        <InfoDrawerTitle
-          activeTransitionKey={open ? "opened" : "closed"}
-          name={titleName}
-          label={titleLabel}
-          copyable={titleCopyable}
-          extra={titleLink}
-        />
-      }
-      extra={
-        <TransitionLayout in={!loading} className={styles.headerActionsFade}>
-          <InfoDrawerExtra
-            extra={extra}
-            to={linkPlacement === "title" ? undefined : linkTo}
-            title={linkTitle}
-            linkComponent={linkComponent}
+    <InfoDrawerPathContext.Provider value={drawerPath}>
+      <Drawer
+        id={getInfoDrawerDomId(drawerId)}
+        {...drawerPathAttr}
+        rootClassName={`${styles.drawer} ${fillHeight ? styles.fillHeight : ""} ${nested ? NESTED_DRAWER_CLASS_NAME : ""} ${rootClassName ?? ""}`}
+        classNames={{
+          ...classNames,
+          header: classNames?.header,
+          body: `${styles.body} ${fillHeight ? styles.bodyFill : ""} ${classNames?.body ?? ""}`,
+        }}
+        open={open}
+        size={size}
+        placement={placement}
+        title={
+          <InfoDrawerTitle
+            activeTransitionKey={open ? "opened" : "closed"}
+            name={titleName}
+            label={titleLabel}
+            copyable={titleCopyable}
+            extra={titleLink}
           />
-        </TransitionLayout>
-      }
-      mask={mask}
-      width={width}
-      destroyOnHidden={destroyOnHidden}
-      onClose={onClose}
-      {...restProps}
-    >
-      <InfoDrawerLoader loading={loading} />
+        }
+        extra={
+          <TransitionLayout in={!loading} className={styles.headerActionsFade}>
+            <InfoDrawerExtra
+              extra={extra}
+              to={linkPlacement === "title" ? undefined : linkTo}
+              title={linkTitle}
+              linkComponent={linkComponent}
+            />
+          </TransitionLayout>
+        }
+        mask={mask}
+        width={width}
+        destroyOnHidden={destroyOnHidden}
+        onClose={onClose}
+        {...restProps}
+      >
+        <InfoDrawerLoader loading={loading} />
 
-      <div ref={layoutAnchorRef} className={`${styles.layoutAnchor} ${fillClass}`}>
-        <SwitchTransitionLayout
-          className={`${styles.layout} ${fillClass}`}
-          activeKey={activeKey}
-          onEnter={resetDrawerBodyScroll}
-        >
-          {() => (
-            <div className={`${styles.content} ${fillClass}`}>
-              {hasError ? (
-                <InfoDrawerError message={errorMessage} />
-              ) : loaders ? (
-                <ErrorZone level="block" loaders={loaders}>
-                  {hasData ? children : null}
-                </ErrorZone>
-              ) : hasData ? (
-                children
-              ) : null}
-            </div>
-          )}
-        </SwitchTransitionLayout>
-      </div>
-    </Drawer>
+        <div ref={layoutAnchorRef} className={`${styles.layoutAnchor} ${fillClass}`}>
+          <SwitchTransitionLayout
+            className={`${styles.layout} ${fillClass}`}
+            activeKey={activeKey}
+            onEnter={resetDrawerBodyScroll}
+          >
+            {() => (
+              <div className={`${styles.content} ${fillClass}`}>
+                {hasError ? (
+                  <InfoDrawerError message={errorMessage} />
+                ) : loaders ? (
+                  <ErrorZone level="block" loaders={loaders}>
+                    {hasData ? children : null}
+                  </ErrorZone>
+                ) : hasData ? (
+                  children
+                ) : null}
+              </div>
+            )}
+          </SwitchTransitionLayout>
+        </div>
+      </Drawer>
+    </InfoDrawerPathContext.Provider>
   );
 }

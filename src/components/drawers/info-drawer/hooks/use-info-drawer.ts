@@ -5,6 +5,7 @@ import {
   FAST_TABLE_VIRTUAL_BODY_SELECTOR,
   NESTED_DRAWER_CLASS_NAME,
 } from "../../../../constants/dom-selectors";
+import { isInsideInfoDrawerTree } from "../utils/info-drawer-dom";
 
 export interface UseInfoDrawerOptions<TArg, TId extends string | number> {
   getId: (arg: TArg) => TId;
@@ -41,6 +42,8 @@ export function useInfoDrawer<
   onOpenRef.current = onOpen;
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  const outsideClickIgnoreSelectorsRef = useRef(outsideClickIgnoreSelectors);
+  outsideClickIgnoreSelectorsRef.current = outsideClickIgnoreSelectors;
 
   const [openedId, setOpenedId] = useState<TId | null>(initialOpenedId ?? null);
   const [openedArg, setOpenedArg] = useState<TArg | null>(initialOpenedArg ?? null);
@@ -98,13 +101,15 @@ export function useInfoDrawer<
 
     const handler = (event: PointerEvent) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement)) return;
+      if (!(target instanceof Element)) return;
 
       if (ANTD_OVERLAY_ROOT_SELECTORS.some((selector) => target.closest(selector) != null)) {
         return;
       }
 
-      if (outsideClickIgnoreSelectors?.some((selector) => target.closest(selector) != null)) {
+      if (
+        outsideClickIgnoreSelectorsRef.current?.some((selector) => target.closest(selector) != null)
+      ) {
         return;
       }
 
@@ -120,7 +125,7 @@ export function useInfoDrawer<
           ?.querySelector(FAST_TABLE_VIRTUAL_BODY_SELECTOR)
           ?.contains(target) ?? false;
       const clickedInsideDrawer = drawerId
-        ? target.closest(`#sbx-drawer-${drawerId}`) != null
+        ? isInsideInfoDrawerTree(target, drawerId)
         : target.closest(".ant-drawer") != null;
 
       if (!clickedInsideMainContent && !clickedInsideVirtualTable && !clickedInsideDrawer) {
@@ -133,7 +138,7 @@ export function useInfoDrawer<
     return () => {
       document.removeEventListener("pointerdown", handler, { capture: true });
     };
-  }, [close, drawerId, isOpened, outsideClickIgnoreSelectors]);
+  }, [close, drawerId, isOpened]);
 
   return useMemo(
     () => ({
