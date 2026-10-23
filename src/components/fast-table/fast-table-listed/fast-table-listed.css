@@ -54,6 +54,7 @@
   padding: 8px 12px;
   min-width: 0;
   max-width: 100%;
+  background-color: var(--fast-table-row-bg, transparent);
 }
 
 .fast-table table > tbody > tr > td:first-child {

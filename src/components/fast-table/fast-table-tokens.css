@@ -6,4 +6,5 @@
   --fast-table-header-sort-hover-bg: #f5f5f5;
   --fast-table-header-sort-active-bg: #f0f0f0;
   --fast-table-body-sort-bg: #fafafa;
+  --fast-table-row-bg: initial;
 }

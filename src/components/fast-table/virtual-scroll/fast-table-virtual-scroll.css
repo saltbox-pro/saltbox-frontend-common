@@ -37,7 +37,7 @@
   align-items: center;
   flex-wrap: wrap;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--fast-table-row-bg, #fff);
 }
 
 .fast-table .virtual-row-cells .virtual-cell:first-child {

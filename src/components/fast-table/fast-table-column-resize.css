@@ -41,7 +41,7 @@
 .fast-table.is-column-resizing
   .virtual-row.fast-table-row-group-alt[role="button"]:hover
   .virtual-cell {
-  background-color: transparent;
+  background-color: var(--fast-table-row-bg, transparent);
 }
 
 .fast-table.is-column-resizing table > tbody > tr.fast-table-row-group-alt > td,
