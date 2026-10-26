@@ -170,7 +170,14 @@ function resetSaveRetryDelay(): void {
   saveRetryDelayMs = SAVE_DELAY_MS;
 }
 
-async function writeSettings(pendingPaths: string[]): Promise<void> {
+type SaveOptions = { notifyOnError: boolean };
+
+export type FlushUserSettingsOptions = Partial<SaveOptions>;
+
+async function writeSettings(
+  pendingPaths: string[],
+  { notifyOnError }: SaveOptions
+): Promise<void> {
   const activeTransport = transport;
   if (!activeTransport) return;
 
@@ -194,10 +201,12 @@ async function writeSettings(pendingPaths: string[]): Promise<void> {
 
     if (isNonRetryableError(error)) {
       resetSaveRetryDelay();
-      notify.error({
-        title: "Failed to save table settings",
-        description: "Your latest table layout changes were not saved.",
-      });
+      if (notifyOnError) {
+        notify.error({
+          title: "Failed to save user settings",
+          description: "Your latest settings changes were not saved.",
+        });
+      }
       return;
     }
 
@@ -207,12 +216,12 @@ async function writeSettings(pendingPaths: string[]): Promise<void> {
   }
 }
 
-function runSave(): void {
+function runSave(options: SaveOptions = { notifyOnError: true }): void {
   if (!transport || dirtyPaths.size === 0) return;
 
   const pendingPaths = [...dirtyPaths];
   dirtyPaths = new Set();
-  saveChain = saveChain.then(() => writeSettings(pendingPaths));
+  saveChain = saveChain.then(() => writeSettings(pendingPaths, options));
 }
 
 function scheduleSave(delayMs = SAVE_DELAY_MS): void {
@@ -285,13 +294,23 @@ export function setUserSettingsValue(path: string[], value: unknown): void {
   scheduleSave();
 }
 
-export async function flushUserSettings(): Promise<void> {
+export function revertUserSettingsValue(path: string[], value: unknown): void {
+  if (path.length === 0) return;
+
+  settings = writePath(settings, path, value);
+  dirtyPaths.delete(path.join(PATH_SEPARATOR));
+  notifyListeners();
+}
+
+export async function flushUserSettings({
+  notifyOnError = true,
+}: FlushUserSettingsOptions = {}): Promise<void> {
   const flushedPaths = [...dirtyPaths];
 
   if (saveTimeout !== null) {
     clearTimeout(saveTimeout);
     saveTimeout = null;
-    runSave();
+    runSave({ notifyOnError });
   }
 
   await saveChain;

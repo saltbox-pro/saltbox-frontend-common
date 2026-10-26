@@ -70,6 +70,7 @@ export * from "./utils/relative-time";
 export * from "./utils/deep-omit-undefined";
 export * from "./utils/template-schema-validation";
 export * from "./utils/localized-text";
+export * from "./utils/move-item";
 
 export * from "./interfaces/locales";
 export * from "./interfaces/ui-events";
@@ -77,12 +78,14 @@ export * from "./interfaces/ui-events";
 export * from "./hooks/useUiCleanupEvent";
 export * from "./hooks/useFocusOnOpenChange";
 export * from "./hooks/useDocumentEvent";
+export * from "./hooks/useSortableDrag";
 
 export * from "./store/filter-store";
 export * from "./store/persistent-filter-store";
 export * from "./store/masters-store";
 export * from "./store/user-settings-store";
 export * from "./store/language-settings";
+export * from "./store/sidebar-settings";
 
 export { default as enCommon } from "./locales/en/common.json";
 export { default as ruCommon } from "./locales/ru/common.json";

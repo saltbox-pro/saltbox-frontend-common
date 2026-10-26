@@ -71,6 +71,10 @@ function ensureLoad(): void {
     });
 }
 
+export function preloadMaterialSymbolsFont(): void {
+  ensureLoad();
+}
+
 function subscribe(onStoreChange: () => void): () => void {
   listeners.add(onStoreChange);
   ensureLoad();
