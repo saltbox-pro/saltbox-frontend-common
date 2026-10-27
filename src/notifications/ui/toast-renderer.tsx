@@ -117,6 +117,7 @@ export function useToastRenderer(
           key,
           content: renderMessageContent(detail, onNavigate),
           duration: resolveToastDurationSec(detail),
+          onClose: detail.onClose,
         });
         return;
       }
@@ -145,6 +146,9 @@ export function useToastRenderer(
         message: detail.title,
         description,
         duration: expanded ? 0 : resolveToastDurationSec(detail),
+        showProgress: detail?.showProgress,
+        closable: detail?.closable ?? true,
+        onClose: detail?.onClose,
         btn: detail.actions?.length ? (
           <ToastActionButtons actions={detail.actions} onNavigate={onNavigate} />
         ) : undefined,

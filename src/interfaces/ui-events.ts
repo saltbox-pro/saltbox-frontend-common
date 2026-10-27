@@ -65,6 +65,9 @@ export interface ToastEventDetail {
   errorCode?: ToastErrorCode;
   key?: string;
   durationSec?: number;
+  showProgress?: boolean;
+  closable?: boolean;
+  onClose?: () => void;
   actions?: ToastAction[];
   debugText?: string;
   source?: string;
