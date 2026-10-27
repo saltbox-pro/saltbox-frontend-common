@@ -1,5 +1,5 @@
 import { Select } from "antd";
-import { useMemo } from "react";
+import { useEffect } from "react";
 import { ValueEditorProps } from "react-querybuilder";
 
 import { parseCommaSeparatedListValue } from "saltbox-common/utils/normalize-list-input-value";
@@ -12,24 +12,31 @@ export const SaltBoxMultiselectValueEditor = ({
   title,
   className,
   fieldData,
+  operator,
 }: ValueEditorProps) => {
-  const selectedValues = useMemo(() => parseCommaSeparatedListValue(value), [value]);
+  const selectedValues = parseCommaSeparatedListValue(value);
   const options = (fieldData?.selectOptions ?? []) as SelectOption[];
+  const isMultiple = operator === "in" || operator === "notIn";
+  const firstValue = selectedValues[0];
 
-  const handleChange = (newValues: string[]) => {
-    handleOnChange(newValues.join(","));
-  };
+  useEffect(() => {
+    if (!isMultiple && selectedValues.length > 1 && firstValue) {
+      handleOnChange(firstValue);
+    }
+  }, [firstValue, handleOnChange, isMultiple, selectedValues.length]);
 
   return (
     <Select
-      mode="multiple"
+      mode={isMultiple ? "multiple" : undefined}
       showSearch
       optionFilterProp="label"
       options={options}
       fieldNames={fieldData?.selectFieldNames}
-      value={selectedValues}
+      value={isMultiple ? selectedValues : firstValue}
       allowClear={true}
-      onChange={handleChange}
+      onChange={(newValue: string | string[] | null) => {
+        handleOnChange(Array.isArray(newValue) ? newValue.join(",") : (newValue ?? ""));
+      }}
       className={className}
       title={title}
       style={{ width: "100%" }}
