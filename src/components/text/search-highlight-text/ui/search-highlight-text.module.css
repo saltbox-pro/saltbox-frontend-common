@@ -1,6 +1,7 @@
 .mark {
-  background: #ffe58f;
-  padding: 0;
-  border-radius: 2px;
   color: inherit;
+}
+
+:global(::highlight(search-match)) {
+  background-color: #ffe58f;
 }
