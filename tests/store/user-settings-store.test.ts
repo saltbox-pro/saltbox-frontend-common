@@ -35,6 +35,7 @@ function createMemoryTransport(
     get loads() {
       return state.loads;
     },
+    isAvailable: () => true,
     load: async () => {
       state.loads += 1;
       return structuredClone(state.stored);
@@ -186,7 +187,50 @@ describe("user-settings-store", () => {
 
   it("createUserSettingsTransport requires api", async () => {
     const transport = createUserSettingsTransport(() => undefined);
+    expect(transport.isAvailable()).toBe(false);
     await expect(transport.load()).rejects.toThrow("User settings API is not available");
+  });
+
+  it("createUserSettingsTransport reports availability from api getter", () => {
+    const api = {
+      getUserSettings: async () => ({}),
+      createOrUpdateUserSettings: async () => ({}),
+    };
+    let currentApi: typeof api | undefined;
+    const transport = createUserSettingsTransport(() => currentApi);
+
+    expect(transport.isAvailable()).toBe(false);
+    currentApi = api;
+    expect(transport.isAvailable()).toBe(true);
+  });
+
+  it("skips eager load on init while transport is unavailable", async () => {
+    const transport = createMemoryTransport({ tables: { a: { column_sizing: { id: 1 } } } });
+    let isAvailable = false;
+    transport.isAvailable = () => isAvailable;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    initUserSettings(transport);
+    await Promise.resolve();
+
+    expect(transport.loads).toBe(0);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    isAvailable = true;
+    await ensureUserSettingsLoaded();
+
+    expect(transport.loads).toBe(1);
+    expect(getUserSettingsValue(["tables", "a"])).toEqual({ column_sizing: { id: 1 } });
+    errorSpy.mockRestore();
+  });
+
+  it("loads eagerly on init when transport is available", async () => {
+    const transport = createMemoryTransport();
+
+    initUserSettings(transport);
+    await Promise.resolve();
+
+    expect(transport.loads).toBe(1);
   });
 
   it("rejects ensureUserSettingsLoaded when transport load fails", async () => {

@@ -21,6 +21,7 @@ function createMemoryTransport(
     get stored() {
       return stored;
     },
+    isAvailable: () => true,
     load: async () => structuredClone(stored),
     save: async (settings) => {
       stored = structuredClone(settings);

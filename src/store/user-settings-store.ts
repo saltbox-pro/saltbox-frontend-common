@@ -7,6 +7,7 @@ const SAVE_RETRY_MAX_DELAY_MS = 10_000;
 const PATH_SEPARATOR = "/";
 
 export type UserSettingsTransport = {
+  isAvailable: () => boolean;
   load: () => Promise<Record<string, unknown>>;
   save: (settings: Record<string, unknown>) => Promise<Record<string, unknown>>;
 };
@@ -29,6 +30,7 @@ export function createUserSettingsTransport(
   };
 
   return {
+    isAvailable: () => getApi() !== undefined,
     load: async () => await requireApi().getUserSettings(),
     save: async (settings) =>
       await requireApi().createOrUpdateUserSettings({ request_body: settings }),
@@ -253,6 +255,8 @@ export function initUserSettings(nextTransport: UserSettingsTransport): void {
   }
 
   notifyListeners();
+  if (!nextTransport.isAvailable()) return;
+
   ensureUserSettingsLoaded().catch(() => {
     // load errors are logged inside ensureUserSettingsLoaded
   });
