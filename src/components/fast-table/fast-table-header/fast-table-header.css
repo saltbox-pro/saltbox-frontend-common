@@ -57,6 +57,11 @@
   white-space: nowrap;
 }
 
+.fast-table-wrap-headers > thead .fast-table-header-title {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
 .fast-table-sorter {
   flex: 0 0 auto;
   display: inline-flex;

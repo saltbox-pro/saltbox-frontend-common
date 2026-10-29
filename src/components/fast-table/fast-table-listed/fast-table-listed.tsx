@@ -97,6 +97,8 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
   enableColumnSettings?: boolean;
+  wrapHeaders?: boolean;
+  compactLoader?: boolean;
   onRefresh?: () => void;
   loader?: LoadSource;
 };
@@ -144,6 +146,8 @@ function FastTableListedContent<DataType>({
   rowSelection,
   tableId,
   enableColumnSettings = true,
+  wrapHeaders = false,
+  compactLoader = false,
   onRefresh,
   useVirtualScroll = false,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
@@ -446,13 +450,14 @@ function FastTableListedContent<DataType>({
         useVirtualScroll ? "virtual-scroll" : ""
       } ${enableColumnSettings ? "has-column-resize" : ""} ${
         isResizingColumn ? "is-column-resizing" : ""
-      }`}
+      } ${compactLoader ? "fast-table-compact-loader" : ""}`}
       style={fastTableTokenStyle}
     >
       {shouldRenderInlineToolbar && <FastTableInlineToolbar model={toolbarModel} />}
       <FastTableRefreshAlert loader={loader} />
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table
+          className={wrapHeaders ? "fast-table-wrap-headers" : undefined}
           style={
             lockedColumnsTotalWidth !== undefined
               ? { width: formatCssPx(lockedColumnsTotalWidth) }
@@ -477,6 +482,7 @@ function FastTableListedContent<DataType>({
               })}
             {!shouldRenderVirtualRows && renderTableRows()}
             {isEmpty &&
+              !isLoading &&
               (loader ? (
                 <FastTableBodyFallback
                   loader={loader}

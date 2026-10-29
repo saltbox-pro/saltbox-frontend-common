@@ -87,6 +87,10 @@ FastTableListed - таблица без пагинации для отображ
 - **Клик по строке** через onRowClick
 - **Ховер на ячейку** - иконки появляются при ховере на конкретную ячейку
 - **Защита от конфликтов** - клики по иконкам не триггерят клик по строке
+
+## Компактные таблицы:
+- **wrapHeaders** - заголовки переносятся по словам вместо обрезки, колонки не растягиваются под длинный заголовок
+- **compactLoader** - лоадер высотой в одну строку (строка с кнопкой действия в ячейке) вместо 200px
         `,
       },
     },
@@ -440,6 +444,78 @@ export const WithSorting: Story = {
     docs: {
       description: {
         story: "Таблица с возможностью сортировки по всем колонкам.",
+      },
+    },
+  },
+};
+
+const compactColumns = [
+  columnHelper.accessor("id", {
+    header: "Идентификатор пользователя",
+    meta: { showCopy: true, width: "35%" },
+  }),
+  columnHelper.accessor("role", {
+    header: "Роль в системе",
+    meta: { minWidth: 100 },
+  }),
+  columnHelper.accessor("lastLogin", {
+    header: "Дата последнего входа в систему",
+    meta: { minWidth: 100 },
+  }),
+];
+
+const narrowContainerDecorators: Story["decorators"] = [
+  (Story) => (
+    <div style={{ width: "480px" }}>
+      <Story />
+    </div>
+  ),
+];
+
+/**
+ * Компактная таблица с переносом заголовков
+ */
+export const WithWrappedHeaders: Story = {
+  decorators: narrowContainerDecorators,
+  args: {
+    columns: compactColumns,
+    data: mockUsers,
+    getRowId: (row) => row.id,
+    enableColumnSettings: false,
+    wrapHeaders: true,
+    hideFooter: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Узкая таблица с wrapHeaders: длинные заголовки переносятся на несколько строк, горизонтального скролла нет.",
+      },
+    },
+  },
+};
+
+/**
+ * Компактный лоадер высотой в одну строку
+ */
+export const WithCompactLoader: Story = {
+  decorators: narrowContainerDecorators,
+  args: {
+    columns: compactColumns,
+    data: [],
+    isEmpty: true,
+    isLoading: true,
+    getRowId: (row) => row.id,
+    enableColumnSettings: false,
+    wrapHeaders: true,
+    compactLoader: true,
+    hideFooter: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Загрузка пустой таблицы с compactLoader: спиннер высотой в одну строку, без пустого состояния «Нет данных».",
       },
     },
   },

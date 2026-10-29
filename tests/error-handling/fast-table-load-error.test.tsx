@@ -60,6 +60,18 @@ describe("FastTableBodyFallback", () => {
     expect(screen.getByText("Нет данных")).toBeDefined();
   });
 
+  it.each([
+    ["загрузка ещё не запускалась", source({ status: "idle", isInitialLoad: true })],
+    ["идёт первая загрузка", source({ status: "loading", isLoading: true, isInitialLoad: true })],
+  ])("%s — тело пустое, Empty не показывается", (_, loader) => {
+    const { container } = renderRow(
+      <FastTableBodyFallback loader={loader} colSpan={3} emptyDescription="Нет данных" />
+    );
+
+    expect(screen.queryByText("Нет данных")).toBeNull();
+    expect(container.querySelector("tbody")?.childElementCount).toBe(0);
+  });
+
   it("ошибка первой загрузки — error-state вместо Empty", () => {
     renderRow(
       <FastTableBodyFallback

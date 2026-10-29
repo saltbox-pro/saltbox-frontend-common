@@ -130,3 +130,16 @@
 .fast-table-loader {
   height: 200px;
 }
+
+.fast-table.fast-table-compact-loader.loading > .fast-table-wrapper > table {
+  height: auto;
+}
+
+.fast-table-compact-loader
+  > .fast-table-wrapper
+  > table
+  > tbody
+  > .loading-state-row
+  .fast-table-loader {
+  height: var(--fast-table-compact-loader-height);
+}

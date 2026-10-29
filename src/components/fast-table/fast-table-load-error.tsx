@@ -7,8 +7,9 @@ import type { LoadSource } from "../../error-handling/create-loader";
 import { HttpErrorInline } from "../../error-handling/ui/http-error-inline";
 
 /**
- * Fallback тела таблицы при нуле строк: error-state лоадера вместо Empty,
- * если первая загрузка упала. Observer — таблица остаётся нереактивной.
+ * Fallback тела таблицы при нуле строк: до первого успеха — пусто (Empty не мелькает
+ * при первой загрузке), error-state лоадера вместо Empty, если первая загрузка упала.
+ * Observer — таблица остаётся нереактивной.
  */
 export const FastTableBodyFallback = observer(
   ({
@@ -20,7 +21,9 @@ export const FastTableBodyFallback = observer(
     colSpan: number;
     emptyDescription: ReactNode;
   }) => {
-    if (loader.error && loader.isInitialLoad) {
+    if (loader.isInitialLoad) {
+      if (!loader.error) return null;
+
       return (
         <tr className="empty-state-row">
           <td colSpan={colSpan}>

@@ -104,6 +104,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
   enableColumnSettings?: boolean;
+  wrapHeaders?: boolean;
   onRefresh?: () => void;
   loader?: LoadSource;
 };
@@ -158,6 +159,7 @@ function FastTablePaginatedContent<DataType>({
   getRowGroupKey,
   tableId,
   enableColumnSettings = true,
+  wrapHeaders = false,
   onRefresh,
   loader,
 }: FastTablePaginatedProps<DataType>) {
@@ -393,7 +395,7 @@ function FastTablePaginatedContent<DataType>({
     return className || undefined;
   };
 
-  const shouldShowEmpty = !stableIsLoading && rows.length === 0;
+  const shouldShowEmpty = !stableIsLoading && !isLoading && rows.length === 0;
   const shouldRenderVirtualRows = useVirtualScroll && rows.length > 0;
 
   const declaredFillWidth = useDeclaredFillWidth(leafColumns);
@@ -518,6 +520,7 @@ function FastTablePaginatedContent<DataType>({
       >
         <div className="fast-table-wrapper" ref={tableContainerRef}>
           <table
+            className={wrapHeaders ? "fast-table-wrap-headers" : undefined}
             style={
               lockedColumnsTotalWidth !== undefined
                 ? { width: formatCssPx(lockedColumnsTotalWidth) }
