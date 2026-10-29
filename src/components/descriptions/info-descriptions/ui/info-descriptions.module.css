@@ -6,6 +6,30 @@
   font-size: 15px;
 }
 
+.infoDescription .infoDescriptionHeaderWithNotice {
+  align-items: flex-start;
+}
+
+.infoDescription .infoDescriptionTitleWithNotice {
+  overflow: visible;
+  white-space: normal;
+}
+
+.infoDescriptionTitleText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.infoDescriptionNotice {
+  margin-top: 0.5em;
+  font-weight: normal;
+}
+
+.infoDescriptionNotice:first-child {
+  margin-top: 0;
+}
+
 .infoDescription .infoDescriptionLabel {
   width: 35%;
 }
