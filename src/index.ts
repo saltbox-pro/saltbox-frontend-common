@@ -49,6 +49,7 @@ export * from "./plugins";
 export * from "./utils/datetime";
 export * from "./utils/filter-field-constants";
 export { getFilterFieldOptions, type FilterFieldOptions } from "./utils/filter-schema-field";
+export { createFilterLabelComparator } from "./utils/sort-filter-fields";
 export * from "./utils/apply-filter-by-value";
 export * from "./utils/custom-events";
 export * from "./utils/legacy-global-error";

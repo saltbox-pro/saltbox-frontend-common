@@ -10,7 +10,7 @@ export type FilterSchemaField = {
   operators?: unknown;
 };
 
-function isOptionGroup(item: unknown): item is { options: OptionList } {
+export function isOptionGroup(item: unknown): item is { options: OptionList } {
   return (
     typeof item === "object" &&
     item != null &&

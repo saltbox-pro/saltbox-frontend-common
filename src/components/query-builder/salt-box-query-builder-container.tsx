@@ -9,6 +9,8 @@ import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
 import { useTranslation } from "react-i18next";
 import QueryBuilder, {
   defaultOperators,
+  type FullField,
+  type FullOptionList,
   ValueEditorProps,
   ValueSelectorProps,
 } from "react-querybuilder";
@@ -20,6 +22,7 @@ import {
   type QueryBuilderInputMode,
 } from "../../store/filter-store";
 import { buildFreeTextFilterJsonSchema } from "../../utils/query-builder-utils";
+import { sortFilterFieldsByLabel } from "../../utils/sort-filter-fields";
 import { BaseActionButton } from "../buttons/base-action-button";
 import { JsonEditorField } from "../fields/json-editor-field";
 import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filters-error-boundary";
@@ -49,6 +52,7 @@ type SaltBoxQueryBuilderContainerProps = {
     valueEditor?: FC<ValueEditorProps>;
     valueSelector?: FC<ValueSelectorProps>;
   };
+  getDefaultField?: (fields: FullOptionList<FullField>) => string;
   onSearchButtonClick?: () => void;
   onResetButtonClick?: () => void;
   isFilterButton?: boolean;
@@ -61,7 +65,7 @@ export const SaltBoxQueryBuilderContainer = (props: SaltBoxQueryBuilderContainer
 );
 
 const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilderContainerProps) => {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const editorInstanceId = useId();
   const [queryBuilderId, setQueryBuilderId] = useState(0);
   const filterStore = props.filterStore;
@@ -85,6 +89,11 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
         ? getFreeTextFilterJsonSchemaRegistration(freeTextSchemaBody, freeTextModelPath)
         : undefined,
     [freeTextSchemaBody, freeTextModelPath]
+  );
+  const queryBuilderFields = useMemo(
+    () =>
+      localizeFieldOperators(sortFilterFieldsByLabel(toJS(filterSchema) ?? [], i18n.language), t),
+    [filterSchema, i18n.language, t]
   );
 
   const getQueryBuilderKey = () => {
@@ -172,7 +181,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
             <QueryBuilderSaltBox>
               <QueryBuilder
                 key={getQueryBuilderKey()}
-                fields={localizeFieldOperators(toJS(filterStore.filterSchema), t)}
+                fields={queryBuilderFields}
                 operators={localizeOperators(defaultOperators, t)}
                 defaultQuery={toJS(filterStore.currentFilters)}
                 onQueryChange={filterStore.handleFiltersChange}
@@ -180,6 +189,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
                   queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
                 }}
                 controlElements={props.controlElements}
+                getDefaultField={props.getDefaultField}
                 translations={{
                   addGroup: {
                     label: t("query-builder.add-group"),
