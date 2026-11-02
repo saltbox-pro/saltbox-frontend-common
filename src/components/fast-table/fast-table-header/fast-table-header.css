@@ -32,8 +32,7 @@
   background: var(--fast-table-header-sort-hover-bg);
 }
 
-.fast-table table > tbody > tr > td.fast-table-column-sort,
-.fast-table .virtual-cell.fast-table-column-sort {
+.fast-table table > tbody > tr > td.fast-table-column-sort {
   background: var(--fast-table-body-sort-bg);
 }
 

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ANTD_OVERLAY_ROOT_SELECTORS,
-  FAST_TABLE_VIRTUAL_BODY_SELECTOR,
   NESTED_DRAWER_CLASS_NAME,
 } from "../../../../constants/dom-selectors";
 import { isInsideInfoDrawerTree } from "../utils/info-drawer-dom";
@@ -119,16 +118,11 @@ export function useInfoDrawer<
 
       const mainContentEl = mainContentRef.current;
       const clickedInsideMainContent = !!mainContentEl && mainContentEl.contains(target);
-      const clickedInsideVirtualTable =
-        mainContentEl
-          ?.closest(".fast-table")
-          ?.querySelector(FAST_TABLE_VIRTUAL_BODY_SELECTOR)
-          ?.contains(target) ?? false;
       const clickedInsideDrawer = drawerId
         ? isInsideInfoDrawerTree(target, drawerId)
         : target.closest(".ant-drawer") != null;
 
-      if (!clickedInsideMainContent && !clickedInsideVirtualTable && !clickedInsideDrawer) {
+      if (!clickedInsideMainContent && !clickedInsideDrawer) {
         close();
       }
     };

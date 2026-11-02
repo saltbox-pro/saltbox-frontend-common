@@ -32,20 +32,15 @@
 }
 
 .fast-table.is-column-resizing table > tbody > tr[role="button"]:hover > td,
-.fast-table.is-column-resizing .virtual-row[role="button"]:hover .virtual-cell,
 .fast-table.is-column-resizing
   table
   > tbody
   > tr.fast-table-row-group-alt[role="button"]:hover
-  > td,
-.fast-table.is-column-resizing
-  .virtual-row.fast-table-row-group-alt[role="button"]:hover
-  .virtual-cell {
+  > td {
   background-color: var(--fast-table-row-bg, transparent);
 }
 
-.fast-table.is-column-resizing table > tbody > tr.fast-table-row-group-alt > td,
-.fast-table.is-column-resizing .virtual-row.fast-table-row-group-alt .virtual-cell {
+.fast-table.is-column-resizing table > tbody > tr.fast-table-row-group-alt > td {
   background-color: #f9f9f9;
 }
 

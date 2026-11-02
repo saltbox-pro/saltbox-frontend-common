@@ -44,9 +44,9 @@ import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
   FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   type FastTableVirtualScrollOptions,
-  useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
+import { useRowRenderToken } from "../hooks/use-row-render-token";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import type { CellActionLinkComponent, CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -68,10 +68,7 @@ import {
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
 import { FastTableTableRow } from "../virtual-scroll/fast-table-table-row";
-import {
-  FastTableVirtualBody,
-  renderFastTableVirtualSpacer,
-} from "../virtual-scroll/fast-table-virtual-body";
+import { FastTableVirtualBody } from "../virtual-scroll/fast-table-virtual-body";
 
 import "../fast-table-tokens.css";
 import "../fast-table-column-resize.css";
@@ -274,27 +271,15 @@ function FastTablePaginatedContent<DataType>({
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
   const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
 
-  const columnSizingKey = useFastTableVirtualColumnSizingKey({
-    useVirtualScroll,
-    columnSizing,
-    isResizingColumn,
+  const { headerHeight, rowVirtualizer } = useFastTableVirtualization({
+    enabled: useVirtualScroll,
+    tableContainerRef,
+    rows,
+    overscan,
+    estimatedRowHeight,
+    estimatedExpandedRowHeight,
   });
-
-  const measureColumnWidthsEnabled = useVirtualScroll && !hasResizeColumnSizing;
-  const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
-    useFastTableVirtualization({
-      enabled: useVirtualScroll,
-      tableContainerRef,
-      data: stableData,
-      rows,
-      columnCount: visibleColumnCount,
-      columnSizingKey,
-      columnLayoutKey: leafColumnIdsKey,
-      measureColumnWidthsEnabled,
-      overscan,
-      estimatedRowHeight,
-      estimatedExpandedRowHeight,
-    });
+  const rowRenderToken = useRowRenderToken(table);
 
   const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
     useColumnResizeLayout({
@@ -373,24 +358,12 @@ function FastTablePaginatedContent<DataType>({
     });
   };
 
-  const getRowClassNames = (row: Row<DataType>, isVirtualRow = false) => {
+  const getRowClassNames = (row: Row<DataType>) => {
     const groupClassName = groupedRowClassNames?.[row.index];
     const customClassName = getRowClassName?.(row.original, row.index);
-    const activeClassName =
-      row.id === activeRowId
-        ? isVirtualRow
-          ? "virtual-row-active"
-          : "fast-table-row-active"
-        : undefined;
+    const activeClassName = row.id === activeRowId ? "fast-table-row-active" : undefined;
 
-    const className = [
-      isVirtualRow ? "virtual-row" : undefined,
-      groupClassName,
-      customClassName,
-      activeClassName,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const className = [groupClassName, customClassName, activeClassName].filter(Boolean).join(" ");
 
     return className || undefined;
   };
@@ -463,6 +436,8 @@ function FastTablePaginatedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
+          renderToken={rowRenderToken}
+          isResizingColumn={isResizingColumn}
           actionLinkComponent={actionLinkComponent}
           onRowClick={onRowClick}
           renderSubComponent={renderSubComponent}
@@ -548,39 +523,26 @@ function FastTablePaginatedContent<DataType>({
                 ) : (
                   renderEmptyState()
                 ))}
-              {shouldRenderVirtualRows &&
-                renderFastTableVirtualSpacer({
-                  colSpan: Math.max(visibleColumnCount, 1),
-                  height: rowVirtualizer.getTotalSize(),
-                })}
+              {shouldRenderVirtualRows && (
+                <FastTableVirtualBody
+                  rows={rows}
+                  rowVirtualizer={rowVirtualizer}
+                  headerHeight={headerHeight}
+                  visibleColumnCount={visibleColumnCount}
+                  renderToken={rowRenderToken}
+                  isResizingColumn={isResizingColumn}
+                  estimatedRowHeight={estimatedRowHeight}
+                  enableDynamicRowHeight={enableDynamicRowHeight}
+                  onRowClick={onRowClick}
+                  isRowClickable={isRowClickable}
+                  getRowClassName={getRowClassNames}
+                  renderSubComponent={renderSubComponent}
+                  actionLinkComponent={actionLinkComponent}
+                />
+              )}
               {!shouldRenderVirtualRows && !shouldShowEmpty && renderTableRows()}
             </tbody>
           </table>
-          {shouldRenderVirtualRows && (
-            <FastTableVirtualBody
-              rows={rows}
-              rowVirtualizer={rowVirtualizer}
-              headerHeight={headerHeight}
-              tableScrollWidthRef={tableScrollWidthRef}
-              visibleColumnCount={visibleColumnCount}
-              hasLockedColumnWidths={hasLockedColumnWidths}
-              lockedColumnSizes={lockedColumnSizes}
-              lockedColumnsTotalWidth={lockedColumnsTotalWidth}
-              enableColumnResize={enableColumnSettings}
-              columnSizing={columnSizing}
-              columnWidths={columnWidths}
-              leafColumnIds={leafColumnIds}
-              leafColumnIdsKey={leafColumnIdsKey}
-              hasResizeColumnSizing={hasResizeColumnSizing}
-              estimatedRowHeight={estimatedRowHeight}
-              enableDynamicRowHeight={enableDynamicRowHeight}
-              onRowClick={onRowClick}
-              isRowClickable={isRowClickable}
-              getRowClassName={getRowClassNames}
-              renderSubComponent={renderSubComponent}
-              actionLinkComponent={actionLinkComponent}
-            />
-          )}
         </div>
       </Spin>
       {renderTableFooter()}

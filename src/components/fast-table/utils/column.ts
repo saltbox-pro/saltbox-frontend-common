@@ -133,11 +133,3 @@ export function sumColumnSizes(columnSizing: ColumnSizingState, columnIds: strin
   }
   return total;
 }
-
-export function getVirtualCellWidthStyle(measuredWidth: number | undefined): CSSProperties {
-  if (measuredWidth !== undefined) {
-    return { flex: "0 0 auto", width: formatCssPx(measuredWidth) };
-  }
-
-  return { flex: 1 };
-}

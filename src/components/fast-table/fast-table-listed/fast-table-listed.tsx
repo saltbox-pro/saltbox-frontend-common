@@ -43,9 +43,9 @@ import { useFastTableTokenStyle } from "../hooks/use-fast-table-token-style";
 import {
   FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   type FastTableVirtualScrollOptions,
-  useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
+import { useRowRenderToken } from "../hooks/use-row-render-token";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -63,10 +63,7 @@ import {
   resolveResizeColumnIds,
 } from "../utils/column-sizing-change";
 import { FastTableTableRow } from "../virtual-scroll/fast-table-table-row";
-import {
-  FastTableVirtualBody,
-  renderFastTableVirtualSpacer,
-} from "../virtual-scroll/fast-table-virtual-body";
+import { FastTableVirtualBody } from "../virtual-scroll/fast-table-virtual-body";
 import "../fast-table-tokens.css";
 import "../fast-table-column-resize.css";
 import "./fast-table-listed.css";
@@ -258,42 +255,20 @@ function FastTableListedContent<DataType>({
       syncColumnSizingToColumns,
     });
 
-  const columnSizingKey = useFastTableVirtualColumnSizingKey({
-    useVirtualScroll,
-    columnSizing,
-    isResizingColumn,
+  const { headerHeight, rowVirtualizer } = useFastTableVirtualization({
+    enabled: useVirtualScroll,
+    tableContainerRef,
+    rows,
+    overscan,
+    estimatedRowHeight,
+    estimatedExpandedRowHeight,
   });
-
-  const measureColumnWidthsEnabled = useVirtualScroll && !hasResizeColumnSizing;
-  const { headerHeight, columnWidths, tableScrollWidthRef, rowVirtualizer } =
-    useFastTableVirtualization({
-      enabled: useVirtualScroll,
-      tableContainerRef,
-      data,
-      rows,
-      columnCount: visibleColumnCount,
-      columnSizingKey,
-      columnLayoutKey: leafColumnIdsKey,
-      measureColumnWidthsEnabled,
-      overscan,
-      estimatedRowHeight,
-      estimatedExpandedRowHeight,
-    });
+  const rowRenderToken = useRowRenderToken(table);
 
   const shouldRenderVirtualRows = useVirtualScroll && !isEmpty && !isLoading && rows.length > 0;
 
-  const getRowClassNames = (row: Row<DataType>, isVirtualRow = false) => {
-    const activeClassName =
-      row.id === activeRowId
-        ? isVirtualRow
-          ? "virtual-row virtual-row-active"
-          : "fast-table-row-active"
-        : isVirtualRow
-          ? "virtual-row"
-          : undefined;
-
-    return activeClassName;
-  };
+  const getRowClassNames = (row: Row<DataType>) =>
+    row.id === activeRowId ? "fast-table-row-active" : undefined;
 
   const columnSettings = useMemo(
     () => ({
@@ -401,6 +376,8 @@ function FastTableListedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
+          renderToken={rowRenderToken}
+          isResizingColumn={isResizingColumn}
           onRowClick={onRowClick}
           renderSubComponent={renderSubComponent}
         />
@@ -475,11 +452,22 @@ function FastTableListedContent<DataType>({
             />
           </thead>
           <tbody ref={bodyRef}>
-            {shouldRenderVirtualRows &&
-              renderFastTableVirtualSpacer({
-                colSpan: Math.max(visibleColumnCount, 1),
-                height: rowVirtualizer.getTotalSize(),
-              })}
+            {shouldRenderVirtualRows && (
+              <FastTableVirtualBody
+                rows={rows}
+                rowVirtualizer={rowVirtualizer}
+                headerHeight={headerHeight}
+                visibleColumnCount={visibleColumnCount}
+                renderToken={rowRenderToken}
+                isResizingColumn={isResizingColumn}
+                estimatedRowHeight={estimatedRowHeight}
+                enableDynamicRowHeight={enableDynamicRowHeight}
+                onRowClick={onRowClick}
+                isRowClickable={isRowClickable}
+                getRowClassName={getRowClassNames}
+                renderSubComponent={renderSubComponent}
+              />
+            )}
             {!shouldRenderVirtualRows && renderTableRows()}
             {isEmpty &&
               !isLoading &&
@@ -495,30 +483,6 @@ function FastTableListedContent<DataType>({
             {isLoading && renderLoadingState()}
           </tbody>
         </table>
-        {shouldRenderVirtualRows && (
-          <FastTableVirtualBody
-            rows={rows}
-            rowVirtualizer={rowVirtualizer}
-            headerHeight={headerHeight}
-            tableScrollWidthRef={tableScrollWidthRef}
-            visibleColumnCount={visibleColumnCount}
-            hasLockedColumnWidths={hasLockedColumnWidths}
-            lockedColumnSizes={lockedColumnSizes}
-            lockedColumnsTotalWidth={lockedColumnsTotalWidth}
-            enableColumnResize={enableColumnSettings}
-            columnSizing={columnSizing}
-            columnWidths={columnWidths}
-            leafColumnIds={leafColumnIds}
-            leafColumnIdsKey={leafColumnIdsKey}
-            hasResizeColumnSizing={hasResizeColumnSizing}
-            estimatedRowHeight={estimatedRowHeight}
-            enableDynamicRowHeight={enableDynamicRowHeight}
-            onRowClick={onRowClick}
-            isRowClickable={isRowClickable}
-            getRowClassName={getRowClassNames}
-            renderSubComponent={renderSubComponent}
-          />
-        )}
       </div>
       {!hideFooter && renderTableFooter()}
     </div>

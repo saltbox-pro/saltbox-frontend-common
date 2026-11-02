@@ -1,14 +1,8 @@
 import type { Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import {
-  type RefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type RefObject, useCallback, useLayoutEffect, useRef, useState } from "react";
+
+import { FAST_TABLE_EXPANDED_ROW_CLASS_NAME } from "../virtual-scroll/fast-table-table-row";
 
 export const FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN = 8;
 
@@ -20,51 +14,25 @@ export type FastTableVirtualScrollOptions = {
   enableDynamicRowHeight?: boolean;
 };
 
-export type UseFastTableVirtualColumnSizingKeyOptions = {
-  useVirtualScroll: boolean;
-  columnSizing: Record<string, number>;
-  isResizingColumn: boolean;
-};
+// An expanded row renders as a sibling <tr>, so it counts towards the main row's size.
+function measureRowElement(element: Element, entry: ResizeObserverEntry | undefined) {
+  const mainHeight =
+    entry?.target === element && entry.borderBoxSize?.[0]
+      ? entry.borderBoxSize[0].blockSize
+      : element.getBoundingClientRect().height;
 
-export function useFastTableVirtualColumnSizingKey({
-  useVirtualScroll,
-  columnSizing,
-  isResizingColumn,
-}: UseFastTableVirtualColumnSizingKeyOptions) {
-  const frozenColumnSizingKeyRef = useRef("{}");
+  const next = element.nextElementSibling;
+  const expandedHeight = next?.classList.contains(FAST_TABLE_EXPANDED_ROW_CLASS_NAME)
+    ? next.getBoundingClientRect().height
+    : 0;
 
-  return useMemo(() => {
-    if (!useVirtualScroll) return "";
-
-    if (isResizingColumn) {
-      return frozenColumnSizingKeyRef.current;
-    }
-
-    const key = JSON.stringify(columnSizing);
-    frozenColumnSizingKeyRef.current = key;
-    return key;
-  }, [columnSizing, isResizingColumn, useVirtualScroll]);
-}
-
-function areColumnWidthMapsEqual(
-  prev: Record<string, number>,
-  next: Record<string, number>
-): boolean {
-  const prevKeys = Object.keys(prev);
-  const nextKeys = Object.keys(next);
-  if (prevKeys.length !== nextKeys.length) return false;
-  return nextKeys.every((key) => prev[key] === next[key]);
+  return Math.round(mainHeight + expandedHeight);
 }
 
 export type UseFastTableVirtualizationOptions<DataType> = {
   enabled: boolean;
   tableContainerRef: RefObject<HTMLElement | null>;
-  data: unknown[];
   rows: Array<Row<DataType>>;
-  columnCount: number;
-  columnSizingKey: string;
-  columnLayoutKey: string;
-  measureColumnWidthsEnabled: boolean;
   overscan?: number;
   estimatedRowHeight?: number;
   estimatedExpandedRowHeight?: number;
@@ -73,94 +41,30 @@ export type UseFastTableVirtualizationOptions<DataType> = {
 export function useFastTableVirtualization<DataType>({
   enabled,
   tableContainerRef,
-  data,
   rows,
-  columnCount,
-  columnSizingKey,
-  columnLayoutKey,
-  measureColumnWidthsEnabled,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
   estimatedRowHeight = 45,
   estimatedExpandedRowHeight = estimatedRowHeight * 20,
 }: UseFastTableVirtualizationOptions<DataType>) {
   const [headerHeight, setHeaderHeight] = useState(0);
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-  const tableScrollWidthRef = useRef(0);
-
-  const measureHeaderHeight = useCallback(() => {
-    if (!enabled || !tableContainerRef.current) return;
-
-    const thead = tableContainerRef.current.querySelector("thead");
-    if (!thead) return;
-
-    const height = thead.getBoundingClientRect().height;
-    setHeaderHeight((prev) => (prev === height ? prev : height));
-  }, [enabled, tableContainerRef]);
-
-  const measureColumnWidths = useCallback(() => {
-    if (!enabled || !measureColumnWidthsEnabled || !tableContainerRef.current) return;
-
-    const tableElement = tableContainerRef.current.querySelector("table");
-    if (!tableElement) return;
-
-    const headerCells = tableElement.querySelectorAll("thead th");
-    const widths: Record<string, number> = {};
-
-    headerCells.forEach((cell, index) => {
-      widths[`col-${index}`] = cell.getBoundingClientRect().width;
-    });
-
-    tableScrollWidthRef.current = tableElement.offsetWidth;
-    setColumnWidths((prev) => (areColumnWidthMapsEqual(prev, widths) ? prev : widths));
-  }, [enabled, measureColumnWidthsEnabled, tableContainerRef]);
 
   useLayoutEffect(() => {
     if (!enabled) return;
 
-    measureHeaderHeight();
+    const thead = tableContainerRef.current?.querySelector("thead");
+    if (!thead) return;
 
-    if (data.length === 0) return;
-
-    if (measureColumnWidthsEnabled) {
-      measureColumnWidths();
-    }
-  }, [
-    columnCount,
-    columnLayoutKey,
-    columnSizingKey,
-    data,
-    enabled,
-    measureColumnWidths,
-    measureColumnWidthsEnabled,
-    measureHeaderHeight,
-  ]);
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const element = tableContainerRef.current;
-    if (!element || data.length === 0) return;
-
-    const observer = new ResizeObserver(() => {
-      measureHeaderHeight();
-      if (measureColumnWidthsEnabled) {
-        measureColumnWidths();
-      }
-    });
-
-    observer.observe(element);
-
-    return () => {
-      observer.disconnect();
+    const measure = () => {
+      const height = thead.getBoundingClientRect().height;
+      setHeaderHeight((prev) => (prev === height ? prev : height));
     };
-  }, [
-    data,
-    enabled,
-    measureColumnWidths,
-    measureColumnWidthsEnabled,
-    measureHeaderHeight,
-    tableContainerRef,
-  ]);
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(thead);
+
+    return () => observer.disconnect();
+  }, [enabled, tableContainerRef]);
 
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
@@ -183,14 +87,13 @@ export function useFastTableVirtualization<DataType>({
     getScrollElement,
     estimateSize,
     getItemKey,
+    measureElement: measureRowElement,
     overscan,
     scrollMargin: headerHeight,
   });
 
   return {
     headerHeight,
-    columnWidths,
-    tableScrollWidthRef,
     rowVirtualizer,
   };
 }

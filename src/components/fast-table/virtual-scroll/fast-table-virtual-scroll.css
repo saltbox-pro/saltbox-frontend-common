@@ -5,87 +5,15 @@
   overflow: auto;
 }
 
+.fast-table.virtual-scroll tbody > tr {
+  overflow-anchor: none;
+}
+
 .fast-table .virtual-size-spacer > td {
   padding: 0 !important;
   border: none !important;
   line-height: 0;
   vertical-align: top;
-}
-
-.fast-table .virtual-tbody-container {
-  position: absolute;
-  left: 0;
-  z-index: 1;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.fast-table .virtual-row-cells {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  background-color: #fff;
-}
-
-.fast-table .virtual-cell {
-  border: none;
-  border-bottom: 1px solid var(--fast-table-border-color);
-  border-right: 1px solid var(--fast-table-border-color);
-  padding: 8px 12px;
-  line-height: 1.1rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  box-sizing: border-box;
-  background-color: var(--fast-table-row-bg, #fff);
-}
-
-.fast-table .virtual-row-cells .virtual-cell:first-child {
-  border-left: 1px solid var(--fast-table-border-color);
-}
-
-.fast-table .virtual-row-expanded {
-  border-top: none;
-  border-left: 1px solid var(--fast-table-border-color);
-  border-right: 1px solid var(--fast-table-border-color);
-  border-bottom: 1px solid var(--fast-table-border-color);
-  padding: 0.5rem 0.75rem;
-  line-height: 1.1rem;
-  cursor: default;
-  background-color: #fff;
-}
-
-.fast-table .virtual-row.fast-table-row-group-alt .virtual-cell {
-  background-color: #f9f9f9;
-}
-
-.fast-table .virtual-row.virtual-row-active .virtual-cell {
-  background-color: #f5f8ff;
-}
-
-.fast-table .virtual-row[role="button"]:hover .virtual-cell {
-  background-color: var(--fast-table-row-hover-bg);
-}
-
-.fast-table .virtual-row.fast-table-row-group-alt[role="button"]:hover .virtual-cell {
-  background-color: #f2f2f2;
-}
-
-.fast-table .virtual-row[role="button"] {
-  cursor: pointer;
-}
-
-.fast-table .virtual-tbody-container > [data-index] {
-  contain: layout style paint;
-}
-
-.fast-table .virtual-row-fixed {
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.fast-table .virtual-row-fixed .virtual-row-cells {
-  height: 100%;
 }
 
 .fast-table .virtual-row-fixed .cell-content-text-ellipsis {

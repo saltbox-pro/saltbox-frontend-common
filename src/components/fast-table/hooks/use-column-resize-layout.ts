@@ -69,6 +69,18 @@ export function useColumnResizeLayout<DataType>({
       isResizingColumn,
     })
   );
+  const hasLockedColumnWidthsRef = useRef(hasLockedColumnWidths);
+  hasLockedColumnWidthsRef.current = hasLockedColumnWidths;
+  const latestContainerWidthRef = useRef(0);
+
+  const commitContainerWidth = useCallback((width: number, force = false) => {
+    if (width <= 0) return;
+
+    latestContainerWidthRef.current = width;
+    if (!force && !hasLockedColumnWidthsRef.current) return;
+
+    setContainerWidth((prev) => (prev === width ? prev : width));
+  }, []);
 
   const clampSizingState = useCallback(
     (sizing: ColumnSizingState, columnIds: string[]) =>
@@ -127,11 +139,23 @@ export function useColumnResizeLayout<DataType>({
     if (!enableColumnResize || !tableContainerRef.current) return;
     if (isResizingColumnRef.current) return;
 
-    const width = readElementContentWidth(tableContainerRef.current);
-    if (width > 0) {
-      setContainerWidth(width);
-    }
-  }, [enableColumnResize, hasPersistedSizing, leafColumnIdsKey, tableContainerRef]);
+    commitContainerWidth(readElementContentWidth(tableContainerRef.current), true);
+  }, [
+    commitContainerWidth,
+    enableColumnResize,
+    hasPersistedSizing,
+    leafColumnIdsKey,
+    tableContainerRef,
+  ]);
+
+  useLayoutEffect(() => {
+    if (!hasLockedColumnWidths) return;
+
+    const measuredWidth = tableContainerRef.current
+      ? readElementContentWidth(tableContainerRef.current)
+      : 0;
+    commitContainerWidth(measuredWidth || latestContainerWidthRef.current, true);
+  }, [commitContainerWidth, hasLockedColumnWidths, tableContainerRef]);
 
   useLayoutEffect(() => {
     if (!enableColumnResize || !hasPersistedSizing || !tableContainerRef.current) return;
@@ -219,15 +243,12 @@ export function useColumnResizeLayout<DataType>({
     if (!element) return;
 
     const observer = new ResizeObserver(() => {
-      const width = readElementContentWidth(element);
-      if (width > 0) {
-        setContainerWidth(width);
-      }
+      commitContainerWidth(readElementContentWidth(element));
     });
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [enableColumnResize, tableContainerRef]);
+  }, [commitContainerWidth, enableColumnResize, tableContainerRef]);
 
   useEffect(() => {
     if (!enableColumnResize) return;
