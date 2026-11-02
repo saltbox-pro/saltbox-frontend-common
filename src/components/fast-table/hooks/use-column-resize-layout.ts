@@ -1,5 +1,5 @@
 import type { Column, ColumnSizingState, OnChangeFn } from "@tanstack/react-table";
-import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 
 import type { CellMeta } from "../types";
@@ -55,7 +55,6 @@ export function useColumnResizeLayout<DataType>({
   seedColumnSizingFromPixels,
   syncColumnSizingToColumns,
 }: UseColumnResizeLayoutArgs<DataType>) {
-  const [containerWidth, setContainerWidth] = useState(0);
   const wasResizingRef = useRef(false);
   const isResizingColumnRef = useRef(isResizingColumn);
   isResizingColumnRef.current = isResizingColumn;
@@ -69,18 +68,6 @@ export function useColumnResizeLayout<DataType>({
       isResizingColumn,
     })
   );
-  const hasLockedColumnWidthsRef = useRef(hasLockedColumnWidths);
-  hasLockedColumnWidthsRef.current = hasLockedColumnWidths;
-  const latestContainerWidthRef = useRef(0);
-
-  const commitContainerWidth = useCallback((width: number, force = false) => {
-    if (width <= 0) return;
-
-    latestContainerWidthRef.current = width;
-    if (!force && !hasLockedColumnWidthsRef.current) return;
-
-    setContainerWidth((prev) => (prev === width ? prev : width));
-  }, []);
 
   const clampSizingState = useCallback(
     (sizing: ColumnSizingState, columnIds: string[]) =>
@@ -110,24 +97,20 @@ export function useColumnResizeLayout<DataType>({
     [leafColumns, resizeConstraintsById]
   );
 
+  // The fill column is left without a width and the table gets `max(100%, total)`,
+  // so the browser stretches it to the container without re-rendering on container resize.
   const fillColumnId = hasLockedColumnWidths ? resolveLeafFillColumnId() : undefined;
 
   let lockedColumnSizes: ColumnSizingState | undefined;
   let lockedColumnsTotalWidth: number | undefined;
 
   if (hasLockedColumnWidths) {
-    const sizingFromGetSize: ColumnSizingState = {};
+    const sizes: ColumnSizingState = {};
+    let totalWidth = 0;
     for (const column of leafColumns) {
-      sizingFromGetSize[column.id] = column.getSize();
+      sizes[column.id] = column.getSize();
+      totalWidth += sizes[column.id];
     }
-
-    const { sizes, totalWidth } = applyExplicitFillColumnWidths(
-      sizingFromGetSize,
-      leafColumnIds,
-      fillColumnId,
-      containerWidth,
-      resolveLeafMinWidth
-    );
 
     if (totalWidth > 0) {
       lockedColumnSizes = sizes;
@@ -136,30 +119,11 @@ export function useColumnResizeLayout<DataType>({
   }
 
   useLayoutEffect(() => {
-    if (!enableColumnResize || !tableContainerRef.current) return;
+    if (!enableColumnResize || !hasPersistedSizing || !tableContainerRef.current) return;
     if (isResizingColumnRef.current) return;
 
-    commitContainerWidth(readElementContentWidth(tableContainerRef.current), true);
-  }, [
-    commitContainerWidth,
-    enableColumnResize,
-    hasPersistedSizing,
-    leafColumnIdsKey,
-    tableContainerRef,
-  ]);
-
-  useLayoutEffect(() => {
-    if (!hasLockedColumnWidths) return;
-
-    const measuredWidth = tableContainerRef.current
-      ? readElementContentWidth(tableContainerRef.current)
-      : 0;
-    commitContainerWidth(measuredWidth || latestContainerWidthRef.current, true);
-  }, [commitContainerWidth, hasLockedColumnWidths, tableContainerRef]);
-
-  useLayoutEffect(() => {
-    if (!enableColumnResize || !hasPersistedSizing || !tableContainerRef.current) return;
-    if (isResizingColumnRef.current || containerWidth <= 0) return;
+    const containerWidth = readElementContentWidth(tableContainerRef.current);
+    if (containerWidth <= 0) return;
 
     const measured = measureLeafColumnWidthsFromHeader(tableContainerRef.current, leafColumns);
     if (!measured) return;
@@ -181,7 +145,6 @@ export function useColumnResizeLayout<DataType>({
   }, [
     allLeafColumnIds,
     columnSizing,
-    containerWidth,
     enableColumnResize,
     hasPersistedSizing,
     leafColumnIds,
@@ -238,20 +201,6 @@ export function useColumnResizeLayout<DataType>({
 
   useEffect(() => {
     if (!enableColumnResize) return;
-
-    const element = tableContainerRef.current;
-    if (!element) return;
-
-    const observer = new ResizeObserver(() => {
-      commitContainerWidth(readElementContentWidth(element));
-    });
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [commitContainerWidth, enableColumnResize, tableContainerRef]);
-
-  useEffect(() => {
-    if (!enableColumnResize) return;
     syncColumnSizingToColumns(allLeafColumnIds);
   }, [allLeafColumnIds, enableColumnResize, syncColumnSizingToColumns]);
 
@@ -274,6 +223,7 @@ export function useColumnResizeLayout<DataType>({
 
   return {
     hasLockedColumnWidths,
+    fillColumnId,
     lockedColumnSizes,
     lockedColumnsTotalWidth,
     prepareColumnResize,

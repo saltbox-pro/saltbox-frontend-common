@@ -237,23 +237,28 @@ function FastTableListedContent<DataType>({
   const isResizingColumn = Boolean(table.getState().columnSizingInfo.isResizingColumn);
   const hasResizeColumnSizing = hasAllColumnSizes(columnSizing, leafColumnIds);
 
-  const { hasLockedColumnWidths, lockedColumnSizes, lockedColumnsTotalWidth, prepareColumnResize } =
-    useColumnResizeLayout({
-      enableColumnResize: enableColumnSettings,
-      tableContainerRef,
-      leafColumns,
-      leafColumnIds,
-      leafColumnIdsKey,
-      allLeafColumnIds,
-      columnSizing,
-      hasPersistedSizing,
-      isResizingColumn,
-      resizeConstraintsById,
-      onColumnSizingChange: handleColumnSizingChange,
-      persistColumnSizing,
-      seedColumnSizingFromPixels,
-      syncColumnSizingToColumns,
-    });
+  const {
+    hasLockedColumnWidths,
+    fillColumnId,
+    lockedColumnSizes,
+    lockedColumnsTotalWidth,
+    prepareColumnResize,
+  } = useColumnResizeLayout({
+    enableColumnResize: enableColumnSettings,
+    tableContainerRef,
+    leafColumns,
+    leafColumnIds,
+    leafColumnIdsKey,
+    allLeafColumnIds,
+    columnSizing,
+    hasPersistedSizing,
+    isResizingColumn,
+    resizeConstraintsById,
+    onColumnSizingChange: handleColumnSizingChange,
+    persistColumnSizing,
+    seedColumnSizingFromPixels,
+    syncColumnSizingToColumns,
+  });
 
   const { headerHeight, rowVirtualizer } = useFastTableVirtualization({
     enabled: useVirtualScroll,
@@ -320,7 +325,10 @@ function FastTableListedContent<DataType>({
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
-          const size = lockedColumnSizes?.[column.id] ?? column.getSize();
+          const size =
+            column.id === fillColumnId
+              ? undefined
+              : (lockedColumnSizes?.[column.id] ?? column.getSize());
           const explicitMinSize = resizeConstraintsById.get(column.id)?.minSize;
           return (
             <col
@@ -437,7 +445,7 @@ function FastTableListedContent<DataType>({
           className={wrapHeaders ? "fast-table-wrap-headers" : undefined}
           style={
             lockedColumnsTotalWidth !== undefined
-              ? { width: formatCssPx(lockedColumnsTotalWidth) }
+              ? { width: `max(100%, ${formatCssPx(lockedColumnsTotalWidth)})` }
               : undefined
           }
         >
