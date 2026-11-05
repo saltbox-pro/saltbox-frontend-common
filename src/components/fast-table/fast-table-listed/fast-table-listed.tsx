@@ -46,6 +46,7 @@ import {
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
 import { useRowRenderToken } from "../hooks/use-row-render-token";
+import { useRowSelectionShortcuts } from "../hooks/use-row-selection-shortcuts";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -90,6 +91,7 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
+  enableRowSelectionShortcuts?: boolean;
   locale?: FastTableLocaleOverrides;
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
@@ -141,6 +143,7 @@ function FastTableListedContent<DataType>({
   bodyRef,
   onRowSelectionChange,
   rowSelection,
+  enableRowSelectionShortcuts = false,
   tableId,
   enableColumnSettings = true,
   wrapHeaders = false,
@@ -200,6 +203,11 @@ function FastTableListedContent<DataType>({
     [enableColumnSettings, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
   );
 
+  const rowSelectionShortcuts = useRowSelectionShortcuts<DataType>({
+    enabled: enableRowSelectionShortcuts && onRowSelectionChange != null,
+    containerRef: tableContainerRef,
+  });
+
   const table = useReactTable({
     columns: resizeColumns,
     data,
@@ -227,6 +235,7 @@ function FastTableListedContent<DataType>({
     enableColumnResizing: enableColumnSettings,
     columnResizeMode: "onChange",
   });
+  rowSelectionShortcuts.tableRef.current = table;
 
   const rows = table.getRowModel().rows;
   const leafColumns = table.getVisibleLeafColumns();
@@ -272,8 +281,14 @@ function FastTableListedContent<DataType>({
 
   const shouldRenderVirtualRows = useVirtualScroll && !isEmpty && !isLoading && rows.length > 0;
 
-  const getRowClassNames = (row: Row<DataType>) =>
-    row.id === activeRowId ? "fast-table-row-active" : undefined;
+  const getRowClassNames = (row: Row<DataType>) => {
+    const classNames = [
+      row.id === activeRowId && "fast-table-row-active",
+      row.getIsSelected() && "fast-table-row-selected",
+    ].filter(Boolean);
+
+    return classNames.length > 0 ? classNames.join(" ") : undefined;
+  };
 
   const columnSettings = useMemo(
     () => ({
@@ -387,6 +402,7 @@ function FastTableListedContent<DataType>({
           renderToken={rowRenderToken}
           isResizingColumn={isResizingColumn}
           onRowClick={onRowClick}
+          onRowModifierClick={rowSelectionShortcuts.onRowModifierClick}
           renderSubComponent={renderSubComponent}
         />
       );
@@ -471,6 +487,7 @@ function FastTableListedContent<DataType>({
                 estimatedRowHeight={estimatedRowHeight}
                 enableDynamicRowHeight={enableDynamicRowHeight}
                 onRowClick={onRowClick}
+                onRowModifierClick={rowSelectionShortcuts.onRowModifierClick}
                 isRowClickable={isRowClickable}
                 getRowClassName={getRowClassNames}
                 renderSubComponent={renderSubComponent}

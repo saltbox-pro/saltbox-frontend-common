@@ -5,7 +5,11 @@ import { type ReactElement, type ReactNode } from "react";
 import type { CellActionLinkComponent } from "../types";
 import { formatCssPx } from "../utils/column";
 
-import { type FastTableRowClickHandler, FastTableTableRow } from "./fast-table-table-row";
+import {
+  type FastTableRowClickHandler,
+  type FastTableRowModifierClickHandler,
+  FastTableTableRow,
+} from "./fast-table-table-row";
 import "./fast-table-virtual-scroll.css";
 
 function renderVirtualSpacer(colSpan: number, height: number) {
@@ -28,6 +32,7 @@ export type FastTableVirtualBodyProps<DataType> = {
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
   onRowClick?: FastTableRowClickHandler<DataType>;
+  onRowModifierClick?: FastTableRowModifierClickHandler<DataType>;
   isRowClickable?: (item: DataType) => boolean;
   getRowClassName?: (row: Row<DataType>) => string | undefined;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
@@ -44,6 +49,7 @@ export function FastTableVirtualBody<DataType>({
   estimatedRowHeight,
   enableDynamicRowHeight = true,
   onRowClick,
+  onRowModifierClick,
   isRowClickable,
   getRowClassName,
   renderSubComponent,
@@ -90,6 +96,7 @@ export function FastTableVirtualBody<DataType>({
             rowHeight={enableDynamicRowHeight ? undefined : estimatedRowHeight}
             rowRef={enableDynamicRowHeight ? rowVirtualizer.measureElement : undefined}
             onRowClick={onRowClick}
+            onRowModifierClick={onRowModifierClick}
             renderSubComponent={renderSubComponent}
           />
         );

@@ -152,6 +152,18 @@
   gap: 8px;
 }
 
+.selectionToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--app-layout-gap, 16px);
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+.selectionToolbarTrailing {
+  margin-left: auto;
+}
+
 .actionButtonsLocked {
   pointer-events: none;
 }
@@ -267,6 +279,48 @@
   font-size: 12px;
   line-height: 1.4;
   word-break: break-all;
+}
+
+.bulkDeleteBlock {
+  margin: 1em 0;
+  border-radius: 6px;
+  background: var(--app-color-gray50, #f5f5f5);
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.bulkDeleteDirectory {
+  display: block;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+  color: rgba(0, 0, 0, 0.45);
+  overflow-wrap: anywhere;
+}
+
+.bulkDeleteList {
+  max-height: 240px;
+  margin: 0;
+  padding: 8px 10px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.bulkDeleteListItem + .bulkDeleteListItem {
+  margin-top: 4px;
+}
+
+.bulkDeleteListItemPath {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.bulkDeleteListItemError {
+  color: #ff4d4f;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 @keyframes uploadProgressSpin {

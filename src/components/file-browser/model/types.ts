@@ -10,6 +10,15 @@ export interface FileBrowserItem {
   iconHint?: string;
 }
 
+export interface FileBrowserBulkDeleteFailure {
+  item: FileBrowserItem;
+  message?: string;
+}
+
+export interface FileBrowserBulkDeleteResult {
+  failed: FileBrowserBulkDeleteFailure[];
+}
+
 export interface FileBrowserSourceItem {
   key: string;
   label: string;
@@ -48,6 +57,14 @@ export type FileBrowserLocaleOverrides = {
     deleteConfirmDirectory?: string;
     deleteConfirmFileWarning?: string;
     deleteConfirmDirectoryWarning?: string;
+    deleteSelected?: string;
+    deleteSelectedTitle?: string;
+    deleteSelectedConfirm?: string;
+    deleteSelectedSummary?: string;
+    deleteSelectedWarning?: string;
+    deleteSelectedDirectoriesWarning?: string;
+    deleteSelectedPartialFailure?: string;
+    selectItemsHint?: string;
     yes?: string;
     no?: string;
     cancel?: string;

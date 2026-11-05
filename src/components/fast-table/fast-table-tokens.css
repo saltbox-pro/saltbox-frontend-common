@@ -7,5 +7,7 @@
   --fast-table-header-sort-active-bg: #f0f0f0;
   --fast-table-body-sort-bg: #fafafa;
   --fast-table-row-bg: initial;
+  --fast-table-row-active-bg: #f5f8ff;
+  --fast-table-row-selected-bg: #f9fbff;
   --fast-table-compact-loader-height: 24px;
 }

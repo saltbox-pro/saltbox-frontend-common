@@ -1,3 +1,4 @@
+import type { OnChangeFn, RowSelectionState } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
 import type { CellAction } from "../../fast-table/types";
@@ -29,7 +30,10 @@ export interface FileBrowserViewProps {
   showSuccessByKey?: ShowFileBrowserSuccessByKey;
   showErrorByCode?: ShowFileBrowserErrorByCode;
   toolbar?: ReactNode;
+  selectionToolbar?: ReactNode;
   rowActions?: CellAction<FileBrowserItem>[];
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   isItemClickable?: (item: FileBrowserItem) => boolean;
   onNavigate?: (path: string) => void;
   onNavigateUp?: () => void;
@@ -53,7 +57,10 @@ export function FileBrowserView({
   showSuccessByKey,
   showErrorByCode,
   toolbar,
+  selectionToolbar,
   rowActions,
+  rowSelection,
+  onRowSelectionChange,
   isItemClickable,
   onNavigate,
   onNavigateUp,
@@ -93,6 +100,8 @@ export function FileBrowserView({
         toolbar={toolbar}
       />
 
+      {selectionToolbar}
+
       {!!error && <div className={styles.error}>{error}</div>}
 
       <div className={styles.tableArea}>
@@ -108,6 +117,8 @@ export function FileBrowserView({
           showSuccessByKey={showSuccessByKey}
           showErrorByCode={showErrorByCode}
           rowActions={rowActions}
+          rowSelection={rowSelection}
+          onRowSelectionChange={onRowSelectionChange}
           isItemClickable={isItemClickable}
           onItemClick={isNavigationDisabled ? undefined : onItemClick}
         />

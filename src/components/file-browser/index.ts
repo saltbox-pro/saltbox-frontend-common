@@ -1,4 +1,6 @@
 export type {
+  FileBrowserBulkDeleteFailure,
+  FileBrowserBulkDeleteResult,
   FileBrowserItem,
   FileBrowserItemKind,
   FileBrowserLocaleOverrides,
@@ -63,6 +65,8 @@ export type {
   FileBrowserActionsPanelProps,
   FileBrowserActionsPanelRenderProps,
 } from "./ui/file-browser-actions-panel";
+export { FileBrowserBulkDeleteConfirmModal } from "./ui/file-browser-bulk-delete-confirm-modal";
+export type { FileBrowserBulkDeleteConfirmModalProps } from "./ui/file-browser-bulk-delete-confirm-modal";
 export { FileBrowserContentModal } from "./ui/file-browser-content-modal";
 export type {
   FileBrowserContentModalConflictActions,

@@ -23,6 +23,11 @@ export type FastTableRowClickHandler<DataType> = (
   event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
 ) => void;
 
+export type FastTableRowModifierClickHandler<DataType> = (
+  row: Row<DataType>,
+  event: MouseEvent<HTMLElement>
+) => boolean;
+
 type FastTableTableRowProps<DataType> = {
   row: Row<DataType>;
   className?: string;
@@ -38,6 +43,7 @@ type FastTableTableRowProps<DataType> = {
   rowHeight?: number;
   rowRef?: (node: HTMLElement | null) => void;
   onRowClick?: FastTableRowClickHandler<DataType>;
+  onRowModifierClick?: FastTableRowModifierClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
 };
 
@@ -52,6 +58,7 @@ function FastTableTableRowInner<DataType>({
   rowHeight,
   rowRef,
   onRowClick,
+  onRowModifierClick,
   renderSubComponent,
 }: FastTableTableRowProps<DataType>) {
   const mainRowRef = useRef<HTMLTableRowElement | null>(null);
@@ -92,12 +99,14 @@ function FastTableTableRowInner<DataType>({
         className={className}
         style={rowHeight !== undefined ? { height: rowHeight } : undefined}
         onClick={(event) => {
-          if (!onRowClick || !isClickable) return;
-
           const target = event.target as HTMLElement;
           if (shouldPreventRowClick(target, event.currentTarget)) {
             return;
           }
+          if (onRowModifierClick?.(row, event)) {
+            return;
+          }
+          if (!onRowClick || !isClickable) return;
           onRowClick(toJS(row.original), event);
         }}
         onKeyDown={
