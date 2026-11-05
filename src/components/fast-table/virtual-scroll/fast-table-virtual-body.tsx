@@ -30,6 +30,11 @@ export type FastTableRowClickHandler<DataType> = (
   event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
 ) => void;
 
+export type FastTableRowModifierClickHandler<DataType> = (
+  row: Row<DataType>,
+  event: MouseEvent<HTMLElement>
+) => boolean;
+
 type FastTableVirtualCellContext<DataType> = {
   row: Row<DataType>;
   visibleColumnCount: number;
@@ -201,6 +206,7 @@ type FastTableVirtualRowProps<DataType> = {
   measureElement?: (node: HTMLElement | null) => void;
   cellContext: Omit<FastTableVirtualCellContext<DataType>, "row">;
   onRowClick?: FastTableRowClickHandler<DataType>;
+  onRowModifierClick?: FastTableRowModifierClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
 };
 
@@ -216,6 +222,7 @@ function FastTableVirtualRow<DataType>({
   measureElement,
   cellContext,
   onRowClick,
+  onRowModifierClick,
   renderSubComponent,
 }: FastTableVirtualRowProps<DataType>) {
   return (
@@ -234,12 +241,14 @@ function FastTableVirtualRow<DataType>({
         transform: `translateY(${offsetInBody}px)`,
       }}
       onClick={(event) => {
-        if (!onRowClick || !isClickable) return;
-
         const target = event.target as HTMLElement;
         if (shouldPreventRowClick(target, event.currentTarget)) {
           return;
         }
+        if (onRowModifierClick?.(row, event)) {
+          return;
+        }
+        if (!onRowClick || !isClickable) return;
         onRowClick(toJS(row.original), event);
       }}
       onKeyDown={
@@ -281,6 +290,7 @@ export type FastTableVirtualBodyProps<DataType> = {
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
   onRowClick?: FastTableRowClickHandler<DataType>;
+  onRowModifierClick?: FastTableRowModifierClickHandler<DataType>;
   isRowClickable?: (item: DataType) => boolean;
   getRowClassName?: (row: Row<DataType>, isVirtualRow: boolean) => string | undefined;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
@@ -305,6 +315,7 @@ export function FastTableVirtualBody<DataType>({
   estimatedRowHeight,
   enableDynamicRowHeight = true,
   onRowClick,
+  onRowModifierClick,
   isRowClickable,
   getRowClassName,
   renderSubComponent,
@@ -381,6 +392,7 @@ export function FastTableVirtualBody<DataType>({
             measureElement={rowVirtualizer.measureElement}
             cellContext={cellContext}
             onRowClick={onRowClick}
+            onRowModifierClick={onRowModifierClick}
             renderSubComponent={renderSubComponent}
           />
         );

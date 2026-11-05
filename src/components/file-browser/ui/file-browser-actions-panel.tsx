@@ -3,22 +3,31 @@ import { Button } from "antd";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { RefreshButton } from "../../buttons/refresh-button";
+import { ActionDropdown, type ActionDropdownItem } from "../../dropdowns/action-dropdown";
 import type { CellAction } from "../../fast-table/types";
 import { MatIcon } from "../../mat-icon";
+import { SelectedItemsCounter } from "../../selected-items-counter";
 import { useFileBrowserLocale } from "../hooks/use-file-browser-locale";
-import { isFileBrowserSafePathSegment } from "../model/path-utils";
-import type { FileBrowserItem, FileBrowserLocaleOverrides } from "../model/types";
+import { isFileBrowserSafePathSegment, type FileBrowserPathStyle } from "../model/path-utils";
+import type {
+  FileBrowserBulkDeleteFailure,
+  FileBrowserBulkDeleteResult,
+  FileBrowserItem,
+  FileBrowserLocaleOverrides,
+} from "../model/types";
 import type { SubmitAppErrorPayload } from "../utils/get-submit-error-message";
 import { reportFileBrowserSubmitError } from "../utils/report-file-browser-submit-error";
 
+import { FileBrowserBulkDeleteConfirmModal } from "./file-browser-bulk-delete-confirm-modal";
 import { FileBrowserDeleteConfirmModal } from "./file-browser-delete-confirm-modal";
 import { FileBrowserNameModal } from "./file-browser-name-modal";
 import styles from "./file-browser.module.css";
 
-type ActiveModal = "create-folder" | "create-file" | "rename" | "delete" | null;
+type ActiveModal = "create-folder" | "create-file" | "rename" | "delete" | "delete-selected" | null;
 
 export interface FileBrowserActionsPanelRenderProps {
   toolbar: ReactNode;
+  selectionToolbar: ReactNode;
   rowActions: CellAction<FileBrowserItem>[];
 }
 
@@ -26,6 +35,7 @@ export interface FileBrowserActionsPanelProps {
   disabled?: boolean;
   downloadDisabled?: boolean;
   locale?: FileBrowserLocaleOverrides;
+  pathStyle?: FileBrowserPathStyle;
   isValidName?: (name: string) => boolean;
   isForbiddenName?: (name: string) => boolean;
   onDownload?: (item: FileBrowserItem) => void | Promise<void>;
@@ -34,6 +44,8 @@ export interface FileBrowserActionsPanelProps {
   onDelete?: (item: FileBrowserItem) => void | Promise<void>;
   canRename?: (item: FileBrowserItem) => boolean;
   canDelete?: (item: FileBrowserItem) => boolean;
+  selectedItems?: FileBrowserItem[];
+  onDeleteSelected?: (items: FileBrowserItem[]) => Promise<FileBrowserBulkDeleteResult>;
   onCreateFolder?: (name: string) => void | Promise<void>;
   onCreateFile?: (name: string) => void | Promise<void>;
   createActionsAppearance?: "label" | "icon";
@@ -50,6 +62,7 @@ export function FileBrowserActionsPanel({
   disabled = false,
   downloadDisabled = false,
   locale,
+  pathStyle,
   isValidName = isFileBrowserSafePathSegment,
   isForbiddenName,
   onDownload,
@@ -58,6 +71,8 @@ export function FileBrowserActionsPanel({
   onDelete,
   canRename,
   canDelete,
+  selectedItems,
+  onDeleteSelected,
   onCreateFolder,
   onCreateFile,
   createActionsAppearance = "label",
@@ -85,6 +100,9 @@ export function FileBrowserActionsPanel({
     null
   );
   const [deleteSubmitError, setDeleteSubmitError] = useState<string | null>(null);
+  const [bulkDeleteItems, setBulkDeleteItems] = useState<FileBrowserItem[]>([]);
+  const [bulkDeleteFailures, setBulkDeleteFailures] = useState<FileBrowserBulkDeleteFailure[]>([]);
+  const [bulkDeleteAttemptedCount, setBulkDeleteAttemptedCount] = useState(0);
   const actionLockRef = useRef(false);
   const reloadLockRef = useRef(false);
   const isMountedRef = useRef(true);
@@ -187,6 +205,16 @@ export function FileBrowserActionsPanel({
     clearDeleteErrors();
   }, [clearDeleteErrors]);
 
+  const clearBulkDeleteDraft = useCallback(() => {
+    if (activeModalRef.current === "delete-selected") {
+      return;
+    }
+    setBulkDeleteItems([]);
+    setBulkDeleteFailures([]);
+    setBulkDeleteAttemptedCount(0);
+    clearDeleteErrors();
+  }, [clearDeleteErrors]);
+
   const runLockedAction = useCallback(async (action: () => Promise<void>) => {
     if (actionLockRef.current) {
       return;
@@ -270,6 +298,37 @@ export function FileBrowserActionsPanel({
       }
     });
   }, [clearDeleteErrors, deleteItem, onDelete, onSubmitError, runLockedAction]);
+
+  const handleDeleteSelectedConfirm = useCallback(async () => {
+    if (bulkDeleteItems.length === 0 || !onDeleteSelected) {
+      return;
+    }
+
+    await runLockedAction(async () => {
+      clearDeleteErrors();
+      try {
+        const { failed } = await onDeleteSelected(bulkDeleteItems);
+        if (failed.length === 0) {
+          setActiveModal(null);
+          return;
+        }
+        setBulkDeleteAttemptedCount(bulkDeleteItems.length);
+        setBulkDeleteFailures(failed);
+        setBulkDeleteItems(failed.map((failure) => failure.item));
+      } catch (error) {
+        reportFileBrowserSubmitError(error, {
+          modalOpen: activeModalRef.current === "delete-selected",
+          onModalAppError: (payload) => {
+            setDeleteMutationError(payload);
+          },
+          onModalMessage: (message) => {
+            setDeleteSubmitError(message);
+          },
+          onClosedMessage: onSubmitError,
+        });
+      }
+    });
+  }, [bulkDeleteItems, clearDeleteErrors, onDeleteSelected, onSubmitError, runLockedAction]);
 
   const rowActions = useMemo(() => {
     const isLocked = () => disabledRef.current || actionLoadingRef.current;
@@ -396,8 +455,41 @@ export function FileBrowserActionsPanel({
     openModal(modal);
   };
 
+  const selectedCount = selectedItems?.length ?? 0;
+
+  const openDeleteSelectedModal = () => {
+    if (toolbarLocked || selectedItems == null || selectedItems.length === 0) {
+      return;
+    }
+    setBulkDeleteItems(selectedItems);
+    setBulkDeleteFailures([]);
+    setBulkDeleteAttemptedCount(0);
+    openModal("delete-selected");
+  };
+
+  const selectionActionItems: ActionDropdownItem[] = [
+    {
+      key: "delete-selected",
+      label: labels.actions.deleteSelected,
+      icon: <DeleteOutlined />,
+      danger: true,
+      onClick: openDeleteSelectedModal,
+    },
+  ];
+
   const resolveInvalidNameMessage = (name: string) =>
     isForbiddenName?.(name) ? labels.nameModal.nameForbidden : labels.nameModal.nameInvalid;
+
+  const hasSelectionToolbar = onDeleteSelected != null;
+
+  const refreshButton = onReload && (
+    <RefreshButton
+      loading={isReloading}
+      aria-disabled={toolbarLocked || undefined}
+      tabIndex={toolbarLocked ? -1 : undefined}
+      onClick={handleReload}
+    />
+  );
 
   const toolbar = (
     <div className={styles.actionButtons}>
@@ -405,14 +497,7 @@ export function FileBrowserActionsPanel({
       <div
         className={`${styles.actionButtonsGroup}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
       >
-        {onReload && (
-          <RefreshButton
-            loading={isReloading}
-            aria-disabled={toolbarLocked || undefined}
-            tabIndex={toolbarLocked ? -1 : undefined}
-            onClick={handleReload}
-          />
-        )}
+        {!hasSelectionToolbar && refreshButton}
 
         {onCreateFolder && (
           <Button
@@ -444,9 +529,23 @@ export function FileBrowserActionsPanel({
     </div>
   );
 
+  const selectionToolbar = hasSelectionToolbar && (
+    <div
+      className={`${styles.selectionToolbar}${toolbarLocked ? ` ${styles.actionButtonsLocked}` : ""}`}
+    >
+      <ActionDropdown
+        menu={{ items: selectionActionItems }}
+        disabled={selectedCount === 0}
+        disabledTooltip={labels.actions.selectItemsHint}
+      />
+      <SelectedItemsCounter count={selectedCount} align="start" />
+      {refreshButton && <div className={styles.selectionToolbarTrailing}>{refreshButton}</div>}
+    </div>
+  );
+
   return (
     <>
-      {children({ toolbar, rowActions })}
+      {children({ toolbar, selectionToolbar, rowActions })}
 
       {onCreateFolder && (
         <FileBrowserNameModal
@@ -546,6 +645,26 @@ export function FileBrowserActionsPanel({
           onConfirm={handleDeleteConfirm}
           onCancel={closeActiveModal}
           afterClose={clearDeleteDraft}
+        />
+      )}
+
+      {onDeleteSelected && (
+        <FileBrowserBulkDeleteConfirmModal
+          open={activeModal === "delete-selected"}
+          items={bulkDeleteItems}
+          failures={bulkDeleteFailures}
+          attemptedCount={bulkDeleteAttemptedCount}
+          locale={locale}
+          pathStyle={pathStyle}
+          okLoading={actionLoading}
+          submitError={activeModal === "delete-selected" ? deleteSubmitError : null}
+          mutationError={activeModal === "delete-selected" ? deleteMutationError?.error : null}
+          mutationErrorFallback={deleteMutationError?.fallback}
+          onClearSubmitError={clearDeleteErrors}
+          onClearMutationError={clearDeleteErrors}
+          onConfirm={handleDeleteSelectedConfirm}
+          onCancel={closeActiveModal}
+          afterClose={clearBulkDeleteDraft}
         />
       )}
     </>

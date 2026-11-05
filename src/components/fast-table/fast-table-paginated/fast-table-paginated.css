@@ -83,12 +83,21 @@
   background-color: #f9f9f9;
 }
 
-.fast-table table > tbody > tr[role="button"]:hover > td {
+.fast-table table > tbody > tr.fast-table-row-selected > td {
+  background-color: var(--fast-table-row-selected-bg);
+}
+
+.fast-table table > tbody > tr.fast-table-row-selected.fast-table-row-active > td {
+  background-color: var(--fast-table-row-active-bg);
+}
+
+.fast-table table > tbody > tr[role="button"]:hover > td,
+.fast-table table > tbody > tr.fast-table-row-selectable:hover > td {
   background-color: var(--fast-table-row-hover-bg);
 }
 
 .fast-table table > tbody > tr.fast-table-row-active > td {
-  background-color: #f5f8ff;
+  background-color: var(--fast-table-row-active-bg);
 }
 
 .fast-table table > tbody > tr.empty-state-row:hover > td,
@@ -96,7 +105,8 @@
   background-color: transparent;
 }
 
-.fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td {
+.fast-table table > tbody > tr.fast-table-row-group-alt[role="button"]:hover > td,
+.fast-table table > tbody > tr.fast-table-row-group-alt.fast-table-row-selectable:hover > td {
   background-color: #f2f2f2;
 }
 

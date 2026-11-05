@@ -47,6 +47,7 @@ import {
   useFastTableVirtualColumnSizingKey,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
+import { useRowSelectionShortcuts } from "../hooks/use-row-selection-shortcuts";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import type { CellActionLinkComponent, CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
@@ -93,6 +94,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowId?: (originalRow: DataType, index: number, parent?: Row<DataType> | undefined) => string;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   rowSelection?: RowSelectionState;
+  enableRowSelectionShortcuts?: boolean;
   locale?: FastTableLocaleOverrides;
   forceExpandAll?: boolean;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
@@ -143,6 +145,7 @@ function FastTablePaginatedContent<DataType>({
   getRowId,
   onRowSelectionChange,
   rowSelection,
+  enableRowSelectionShortcuts = false,
   locale,
   useVirtualScroll = false,
   overscan = FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN,
@@ -210,6 +213,11 @@ function FastTablePaginatedContent<DataType>({
     [enableColumnSettings, onColumnSizingChange, resizeColumnIds, resizeConstraintsById]
   );
 
+  const rowSelectionShortcuts = useRowSelectionShortcuts<DataType>({
+    enabled: enableRowSelectionShortcuts && onRowSelectionChange != null,
+    containerRef: tableContainerRef,
+  });
+
   const table = useReactTable({
     columns: resizeColumns,
     data: stableData,
@@ -264,6 +272,7 @@ function FastTablePaginatedContent<DataType>({
     manualPagination: true,
     rowCount: total,
   });
+  rowSelectionShortcuts.tableRef.current = table;
 
   const rows = table.getRowModel().rows;
   const leafColumns = table.getVisibleLeafColumns();
@@ -376,18 +385,15 @@ function FastTablePaginatedContent<DataType>({
   const getRowClassNames = (row: Row<DataType>, isVirtualRow = false) => {
     const groupClassName = groupedRowClassNames?.[row.index];
     const customClassName = getRowClassName?.(row.original, row.index);
-    const activeClassName =
-      row.id === activeRowId
-        ? isVirtualRow
-          ? "virtual-row-active"
-          : "fast-table-row-active"
-        : undefined;
+    const prefix = isVirtualRow ? "virtual-row" : "fast-table-row";
 
     const className = [
       isVirtualRow ? "virtual-row" : undefined,
       groupClassName,
       customClassName,
-      activeClassName,
+      row.id === activeRowId && `${prefix}-active`,
+      row.getIsSelected() && `${prefix}-selected`,
+      onRowSelectionChange != null && `${prefix}-selectable`,
     ]
       .filter(Boolean)
       .join(" ");
@@ -465,6 +471,7 @@ function FastTablePaginatedContent<DataType>({
           visibleColumnCount={visibleColumnCount}
           actionLinkComponent={actionLinkComponent}
           onRowClick={onRowClick}
+          onRowModifierClick={rowSelectionShortcuts.onRowModifierClick}
           renderSubComponent={renderSubComponent}
         />
       );
@@ -575,6 +582,7 @@ function FastTablePaginatedContent<DataType>({
               estimatedRowHeight={estimatedRowHeight}
               enableDynamicRowHeight={enableDynamicRowHeight}
               onRowClick={onRowClick}
+              onRowModifierClick={rowSelectionShortcuts.onRowModifierClick}
               isRowClickable={isRowClickable}
               getRowClassName={getRowClassNames}
               renderSubComponent={renderSubComponent}

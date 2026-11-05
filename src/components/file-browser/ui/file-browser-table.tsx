@@ -1,9 +1,15 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  type ColumnDef,
+  type OnChangeFn,
+  type RowSelectionState,
+} from "@tanstack/react-table";
 import { Spin } from "antd";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { formatTimeByUserTZ } from "../../../utils/datetime";
+import { createSelectColumn } from "../../fast-table/column-presets/select-column";
 import { FastTable } from "../../fast-table/fast-table";
 import type { CellAction } from "../../fast-table/types";
 import { MatIcon } from "../../mat-icon";
@@ -36,6 +42,8 @@ interface FileBrowserTableProps {
   showSuccessByKey?: ShowFileBrowserSuccessByKey;
   showErrorByCode?: ShowFileBrowserErrorByCode;
   rowActions?: CellAction<FileBrowserItem>[];
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   isItemClickable?: (item: FileBrowserItem) => boolean;
   onItemClick?: (item: FileBrowserItem) => void;
 }
@@ -51,11 +59,14 @@ export function FileBrowserTable({
   showSuccessByKey,
   showErrorByCode,
   rowActions,
+  rowSelection,
+  onRowSelectionChange,
   isItemClickable,
   onItemClick,
 }: FileBrowserTableProps) {
   const { i18n } = useTranslation("common");
   const labels = useFileBrowserLocale(locale);
+  const isSelectionEnabled = onRowSelectionChange != null;
 
   const formattedModifiedAtById = useMemo(() => {
     const formatted = new Map<string, string>();
@@ -72,6 +83,7 @@ export function FileBrowserTable({
     const copyTitle = pathCopyTitle ?? labels.actions.copyPath;
 
     return [
+      ...(isSelectionEnabled ? [createSelectColumn<FileBrowserItem>()] : []),
       columnHelper.accessor("name", {
         header: labels.columns.name,
         meta: {
@@ -123,6 +135,7 @@ export function FileBrowserTable({
   }, [
     formattedModifiedAtById,
     i18n.language,
+    isSelectionEnabled,
     labels,
     locale,
     pathCopyPrefix,
@@ -148,6 +161,9 @@ export function FileBrowserTable({
         isEmpty={!isLoading && items.length === 0}
         hideFooter
         getRowId={(row) => row.id}
+        rowSelection={isSelectionEnabled ? rowSelection : undefined}
+        onRowSelectionChange={onRowSelectionChange}
+        enableRowSelectionShortcuts={isSelectionEnabled}
         onRowClick={onItemClick}
         isRowClickable={isItemClickable}
         locale={{ empty: labels.empty }}

@@ -7,6 +7,7 @@ import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
 import {
   type FastTableRowClickHandler,
+  type FastTableRowModifierClickHandler,
   renderFastTableTableCells,
 } from "./fast-table-virtual-body";
 
@@ -18,6 +19,7 @@ type FastTableTableRowProps<DataType> = {
   visibleColumnCount: number;
   actionLinkComponent?: CellActionLinkComponent;
   onRowClick?: FastTableRowClickHandler<DataType>;
+  onRowModifierClick?: FastTableRowModifierClickHandler<DataType>;
   renderSubComponent?: (props: { row: Row<DataType> }) => ReactElement;
 };
 
@@ -29,6 +31,7 @@ export function FastTableTableRow<DataType>({
   visibleColumnCount,
   actionLinkComponent,
   onRowClick,
+  onRowModifierClick,
   renderSubComponent,
 }: FastTableTableRowProps<DataType>) {
   return (
@@ -38,12 +41,14 @@ export function FastTableTableRow<DataType>({
         tabIndex={isClickable ? 0 : undefined}
         className={className}
         onClick={(event) => {
-          if (!onRowClick || !isClickable) return;
-
           const target = event.target as HTMLElement;
           if (shouldPreventRowClick(target, event.currentTarget)) {
             return;
           }
+          if (onRowModifierClick?.(row, event)) {
+            return;
+          }
+          if (!onRowClick || !isClickable) return;
           onRowClick(toJS(row.original), event);
         }}
         onKeyDown={

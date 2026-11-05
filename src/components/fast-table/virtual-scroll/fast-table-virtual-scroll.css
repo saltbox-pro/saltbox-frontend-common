@@ -60,14 +60,24 @@
 }
 
 .fast-table .virtual-row.virtual-row-active .virtual-cell {
-  background-color: #f5f8ff;
+  background-color: var(--fast-table-row-active-bg);
 }
 
-.fast-table .virtual-row[role="button"]:hover .virtual-cell {
+.fast-table .virtual-row.virtual-row-selected .virtual-cell {
+  background-color: var(--fast-table-row-selected-bg);
+}
+
+.fast-table .virtual-row.virtual-row-selected.virtual-row-active .virtual-cell {
+  background-color: var(--fast-table-row-active-bg);
+}
+
+.fast-table .virtual-row[role="button"]:hover .virtual-cell,
+.fast-table .virtual-row.virtual-row-selectable:hover .virtual-cell {
   background-color: var(--fast-table-row-hover-bg);
 }
 
-.fast-table .virtual-row.fast-table-row-group-alt[role="button"]:hover .virtual-cell {
+.fast-table .virtual-row.fast-table-row-group-alt[role="button"]:hover .virtual-cell,
+.fast-table .virtual-row.fast-table-row-group-alt.virtual-row-selectable:hover .virtual-cell {
   background-color: #f2f2f2;
 }
 
