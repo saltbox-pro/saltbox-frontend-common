@@ -1,4 +1,4 @@
-import { flexRender, type Cell, type Row } from "@tanstack/react-table";
+import type { Cell, Row } from "@tanstack/react-table";
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { toJS } from "mobx";
 import {
@@ -22,6 +22,8 @@ import {
 } from "../utils/column";
 import { getSortedColumnClassName } from "../utils/column-sort";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
+
+import { FastTableCellValue } from "./fast-table-cell-value";
 
 import "./fast-table-virtual-scroll.css";
 
@@ -100,7 +102,7 @@ function renderFastTableCellContent<DataType>({
         className={`cell-content-text ${isEllipsis ? "cell-content-text-ellipsis" : ""}`}
         title={cellTitle}
       >
-        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        <FastTableCellValue cell={cell} />
       </span>
       {(meta?.showCopy || meta?.renderCopy || (meta?.actions?.length ?? 0) > 0) && (
         <CellActions

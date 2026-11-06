@@ -1,6 +1,8 @@
+import { EMPTY_VALUE } from "saltbox-common/constants/empty-value";
+
 export function formatFileBrowserSize(bytes: number, locale?: string): string {
   if (!Number.isFinite(bytes) || bytes < 0) {
-    return "—";
+    return EMPTY_VALUE;
   }
 
   if (bytes === 0) {

@@ -1,1 +1,0 @@
-export const DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER = "—";
