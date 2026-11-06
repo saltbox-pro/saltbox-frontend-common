@@ -1,0 +1,23 @@
+.value {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  flex: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+:global(.ant-descriptions-item-content:hover) .actions,
+.root:focus-within .actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
