@@ -1,8 +1,8 @@
-import { DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER } from "../constants/default-empty-placeholder";
+import { EMPTY_VALUE } from "saltbox-common/constants/empty-value";
 
 export function formatInfoCardTextValue(
   value: unknown,
-  emptyPlaceholder: string = DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER
+  emptyPlaceholder: string = EMPTY_VALUE
 ): string {
   if (value == null) {
     return emptyPlaceholder;
@@ -14,7 +14,7 @@ export function formatInfoCardTextValue(
 
 export function isInfoCardEmptyValue(
   value: string,
-  emptyPlaceholder: string = DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER
+  emptyPlaceholder: string = EMPTY_VALUE
 ): boolean {
   return value === emptyPlaceholder;
 }

@@ -1,6 +1,7 @@
 import { Typography } from "antd";
 
-import { DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER } from "../../constants/default-empty-placeholder";
+import { EMPTY_VALUE } from "saltbox-common/constants/empty-value";
+
 import { isInfoCardEmptyValue } from "../../helpers/format-info-card-text-value";
 
 import styles from "./info-card.module.css";
@@ -12,7 +13,7 @@ export type InfoCardTextValueProps = {
 
 export function InfoCardTextValue({
   text,
-  emptyPlaceholder = DEFAULT_INFO_CARD_EMPTY_PLACEHOLDER,
+  emptyPlaceholder = EMPTY_VALUE,
 }: InfoCardTextValueProps) {
   const isEmpty = isInfoCardEmptyValue(text, emptyPlaceholder);
 

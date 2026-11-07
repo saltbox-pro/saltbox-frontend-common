@@ -124,12 +124,12 @@ export function FileBrowserTable({
         cell: ({ row }) =>
           row.original.kind === "file" && row.original.sizeBytes != null
             ? formatFileBrowserSize(row.original.sizeBytes, i18n.language)
-            : "—",
+            : null,
       }),
       columnHelper.accessor("modifiedAt", {
         header: labels.columns.modified,
         meta: { width: "15%", minWidth: 170 },
-        cell: ({ row }) => formattedModifiedAtById.get(row.original.id) ?? "—",
+        cell: ({ row }) => formattedModifiedAtById.get(row.original.id) ?? null,
       }),
     ];
   }, [

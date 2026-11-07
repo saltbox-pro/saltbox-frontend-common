@@ -41,6 +41,7 @@ export type CellMeta<T = any> = {
   maxWidth?: number;
   color?: "accent";
   ellipsis?: boolean;
+  emptyValue?: ReactNode;
 };
 
 declare module "@tanstack/react-table" {
