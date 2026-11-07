@@ -45,18 +45,19 @@ import {
   type FastTableVirtualScrollOptions,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
-import { useRowRenderToken } from "../hooks/use-row-render-token";
 import { useRowSelectionShortcuts } from "../hooks/use-row-selection-shortcuts";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import { CellMeta } from "../types";
 import { applyColumnResizeDefaults } from "../utils/apply-column-resize-defaults";
 import {
   buildResizeColumnConstraintsById,
-  formatCssPx,
+  getFastTableStyle,
   getColWidthStyle,
   hasAllColumnSizes,
   resolveColumnMinWidth,
   resolveColumnWidth,
+  resolveLockedColSize,
+  sumDeclaredColumnMinWidths,
 } from "../utils/column";
 import { buildColumnSettingsItems } from "../utils/column-layout";
 import {
@@ -277,7 +278,6 @@ function FastTableListedContent<DataType>({
     estimatedRowHeight,
     estimatedExpandedRowHeight,
   });
-  const rowRenderToken = useRowRenderToken(table);
 
   const shouldRenderVirtualRows = useVirtualScroll && !isEmpty && !isLoading && rows.length > 0;
 
@@ -333,6 +333,7 @@ function FastTableListedContent<DataType>({
   });
 
   const declaredFillWidth = useDeclaredFillWidth(leafColumns);
+  const tableMinWidth = useVirtualScroll ? sumDeclaredColumnMinWidths(leafColumns) : 0;
 
   const renderColGroup = () => (
     <colgroup>
@@ -340,10 +341,7 @@ function FastTableListedContent<DataType>({
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
-          const size =
-            column.id === fillColumnId
-              ? undefined
-              : (lockedColumnSizes?.[column.id] ?? column.getSize());
+          const size = resolveLockedColSize(column, fillColumnId, lockedColumnSizes);
           const explicitMinSize = resizeConstraintsById.get(column.id)?.minSize;
           return (
             <col
@@ -399,7 +397,6 @@ function FastTableListedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
-          renderToken={rowRenderToken}
           isResizingColumn={isResizingColumn}
           onRowClick={onRowClick}
           onRowModifierClick={rowSelectionShortcuts.onRowModifierClick}
@@ -459,11 +456,7 @@ function FastTableListedContent<DataType>({
       <div className="fast-table-wrapper" ref={tableContainerRef}>
         <table
           className={wrapHeaders ? "fast-table-wrap-headers" : undefined}
-          style={
-            lockedColumnsTotalWidth !== undefined
-              ? { width: `max(100%, ${formatCssPx(lockedColumnsTotalWidth)})` }
-              : undefined
-          }
+          style={getFastTableStyle(lockedColumnsTotalWidth, tableMinWidth)}
         >
           {renderColGroup()}
           <thead>
@@ -482,7 +475,6 @@ function FastTableListedContent<DataType>({
                 rowVirtualizer={rowVirtualizer}
                 headerHeight={headerHeight}
                 visibleColumnCount={visibleColumnCount}
-                renderToken={rowRenderToken}
                 isResizingColumn={isResizingColumn}
                 estimatedRowHeight={estimatedRowHeight}
                 enableDynamicRowHeight={enableDynamicRowHeight}

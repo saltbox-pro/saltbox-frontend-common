@@ -1,4 +1,5 @@
-import type { MouseEvent, ReactNode } from "react";
+import type { Row } from "@tanstack/react-table";
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 import type { ActionLinkLinkComponent } from "saltbox-common/components/buttons/action-link-button";
 import type { BaseActionButtonProps } from "saltbox-common/components/buttons/base-action-button";
@@ -45,3 +46,13 @@ export type CellMeta<T = any> = {
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData, TValue> extends CellMeta<TData> {}
 }
+
+export type FastTableRowClickHandler<DataType> = (
+  item: DataType,
+  event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
+) => void;
+
+export type FastTableRowModifierClickHandler<DataType> = (
+  row: Row<DataType>,
+  event: MouseEvent<HTMLElement>
+) => boolean;

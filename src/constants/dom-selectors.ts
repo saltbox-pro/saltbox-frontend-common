@@ -15,11 +15,13 @@ export const ANTD_OVERLAY_ROOT_SELECTORS: ReadonlyArray<string> = Object.freeze(
 
 export const NESTED_DRAWER_CLASS_NAME = "sbx-nested-drawer";
 
+export const FAST_TABLE_EXPANDED_ROW_CLASS_NAME = "fast-table-expanded-row";
+
 export const ROW_INTERACTIVE_SELECTORS: string = [
   "button",
   "a",
   "input",
   ".prevent-row-click",
-  ".fast-table-expanded-row",
+  `.${FAST_TABLE_EXPANDED_ROW_CLASS_NAME}`,
   ".react-json-view",
 ].join(", ");

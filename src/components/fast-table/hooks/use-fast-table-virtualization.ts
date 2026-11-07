@@ -2,7 +2,7 @@ import type { Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useCallback, useLayoutEffect, useRef, useState } from "react";
 
-import { FAST_TABLE_EXPANDED_ROW_CLASS_NAME } from "../virtual-scroll/fast-table-table-row";
+import { FAST_TABLE_EXPANDED_ROW_CLASS_NAME } from "saltbox-common/constants/dom-selectors";
 
 export const FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN = 8;
 

@@ -3,8 +3,8 @@ import { type RefObject, useCallback, useEffect, useRef } from "react";
 
 import { ROW_INTERACTIVE_SELECTORS } from "saltbox-common/constants/dom-selectors";
 
+import type { FastTableRowModifierClickHandler } from "../types";
 import { isSelectionShortcutBlocked } from "../utils/is-selection-shortcut-blocked";
-import type { FastTableRowModifierClickHandler } from "../virtual-scroll/fast-table-table-row";
 
 export function useRowSelectionShortcuts<DataType>({
   enabled,

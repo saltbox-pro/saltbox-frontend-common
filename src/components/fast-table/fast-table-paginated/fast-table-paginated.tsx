@@ -46,7 +46,6 @@ import {
   type FastTableVirtualScrollOptions,
   useFastTableVirtualization,
 } from "../hooks/use-fast-table-virtualization";
-import { useRowRenderToken } from "../hooks/use-row-render-token";
 import { useRowSelectionShortcuts } from "../hooks/use-row-selection-shortcuts";
 import { useStableLeafColumnIds } from "../hooks/use-stable-leaf-column-ids";
 import type { CellActionLinkComponent, CellMeta } from "../types";
@@ -56,12 +55,14 @@ import {
   type GetRowGroupKey,
 } from "../utils/build-grouped-row-class-names";
 import {
-  formatCssPx,
+  getFastTableStyle,
   getColWidthStyle,
   buildResizeColumnConstraintsById,
   hasAllColumnSizes,
   resolveColumnMinWidth,
   resolveColumnWidth,
+  resolveLockedColSize,
+  sumDeclaredColumnMinWidths,
 } from "../utils/column";
 import { buildColumnSettingsItems } from "../utils/column-layout";
 import {
@@ -288,7 +289,6 @@ function FastTablePaginatedContent<DataType>({
     estimatedRowHeight,
     estimatedExpandedRowHeight,
   });
-  const rowRenderToken = useRowRenderToken(table);
 
   const {
     hasLockedColumnWidths,
@@ -392,6 +392,7 @@ function FastTablePaginatedContent<DataType>({
   const shouldRenderVirtualRows = useVirtualScroll && rows.length > 0;
 
   const declaredFillWidth = useDeclaredFillWidth(leafColumns);
+  const tableMinWidth = useVirtualScroll ? sumDeclaredColumnMinWidths(leafColumns) : 0;
 
   const renderColGroup = () => (
     <colgroup>
@@ -399,10 +400,7 @@ function FastTablePaginatedContent<DataType>({
         const meta = column.columnDef.meta as CellMeta<DataType> | undefined;
 
         if (hasLockedColumnWidths) {
-          const size =
-            column.id === fillColumnId
-              ? undefined
-              : (lockedColumnSizes?.[column.id] ?? column.getSize());
+          const size = resolveLockedColSize(column, fillColumnId, lockedColumnSizes);
           const explicitMinSize = resizeConstraintsById.get(column.id)?.minSize;
           return (
             <col
@@ -459,7 +457,6 @@ function FastTablePaginatedContent<DataType>({
           isClickable={isClickable}
           isExpanded={row.getIsExpanded()}
           visibleColumnCount={visibleColumnCount}
-          renderToken={rowRenderToken}
           isResizingColumn={isResizingColumn}
           actionLinkComponent={actionLinkComponent}
           onRowClick={onRowClick}
@@ -520,11 +517,7 @@ function FastTablePaginatedContent<DataType>({
         <div className="fast-table-wrapper" ref={tableContainerRef}>
           <table
             className={wrapHeaders ? "fast-table-wrap-headers" : undefined}
-            style={
-              lockedColumnsTotalWidth !== undefined
-                ? { width: `max(100%, ${formatCssPx(lockedColumnsTotalWidth)})` }
-                : undefined
-            }
+            style={getFastTableStyle(lockedColumnsTotalWidth, tableMinWidth)}
           >
             {renderColGroup()}
             <thead>
@@ -553,7 +546,6 @@ function FastTablePaginatedContent<DataType>({
                   rowVirtualizer={rowVirtualizer}
                   headerHeight={headerHeight}
                   visibleColumnCount={visibleColumnCount}
-                  renderToken={rowRenderToken}
                   isResizingColumn={isResizingColumn}
                   estimatedRowHeight={estimatedRowHeight}
                   enableDynamicRowHeight={enableDynamicRowHeight}

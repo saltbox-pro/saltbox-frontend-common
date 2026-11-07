@@ -45,12 +45,10 @@ function renderFastTableCellContent<DataType>({
 
 function getFastTableCellClassName<DataType>(
   cell: Cell<DataType, unknown>,
-  visibleColumnCount: number,
-  extraClassName?: string
+  visibleColumnCount: number
 ) {
   const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
   return [
-    extraClassName,
     "cell-with-actions",
     meta?.tdClassName ?? "",
     getSortedColumnClassName(cell.column.getIsSorted(), visibleColumnCount),

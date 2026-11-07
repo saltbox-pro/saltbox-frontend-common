@@ -2,14 +2,14 @@ import type { Row } from "@tanstack/react-table";
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { type ReactElement, type ReactNode } from "react";
 
-import type { CellActionLinkComponent } from "../types";
+import type {
+  CellActionLinkComponent,
+  FastTableRowClickHandler,
+  FastTableRowModifierClickHandler,
+} from "../types";
 import { formatCssPx } from "../utils/column";
 
-import {
-  type FastTableRowClickHandler,
-  type FastTableRowModifierClickHandler,
-  FastTableTableRow,
-} from "./fast-table-table-row";
+import { FastTableTableRow } from "./fast-table-table-row";
 import "./fast-table-virtual-scroll.css";
 
 function renderVirtualSpacer(colSpan: number, height: number) {
@@ -27,7 +27,6 @@ export type FastTableVirtualBodyProps<DataType> = {
   rowVirtualizer: Virtualizer<HTMLElement, Element>;
   headerHeight: number;
   visibleColumnCount: number;
-  renderToken: object;
   isResizingColumn: boolean;
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
@@ -44,7 +43,6 @@ export function FastTableVirtualBody<DataType>({
   rowVirtualizer,
   headerHeight,
   visibleColumnCount,
-  renderToken,
   isResizingColumn,
   estimatedRowHeight,
   enableDynamicRowHeight = true,
@@ -61,7 +59,8 @@ export function FastTableVirtualBody<DataType>({
   const firstRow = virtualRows[0];
   const lastRow = virtualRows[virtualRows.length - 1];
   const paddingTop = Math.max(0, firstRow.start - headerHeight);
-  const paddingBottom = Math.max(0, rowVirtualizer.getTotalSize() - lastRow.end);
+  // getTotalSize() excludes scrollMargin (the header), while item offsets include it.
+  const paddingBottom = Math.max(0, rowVirtualizer.getTotalSize() + headerHeight - lastRow.end);
   const colSpan = Math.max(visibleColumnCount, 1);
 
   return (
@@ -89,12 +88,11 @@ export function FastTableVirtualBody<DataType>({
             isClickable={isClickable}
             isExpanded={row.getIsExpanded()}
             visibleColumnCount={visibleColumnCount}
-            renderToken={renderToken}
             isResizingColumn={isResizingColumn}
             actionLinkComponent={actionLinkComponent}
             virtualIndex={virtualRow.index}
             rowHeight={enableDynamicRowHeight ? undefined : estimatedRowHeight}
-            rowRef={enableDynamicRowHeight ? rowVirtualizer.measureElement : undefined}
+            rowRef={rowVirtualizer.measureElement}
             onRowClick={onRowClick}
             onRowModifierClick={onRowModifierClick}
             renderSubComponent={renderSubComponent}

@@ -1,32 +1,17 @@
 import type { Row } from "@tanstack/react-table";
 import { toJS } from "mobx";
-import {
-  Fragment,
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  type KeyboardEvent,
-  type MouseEvent,
-  type ReactElement,
-} from "react";
+import { Fragment, memo, useCallback, useEffect, useRef, type ReactElement } from "react";
 
-import type { CellActionLinkComponent } from "../types";
+import { FAST_TABLE_EXPANDED_ROW_CLASS_NAME } from "saltbox-common/constants/dom-selectors";
+
+import type {
+  CellActionLinkComponent,
+  FastTableRowClickHandler,
+  FastTableRowModifierClickHandler,
+} from "../types";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
 import { renderFastTableTableCells } from "./fast-table-cells";
-
-export const FAST_TABLE_EXPANDED_ROW_CLASS_NAME = "fast-table-expanded-row";
-
-export type FastTableRowClickHandler<DataType> = (
-  item: DataType,
-  event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>
-) => void;
-
-export type FastTableRowModifierClickHandler<DataType> = (
-  row: Row<DataType>,
-  event: MouseEvent<HTMLElement>
-) => boolean;
 
 type FastTableTableRowProps<DataType> = {
   row: Row<DataType>;
@@ -34,8 +19,6 @@ type FastTableTableRowProps<DataType> = {
   isClickable: boolean;
   isExpanded: boolean;
   visibleColumnCount: number;
-  // See useRowRenderToken: busts the memo when table state other than column widths changes.
-  renderToken: object;
   // Cell content doesn't depend on column widths, so rows skip re-rendering during a resize drag.
   isResizingColumn: boolean;
   actionLinkComponent?: CellActionLinkComponent;
@@ -135,16 +118,12 @@ function FastTableTableRowInner<DataType>({
   );
 }
 
+// Rows are frozen only while a column is being dragged; otherwise they render as usual.
 function areRowPropsEqual<DataType>(
   prev: FastTableTableRowProps<DataType>,
   next: FastTableTableRowProps<DataType>
 ) {
-  if (prev.isResizingColumn && next.isResizingColumn) return true;
-
-  const keys = Object.keys(next) as Array<keyof FastTableTableRowProps<DataType>>;
-  return (
-    keys.length === Object.keys(prev).length && keys.every((key) => Object.is(prev[key], next[key]))
-  );
+  return prev.isResizingColumn && next.isResizingColumn;
 }
 
 export const FastTableTableRow = memo(FastTableTableRowInner, areRowPropsEqual) as <DataType>(

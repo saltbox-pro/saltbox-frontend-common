@@ -123,13 +123,34 @@ export function hasAllColumnSizes(columnSizing: ColumnSizingState, columnIds: st
   return columnIds.length > 0 && columnIds.every((id) => columnSizing[id] !== undefined);
 }
 
-export function sumColumnSizes(columnSizing: ColumnSizingState, columnIds: string[]): number {
+export function resolveLockedColSize<TData>(
+  column: Column<TData, unknown>,
+  fillColumnId: string | undefined,
+  lockedColumnSizes: ColumnSizingState | undefined
+): number | undefined {
+  if (column.id === fillColumnId) return undefined;
+  return lockedColumnSizes?.[column.id] ?? column.getSize();
+}
+
+// Fixed table layout ignores min-width on <col>, so the table itself has to keep the sum.
+export function sumDeclaredColumnMinWidths<TData>(columns: Array<Column<TData, unknown>>): number {
   let total = 0;
-  for (const id of columnIds) {
-    const size = columnSizing[id];
-    if (typeof size === "number") {
-      total += size;
-    }
+  for (const column of columns) {
+    const meta = column.columnDef.meta as CellMeta | undefined;
+    total += typeof meta?.width === "number" ? meta.width : (resolveColumnMinWidth(meta) ?? 0);
   }
   return total;
+}
+
+export function getFastTableStyle(
+  lockedColumnsTotalWidth: number | undefined,
+  minWidth: number
+): CSSProperties | undefined {
+  if (lockedColumnsTotalWidth !== undefined) {
+    return { width: `max(100%, ${formatCssPx(lockedColumnsTotalWidth)})` };
+  }
+  if (minWidth > 0) {
+    return { minWidth: `max(100%, ${formatCssPx(minWidth)})` };
+  }
+  return undefined;
 }
