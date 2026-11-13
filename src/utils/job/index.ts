@@ -16,6 +16,8 @@ export {
   pruneKwargsBySchema,
   totalSecondsToTtlParts,
   ttlPartsToTotalSeconds,
+  DURATION_FIELD_UNITS,
+  type DurationFieldUnit,
   type TtlParts,
   type TtlUnit,
 } from "./job-modal-utils";

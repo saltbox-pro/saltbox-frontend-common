@@ -387,5 +387,21 @@
   "user-settings": {
     "language-save-failed-title": "Failed to save the language",
     "language-save-failed-description": "The interface language was not saved, the previous one is restored"
+  },
+  "time-units": {
+    "milliseconds": "ms",
+    "seconds": "sec",
+    "minutes": "min",
+    "hours": "h",
+    "days": "d"
+  },
+  "duration-input": {
+    "units": {
+      "milliseconds": "Milliseconds",
+      "seconds": "Seconds",
+      "minutes": "Minutes",
+      "hours": "Hours",
+      "days": "Days"
+    }
   }
 }

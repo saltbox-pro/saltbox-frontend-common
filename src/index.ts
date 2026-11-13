@@ -70,6 +70,7 @@ export * from "./constants/empty-value";
 export * from "./constants/filter-operators";
 export * from "./constants/job-timeout";
 export * from "./utils/relative-time";
+export * from "./utils/duration";
 export * from "./utils/deep-omit-undefined";
 export * from "./utils/template-schema-validation";
 export * from "./utils/localized-text";
