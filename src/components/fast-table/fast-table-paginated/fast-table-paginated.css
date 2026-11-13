@@ -36,7 +36,7 @@
   table-layout: fixed;
 }
 
-.fast-table.empty table {
+.fast-table.empty table:has(tbody > tr) {
   height: 100%;
 }
 
@@ -47,6 +47,7 @@
   color: var(--fast-table-header-color);
   font-weight: 600;
   text-align: start;
+  vertical-align: top;
   background: var(--fast-table-header-bg);
   border: none;
   border-right: 1px solid var(--fast-table-border-color);
