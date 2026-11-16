@@ -9,6 +9,7 @@ interface InfoDrawerTitleProps {
   activeTransitionKey?: string;
   name?: string;
   label?: string;
+  titleExtra?: ReactNode;
   copyable?: boolean;
   extra?: ReactNode;
 }
@@ -17,6 +18,7 @@ export function InfoDrawerTitle({
   activeTransitionKey,
   name,
   label,
+  titleExtra,
   copyable = true,
   extra,
 }: InfoDrawerTitleProps) {
@@ -33,6 +35,7 @@ export function InfoDrawerTitle({
           {!!name && (
             <>
               <span className={styles.name}>{name}</span>
+              {!!titleExtra && <span className={styles.titleExtra}>{titleExtra}</span>}
               {!!copyable && (
                 <span className={styles.action}>
                   <CopyToClipboardButton text={name} />

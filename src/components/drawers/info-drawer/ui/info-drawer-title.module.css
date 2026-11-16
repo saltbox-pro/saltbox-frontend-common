@@ -9,8 +9,16 @@
   overflow-wrap: anywhere;
 }
 
-.action {
+.action,
+.titleExtra {
   display: inline-flex;
   vertical-align: middle;
+}
+
+.action {
   margin-inline-start: 4px;
+}
+
+.titleExtra {
+  margin-inline-start: 8px;
 }
