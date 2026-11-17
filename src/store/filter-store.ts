@@ -9,6 +9,7 @@ import {
   freeTextFilterQueryHasTypeErrors,
   generateIdsForQuery,
   isMongoQueryEmpty,
+  omitEmptyFilterRules,
   parseCaseInsensitiveQuery,
 } from "../utils/query-builder-utils";
 
@@ -49,7 +50,7 @@ export class FilterStore {
 
   @computed
   get activeFiltersCount(): number {
-    return this.getRulesCount(this.searchFilters);
+    return this.getRulesCount(omitEmptyFilterRules(this.searchFilters, toJS(this.filterSchema)));
   }
 
   @computed
@@ -93,7 +94,12 @@ export class FilterStore {
         return false;
       }
 
-      return this.isMongoQueryChanged(parsed);
+      const filters = filtersFromMongoQuery(parsed);
+      if (filters == null) {
+        return false;
+      }
+
+      return this.isMongoQueryChanged(formatToMongoDB(filters, toJS(this.filterSchema)));
     }
 
     // Compare mongo form, not raw rules: free-text roundtrip (datetime ISO, checkbox
