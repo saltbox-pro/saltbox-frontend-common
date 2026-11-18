@@ -87,7 +87,19 @@ export * from "./hooks/useSortableDrag";
 export * from "./store/filter-store";
 export * from "./store/persistent-filter-store";
 export * from "./store/masters-store";
-export * from "./store/user-settings-store";
+export {
+  createUserSettingsTransport,
+  ensureUserSettingsLoaded,
+  flushUserSettings,
+  getUserSettingsValue,
+  initUserSettings,
+  revertUserSettingsValue,
+  setUserSettingsValue,
+  subscribeUserSettings,
+  type FlushUserSettingsOptions,
+  type UserSettingsApiLike,
+  type UserSettingsTransport,
+} from "./store/user-settings-store";
 export * from "./store/language-settings";
 export * from "./store/sidebar-settings";
 

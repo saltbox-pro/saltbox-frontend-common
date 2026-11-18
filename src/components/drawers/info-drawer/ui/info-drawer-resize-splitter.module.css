@@ -1,0 +1,31 @@
+.root {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  pointer-events: none;
+}
+
+.right {
+  right: 0;
+}
+
+.left {
+  left: 0;
+}
+
+.splitter:global(.ant-splitter) > .spacer {
+  padding: 0;
+  overflow: hidden;
+}
+
+.splitter:global(.ant-splitter) > .content {
+  padding: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.splitter:global(.ant-splitter) > :global(.ant-splitter-bar),
+.splitter:global(.ant-splitter) > :global(.ant-splitter-mask) {
+  pointer-events: auto;
+}

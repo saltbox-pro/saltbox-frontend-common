@@ -21,6 +21,11 @@
   height: auto;
 }
 
+.drawer.resizable :global(.ant-drawer-content-wrapper) {
+  transition-property: transform, opacity;
+  overflow: visible;
+}
+
 .headerActionsFade {
   width: auto !important;
   flex-shrink: 0;

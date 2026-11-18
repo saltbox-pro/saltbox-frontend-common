@@ -9,6 +9,7 @@ import {
 import {
   ensureUserSettingsLoaded,
   initUserSettings,
+  resetUserSettingsStore,
   type UserSettingsTransport,
 } from "../../../src/store/user-settings-store";
 
@@ -33,7 +34,7 @@ function createMemoryTransport(
 describe("table-settings", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    initUserSettings(createMemoryTransport());
+    resetUserSettingsStore();
   });
 
   afterEach(() => {
@@ -60,6 +61,7 @@ describe("table-settings", () => {
   });
 
   it("updateTableSettings merges patch fields", () => {
+    initUserSettings(createMemoryTransport());
     updateTableSettings("t1", { columnSizing: { id: 10 } });
     updateTableSettings("t1", { columnLayout: { order: ["id"], hidden: [] } });
 

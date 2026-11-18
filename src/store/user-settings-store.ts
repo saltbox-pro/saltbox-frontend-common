@@ -236,35 +236,54 @@ function scheduleSave(delayMs = SAVE_DELAY_MS): void {
   }, delayMs);
 }
 
-export function initUserSettings(nextTransport: UserSettingsTransport): void {
+function clearPendingSave(): void {
   if (saveTimeout !== null) {
     clearTimeout(saveTimeout);
     saveTimeout = null;
   }
+}
 
+export function resetUserSettingsStore(): void {
+  clearPendingSave();
+  transport = null;
+  settings = {};
+  dirtyPaths = new Set();
+  loadPromise = null;
+  saveChain = Promise.resolve();
+  resetSaveRetryDelay();
+  notifyListeners();
+}
+
+function loadIfAvailable(): Promise<void> {
+  return ensureUserSettingsLoaded().catch(() => undefined);
+}
+
+export function initUserSettings(nextTransport: UserSettingsTransport): Promise<void> {
+  if (!isSubscribedToChanges) {
+    subscribe(UiEvent.UserSettingsChanged, handleForeignChange);
+    isSubscribedToChanges = true;
+  }
+
+  if (transport !== null) {
+    transport = nextTransport;
+    return loadIfAvailable();
+  }
+
+  clearPendingSave();
   transport = nextTransport;
   settings = {};
   dirtyPaths = new Set();
   loadPromise = null;
   saveChain = Promise.resolve();
   resetSaveRetryDelay();
-
-  if (!isSubscribedToChanges) {
-    subscribe(UiEvent.UserSettingsChanged, handleForeignChange);
-    isSubscribedToChanges = true;
-  }
-
   notifyListeners();
-  if (!nextTransport.isAvailable()) return;
 
-  ensureUserSettingsLoaded().catch(() => {
-    // load errors are logged inside ensureUserSettingsLoaded
-  });
+  return loadIfAvailable();
 }
 
 export function ensureUserSettingsLoaded(): Promise<void> {
   const activeTransport = transport;
-  if (!activeTransport) return Promise.resolve();
+  if (!activeTransport || !activeTransport.isAvailable()) return Promise.resolve();
 
   if (!loadPromise) {
     loadPromise = activeTransport
