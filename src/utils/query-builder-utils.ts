@@ -461,12 +461,68 @@ export type FormatToMongoDBOptions = {
   caseInsensitive?: boolean;
 };
 
+export function omitEmptyFilterRules(
+  filters: RuleGroupType,
+  fields: OptionList = []
+): RuleGroupType {
+  const fieldsIgnoringEmptyValues = new Set(
+    flattenFilterSchemaFields(fields)
+      .filter((field) => field.ignoreEmptyValue)
+      .map((field) => field.name)
+  );
+  if (fieldsIgnoringEmptyValues.size === 0) {
+    return filters;
+  }
+
+  const normalizeGroup = (group: RuleGroupType): RuleGroupType => {
+    const rules: RuleGroupType["rules"] = [];
+
+    for (const rule of group.rules) {
+      if (isRuleGroupType(rule)) {
+        const normalized = normalizeGroup(rule);
+        // Only remove groups emptied by omitted rules; preserve existing empty branches.
+        if (normalized === rule || normalized.rules.length > 0) {
+          rules.push(normalized);
+        }
+        continue;
+      }
+
+      const operator = rule.operator.toLowerCase();
+      const requiresTextValue =
+        operator === "=" || operator === "!=" || TEXT_REGEXP_OPERATORS.has(operator);
+      if (
+        fieldsIgnoringEmptyValues.has(rule.field) &&
+        rule.valueSource !== "field" &&
+        requiresTextValue &&
+        (rule.value === "" || rule.value == null)
+      ) {
+        continue;
+      }
+
+      rules.push(rule);
+    }
+
+    return rules.length === group.rules.length &&
+      rules.every((rule, index) => rule === group.rules[index])
+      ? group
+      : { ...group, rules };
+  };
+
+  const normalized = normalizeGroup(filters);
+  return normalized.rules.length > 0 ? normalized : { ...emptyRuleGroup };
+}
+
 export function formatToMongoDB(
   filters: RuleGroupType,
   fields?: OptionList,
   options?: FormatToMongoDBOptions
 ): object {
-  const queryString = formatQuery(filters, {
+  const normalizedFilters = omitEmptyFilterRules(filters, fields);
+  if (normalizedFilters !== filters && normalizedFilters.rules.length === 0) {
+    return {};
+  }
+
+  const queryString = formatQuery(normalizedFilters, {
     format: "mongodb",
     valueProcessor:
       options?.caseInsensitive === false

@@ -7,6 +7,8 @@ export type FilterSchemaField = {
   inputType?: string | null;
   valueEditorType?: string | null;
   mongoValueCoercion?: string | null;
+  /** Omit text comparisons with "", null or undefined; preserve explicit null operators. */
+  ignoreEmptyValue?: boolean;
   operators?: unknown;
 };
 
@@ -49,6 +51,7 @@ function asFilterSchemaField(item: object): FilterSchemaField | undefined {
     inputType: readOptionalStringOrNull(item, "inputType"),
     valueEditorType: readOptionalStringOrNull(item, "valueEditorType"),
     mongoValueCoercion: readOptionalStringOrNull(item, "mongoValueCoercion"),
+    ignoreEmptyValue: "ignoreEmptyValue" in item && item.ignoreEmptyValue === true,
     operators: "operators" in item ? item.operators : undefined,
   };
 }

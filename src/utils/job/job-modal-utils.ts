@@ -3,12 +3,17 @@ import type { KeyboardEvent } from "react";
 
 import { JSON_FORM_DEFAULT_STATE_BEHAVIOR_SETTINGS } from "saltbox-common/components/json-form/constants/default-settings";
 import { rjsfValidator } from "saltbox-common/components/json-form/utils/rjsf-validator";
+import { convertDurationUnitToSeconds, DURATION_UNIT_SECONDS } from "saltbox-common/utils/duration";
 
-export type TtlUnit = "seconds" | "minutes" | "hours";
+export type DurationFieldUnit = "seconds" | "minutes" | "hours";
+
+export type TtlUnit = DurationFieldUnit;
+
+export const DURATION_FIELD_UNITS: readonly DurationFieldUnit[] = ["seconds", "minutes", "hours"];
 
 export type TtlParts = {
   value: number | null;
-  unit: TtlUnit;
+  unit: DurationFieldUnit;
 };
 
 export {
@@ -261,29 +266,25 @@ export const totalSecondsToTtlParts = (totalSeconds: number): TtlParts => {
     return { value: null, unit: "seconds" };
   }
   const secondsRounded = Math.floor(totalSeconds);
-  if (secondsRounded >= 3600 && secondsRounded % 3600 === 0) {
-    return { value: secondsRounded / 3600, unit: "hours" };
+  const secondsInHour = DURATION_UNIT_SECONDS.hours;
+  const secondsInMinute = DURATION_UNIT_SECONDS.minutes;
+  if (secondsRounded >= secondsInHour && secondsRounded % secondsInHour === 0) {
+    return { value: secondsRounded / secondsInHour, unit: "hours" };
   }
-  if (secondsRounded >= 60 && secondsRounded % 60 === 0) {
-    return { value: secondsRounded / 60, unit: "minutes" };
+  if (secondsRounded >= secondsInMinute && secondsRounded % secondsInMinute === 0) {
+    return { value: secondsRounded / secondsInMinute, unit: "minutes" };
   }
   return { value: secondsRounded, unit: "seconds" };
 };
 
 export const ttlPartsToTotalSeconds = (
   ttlValue: number | null,
-  ttlUnit: TtlUnit
+  ttlUnit: DurationFieldUnit
 ): number | undefined => {
   if (ttlValue == null || !Number.isFinite(ttlValue) || ttlValue < 0) {
     return undefined;
   }
-  if (ttlUnit === "minutes") {
-    return Math.round(ttlValue * 60);
-  }
-  if (ttlUnit === "hours") {
-    return Math.round(ttlValue * 3600);
-  }
-  return Math.round(ttlValue);
+  return convertDurationUnitToSeconds(ttlValue, ttlUnit);
 };
 
 export const isTimeoutInputKeyAllowed = (event: KeyboardEvent<HTMLInputElement>): boolean => {
@@ -309,6 +310,4 @@ export const isTimeoutInputKeyAllowed = (event: KeyboardEvent<HTMLInputElement>)
   return /^\d$/.test(key);
 };
 
-export const isTimeoutPasteAllowed = (pasted: string): boolean => {
-  return /^\d+$/.test(pasted);
-};
+export const isTimeoutPasteAllowed = (text: string): boolean => /^\d+$/.test(text);

@@ -15,6 +15,7 @@ import styles from "./page-header.module.css";
 
 export type PageHeaderProps = {
   title: string;
+  titleExtra?: ReactNode;
   customParentPathGenerator?: () => string;
   extra?: ReactNode;
 };
@@ -29,7 +30,12 @@ export function PageHeader(props: PageHeaderProps) {
   );
 }
 
-function PageHeaderContent({ title, customParentPathGenerator, extra }: PageHeaderProps) {
+function PageHeaderContent({
+  title,
+  titleExtra,
+  customParentPathGenerator,
+  extra,
+}: PageHeaderProps) {
   const { t } = useTranslation("common");
 
   const fallbackPath = resolveFallbackParentPath(customParentPathGenerator);
@@ -54,6 +60,7 @@ function PageHeaderContent({ title, customParentPathGenerator, extra }: PageHead
           </Tooltip>
         )}
         {!title.includes("undefined") && <h1 className={styles.pageHeaderTitle}>{title}</h1>}
+        {titleExtra}
       </Flex>
 
       {extra}

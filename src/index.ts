@@ -70,6 +70,7 @@ export * from "./constants/empty-value";
 export * from "./constants/filter-operators";
 export * from "./constants/job-timeout";
 export * from "./utils/relative-time";
+export * from "./utils/duration";
 export * from "./utils/deep-omit-undefined";
 export * from "./utils/template-schema-validation";
 export * from "./utils/localized-text";
@@ -86,7 +87,19 @@ export * from "./hooks/useSortableDrag";
 export * from "./store/filter-store";
 export * from "./store/persistent-filter-store";
 export * from "./store/masters-store";
-export * from "./store/user-settings-store";
+export {
+  createUserSettingsTransport,
+  ensureUserSettingsLoaded,
+  flushUserSettings,
+  getUserSettingsValue,
+  initUserSettings,
+  revertUserSettingsValue,
+  setUserSettingsValue,
+  subscribeUserSettings,
+  type FlushUserSettingsOptions,
+  type UserSettingsApiLike,
+  type UserSettingsTransport,
+} from "./store/user-settings-store";
 export * from "./store/language-settings";
 export * from "./store/sidebar-settings";
 
