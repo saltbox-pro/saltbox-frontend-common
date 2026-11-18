@@ -8,6 +8,7 @@ import {
   ensureUserSettingsLoaded,
   getUserSettingsValue,
   initUserSettings,
+  resetUserSettingsStore,
   setUserSettingsValue,
   subscribeUserSettings,
   type UserSettingsTransport,
@@ -55,7 +56,7 @@ describe("user-settings-store", () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    initUserSettings(createMemoryTransport());
+    resetUserSettingsStore();
   });
 
   it("loads settings and notifies subscribers", async () => {
@@ -216,6 +217,9 @@ describe("user-settings-store", () => {
     expect(transport.loads).toBe(0);
     expect(errorSpy).not.toHaveBeenCalled();
 
+    await ensureUserSettingsLoaded();
+    expect(transport.loads).toBe(0);
+
     isAvailable = true;
     await ensureUserSettingsLoaded();
 
@@ -231,6 +235,19 @@ describe("user-settings-store", () => {
     await Promise.resolve();
 
     expect(transport.loads).toBe(1);
+  });
+
+  it("does not wipe settings on repeated initUserSettings", async () => {
+    const first = createMemoryTransport({ drawers: { a: { width: 800 } } });
+    const second = createMemoryTransport({ drawers: { b: { width: 900 } } });
+
+    await initUserSettings(first);
+    expect(getUserSettingsValue(["drawers", "a"])).toEqual({ width: 800 });
+    expect(first.loads).toBe(1);
+
+    await initUserSettings(second);
+    expect(getUserSettingsValue(["drawers", "a"])).toEqual({ width: 800 });
+    expect(second.loads).toBe(0);
   });
 
   it("rejects ensureUserSettingsLoaded when transport load fails", async () => {
