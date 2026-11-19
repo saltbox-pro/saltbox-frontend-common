@@ -93,6 +93,7 @@ export type FastTablePaginatedProps<DataType> = FastTableVirtualScrollOptions & 
   getRowClassName?: (row: DataType, index: number) => string | undefined;
   getRowGroupKey?: GetRowGroupKey<DataType>;
   tableId: string;
+  defaultHiddenColumnIds?: string[];
   enableColumnSettings?: boolean;
   wrapHeaders?: boolean;
   onRefresh?: () => void;
@@ -149,6 +150,7 @@ function FastTablePaginatedContent<DataType>({
   getRowClassName,
   getRowGroupKey,
   tableId,
+  defaultHiddenColumnIds,
   enableColumnSettings = true,
   wrapHeaders = false,
   onRefresh,
@@ -189,6 +191,7 @@ function FastTablePaginatedContent<DataType>({
   const { columnOrder, columnVisibility, applyColumnLayout } = useColumnLayout({
     tableId: enableColumnSettings ? tableId : undefined,
     columns: resizeColumns,
+    defaultHiddenColumnIds,
   });
 
   const handleColumnSizingChange = useMemo(

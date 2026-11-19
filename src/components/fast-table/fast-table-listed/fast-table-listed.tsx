@@ -85,6 +85,7 @@ export type FastTableListedProps<DataType> = FastTableVirtualScrollOptions & {
   locale?: FastTableLocaleOverrides;
   bodyRef?: RefObject<HTMLTableSectionElement>;
   tableId: string;
+  defaultHiddenColumnIds?: string[];
   enableColumnSettings?: boolean;
   wrapHeaders?: boolean;
   compactLoader?: boolean;
@@ -135,6 +136,7 @@ function FastTableListedContent<DataType>({
   rowSelection,
   enableRowSelectionShortcuts = false,
   tableId,
+  defaultHiddenColumnIds,
   enableColumnSettings = true,
   wrapHeaders = false,
   compactLoader = false,
@@ -181,6 +183,7 @@ function FastTableListedContent<DataType>({
   const { columnOrder, columnVisibility, applyColumnLayout } = useColumnLayout({
     tableId: enableColumnSettings ? tableId : undefined,
     columns: resizeColumns,
+    defaultHiddenColumnIds,
   });
 
   const handleColumnSizingChange = useMemo(

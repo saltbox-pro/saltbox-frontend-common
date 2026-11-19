@@ -31,6 +31,22 @@ const getBodyRowClassNames = (container: HTMLElement) =>
   Array.from(container.querySelectorAll("tbody tr")).map((row) => row.className);
 
 describe("FastTableListed states", () => {
+  it("hides default columns in both headers and rows", () => {
+    const { container } = renderListed({
+      columns: [
+        ...columns,
+        columnHelper.display({ id: "technical", header: "Technical", cell: () => "Hidden value" }),
+      ],
+      defaultHiddenColumnIds: ["technical"],
+      data: [{ id: "job-1" }],
+    });
+
+    expect(container.textContent).toContain("job-1");
+    expect(container.querySelectorAll("thead th")).toHaveLength(1);
+    expect(container.textContent).not.toContain("Technical");
+    expect(container.textContent).not.toContain("Hidden value");
+  });
+
   it("shows only the loading row while an empty table is loading", () => {
     const { container } = renderListed({ isEmpty: true, isLoading: true });
 

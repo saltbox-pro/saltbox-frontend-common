@@ -38,6 +38,31 @@ const renderPaginated = (isLoading: boolean) =>
   );
 
 describe("FastTablePaginated states", () => {
+  it("hides default columns in both headers and rows", () => {
+    const { container } = render(
+      <FastTablePaginated<Row>
+        tableId="test-fast-table-paginated-hidden"
+        columns={[
+          ...columns,
+          columnHelper.display({
+            id: "technical",
+            header: "Technical",
+            cell: () => "Hidden value",
+          }),
+        ]}
+        defaultHiddenColumnIds={["technical"]}
+        data={[{ id: "job-1" }]}
+        pagination={{ pageIndex: 0, pageSize: 50 }}
+        onLazyLoad={vi.fn()}
+      />
+    );
+
+    expect(container.textContent).toContain("job-1");
+    expect(container.querySelectorAll("thead th")).toHaveLength(1);
+    expect(container.textContent).not.toContain("Technical");
+    expect(container.textContent).not.toContain("Hidden value");
+  });
+
   it("does not show the empty state while an empty table is loading", () => {
     const { container } = renderPaginated(true);
 

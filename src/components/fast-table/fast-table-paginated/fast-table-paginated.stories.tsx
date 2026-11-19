@@ -125,6 +125,14 @@ export const Basic: Story = {
   },
 };
 
+export const DefaultHiddenColumns: Story = {
+  args: {
+    ...Basic.args,
+    tableId: "story-fast-table-paginated-hidden",
+    defaultHiddenColumnIds: ["target"],
+  },
+};
+
 /**
  * С виртуальной прокруткой (большой dataset)
  */

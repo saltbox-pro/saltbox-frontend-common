@@ -16,16 +16,21 @@ import {
   toColumnVisibility,
 } from "../utils/column-layout";
 
-function readStoredLayout(tableId?: string): ColumnLayout {
-  return getTableSettings(tableId).columnLayout ?? EMPTY_COLUMN_LAYOUT;
+function readStoredLayout(tableId?: string): ColumnLayout | undefined {
+  return getTableSettings(tableId).columnLayout;
 }
 
 export type UseColumnLayoutArgs<DataType> = {
   tableId?: string;
   columns: Array<ColumnDef<DataType, unknown>>;
+  defaultHiddenColumnIds?: string[];
 };
 
-export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutArgs<DataType>) {
+export function useColumnLayout<DataType>({
+  tableId,
+  columns,
+  defaultHiddenColumnIds,
+}: UseColumnLayoutArgs<DataType>) {
   const [layout, setLayout] = useState(() => readStoredLayout(tableId));
   const previousTableIdRef = useRef(tableId);
 
@@ -56,8 +61,15 @@ export function useColumnLayout<DataType>({ tableId, columns }: UseColumnLayoutA
   );
 
   const currentLayout = useMemo(
-    () => pruneColumnLayout(layout, allColumnIds),
-    [allColumnIds, layout]
+    () =>
+      pruneColumnLayout(
+        layout ?? {
+          ...EMPTY_COLUMN_LAYOUT,
+          hidden: (defaultHiddenColumnIds ?? []).filter((id) => !fixedColumnIds.includes(id)),
+        },
+        allColumnIds
+      ),
+    [allColumnIds, defaultHiddenColumnIds, fixedColumnIds, layout]
   );
 
   const columnOrder = useMemo(
