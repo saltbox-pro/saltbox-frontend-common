@@ -2,7 +2,7 @@ import type { Cell, Row } from "@tanstack/react-table";
 
 import { CellActions } from "../cell-actions/cell-actions";
 import type { CellActionLinkComponent, CellMeta } from "../types";
-import { resolveCellTitle } from "../utils/column";
+import { getColumnCellStyle, resolveCellTitle } from "../utils/column";
 import { getSortedColumnClassName } from "../utils/column-sort";
 
 import { FastTableCellValue } from "./fast-table-cell-value";
@@ -47,9 +47,9 @@ function renderFastTableCellContent<DataType>({
 
 function getFastTableCellClassName<DataType>(
   cell: Cell<DataType, unknown>,
+  meta: CellMeta<DataType> | undefined,
   visibleColumnCount: number
 ) {
-  const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
   return [
     "cell-with-actions",
     meta?.tdClassName ?? "",
@@ -69,9 +69,16 @@ export function renderFastTableTableCells<DataType>({
   visibleColumnCount: number;
   actionLinkComponent?: CellActionLinkComponent;
 }) {
-  return row.getVisibleCells().map((cell) => (
-    <td key={cell.id} className={getFastTableCellClassName(cell, visibleColumnCount)}>
-      {renderFastTableCellContent({ row, cell, actionLinkComponent })}
-    </td>
-  ));
+  return row.getVisibleCells().map((cell) => {
+    const meta = cell.column.columnDef.meta as CellMeta<DataType> | undefined;
+    return (
+      <td
+        key={cell.id}
+        className={getFastTableCellClassName(cell, meta, visibleColumnCount)}
+        style={getColumnCellStyle(meta)}
+      >
+        {renderFastTableCellContent({ row, cell, actionLinkComponent })}
+      </td>
+    );
+  });
 }

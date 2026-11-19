@@ -16,11 +16,7 @@ import {
   isColumnWidthLocked,
   resolveColumnWidthLayoutMode,
 } from "../utils/column-width-layout-mode";
-import {
-  applyExplicitFillColumnWidths,
-  fitColumnSizingToContainer,
-  resolveFillColumnId,
-} from "../utils/filled-column-widths";
+import { applyExplicitFillColumnWidths, resolveFillColumnId } from "../utils/filled-column-widths";
 
 type UseColumnResizeLayoutArgs<DataType> = {
   enableColumnResize: boolean;
@@ -97,19 +93,20 @@ export function useColumnResizeLayout<DataType>({
     [leafColumns, resizeConstraintsById]
   );
 
-  // The fill column is left without a width and the table gets `max(100%, total)`,
-  // so the browser stretches it to the container without re-rendering on container resize.
+  // The fill column is left without a width so the browser stretches it to the container.
   const fillColumnId = hasLockedColumnWidths ? resolveLeafFillColumnId() : undefined;
 
   let lockedColumnSizes: ColumnSizingState | undefined;
   let lockedColumnsTotalWidth: number | undefined;
 
   if (hasLockedColumnWidths) {
+    // Do not floor by meta.minWidth — that floor is fill-only (SBX-668).
     const sizes: ColumnSizingState = {};
     let totalWidth = 0;
     for (const column of leafColumns) {
-      sizes[column.id] = column.getSize();
-      totalWidth += sizes[column.id];
+      const size = column.getSize();
+      sizes[column.id] = size;
+      totalWidth += size;
     }
 
     if (totalWidth > 0) {
@@ -131,7 +128,7 @@ export function useColumnResizeLayout<DataType>({
     const missing = getMissingColumnSizing(columnSizing, measured, leafColumns);
     if (Object.keys(missing).length === 0) return;
 
-    const { sizes } = fitColumnSizingToContainer(
+    const { sizes } = applyExplicitFillColumnWidths(
       { ...columnSizing, ...missing },
       leafColumnIds,
       resolveLeafFillColumnId(),

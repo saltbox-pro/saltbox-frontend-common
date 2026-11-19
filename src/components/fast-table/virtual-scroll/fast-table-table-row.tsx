@@ -9,6 +9,7 @@ import type {
   FastTableRowClickHandler,
   FastTableRowModifierClickHandler,
 } from "../types";
+import { areFastTableRowPropsEqual } from "../utils/are-fast-table-row-props-equal";
 import { shouldPreventRowClick } from "../utils/should-prevent-row-click";
 
 import { renderFastTableTableCells } from "./fast-table-cells";
@@ -19,7 +20,7 @@ type FastTableTableRowProps<DataType> = {
   isClickable: boolean;
   isExpanded: boolean;
   visibleColumnCount: number;
-  // Cell content doesn't depend on column widths, so rows skip re-rendering during a resize drag.
+  leafColumnIdsKey: string;
   isResizingColumn: boolean;
   actionLinkComponent?: CellActionLinkComponent;
   virtualIndex?: number;
@@ -118,14 +119,8 @@ function FastTableTableRowInner<DataType>({
   );
 }
 
-// Rows are frozen only while a column is being dragged; otherwise they render as usual.
-function areRowPropsEqual<DataType>(
-  prev: FastTableTableRowProps<DataType>,
-  next: FastTableTableRowProps<DataType>
-) {
-  return prev.isResizingColumn && next.isResizingColumn;
-}
-
-export const FastTableTableRow = memo(FastTableTableRowInner, areRowPropsEqual) as <DataType>(
+export const FastTableTableRow = memo(FastTableTableRowInner, areFastTableRowPropsEqual) as <
+  DataType,
+>(
   props: FastTableTableRowProps<DataType>
 ) => ReactElement;

@@ -1,14 +1,9 @@
 .fast-table.virtual-scroll .fast-table-wrapper {
   position: relative;
-  contain: layout style;
+  /* Avoid contain:layout — it can interfere with overflow size from a wider table. */
+  contain: style;
   height: 100%;
   overflow: auto;
-}
-
-/* Only a slice of rows is mounted, so column widths must not depend on cell content.
-   An explicit width makes table-layout: fixed apply; locked widths override it inline. */
-.fast-table.virtual-scroll table {
-  width: 100%;
 }
 
 .fast-table.virtual-scroll tbody > tr {

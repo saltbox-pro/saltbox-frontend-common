@@ -100,14 +100,36 @@ export function getColWidthStyle(
   const style: CSSProperties = {};
 
   if (typeof width === "number") {
-    style.width = formatCssPx(width);
+    // table-layout:fixed ignores min-width on <col>; bake the floor into width.
+    style.width = formatCssPx(minWidthPx !== undefined ? Math.max(width, minWidthPx) : width);
   } else if (width !== undefined) {
     style.width = width;
+    if (minWidthPx !== undefined) style.minWidth = formatCssPx(minWidthPx);
   }
 
-  if (minWidthPx !== undefined) style.minWidth = formatCssPx(minWidthPx);
   if (maxWidthPx !== undefined) style.maxWidth = formatCssPx(maxWidthPx);
 
+  return style;
+}
+
+export function getColumnCellStyle(meta?: CellMeta): CSSProperties | undefined {
+  if (!meta) return undefined;
+
+  const isFixed =
+    typeof meta.minWidth === "number" &&
+    meta.minWidth === meta.maxWidth &&
+    (meta.width === undefined || meta.width === meta.minWidth);
+
+  if (isFixed) {
+    const px = formatCssPx(meta.minWidth);
+    return { width: px, minWidth: px, maxWidth: px, boxSizing: "border-box" };
+  }
+
+  if (meta.minWidth === undefined && meta.maxWidth === undefined) return undefined;
+
+  const style: CSSProperties = { boxSizing: "border-box" };
+  if (meta.minWidth !== undefined) style.minWidth = formatCssPx(meta.minWidth);
+  if (meta.maxWidth !== undefined) style.maxWidth = formatCssPx(meta.maxWidth);
   return style;
 }
 
@@ -132,25 +154,13 @@ export function resolveLockedColSize<TData>(
   return lockedColumnSizes?.[column.id] ?? column.getSize();
 }
 
-// Fixed table layout ignores min-width on <col>, so the table itself has to keep the sum.
-export function sumDeclaredColumnMinWidths<TData>(columns: Array<Column<TData, unknown>>): number {
-  let total = 0;
-  for (const column of columns) {
-    const meta = column.columnDef.meta as CellMeta | undefined;
-    total += typeof meta?.width === "number" ? meta.width : (resolveColumnMinWidth(meta) ?? 0);
-  }
-  return total;
-}
-
 export function getFastTableStyle(
-  lockedColumnsTotalWidth: number | undefined,
-  minWidth: number
+  lockedColumnsTotalWidth: number | undefined
 ): CSSProperties | undefined {
-  if (lockedColumnsTotalWidth !== undefined) {
-    return { width: `max(100%, ${formatCssPx(lockedColumnsTotalWidth)})` };
-  }
-  if (minWidth > 0) {
-    return { minWidth: `max(100%, ${formatCssPx(minWidth)})` };
-  }
-  return undefined;
+  if (lockedColumnsTotalWidth === undefined) return undefined;
+  // minWidth keeps horizontal scroll when column sum exceeds the container.
+  return {
+    width: "100%",
+    minWidth: formatCssPx(lockedColumnsTotalWidth),
+  };
 }

@@ -2,7 +2,7 @@ import type { Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useCallback, useLayoutEffect, useRef, useState } from "react";
 
-import { FAST_TABLE_EXPANDED_ROW_CLASS_NAME } from "saltbox-common/constants/dom-selectors";
+import { measureVirtualRowElement } from "../utils/measure-virtual-row-element";
 
 export const FAST_TABLE_VIRTUAL_DEFAULT_OVERSCAN = 8;
 
@@ -13,21 +13,6 @@ export type FastTableVirtualScrollOptions = {
   estimatedExpandedRowHeight?: number;
   enableDynamicRowHeight?: boolean;
 };
-
-// An expanded row renders as a sibling <tr>, so it counts towards the main row's size.
-function measureRowElement(element: Element, entry: ResizeObserverEntry | undefined) {
-  const mainHeight =
-    entry?.target === element && entry.borderBoxSize?.[0]
-      ? entry.borderBoxSize[0].blockSize
-      : element.getBoundingClientRect().height;
-
-  const next = element.nextElementSibling;
-  const expandedHeight = next?.classList.contains(FAST_TABLE_EXPANDED_ROW_CLASS_NAME)
-    ? next.getBoundingClientRect().height
-    : 0;
-
-  return Math.round(mainHeight + expandedHeight);
-}
 
 export type UseFastTableVirtualizationOptions<DataType> = {
   enabled: boolean;
@@ -49,21 +34,49 @@ export function useFastTableVirtualization<DataType>({
   const [headerHeight, setHeaderHeight] = useState(0);
 
   useLayoutEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      setHeaderHeight(0);
+      return;
+    }
 
-    const thead = tableContainerRef.current?.querySelector("thead");
-    if (!thead) return;
+    const container = tableContainerRef.current;
+    if (!container) return;
 
-    const measure = () => {
+    const table = container.querySelector("table");
+    if (!table) return;
+
+    let resizeObserver: ResizeObserver | undefined;
+    let observedThead: Element | undefined;
+
+    const measureThead = (thead: Element) => {
       const height = thead.getBoundingClientRect().height;
       setHeaderHeight((prev) => (prev === height ? prev : height));
     };
 
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(thead);
+    const bindThead = () => {
+      const thead = table.querySelector("thead");
+      if (!thead) return;
+      // ResizeObserver owns size updates; MutationObserver only rebinds when <thead> is replaced.
+      if (thead === observedThead) return;
 
-    return () => observer.disconnect();
+      resizeObserver?.disconnect();
+      observedThead = thead;
+      measureThead(thead);
+      resizeObserver = new ResizeObserver(() => measureThead(thead));
+      resizeObserver.observe(thead);
+    };
+
+    bindThead();
+
+    const mutationObserver = new MutationObserver(() => {
+      bindThead();
+    });
+    mutationObserver.observe(table, { childList: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      resizeObserver?.disconnect();
+    };
   }, [enabled, tableContainerRef]);
 
   const rowsRef = useRef(rows);
@@ -87,7 +100,7 @@ export function useFastTableVirtualization<DataType>({
     getScrollElement,
     estimateSize,
     getItemKey,
-    measureElement: measureRowElement,
+    measureElement: measureVirtualRowElement,
     overscan,
     scrollMargin: headerHeight,
   });

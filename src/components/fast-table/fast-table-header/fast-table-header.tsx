@@ -12,6 +12,8 @@ import { Tooltip } from "antd";
 import { type MouseEvent, type ReactNode, type TouchEvent, useState } from "react";
 
 import { Dropdown } from "../../antd-wrappers/dropdown";
+import type { CellMeta } from "../types";
+import { getColumnCellStyle } from "../utils/column";
 import type { ColumnMoveDirection } from "../utils/column-layout";
 import { getSortedColumnClassName } from "../utils/column-sort";
 
@@ -206,11 +208,18 @@ function FastTableHeaderCell<DataType>({
     header.getResizeHandler()(event);
   };
 
+  const meta = header.column.columnDef.meta as CellMeta<DataType> | undefined;
+  const columnBoxStyle = getColumnCellStyle(meta);
+  const thStyle =
+    columnBoxStyle || isResizingColumn
+      ? {
+          ...columnBoxStyle,
+          ...(isResizingColumn ? { userSelect: "none" as const } : undefined),
+        }
+      : undefined;
+
   return (
-    <th
-      className={getThClasses()}
-      style={isResizingColumn ? { userSelect: "none" as const } : undefined}
-    >
+    <th className={getThClasses()} style={thStyle}>
       <div className="fast-table-header-cell-inner">
         {headerInner}
 

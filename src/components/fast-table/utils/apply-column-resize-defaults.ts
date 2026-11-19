@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import type { CellMeta } from "../types";
 
-export const COLUMN_RESIZE_MIN_SIZE = 80;
+export const COLUMN_RESIZE_MIN_SIZE = 90;
 
 function isColumnWidthLocked(meta: CellMeta | undefined): boolean {
   if (meta?.minWidth === undefined || meta?.maxWidth === undefined) return false;

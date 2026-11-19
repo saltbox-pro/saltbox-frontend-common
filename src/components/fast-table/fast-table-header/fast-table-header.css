@@ -4,6 +4,7 @@
 }
 
 .fast-table-header-cell-inner {
+  position: relative;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
@@ -87,7 +88,11 @@
 }
 
 .fast-table-resize-handle {
-  flex: 0 0 auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
   width: 7px;
   box-sizing: border-box;
   padding: 0;

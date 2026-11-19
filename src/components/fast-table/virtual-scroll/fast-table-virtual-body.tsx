@@ -1,32 +1,24 @@
 import type { Row } from "@tanstack/react-table";
 import type { Virtualizer } from "@tanstack/react-virtual";
-import { type ReactElement, type ReactNode } from "react";
+import { Fragment, type ReactElement, type ReactNode } from "react";
 
 import type {
   CellActionLinkComponent,
   FastTableRowClickHandler,
   FastTableRowModifierClickHandler,
 } from "../types";
-import { formatCssPx } from "../utils/column";
 
 import { FastTableTableRow } from "./fast-table-table-row";
+import { SyncFixedVirtualRowSize } from "./sync-fixed-virtual-row-size";
+import { VirtualSizeSpacer } from "./virtual-size-spacer";
 import "./fast-table-virtual-scroll.css";
-
-function renderVirtualSpacer(colSpan: number, height: number) {
-  if (height <= 0) return null;
-
-  return (
-    <tr className="virtual-size-spacer" aria-hidden="true">
-      <td colSpan={colSpan} style={{ height: formatCssPx(height) }} />
-    </tr>
-  );
-}
 
 export type FastTableVirtualBodyProps<DataType> = {
   rows: Array<Row<DataType>>;
   rowVirtualizer: Virtualizer<HTMLElement, Element>;
   headerHeight: number;
   visibleColumnCount: number;
+  leafColumnIdsKey: string;
   isResizingColumn: boolean;
   estimatedRowHeight: number;
   enableDynamicRowHeight?: boolean;
@@ -43,6 +35,7 @@ export function FastTableVirtualBody<DataType>({
   rowVirtualizer,
   headerHeight,
   visibleColumnCount,
+  leafColumnIdsKey,
   isResizingColumn,
   estimatedRowHeight,
   enableDynamicRowHeight = true,
@@ -65,11 +58,13 @@ export function FastTableVirtualBody<DataType>({
 
   return (
     <>
-      {renderVirtualSpacer(colSpan, paddingTop)}
+      <VirtualSizeSpacer colSpan={colSpan} height={paddingTop} />
       {virtualRows.map((virtualRow) => {
         const row = rows[virtualRow.index];
         if (!row) return null;
 
+        const isExpanded = row.getIsExpanded();
+        const shouldMeasureRow = enableDynamicRowHeight || isExpanded;
         const isClickable = Boolean(
           onRowClick && (isRowClickable == null || isRowClickable(row.original))
         );
@@ -81,25 +76,36 @@ export function FastTableVirtualBody<DataType>({
           .join(" ");
 
         return (
-          <FastTableTableRow
-            key={`${row.id}-group-row`}
-            row={row}
-            className={className || undefined}
-            isClickable={isClickable}
-            isExpanded={row.getIsExpanded()}
-            visibleColumnCount={visibleColumnCount}
-            isResizingColumn={isResizingColumn}
-            actionLinkComponent={actionLinkComponent}
-            virtualIndex={virtualRow.index}
-            rowHeight={enableDynamicRowHeight ? undefined : estimatedRowHeight}
-            rowRef={rowVirtualizer.measureElement}
-            onRowClick={onRowClick}
-            onRowModifierClick={onRowModifierClick}
-            renderSubComponent={renderSubComponent}
-          />
+          <Fragment key={`${row.id}-group-row`}>
+            {!enableDynamicRowHeight && (
+              <SyncFixedVirtualRowSize
+                active={!isExpanded}
+                index={virtualRow.index}
+                itemKey={row.id}
+                size={estimatedRowHeight}
+                rowVirtualizer={rowVirtualizer}
+              />
+            )}
+            <FastTableTableRow
+              row={row}
+              className={className || undefined}
+              isClickable={isClickable}
+              isExpanded={isExpanded}
+              visibleColumnCount={visibleColumnCount}
+              leafColumnIdsKey={leafColumnIdsKey}
+              isResizingColumn={isResizingColumn}
+              actionLinkComponent={actionLinkComponent}
+              virtualIndex={virtualRow.index}
+              rowHeight={shouldMeasureRow ? undefined : estimatedRowHeight}
+              rowRef={shouldMeasureRow ? rowVirtualizer.measureElement : undefined}
+              onRowClick={onRowClick}
+              onRowModifierClick={onRowModifierClick}
+              renderSubComponent={renderSubComponent}
+            />
+          </Fragment>
         );
       })}
-      {renderVirtualSpacer(colSpan, paddingBottom)}
+      <VirtualSizeSpacer colSpan={colSpan} height={paddingBottom} />
     </>
   );
 }
