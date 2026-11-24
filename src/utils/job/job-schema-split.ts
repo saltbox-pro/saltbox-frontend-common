@@ -1,4 +1,4 @@
-import type { RJSFSchema } from "@rjsf/utils";
+import { omitExtraData, type RJSFSchema } from "@rjsf/utils";
 
 import { rjsfValidator } from "saltbox-common/components/json-form/utils/rjsf-validator";
 
@@ -8,6 +8,7 @@ export type UiSchemaRecord = Record<string, unknown>;
 export type JobParamsSchemaLayout = {
   displaySchema: JsonSchemaRecord | null;
   displayUiSchema: UiSchemaRecord | undefined;
+  visibleSchema: JsonSchemaRecord | null;
 };
 
 type SplitSchemaResult = {
@@ -128,6 +129,114 @@ export const hasJsonSchemaProperties = (schema: JsonSchemaRecord | null | undefi
   );
 };
 
+export const omitExtraFormDataBySchema = <T extends Record<string, unknown>>(
+  formData: T,
+  jsonSchema: JsonSchemaRecord | null | undefined
+): T => {
+  if (!isJsonSchemaRecord(jsonSchema) || Object.keys(jsonSchema).length === 0) {
+    return formData;
+  }
+
+  const pruned = omitExtraData(
+    rjsfValidator,
+    jsonSchema as RJSFSchema,
+    jsonSchema as RJSFSchema,
+    formData
+  );
+
+  if (pruned && typeof pruned === "object" && !Array.isArray(pruned)) {
+    return pruned as T;
+  }
+
+  return formData;
+};
+
+type JsonFormDataSource =
+  | {
+      state?: {
+        formData?: unknown;
+      };
+    }
+  | null
+  | undefined;
+
+export const readJsonFormData = <T extends Record<string, unknown>>(
+  form: JsonFormDataSource,
+  fallback: T
+): T => {
+  const formStateData = form?.state?.formData;
+  if (formStateData && typeof formStateData === "object" && !Array.isArray(formStateData)) {
+    return formStateData as T;
+  }
+  return fallback;
+};
+
+export const getPrunedJsonFormData = <T extends Record<string, unknown>>(
+  form: JsonFormDataSource,
+  fallback: T,
+  jsonSchema: JsonSchemaRecord | null | undefined
+): T => omitExtraFormDataBySchema(readJsonFormData(form, fallback), jsonSchema);
+
+const HIDDEN_UI_WIDGET = "hidden";
+
+const hasHiddenDescendants = (
+  propertySchema: JsonSchemaRecord,
+  visibleProperty: JsonSchemaRecord
+): boolean => {
+  const fullProperties = getNamedProperties(propertySchema);
+  const visibleProperties = getNamedProperties(visibleProperty);
+  if (!fullProperties || !visibleProperties) {
+    return false;
+  }
+
+  for (const [propertyName, fullChild] of Object.entries(fullProperties)) {
+    const visibleChild = visibleProperties[propertyName];
+    if (!isJsonSchemaRecord(visibleChild)) {
+      return true;
+    }
+    if (isJsonSchemaRecord(fullChild) && hasHiddenDescendants(fullChild, visibleChild)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const hideOmittedProperties = (
+  schema: JsonSchemaRecord,
+  visibleSchema: JsonSchemaRecord | null,
+  uiSchema: UiSchemaRecord
+): UiSchemaRecord => {
+  const properties = getNamedProperties(schema) ?? {};
+  const visibleProperties = (visibleSchema && getNamedProperties(visibleSchema)) ?? {};
+  const result: UiSchemaRecord = { ...uiSchema };
+
+  for (const [propertyName, propertySchema] of Object.entries(properties)) {
+    const propertyUiSchema = isJsonSchemaRecord(uiSchema[propertyName])
+      ? uiSchema[propertyName]
+      : {};
+    const visibleProperty = visibleProperties[propertyName];
+
+    if (!isJsonSchemaRecord(visibleProperty)) {
+      result[propertyName] = { ...propertyUiSchema, "ui:widget": HIDDEN_UI_WIDGET };
+      continue;
+    }
+
+    if (
+      isJsonSchemaRecord(propertySchema) &&
+      hasHiddenDescendants(propertySchema, visibleProperty)
+    ) {
+      result[propertyName] = hideOmittedProperties(
+        propertySchema,
+        visibleProperty,
+        propertyUiSchema
+      );
+    }
+  }
+
+  return result;
+};
+
 export const getJobParamsSchemaLayout = (
   jsonSchema: JsonSchemaRecord | null | undefined,
   uiSchema: UiSchemaRecord | null | undefined,
@@ -138,12 +247,14 @@ export const getJobParamsSchemaLayout = (
       return {
         displaySchema: jsonSchema,
         displayUiSchema: uiSchema ?? undefined,
+        visibleSchema: jsonSchema,
       };
     }
 
     return {
       displaySchema: null,
       displayUiSchema: undefined,
+      visibleSchema: null,
     };
   }
 
@@ -151,14 +262,16 @@ export const getJobParamsSchemaLayout = (
     return {
       displaySchema: jsonSchema,
       displayUiSchema: uiSchema ?? undefined,
+      visibleSchema: jsonSchema,
     };
   }
 
   const split = splitSchemaByRequired(jsonSchema, true);
 
   return {
-    displaySchema: split.requiredSchema,
-    displayUiSchema: uiSchema ?? undefined,
+    displaySchema: jsonSchema,
+    displayUiSchema: hideOmittedProperties(jsonSchema, split.requiredSchema, uiSchema ?? {}),
+    visibleSchema: split.requiredSchema,
   };
 };
 
@@ -188,14 +301,17 @@ export const getOptionalJobParamsSchemaLayout = (
     return {
       displaySchema: null,
       displayUiSchema: undefined,
+      visibleSchema: null,
     };
   }
 
   const split = splitSchemaByRequired(jsonSchema, true);
+  const optionalSchema = omitRootProperties(split.optionalSchema, POSITIONAL_ARGS_PROPERTY_NAMES);
 
   return {
-    displaySchema: omitRootProperties(split.optionalSchema, POSITIONAL_ARGS_PROPERTY_NAMES),
+    displaySchema: optionalSchema,
     displayUiSchema: uiSchema ?? undefined,
+    visibleSchema: optionalSchema,
   };
 };
 
@@ -337,14 +453,14 @@ const isValidationPathHiddenInSchema = (schema: JsonSchemaRecord, segments: stri
 
 const hasHiddenValidationErrors = (
   errors: { property?: string }[],
-  displaySchema: JsonSchemaRecord | null | undefined
+  visibleSchema: JsonSchemaRecord | null | undefined
 ): boolean => {
-  if (!displaySchema) {
+  if (!visibleSchema) {
     return false;
   }
   return errors.some((error) => {
     const segments = getValidationPathSegments(error.property ?? "");
-    return segments.length > 0 && isValidationPathHiddenInSchema(displaySchema, segments);
+    return segments.length > 0 && isValidationPathHiddenInSchema(visibleSchema, segments);
   });
 };
 
@@ -371,10 +487,9 @@ export const validateJobJsonFormData = (
   jsonSchema: JsonSchemaRecord | undefined,
   uiSchema: UiSchemaRecord | undefined,
   isAdvancedSettingsEnabled: boolean,
-  displaySchema: JsonSchemaRecord | null | undefined,
-  displayUiSchema: UiSchemaRecord | undefined
+  visibleSchema: JsonSchemaRecord | null | undefined
 ): JobJsonFormValidationResult => {
-  if (!hasJsonSchemaProperties(displaySchema)) {
+  if (!hasJsonSchemaProperties(visibleSchema)) {
     if (isAdvancedSettingsEnabled || !jsonSchema || !hasJsonSchemaProperties(jsonSchema)) {
       return { ok: true };
     }
@@ -389,7 +504,7 @@ export const validateJobJsonFormData = (
     if (
       fullErrors.length > 0 &&
       !isAdvancedSettingsEnabled &&
-      hasHiddenValidationErrors(fullErrors, displaySchema)
+      hasHiddenValidationErrors(fullErrors, visibleSchema)
     ) {
       return { ok: false, openAdvanced: true };
     }
@@ -399,12 +514,12 @@ export const validateJobJsonFormData = (
     }
   }
 
-  const validationSchema = displaySchema ? allowExtraFormDataInSubsetSchema(displaySchema) : null;
+  const validationSchema = visibleSchema ? allowExtraFormDataInSubsetSchema(visibleSchema) : null;
   if (!validationSchema) {
     return { ok: true };
   }
 
-  const { errors } = validateFormDataWithSchema(formData, validationSchema, displayUiSchema);
+  const { errors } = validateFormDataWithSchema(formData, validationSchema, uiSchema);
 
   // Visible-field errors: let the mounted JsonForm validateForm() so RJSF
   // focusOnFirstError runs.

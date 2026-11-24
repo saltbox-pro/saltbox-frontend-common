@@ -104,26 +104,12 @@ const propertyDependencySchema = {
 
 const validateBasicLayout = (schema: JsonSchemaRecord, formData: Record<string, unknown>) => {
   const layout = getJobParamsSchemaLayout(schema, undefined, false);
-  return validateJobJsonFormData(
-    formData,
-    schema,
-    undefined,
-    false,
-    layout.displaySchema,
-    layout.displayUiSchema
-  );
+  return validateJobJsonFormData(formData, schema, undefined, false, layout.visibleSchema);
 };
 
 const validateAdvancedLayout = (schema: JsonSchemaRecord, formData: Record<string, unknown>) => {
   const layout = getJobParamsSchemaLayout(schema, undefined, true);
-  return validateJobJsonFormData(
-    formData,
-    schema,
-    undefined,
-    true,
-    layout.displaySchema,
-    layout.displayUiSchema
-  );
+  return validateJobJsonFormData(formData, schema, undefined, true, layout.visibleSchema);
 };
 
 describe("validateJobJsonFormData openAdvanced", () => {
@@ -226,20 +212,21 @@ describe("validateJobJsonFormData openAdvanced", () => {
     ).toEqual({ ok: false, useFormRef: true });
   });
 
-  it("validates display schema when advanced is open without a full json schema", () => {
-    const displaySchema = {
+  it("validates visible schema when advanced is open without a full json schema", () => {
+    const visibleSchema = {
       type: "object",
       required: ["name"],
       properties: { name: { type: "string" } },
     } as JsonSchemaRecord;
 
     expect(
-      validateJobJsonFormData({ name: "ok" }, undefined, undefined, true, displaySchema, undefined)
+      validateJobJsonFormData({ name: "ok" }, undefined, undefined, true, visibleSchema)
     ).toEqual({ ok: true });
 
-    expect(
-      validateJobJsonFormData({}, undefined, undefined, true, displaySchema, undefined)
-    ).toEqual({ ok: false, useFormRef: true });
+    expect(validateJobJsonFormData({}, undefined, undefined, true, visibleSchema)).toEqual({
+      ok: false,
+      useFormRef: true,
+    });
   });
 
   it("does not open advanced for invalid allow_hardware_ids with a space", () => {
