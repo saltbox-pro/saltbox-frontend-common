@@ -1,4 +1,4 @@
-import { InputNumber, Select, type InputNumberProps } from "antd";
+import { InputNumber, Select, Space, type InputNumberProps } from "antd";
 import { useMemo, type ClipboardEvent, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -101,26 +101,26 @@ export function DurationInput<TUnit extends DurationUnit = DurationUnit>({
   };
 
   return (
-    <InputNumber<number>
-      {...inputNumberProps}
-      min={min}
-      precision={precision}
-      inputMode={precision > 0 ? "decimal" : "numeric"}
-      formatter={(nextValue, info) => formatDurationValue(nextValue, info, precision)}
-      value={value ?? undefined}
-      onChange={(nextValue) => onValueChange(nextValue ?? null)}
-      onKeyDown={handleKeyDown}
-      onPaste={handlePaste}
-      disabled={disabled}
-      addonAfter={
-        <Select<TUnit>
-          value={unit}
-          options={unitOptions}
-          onChange={onUnitChange}
-          disabled={disabled}
-          style={{ width: UNIT_SELECT_WIDTH }}
-        />
-      }
-    />
+    <Space.Compact block>
+      <InputNumber<number>
+        {...inputNumberProps}
+        min={min}
+        precision={precision}
+        inputMode={precision > 0 ? "decimal" : "numeric"}
+        formatter={(nextValue, info) => formatDurationValue(nextValue, info, precision)}
+        value={value ?? undefined}
+        onChange={(nextValue) => onValueChange(nextValue ?? null)}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        disabled={disabled}
+      />
+      <Select<TUnit>
+        value={unit}
+        options={unitOptions}
+        onChange={onUnitChange}
+        disabled={disabled}
+        style={{ width: UNIT_SELECT_WIDTH }}
+      />
+    </Space.Compact>
   );
 }
