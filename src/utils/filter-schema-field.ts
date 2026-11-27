@@ -9,6 +9,7 @@ export type FilterSchemaField = {
   mongoValueCoercion?: string | null;
   /** Omit text comparisons with "", null or undefined; preserve explicit null operators. */
   ignoreEmptyValue?: boolean;
+  isScalarArray?: boolean;
   operators?: unknown;
 };
 
@@ -52,6 +53,10 @@ function asFilterSchemaField(item: object): FilterSchemaField | undefined {
     valueEditorType: readOptionalStringOrNull(item, "valueEditorType"),
     mongoValueCoercion: readOptionalStringOrNull(item, "mongoValueCoercion"),
     ignoreEmptyValue: "ignoreEmptyValue" in item && item.ignoreEmptyValue === true,
+    isScalarArray:
+      "isScalarArray" in item && typeof item.isScalarArray === "boolean"
+        ? item.isScalarArray
+        : undefined,
     operators: "operators" in item ? item.operators : undefined,
   };
 }
@@ -122,6 +127,27 @@ function readOperatorName(operator: unknown): string | null {
   }
 
   return null;
+}
+
+const SCALAR_ARRAY_OPERATORS = new Set(["in", "notin", "null", "notnull"]);
+
+export function isScalarArrayFilter(field: FilterSchemaField | undefined): boolean {
+  if (field?.isScalarArray != null) {
+    return field.isScalarArray;
+  }
+
+  if (!Array.isArray(field?.operators)) {
+    return false;
+  }
+
+  const operators = field.operators.map((operator) => readOperatorName(operator)?.toLowerCase());
+  return (
+    operators.includes("in") &&
+    operators.includes("notin") &&
+    operators.includes("null") &&
+    operators.includes("notnull") &&
+    operators.every((operator) => operator != null && SCALAR_ARRAY_OPERATORS.has(operator))
+  );
 }
 
 function fieldHasNullOperator(field: FilterSchemaField | undefined): boolean {

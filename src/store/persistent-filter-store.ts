@@ -1,7 +1,13 @@
 import { action, makeObservable, override } from "mobx";
 import { OptionList, RuleGroupType } from "react-querybuilder";
 
-import { emptyRuleGroup, generateIdsForQuery } from "../utils/query-builder-utils";
+import {
+  emptyRuleGroup,
+  generateIdsForQuery,
+  hasMongoItemOperatorShell,
+  filtersFromMongoQuery,
+  formatToMongoDB,
+} from "../utils/query-builder-utils";
 
 import { FilterStore } from "./filter-store";
 
@@ -63,6 +69,12 @@ export class PersistentFilterStore extends FilterStore {
       if (saved) {
         const parsed = JSON.parse(saved) as RuleGroupType;
         const withIds = generateIdsForQuery(parsed);
+        const mongo = formatToMongoDB(withIds, this.filterSchema);
+        if (hasMongoItemOperatorShell(mongo) && !filtersFromMongoQuery(mongo)) {
+          this.freeTextQuery = JSON.stringify(mongo, null, 2);
+          this.inputMode = "free-text";
+          return;
+        }
         this.currentFilters = withIds;
         this.searchFilters = withIds;
       }

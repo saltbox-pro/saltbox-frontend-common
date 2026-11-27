@@ -49,6 +49,13 @@
     "invalid-free-text-for-builder": "Could not parse query for the filter builder",
     "custom-grain": "Custom grain",
     "grain-name": "Grain name",
+    "not": "NOT",
+    "combinators": {
+      "and": "AND",
+      "or": "OR",
+      "andOnItem": "AND (one record)",
+      "orOnItem": "OR (one record)"
+    },
     "operators": {
       "contains": "contains",
       "beginsWith": "begins with",

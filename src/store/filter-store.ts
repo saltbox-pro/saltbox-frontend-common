@@ -1,16 +1,13 @@
 import { action, computed, observable, toJS } from "mobx";
 import { formatQuery, OptionList, RuleGroupType } from "react-querybuilder";
-import { parseMongoDB } from "react-querybuilder/parseMongoDB";
 
 import {
   emptyRuleGroup,
   filtersFromMongoQuery,
   formatToMongoDB,
   freeTextFilterQueryHasTypeErrors,
-  generateIdsForQuery,
   isMongoQueryEmpty,
   omitEmptyFilterRules,
-  parseCaseInsensitiveQuery,
 } from "../utils/query-builder-utils";
 
 type MongoQueryCache = { key: string; value: object };
@@ -41,6 +38,7 @@ export class FilterStore {
   @observable isLoading: boolean = false;
   @observable filterSchema: OptionList = [];
   @observable filtersRevision: number = 0;
+  @observable builderRemountRevision: number = 0;
   @observable inputMode: QueryBuilderInputMode = "builder";
   @observable freeTextQuery: string = "{}";
   @observable freeTextHasValidationErrors: boolean = false;
@@ -108,17 +106,28 @@ export class FilterStore {
   }
 
   @action
-  handleFiltersChange = (filters: RuleGroupType) => {
-    if (this.isSameQuery(filters, this.currentFilters)) {
+  handleFiltersChange = (filters: RuleGroupType, options?: { remountBuilder?: boolean }) => {
+    const remountBuilder = options?.remountBuilder ?? true;
+    const unchanged = this.isSameQuery(filters, this.currentFilters);
+
+    if (unchanged && !remountBuilder) {
       return;
     }
 
-    this.currentFilters = filters;
+    if (!unchanged) {
+      this.currentFilters = filters;
+      this.filtersRevision += 1;
+    }
+
+    if (remountBuilder) {
+      this.builderRemountRevision += 1;
+    }
   };
 
   @action
   bumpFiltersRevision = () => {
     this.filtersRevision += 1;
+    this.builderRemountRevision += 1;
   };
 
   @action
@@ -163,7 +172,8 @@ export class FilterStore {
     this.freeTextQuery = value;
 
     try {
-      if (isMongoQueryEmpty(JSON.parse(value) as object)) {
+      const parsed = JSON.parse(value) as object;
+      if (isMongoQueryEmpty(parsed)) {
         this.freeTextHasValidationErrors = false;
       }
     } catch {
@@ -248,11 +258,28 @@ export class FilterStore {
   @action
   initializeByQuery = (query: object) => {
     const isEmpty = isMongoQueryEmpty(query);
-    this.currentFilters = isEmpty
-      ? emptyRuleGroup
-      : generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(query)));
-    this.freeTextQuery = JSON.stringify(isEmpty ? {} : (query ?? {}), null, 2);
+    if (isEmpty) {
+      this.currentFilters = emptyRuleGroup;
+      this.freeTextQuery = "{}";
+      this.freeTextHasValidationErrors = false;
+      this.bumpFiltersRevision();
+      this.handleSearch();
+      return;
+    }
+
+    const parsed = filtersFromMongoQuery(query);
+    this.freeTextQuery = JSON.stringify(query ?? {}, null, 2);
     this.freeTextHasValidationErrors = false;
+
+    if (parsed == null) {
+      this.inputMode = "free-text";
+      this.currentFilters = emptyRuleGroup;
+      this.bumpFiltersRevision();
+      return;
+    }
+
+    this.inputMode = "builder";
+    this.currentFilters = parsed;
     this.bumpFiltersRevision();
     this.handleSearch();
   };

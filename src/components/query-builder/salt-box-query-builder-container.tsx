@@ -1,6 +1,6 @@
 import { ClearOutlined, SearchOutlined } from "@ant-design/icons";
 import { QueryBuilderDnD } from "@react-querybuilder/dnd";
-import { Button, Flex, Spin, Switch } from "antd";
+import { Button, Flex, Spin, Switch, Typography } from "antd";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { FC, ReactElement, useEffect, useId, useMemo, useState } from "react";
@@ -9,8 +9,13 @@ import * as ReactDndHtml5Backend from "react-dnd-html5-backend";
 import { useTranslation } from "react-i18next";
 import QueryBuilder, {
   defaultOperators,
+  type CombinatorSelectorProps,
+  type FullCombinator,
   type FullField,
+  type FullOperator,
   type FullOptionList,
+  type QueryBuilderProps,
+  type RuleGroupType,
   ValueEditorProps,
   ValueSelectorProps,
 } from "react-querybuilder";
@@ -28,6 +33,7 @@ import { JsonEditorField } from "../fields/json-editor-field";
 import { FiltersErrorBoundary } from "../module-error-boundary/boundaries/filters-error-boundary";
 
 import { QueryBuilderCopyFilterButton } from "./query-builder-copy-filter-button";
+import { QueryBuilderNegationLabel } from "./query-builder-negation-label";
 import { QueryBuilderSaltBox } from "./query-builder-salt-box/query-builder-salt-box";
 import styles from "./salt-box-query-builder-container.module.css";
 import {
@@ -35,6 +41,14 @@ import {
   getFreeTextFilterModelPath,
 } from "./utils/free-text-filter-json-schema";
 import { localizeFieldOperators, localizeOperators } from "./utils/localize-filter-operators";
+import { useQueryBuilderItemCombinators } from "./utils/use-query-builder-item-combinators";
+
+type SaltBoxQueryBuilderProps = QueryBuilderProps<
+  RuleGroupType,
+  FullField,
+  FullOperator,
+  FullCombinator
+>;
 
 const MONACO_MARKER_SEVERITY_ERROR = 8;
 
@@ -47,12 +61,17 @@ type SaltBoxQueryBuilderContainerProps = {
   hideButtons?: boolean;
   showCopyFilterButton?: boolean;
   enableFreeTextMode?: boolean;
+  enableItemCombinators?: boolean;
   freeTextEditorHeight?: number;
   controlElements?: {
     valueEditor?: FC<ValueEditorProps>;
     valueSelector?: FC<ValueSelectorProps>;
+    combinatorSelector?: FC<CombinatorSelectorProps>;
   };
   getDefaultField?: (fields: FullOptionList<FullField>) => string;
+  onAddRule?: SaltBoxQueryBuilderProps["onAddRule"];
+  prepareQueryChange?: (query: RuleGroupType) => RuleGroupType;
+  queryBuilderContext?: Record<string, unknown>;
   onSearchButtonClick?: () => void;
   onResetButtonClick?: () => void;
   isFilterButton?: boolean;
@@ -70,8 +89,10 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
   const [queryBuilderId, setQueryBuilderId] = useState(0);
   const filterStore = props.filterStore;
   const enableFreeTextMode = props.enableFreeTextMode ?? false;
+  const enableItemCombinators = props.enableItemCombinators ?? false;
   const freeTextEditorHeight = props.freeTextEditorHeight ?? 240;
   const showActions = !props.hideButtons || enableFreeTextMode;
+  const itemCombinators = useQueryBuilderItemCombinators(enableItemCombinators);
 
   const freeTextModelPath = getFreeTextFilterModelPath(
     editorInstanceId,
@@ -107,7 +128,7 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
     }
 
     const isEmpty = !filterStore.currentFilters.rules.length;
-    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}-${filterStore.filtersRevision}`;
+    return `${isEmpty ? "empty-" : "loaded-"}${queryBuilderId}-${filterStore.builderRemountRevision}`;
   };
 
   const handleSearchClick = () => {
@@ -149,11 +170,29 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
     }
 
     setQueryBuilderId((prev) => prev + 1);
-  }, [filterStore, filterStore?.currentFilters.rules.length]);
+  }, [filterStore]);
+
+  const itemGroupContext = useMemo(
+    () => ({
+      itemGroupQuery: filterStore ? toJS(filterStore.currentFilters) : undefined,
+      ...props.queryBuilderContext,
+    }),
+    [
+      filterStore,
+      filterStore?.currentFilters,
+      filterStore?.filtersRevision,
+      props.queryBuilderContext,
+    ]
+  );
 
   if (!filterStore) {
     return null;
   }
+
+  const handleQueryChange = (query: RuleGroupType) => {
+    const nextQuery = props.prepareQueryChange?.(query) ?? query;
+    filterStore.handleFiltersChange(nextQuery, { remountBuilder: nextQuery !== query });
+  };
 
   const isFreeTextMode = enableFreeTextMode && filterStore.inputMode === "free-text";
 
@@ -175,6 +214,11 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
               }}
               height={freeTextEditorHeight}
             />
+            {filterStore.freeTextBlockingErrorReason && (
+              <Typography.Text type="danger" role="alert">
+                {t(freeTextErrorI18nKey(filterStore.freeTextBlockingErrorReason))}
+              </Typography.Text>
+            )}
           </div>
         ) : (
           <QueryBuilderDnD dnd={{ ...ReactDnD, ...ReactDndHtml5Backend }}>
@@ -183,13 +227,18 @@ const SaltBoxQueryBuilderContainerContent = observer((props: SaltBoxQueryBuilder
                 key={getQueryBuilderKey()}
                 fields={queryBuilderFields}
                 operators={localizeOperators(defaultOperators, t)}
+                showNotToggle={enableItemCombinators}
+                combinators={itemCombinators}
+                enableMountQueryChange={!props.prepareQueryChange}
                 defaultQuery={toJS(filterStore.currentFilters)}
-                onQueryChange={filterStore.handleFiltersChange}
+                onQueryChange={handleQueryChange}
+                context={itemGroupContext}
                 controlClassnames={{
                   queryBuilder: `${styles.queryBuilder} queryBuilder-branches`,
                 }}
-                controlElements={props.controlElements}
+                controlElements={{ ...props.controlElements, notToggle: QueryBuilderNegationLabel }}
                 getDefaultField={props.getDefaultField}
+                onAddRule={props.onAddRule}
                 translations={{
                   addGroup: {
                     label: t("query-builder.add-group"),

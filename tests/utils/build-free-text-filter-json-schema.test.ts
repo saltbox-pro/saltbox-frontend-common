@@ -13,8 +13,8 @@ function getFilterClauseProperties(schema: Record<string, unknown>) {
 function typedValueSchema(jsonType: "number" | "boolean" | "string") {
   const scalar = { type: jsonType };
   const properties: Record<string, unknown> = {
-    $eq: scalar,
-    $ne: scalar,
+    $eq: { type: [jsonType, "null"] },
+    $ne: { type: [jsonType, "null"] },
     $gt: scalar,
     $gte: scalar,
     $lt: scalar,
@@ -58,7 +58,9 @@ describe("buildFreeTextFilterJsonSchema", () => {
     expect(properties.last_activity).toEqual(typedValueSchema("string"));
     expect(properties.$and).toMatchObject({ type: "array", minItems: 1 });
     expect(properties.$or).toMatchObject({ type: "array", minItems: 1 });
-    expect(properties.$nor).toBe(false);
+    expect(properties.$andOnItem).toMatchObject({ type: "array", minItems: 1 });
+    expect(properties.$orOnItem).toMatchObject({ type: "array", minItems: 1 });
+    expect(properties.$nor).toEqual(properties.$or);
   });
 
   it("rejects unknown operators via additionalProperties: false", () => {
@@ -73,7 +75,7 @@ describe("buildFreeTextFilterJsonSchema", () => {
     const operatorSchema = valueSchema.anyOf.find((item) => item.type === "object");
     expect(operatorSchema?.additionalProperties).toBe(false);
     expect(operatorSchema?.properties).toMatchObject({
-      $eq: { type: "number" },
+      $eq: { type: ["number", "null"] },
       $in: { type: "array", items: { type: "number" }, minItems: 1 },
     });
   });

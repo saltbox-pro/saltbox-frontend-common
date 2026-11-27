@@ -49,6 +49,13 @@
     "invalid-free-text-for-builder": "Не удалось разобрать запрос для конструктора фильтров",
     "custom-grain": "Произвольный grain",
     "grain-name": "Имя grain",
+    "not": "НЕ",
+    "combinators": {
+      "and": "AND",
+      "or": "OR",
+      "andOnItem": "AND (одна запись)",
+      "orOnItem": "OR (одна запись)"
+    },
     "operators": {
       "contains": "содержит",
       "beginsWith": "начинается с",

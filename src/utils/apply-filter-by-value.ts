@@ -15,7 +15,6 @@ type FilterByValueLookup = {
 };
 
 type FilterByValueStore = FilterByValueLookup & {
-  bumpFiltersRevision: () => void;
   handleFiltersChange: (filters: RuleGroupType) => void;
   handleSearch: () => void;
 };
@@ -91,7 +90,6 @@ export function applyFilterByValue(
     options.mode ?? "append"
   );
   filterStore.handleFiltersChange(group);
-  filterStore.bumpFiltersRevision();
 
   if (options.search ?? false) {
     filterStore.handleSearch();

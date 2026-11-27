@@ -18,13 +18,17 @@ export const QueryBuilderCopyFilterButton = observer(function QueryBuilderCopyFi
   ...restProps
 }: QueryBuilderCopyFilterButtonProps) {
   const { t } = useTranslation("common");
-  const query = filterStore.currentMongoDBQuery;
+  const isFreeText = filterStore.inputMode === "free-text";
+  const text = isFreeText
+    ? filterStore.freeTextQuery
+    : JSON.stringify(filterStore.currentMongoDBQuery, null, 2);
+  const isEmpty = isFreeText ? !text.trim() : isMongoQueryEmpty(filterStore.currentMongoDBQuery);
 
   return (
     <CopyToClipboardButton
       {...restProps}
-      text={JSON.stringify(query, null, 2)}
-      disabled={disabled ?? isMongoQueryEmpty(query)}
+      text={text}
+      disabled={disabled ?? isEmpty}
       successMessage={successMessage ?? t("query-builder.filter-copied")}
     />
   );

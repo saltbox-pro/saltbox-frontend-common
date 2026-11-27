@@ -103,9 +103,9 @@ describe("empty filter groups", () => {
 
   it("preserves existing empty branches when no blank condition was removed", () => {
     const filters: RuleGroupType = { combinator: "or", rules: [group(), userRule] };
-    const unconfiguredFields = fields.map((item) => ({ ...item, ignoreEmptyValue: false }));
-
-    expect(formatToMongoDB(filters, fields)).toEqual(formatToMongoDB(filters, unconfiguredFields));
+    expect(formatToMongoDB(filters, fields)).toEqual({
+      $or: [{ $and: [{ $expr: true }] }, { "user.name": { $regex: "(?i)^Alex$" } }],
+    });
   });
 
   it("serializes an empty root consistently, including the shared empty group", () => {

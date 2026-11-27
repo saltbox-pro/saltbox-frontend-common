@@ -20,8 +20,28 @@ import {
 } from "saltbox-common/utils/datetime";
 import { normalizeListInputValue } from "saltbox-common/utils/normalize-list-input-value";
 
+import { getExtraCategoryPrefix } from "./extra-category-prefix";
 import { MONGO_VALUE_COERCION_BOOLEAN_FROM_STRING } from "./filter-field-constants";
-import { flattenFilterSchemaFields, type FilterSchemaField } from "./filter-schema-field";
+import {
+  findFilterSchemaField,
+  flattenFilterSchemaFields,
+  isScalarArrayFilter,
+  type FilterSchemaField,
+} from "./filter-schema-field";
+import {
+  ITEM_COMBINATOR_AND,
+  ITEM_COMBINATOR_OR,
+  isItemCombinator,
+  type QueryCombinator,
+} from "./item-combinators";
+
+export {
+  ITEM_COMBINATOR_AND,
+  ITEM_COMBINATOR_OR,
+  isItemCombinator,
+  type ItemCombinator,
+  type QueryCombinator,
+} from "./item-combinators";
 
 export const CASE_INSENSITIVE_PREFIX = "(?i)";
 
@@ -29,7 +49,7 @@ const REGEXP_METACHARACTERS = /[.*+?^${}()|[\]\\]/g;
 const ESCAPED_REGEXP_METACHARACTER = /\\([.*+?^${}()|[\]\\])/g;
 const ESCAPED_LITERAL_PATTERN = /^(?:\\[.*+?^${}()|[\]\\]|[^.*+?^${}()|[\]\\])*$/;
 
-const NUMERIC_ARRAY_FIELDS = ["osrelease_info", "grains.osrelease_info"];
+const NUMERIC_ARRAY_FIELDS = ["osrelease_info", "grains.osrelease_info", "grains.saltversioninfo"];
 
 const TEXT_REGEXP_OPERATORS = new Set([
   "contains",
@@ -267,6 +287,193 @@ export function generateIdsForQuery<T extends RuleGroupType | RuleType>(query: T
   return newQuery;
 }
 
+const MONGO_ITEM_OPERATOR_AND = "$andOnItem";
+const MONGO_ITEM_OPERATOR_OR = "$orOnItem";
+
+const MONGO_ITEM_OPERATOR_TO_COMBINATOR: Record<string, QueryCombinator> = {
+  [MONGO_ITEM_OPERATOR_AND]: ITEM_COMBINATOR_AND,
+  [MONGO_ITEM_OPERATOR_OR]: ITEM_COMBINATOR_OR,
+};
+
+const COMBINATOR_TO_MONGO_ITEM_OPERATOR: Record<
+  typeof ITEM_COMBINATOR_AND | typeof ITEM_COMBINATOR_OR,
+  string
+> = {
+  [ITEM_COMBINATOR_AND]: MONGO_ITEM_OPERATOR_AND,
+  [ITEM_COMBINATOR_OR]: MONGO_ITEM_OPERATOR_OR,
+};
+
+const MONGO_LOGICAL_OPERATORS = new Set(["$and", "$or", "$nor"]);
+
+const MONGO_ITEM_OPERATORS = new Set(Object.keys(MONGO_ITEM_OPERATOR_TO_COMBINATOR));
+const CUSTOM_PARSED_OPERATORS = new Set([...MONGO_ITEM_OPERATORS, "$nor"]);
+
+function containsMongoOperator(query: unknown, operators: ReadonlySet<string>): boolean {
+  return (
+    isPlainObject(query) &&
+    Object.entries(query).some(
+      ([key, value]) =>
+        operators.has(key) ||
+        (MONGO_LOGICAL_OPERATORS.has(key) &&
+          Array.isArray(value) &&
+          value.some((child) => containsMongoOperator(child, operators)))
+    )
+  );
+}
+
+function parseMongoGroup(query: object): RuleGroupType {
+  if (!containsMongoOperator(query, CUSTOM_PARSED_OPERATORS)) {
+    return parseMongoDB(query);
+  }
+
+  const entries = Object.entries(query);
+  let combinator: QueryCombinator = "and";
+  let conditions: unknown[];
+  let negated = false;
+  if (entries.length === 1) {
+    const [[key, value]] = entries;
+    if (!Array.isArray(value)) {
+      throw new Error("Unsupported item group");
+    }
+    if (key === "$nor") {
+      negated = true;
+      if (value.length === 1 && isPlainObject(value[0])) {
+        const inner = parseMongoGroup(value[0]);
+        return { ...inner, not: !inner.not };
+      }
+      combinator = "or";
+      conditions = value;
+    } else {
+      combinator = MONGO_ITEM_OPERATOR_TO_COMBINATOR[key] ?? (key === "$or" ? "or" : "and");
+      conditions = value;
+    }
+  } else {
+    conditions = entries.flatMap(([key, value]) =>
+      key === "$and" && Array.isArray(value) ? value : [{ [key]: value }]
+    );
+  }
+
+  const rules = conditions.map((condition) => {
+    if (!isPlainObject(condition)) {
+      throw new Error("Expected a MongoDB condition");
+    }
+    const group = parseMongoGroup(condition);
+    if (!group.not && !isItemCombinator(group.combinator) && group.rules.length === 1) {
+      return group.rules[0];
+    }
+    return group;
+  });
+  return createRuleGroup(combinator, rules, negated);
+}
+
+function wrapMongoNegation(query: object): object {
+  return { $nor: [query] };
+}
+
+function formatStandardGroupToMongoDB(
+  group: RuleGroupType,
+  fields?: OptionList,
+  options?: FormatToMongoDBOptions,
+  insideItemGroup = false
+): object | null {
+  const queryString = formatQuery(group.not ? { ...group, not: false } : group, {
+    format: "mongodb",
+    valueProcessor: (rule, processorOptions) => {
+      if (insideItemGroup && isScalarArrayFilter(findFilterSchemaField(fields ?? [], rule.field))) {
+        return caseSensitiveRuleProcessorMongoDB(rule, processorOptions);
+      }
+      const processor =
+        options?.caseInsensitive === false
+          ? caseSensitiveRuleProcessorMongoDB
+          : customRuleProcessorMongoDB;
+      return processor(rule, processorOptions);
+    },
+    ...(fields && fields.length > 0 ? { fields } : {}),
+  });
+
+  try {
+    const parsed = JSON.parse(queryString) as object;
+    if (isMongoQueryEmpty(parsed)) {
+      return null;
+    }
+    return group.not ? wrapMongoNegation(parsed) : parsed;
+  } catch {
+    return null;
+  }
+}
+
+function requiresGroupFormatting(group: RuleGroupType): boolean {
+  return (
+    group.not === true ||
+    isItemCombinator(group.combinator) ||
+    group.rules.some((rule) => isRuleGroupType(rule) && requiresGroupFormatting(rule))
+  );
+}
+
+function formatFiltersTreeToMongoDB(
+  node: RuleGroupType | RuleType,
+  fields?: OptionList,
+  options?: FormatToMongoDBOptions,
+  insideItemGroup = false
+): object | null {
+  if (!isRuleGroupType(node)) {
+    return formatStandardGroupToMongoDB(
+      createRuleGroup("and", [node]),
+      fields,
+      options,
+      insideItemGroup
+    );
+  }
+
+  if (!requiresGroupFormatting(node)) {
+    return formatStandardGroupToMongoDB(node, fields, options, insideItemGroup);
+  }
+
+  const childQueries = node.rules
+    .map((rule) =>
+      formatFiltersTreeToMongoDB(
+        rule,
+        fields,
+        options,
+        insideItemGroup || isItemCombinator(node.combinator)
+      )
+    )
+    .filter((query): query is object => query != null);
+
+  if (childQueries.length === 0) {
+    return null;
+  }
+
+  if (isItemCombinator(node.combinator)) {
+    const itemQuery = { [COMBINATOR_TO_MONGO_ITEM_OPERATOR[node.combinator]]: childQueries };
+    return node.not ? wrapMongoNegation(itemQuery) : itemQuery;
+  }
+
+  const key = node.combinator === "or" ? "$or" : "$and";
+  const groupQuery = childQueries.length === 1 ? childQueries[0] : { [key]: childQueries };
+
+  return node.not ? wrapMongoNegation(groupQuery) : groupQuery;
+}
+
+export function buildQueryBuilderItemCombinators(
+  translate: (key: string) => string
+): Array<{ name: string; value: string; label: string }> {
+  return [
+    { name: "and", value: "and", label: translate("query-builder.combinators.and") },
+    { name: "or", value: "or", label: translate("query-builder.combinators.or") },
+    {
+      name: ITEM_COMBINATOR_AND,
+      value: ITEM_COMBINATOR_AND,
+      label: translate("query-builder.combinators.andOnItem"),
+    },
+    {
+      name: ITEM_COMBINATOR_OR,
+      value: ITEM_COMBINATOR_OR,
+      label: translate("query-builder.combinators.orOnItem"),
+    },
+  ];
+}
+
 export function isMongoQueryEmpty(query?: unknown): boolean {
   if (!query || typeof query !== "object") return true;
 
@@ -282,12 +489,16 @@ export function isMongoQueryEmpty(query?: unknown): boolean {
     if (key === "$expr" && value === true) {
       return true;
     }
-    if (["$and", "$or", "$nor"].includes(key)) {
+    if (key === "$and" || key === "$or") {
       return isMongoQueryEmpty(value);
     }
   }
 
   return false;
+}
+
+export function hasMongoItemOperatorShell(query: object): boolean {
+  return containsMongoOperator(query, MONGO_ITEM_OPERATORS);
 }
 
 export const emptyRuleGroup: RuleGroupType = {
@@ -297,13 +508,14 @@ export const emptyRuleGroup: RuleGroupType = {
 } as const;
 
 export function createRuleGroup(
-  combinator: "and" | "or",
-  rules: RuleGroupType["rules"]
+  combinator: QueryCombinator,
+  rules: RuleGroupType["rules"],
+  not = false
 ): RuleGroupType {
   return {
     combinator,
     rules,
-    not: false,
+    not,
   };
 }
 
@@ -522,19 +734,10 @@ export function formatToMongoDB(
     return {};
   }
 
-  const queryString = formatQuery(normalizedFilters, {
-    format: "mongodb",
-    valueProcessor:
-      options?.caseInsensitive === false
-        ? caseSensitiveRuleProcessorMongoDB
-        : customRuleProcessorMongoDB,
-    ...(fields && fields.length > 0 ? { fields } : {}),
-  });
-
   try {
-    return JSON.parse(queryString);
+    return formatFiltersTreeToMongoDB(normalizedFilters, fields, options) ?? {};
   } catch (error) {
-    console.error("Failed to parse MongoDB query:", error);
+    console.error("Failed to format MongoDB query:", error);
     return {};
   }
 }
@@ -560,8 +763,8 @@ function getFilterFieldJsonSchemaType(fieldData: FilterSchemaField): FilterJsonS
 function buildFilterFieldOperatorSchema(jsonType: FilterJsonSchemaType): Record<string, unknown> {
   const scalar = { type: jsonType };
   const properties: Record<string, unknown> = {
-    $eq: scalar,
-    $ne: scalar,
+    $eq: { type: [jsonType, "null"] },
+    $ne: { type: [jsonType, "null"] },
     $gt: scalar,
     $gte: scalar,
     $lt: scalar,
@@ -595,7 +798,10 @@ export function filtersFromMongoQuery(parsed: object): RuleGroupType | null {
       return emptyRuleGroup;
     }
 
-    const filters = generateIdsForQuery(parseMongoDB(parseCaseInsensitiveQuery(parsed)));
+    if (freeTextFilterClauseHasTypeErrors(parsed, new Map())) {
+      return null;
+    }
+    const filters = generateIdsForQuery(parseMongoGroup(parseCaseInsensitiveQuery(parsed)));
     if (!filters.rules.length) {
       return null;
     }
@@ -613,13 +819,21 @@ export function buildFreeTextFilterJsonSchema(fields: OptionList): Record<string
     properties[field.name] = buildFilterFieldValueSchema(getFilterFieldJsonSchemaType(field));
   }
 
+  const logicalArraySchema = {
+    type: "array",
+    items: { $ref: "#/definitions/filterClause" },
+    minItems: 1,
+  };
+
   const filterClause = {
     type: "object",
     properties: {
       ...properties,
-      $and: { type: "array", items: { $ref: "#/definitions/filterClause" }, minItems: 1 },
-      $or: { type: "array", items: { $ref: "#/definitions/filterClause" }, minItems: 1 },
-      $nor: false,
+      $and: logicalArraySchema,
+      $or: logicalArraySchema,
+      [MONGO_ITEM_OPERATOR_AND]: logicalArraySchema,
+      [MONGO_ITEM_OPERATOR_OR]: logicalArraySchema,
+      $nor: logicalArraySchema,
     },
     additionalProperties: true,
   };
@@ -644,6 +858,7 @@ function isValidOperatorObject(
 
   for (const [op, operand] of Object.entries(value)) {
     if (MONGO_COMPARISON_OPS.has(op)) {
+      if (operand === null && (op === "$eq" || op === "$ne")) continue;
       if (typeof operand !== jsonType) {
         return false;
       }
@@ -699,28 +914,58 @@ function isParseableMongoFieldPredicate(field: string, value: unknown): boolean 
   }
 }
 
+function hasParseableMongoFieldOperators(field: string, value: unknown): boolean {
+  return (
+    !isPlainObject(value) ||
+    Object.entries(value).every(([operator, operand]) => {
+      if (operator === "$not" && !hasParseableMongoFieldOperators(field, operand)) {
+        return false;
+      }
+      return isParseableMongoFieldPredicate(field, { [operator]: operand });
+    })
+  );
+}
+
 function freeTextFilterClauseHasTypeErrors(
   node: unknown,
-  typeByField: Map<string, FilterJsonSchemaType>
+  typeByField: Map<string, FilterJsonSchemaType>,
+  itemBoundaries?: Set<string>,
+  requireCondition = false
 ): boolean {
-  if (!isPlainObject(node)) {
+  if (!isPlainObject(node) || ((itemBoundaries || requireCondition) && isMongoQueryEmpty(node))) {
     return true;
   }
 
   for (const [key, value] of Object.entries(node)) {
-    if (key === "$and" || key === "$or") {
-      if (!Array.isArray(value) || value.length === 0) {
+    const isItemOperator = Object.hasOwn(MONGO_ITEM_OPERATOR_TO_COMBINATOR, key);
+    if (MONGO_LOGICAL_OPERATORS.has(key) || isItemOperator) {
+      if ((itemBoundaries && isItemOperator) || !Array.isArray(value) || value.length === 0) {
         return true;
       }
-      if (value.some((item) => freeTextFilterClauseHasTypeErrors(item, typeByField))) {
+      const boundaries = isItemOperator ? new Set<string>() : itemBoundaries;
+      if (
+        value.some((item) =>
+          freeTextFilterClauseHasTypeErrors(
+            item,
+            typeByField,
+            boundaries,
+            requireCondition || key === "$nor"
+          )
+        )
+      ) {
         return true;
       }
       continue;
     }
 
-    if (key === "$nor") {
-      return true;
+    if (itemBoundaries) {
+      const boundary = getExtraCategoryPrefix(key);
+      if (!boundary) return true;
+      itemBoundaries.add(boundary);
+      if (itemBoundaries.size > 1) return true;
     }
+
+    if (key === "$expr" && value === true) continue;
 
     const expectedType = typeByField.get(key);
     if (expectedType) {
@@ -733,7 +978,10 @@ function freeTextFilterClauseHasTypeErrors(
       return true;
     }
 
-    if (!isParseableMongoFieldPredicate(key, value)) {
+    if (
+      !isParseableMongoFieldPredicate(key, value) ||
+      (key !== "$expr" && !hasParseableMongoFieldOperators(key, value))
+    ) {
       return true;
     }
   }

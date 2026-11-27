@@ -64,7 +64,6 @@ describe("freeTextFilterQueryHasTypeErrors", () => {
     expect(freeTextFilterQueryHasTypeErrors({ "grains.num_cpus": { $unknown: 1 } }, fields)).toBe(
       true
     );
-    expect(freeTextFilterQueryHasTypeErrors({ $nor: [{ "grains.id": "x" }] }, fields)).toBe(true);
   });
 
   it("rejects partial $and when any clause is unparseable", () => {
@@ -87,6 +86,43 @@ describe("freeTextFilterQueryHasTypeErrors", () => {
       freeTextFilterQueryHasTypeErrors(
         {
           $and: [{ "grains.num_cpus": "4" }],
+        },
+        fields
+      )
+    ).toBe(true);
+  });
+
+  it.each(["$andOnItem", "$orOnItem"])("validates item boundaries inside %s", (operator) => {
+    const pkg = { "extra.manual.assets.pkg": "apt" };
+    const version = { "extra.manual.assets.version": 2 };
+    const disk = { "extra.manual.disks.name": "sda" };
+    expect(
+      freeTextFilterQueryHasTypeErrors({ [operator]: [pkg, { $nor: [version] }] }, fields)
+    ).toBe(false);
+    for (const condition of [disk, { $or: [version, disk] }, { $andOnItem: [pkg] }]) {
+      expect(freeTextFilterQueryHasTypeErrors({ [operator]: [pkg, condition] }, fields)).toBe(true);
+    }
+    expect(
+      freeTextFilterQueryHasTypeErrors(
+        { $and: [{ [operator]: [pkg] }, { [operator]: [disk] }] },
+        fields
+      )
+    ).toBe(false);
+  });
+
+  it("rejects type mismatches inside $andOnItem / $orOnItem", () => {
+    expect(
+      freeTextFilterQueryHasTypeErrors(
+        {
+          $andOnItem: [{ "grains.num_cpus": "4" }],
+        },
+        fields
+      )
+    ).toBe(true);
+    expect(
+      freeTextFilterQueryHasTypeErrors(
+        {
+          $orOnItem: [{ "grains.num_cpus": [444] }],
         },
         fields
       )
